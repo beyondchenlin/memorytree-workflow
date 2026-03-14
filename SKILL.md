@@ -1,0 +1,109 @@
+---
+name: memorytree-workflow
+description: Detect, initialize, and maintain a reusable MemoryTree project-memory workspace for any code repository. On activation, immediately detect and report the repo's MemoryTree state.
+---
+
+# MemoryTree
+
+Use this skill for repo-level project memory. Do not treat it as an application runtime feature unless the user explicitly asks to productize it.
+
+## On Activation
+
+When this skill is invoked, immediately perform these steps without waiting for further user input:
+
+1. Detect the repo state (`not-installed`, `partial`, or `installed`) using `references/project-detection.md`.
+2. If `not-installed`: run `scripts/init-memorytree.py` to scaffold the workspace, then report what was created.
+3. If `partial`: run `scripts/upgrade-memorytree.py` to add missing pieces, then report what was added.
+4. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next.
+
+Do not stop after detection to ask whether you should proceed. Act on the result immediately.
+
+## Core Behavior
+
+1. Detect the repo state before changing files. Use `references/project-detection.md`.
+2. If MemoryTree is missing, initialize it with `scripts/init-memorytree.py`. If the script cannot run, create the files from `assets/templates/`.
+3. If MemoryTree is partial, upgrade it with `scripts/upgrade-memorytree.py` before manual maintenance.
+4. If MemoryTree is already installed, maintain only the active goal, bound todo, and current chat log. Use `references/update-rules.md`.
+5. Keep the installation compatible with the host repo's branch, PR, CI, and review rules. Use `references/git-policy.md`.
+6. Prefer safe defaults: do not add reply suffix requirements unless the host repository already requires them, do not mix code-and-memory commits by default, and do not override branch policy. MemoryTree-only git automation is allowed only inside the isolated flow in `references/git-policy.md`.
+7. When locale is not explicit, choose it from repo language first, then system language. Use `references/locale-selection.md`.
+8. Keep reply language aligned with user language first, then repo locale. Use `references/response-language.md`.
+9. For partial repos, use the non-destructive upgrade path before manual maintenance. Use `references/upgrade-path.md`.
+10. When transcript archival is enabled, import transcripts with deterministic code, preserve raw transcripts as evidence in both the current repo mirror and the global archive, generate cleaned Markdown for indexing, keep cross-project backfills and ambiguous ownership cases in the global archive only, and ask once per repository whether raw transcript files may be committed or pushed. Use `references/transcript-archive.md`.
+11. When scripts are needed, prefer an existing `uv run python` environment first, then a system `python`, and only fall back to manual scaffolding or conservative manual review if no runner is available. Use `references/execution-environment.md`.
+
+## Read Order
+
+1. Repo `AGENTS.md`, if present.
+2. Latest file in `Memory/01_goals/`.
+3. Latest todo bound to that goal in `Memory/02_todos/`.
+4. `Memory/04_knowledge/` only when needed.
+5. `Memory/06_transcripts/clean/`, transcript manifests, and repo-local raw transcript mirrors only when transcript history or cross-project memory search is relevant.
+6. `Memory/03_chat_logs/` and `Memory/05_archive/` only when needed.
+
+## Detect
+
+1. Check whether `Memory/` exists and matches the layout in `references/memory-layout.md`.
+2. Classify the repo as `not-installed`, `partial`, or `installed`.
+3. If the repo already has stronger rules than the generated templates, preserve the repo rules and only add missing MemoryTree pieces.
+
+## Upgrade
+
+1. Use `scripts/upgrade-memorytree.py` for repositories that already have `AGENTS.md`, custom policy files, or partial `Memory/` content.
+2. Preserve existing repo policy files by default.
+3. Create only the missing MemoryTree pieces.
+4. Read the upgrade result and treat `agents_merge_required=true` as a manual review task, not an overwrite instruction.
+5. If no Python runner is available, do not create a project-local environment automatically. Fall back to conservative manual inspection and only make low-risk changes unless the user explicitly approved environment setup.
+
+## Initialize
+
+1. Run `scripts/init-memorytree.py --root <repo>` and pass `--project-name`, `--goal-summary`, and `--locale` when the user already provided them.
+2. Use fresh init only when the repo does not already have `AGENTS.md` or another repo policy source such as a policy-bearing `CONTRIBUTING.md`, PR templates, `CODEOWNERS`, or commitlint config. If repo policy already exists, switch to `scripts/upgrade-memorytree.py` instead of trying to skip `AGENTS.md`.
+3. Review the generated `AGENTS.md` before keeping it. Merge it with the repo's existing policy if needed.
+4. Keep the initial installation minimal: `Memory/01_goals`, `02_todos`, `03_chat_logs`, optional `04_knowledge`, `05_archive`, and `06_transcripts` only when transcript archival is enabled for the repo or needed for transcript import.
+5. Use the locale-specific template files in `assets/templates/<locale>/` as the source of truth for first-run scaffolding.
+6. Prefer `--locale auto` when the user did not request a language explicitly.
+7. Use `scripts/detect-memorytree-locale.py` when you need a deterministic locale check without scaffolding files.
+8. Prefer `uv run python` first, then a system `python`. If neither is available, create first-run files directly from `assets/templates/` instead of creating a project-local virtual environment by default.
+9. If transcript archival is enabled for the repo, use `scripts/import-transcripts.py` for one explicit source file and `scripts/discover-transcripts.py` when scanning local client stores. Matching transcripts must update both the repo mirror and the global archive, while unrelated projects, ambiguous ownership cases, or mismatched explicit sources are archived in the global archive only. Let the scripts generate cleaned transcripts deterministically without spending model tokens on the cleaning step.
+10. Ask once whether raw transcript files may also be committed to the repository. Record the answer in `AGENTS.md`, keep the files in the repo either way, and exclude `raw` files from automatic staging until the user says yes.
+
+## Maintain
+
+1. Change the active goal only after explicit user confirmation of a scope or requirement change.
+2. Update the active todo when progress changes, milestones move, or the next task becomes clearer.
+3. Append chat logs only. Never rewrite or delete prior entries.
+4. Keep active files small. Move stale context to archive or knowledge files instead of bloating the active goal or todo.
+5. Treat product ideas, architecture decisions, and operating constraints as goal or knowledge content. Treat step-by-step execution state as todo content.
+6. Treat cleaned transcript indexes as discovery aids, not as the final source of truth. When exact wording matters, confirm against the raw transcript archive.
+7. Prefer deterministic script-based transcript cleaning over manual rewriting. Do not spend model tokens to restate or normalize transcript content when `scripts/import-transcripts.py` can do it.
+8. Reply in the user's language when clear; otherwise align with repo locale without rewriting existing files just to translate them.
+
+## Git And Safety
+
+1. Never assume MemoryTree can override the repo's branch model.
+2. Default to isolated MemoryTree-only Git operations: stage only MemoryTree-owned files, use a MemoryTree-scoped commit title, push to a dedicated branch, and open a dedicated PR.
+3. Enable auto-merge only for MemoryTree-only PRs, and only when the repository still enforces its required review and CI checks.
+4. Keep repo-local raw transcript mirrors and the global transcript archive synchronized on every import. The global index must remain safe for concurrent multi-project updates.
+5. Keep the repository mirror limited to transcripts that belong to the current repository. Unrelated or ambiguous transcripts belong in the global archive only.
+6. Keep raw transcript files under `Memory/06_transcripts/raw/**` in the repo, but exclude them from automatic staging until the user explicitly approved raw transcript uploads for that repository.
+7. If the diff mixes product code, shared policy files, cross-project transcript archives, or unclear ownership, stop and ask the user before committing or pushing.
+8. If the repo has protected branches or PR-only rules, follow them even if older MemoryTree rules say otherwise.
+
+## Resources
+
+- `references/project-detection.md`: detect install state and choose init vs maintain.
+- `references/memory-layout.md`: folder and file naming rules.
+- `references/update-rules.md`: when to version goals, todos, and session logs.
+- `references/git-policy.md`: safe Git defaults and policy merge guidance.
+- `references/locale-selection.md`: locale choice rules and alias behavior.
+- `references/response-language.md`: reply-language precedence and translation safety.
+- `references/transcript-archive.md`: raw transcript archival, clean transcript indexing, per-client source rules, and repo upload confirmation rules.
+- `references/upgrade-path.md`: safe adoption flow for partial repos.
+- `references/execution-environment.md`: how to run MemoryTree scripts without assuming a project-local Python environment.
+- `assets/templates/en/` and `assets/templates/zh-cn/`: seed files for English and Simplified Chinese initialization.
+- `scripts/detect-memorytree-locale.py`: print the effective locale for a target repository.
+- `scripts/discover-transcripts.py`: scan supported local client stores, mirror current-project transcripts into the repo, and backfill other projects into the global archive only.
+- `scripts/import-transcripts.py`: import one transcript into the repo mirror and global archive, then generate clean Markdown deterministically by code.
+- `scripts/upgrade-memorytree.py`: safely add missing MemoryTree pieces to a partial repository.
+- `scripts/init-memorytree.py`: deterministic scaffold script.
