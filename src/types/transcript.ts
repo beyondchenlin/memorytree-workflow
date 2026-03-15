@@ -40,9 +40,12 @@ export interface ManifestEntry {
   raw_upload_permission: string
   global_raw_path: string
   global_clean_path: string
+  global_manifest_path: string
   repo_raw_path: string
   repo_clean_path: string
   repo_manifest_path: string
   message_count: number
   tool_event_count: number
+  cleaning_mode: string
+  repo_mirror_enabled: boolean
 }
