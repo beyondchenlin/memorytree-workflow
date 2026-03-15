@@ -149,8 +149,8 @@ function isProcessAliveWindows(pid: number): boolean {
       windowsHide: true,
     })
     // tasklist prints "INFO: No tasks are running..." when no match is found.
-    // Otherwise, the output contains the PID as a number in the line.
-    return output.includes(String(pid))
+    // Use word-boundary regex to avoid substring false positives (e.g., PID 12 matching 312).
+    return new RegExp(`\\b${pid}\\b`).test(output)
   } catch {
     return false
   }

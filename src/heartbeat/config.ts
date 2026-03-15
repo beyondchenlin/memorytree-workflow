@@ -73,13 +73,13 @@ export function saveConfig(cfg: Config): void {
   mkdirSync(dirname(path), { recursive: true })
 
   const lines: string[] = [
-    `heartbeat_interval = "${cfg.heartbeat_interval}"`,
+    `heartbeat_interval = ${tomlString(cfg.heartbeat_interval)}`,
     `auto_push = ${cfg.auto_push ? 'true' : 'false'}`,
-    `log_level = "${cfg.log_level}"`,
+    `log_level = ${tomlString(cfg.log_level)}`,
   ]
 
   if (cfg.watch_dirs.length > 0) {
-    const items = cfg.watch_dirs.map(d => `"${d}"`).join(', ')
+    const items = cfg.watch_dirs.map(d => tomlString(d)).join(', ')
     lines.push(`watch_dirs = [${items}]`)
   } else {
     lines.push('watch_dirs = []')
@@ -88,9 +88,9 @@ export function saveConfig(cfg: Config): void {
   lines.push('')
   for (const project of cfg.projects) {
     lines.push('[[projects]]')
-    lines.push(`path = "${project.path}"`)
+    lines.push(`path = ${tomlString(project.path)}`)
     if (project.name) {
-      lines.push(`name = "${project.name}"`)
+      lines.push(`name = ${tomlString(project.name)}`)
     }
     lines.push('')
   }
@@ -202,4 +202,9 @@ function isValidInterval(value: string): boolean {
   const match = value.trim().toLowerCase().match(/^(\d+)\s*(s|m|h)$/)
   if (!match) return false
   return parseInt(match[1]!, 10) > 0
+}
+
+function tomlString(value: string): string {
+  const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  return `"${escaped}"`
 }

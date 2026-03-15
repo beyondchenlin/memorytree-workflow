@@ -5,11 +5,6 @@
 
 import { execFileSync } from 'node:child_process'
 
-export interface ExecResult {
-  stdout: string
-  exitCode: number
-}
-
 export function execCommand(
   command: string,
   args: readonly string[],

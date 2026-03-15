@@ -132,11 +132,9 @@ function installCron(scriptPath: string, seconds: number): number {
     : cronLine + '\n'
 
   try {
-    execCommand('crontab', ['-'], { allowFailure: false })
-    // Use stdin approach - write temp file and pipe
     const tmpFile = resolve(homedir(), '.memorytree', '.crontab.tmp')
     writeFileSync(tmpFile, newCrontab)
-    execCommand('bash', ['-c', `crontab "${tmpFile}"`])
+    execCommand('crontab', [tmpFile])
     unlinkSync(tmpFile)
   } catch {
     process.stderr.write('Failed to install cron job.\n')
@@ -154,7 +152,7 @@ function uninstallCron(): number {
     const tmpFile = resolve(homedir(), '.memorytree', '.crontab.tmp')
     mkdirSync(dirname(tmpFile), { recursive: true })
     writeFileSync(tmpFile, filtered)
-    execCommand('bash', ['-c', `crontab "${tmpFile}"`])
+    execCommand('crontab', [tmpFile])
     unlinkSync(tmpFile)
   } catch {
     // best effort
@@ -294,6 +292,13 @@ export function isSchtasksRegistered(): boolean {
 // ---------------------------------------------------------------------------
 
 export function heartbeatScriptPath(): string {
-  // In the compiled distribution, this is dist/cli.js
-  return resolve(dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')), '..', '..', 'dist', 'cli.js')
+  // Use process.argv[1] which is the actual script being executed,
+  // more reliable than import.meta.url which varies between tsx and bundled output
+  const scriptArg = process.argv[1] ?? ''
+  if (scriptArg && scriptArg.endsWith('cli.js')) {
+    return resolve(scriptArg)
+  }
+  // Fallback: resolve relative to import.meta.url
+  const urlPath = new URL(import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1')
+  return resolve(dirname(urlPath), '..', '..', 'dist', 'cli.js')
 }

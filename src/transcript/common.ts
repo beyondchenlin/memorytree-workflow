@@ -18,6 +18,10 @@ export const SKIP_BLOCK_TYPES: ReadonlySet<string> = new Set(['thinking', 'reaso
 export const TOOL_USE_TYPES: ReadonlySet<string> = new Set(['tool_use'])
 export const TOOL_RESULT_TYPES: ReadonlySet<string> = new Set(['tool_result'])
 
+const ALL_SKIP_TYPES: ReadonlySet<string> = new Set([
+  ...SKIP_BLOCK_TYPES, ...TOOL_USE_TYPES, ...TOOL_RESULT_TYPES,
+])
+
 // ---------------------------------------------------------------------------
 // Generic utilities
 // ---------------------------------------------------------------------------
@@ -40,8 +44,8 @@ export function contentHash(text: string): string {
 
 export function normalizeTimestamp(value: unknown, fallback?: string | null): string {
   if (typeof value === 'number') {
-    const ms = value < 1e12 ? value * 1000 : value
-    const d = new Date(ms)
+    // Always treat as Unix seconds (matching Python's datetime.fromtimestamp)
+    const d = new Date(value * 1000)
     return formatUtcIso(d)
   }
 
@@ -79,7 +83,13 @@ export function earliestTimestamp(current: string, candidate: unknown): string {
 
 export function parseIsoTimestamp(value: string): Date | null {
   if (!value) return null
-  const candidate = value.endsWith('Z') ? value.slice(0, -1) + '+00:00' : value
+  let candidate = value
+  if (candidate.endsWith('Z')) {
+    candidate = candidate.slice(0, -1) + '+00:00'
+  } else if (!/[+-]\d{2}:\d{2}$/.test(candidate) && !/[+-]\d{4}$/.test(candidate)) {
+    // No timezone offset — treat as UTC (matching Python behavior)
+    candidate = candidate + '+00:00'
+  }
   const d = new Date(candidate)
   if (isNaN(d.getTime())) return null
   return d
@@ -110,7 +120,7 @@ export function summarizeValue(value: unknown, limit = 180): string {
   }
   let text: string
   try {
-    text = JSON.stringify(value, Object.keys(value as Record<string, unknown>).sort())
+    text = JSON.stringify(sortKeysDeep(value))
   } catch {
     text = String(value)
   }
@@ -189,7 +199,6 @@ export function loadJson(filePath: string): Record<string, unknown> | null {
 
 export function extractTextBlocks(blocks: unknown): string {
   const parts: string[] = []
-  const skipTypes = new Set([...SKIP_BLOCK_TYPES, ...TOOL_USE_TYPES, ...TOOL_RESULT_TYPES])
 
   for (const block of ensureList(blocks)) {
     if (typeof block === 'string') {
@@ -201,7 +210,7 @@ export function extractTextBlocks(blocks: unknown): string {
 
     const rec = block as Record<string, unknown>
     const blockType = String(rec['type'] ?? '').toLowerCase()
-    if (skipTypes.has(blockType)) continue
+    if (ALL_SKIP_TYPES.has(blockType)) continue
     if (TEXT_BLOCK_TYPES.has(blockType)) {
       const text = String(rec['text'] ?? '').trim()
       if (text) parts.push(text)
@@ -253,8 +262,7 @@ export function extractGeminiParts(value: unknown): string[] {
   if (value !== null && typeof value === 'object') {
     const rec = value as Record<string, unknown>
     const blockType = String(rec['type'] ?? '').toLowerCase()
-    const skipTypes = new Set([...SKIP_BLOCK_TYPES, ...TOOL_USE_TYPES, ...TOOL_RESULT_TYPES])
-    if (skipTypes.has(blockType)) return []
+    if (ALL_SKIP_TYPES.has(blockType)) return []
     if ('text' in rec && typeof rec['text'] === 'string') {
       const text = (rec['text'] as string).trim()
       return text ? [text] : []
@@ -323,6 +331,18 @@ export function deduplicateToolEvents(events: readonly TranscriptToolEvent[]): T
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
+
+function sortKeysDeep(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortKeysDeep)
+  if (value !== null && typeof value === 'object') {
+    const sorted: Record<string, unknown> = {}
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      sorted[key] = sortKeysDeep((value as Record<string, unknown>)[key])
+    }
+    return sorted
+  }
+  return value
+}
 
 function formatUtcIso(d: Date): string {
   const year = d.getUTCFullYear()

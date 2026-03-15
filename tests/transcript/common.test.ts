@@ -122,8 +122,9 @@ describe('normalizeTimestamp', () => {
     // 2024-01-01T00:00:00Z
     expect(normalizeTimestamp(1704067200)).toBe('2024-01-01T00:00:00Z')
   })
-  it('normalizes unix timestamp in milliseconds', () => {
-    expect(normalizeTimestamp(1704067200000)).toBe('2024-01-01T00:00:00Z')
+  it('normalizes large number as unix seconds', () => {
+    // All numbers treated as seconds (matching Python datetime.fromtimestamp)
+    expect(normalizeTimestamp(1704067200000)).toBe('55969-09-28T00:00:00Z')
   })
   it('normalizes ISO string', () => {
     expect(normalizeTimestamp('2024-01-01T00:00:00Z')).toBe('2024-01-01T00:00:00Z')

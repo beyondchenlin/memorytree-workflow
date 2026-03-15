@@ -60,7 +60,7 @@ export function cmdInit(options: InitOptions): number {
     return 1
   }
 
-  const skillRoot = resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'), '..', '..', '..')
+  const skillRoot = resolve(new URL(import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1'), '..', '..', '..')
   const templates = resolveTemplateDir(skillRoot, root, options.locale)
   const dt = buildDatetime(options.date, options.time)
 
