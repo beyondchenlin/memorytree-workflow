@@ -2,8 +2,6 @@
 
 Use this file when MemoryTree needs to read or write user-level configuration, state, or cross-project data outside any single repository.
 
-> **Contract**: The `~/.memorytree/` directory and its contents are specifications for infrastructure that does not yet exist. The layout and schemas below define the intended structure.
-
 ## Goal
 
 Provide a single user-level location for global state, configuration, and cross-project data so that heartbeat, daemon, and multi-project features have a shared, predictable root.

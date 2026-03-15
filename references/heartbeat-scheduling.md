@@ -2,8 +2,6 @@
 
 Use this file when MemoryTree needs to automate transcript import, cleaning, and push without human intervention or model tokens.
 
-> **Contract**: `heartbeat.py` and `memorytree-daemon` are specifications for code that does not yet exist. The rules below define the intended behavior.
-
 ## Goal
 
 Complete transcript discovery, import, cleaning, commit, and push without consuming model tokens or requiring human intervention.

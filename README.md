@@ -159,8 +159,6 @@ The skill will:
 
 This works **cross-client**: a Codex session can be recovered from Claude Code, and vice versa.
 
-> **Contract**: On-demand sync is a specification — code is not yet implemented.
-
 For details see [`references/transcript-archive.md`](references/transcript-archive.md) and [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md).
 
 ### Git Safety
@@ -208,8 +206,6 @@ Prefer uv run python → fall back to system python → fall back to direct temp
 Never auto-creates `.venv` or `pyproject.toml` inside the project.
 
 ## Background Heartbeat
-
-> **Note**: `heartbeat.py` and `memorytree-daemon` are contract specifications — code is not yet implemented.
 
 The heartbeat automates transcript discovery, import, cleaning, commit, and push without consuming model tokens or requiring human intervention.
 

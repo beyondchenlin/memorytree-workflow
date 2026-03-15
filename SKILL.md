@@ -111,8 +111,9 @@ Do not stop after detection to ask whether you should proceed. Act on the result
 - `references/heartbeat-scheduling.md`: background heartbeat architecture, daemon CLI, and execution flow.
 - `references/global-configuration.md`: `~/.memorytree/` directory layout, `config.toml` schema, and `alerts.json` format.
 - `assets/templates/en/` and `assets/templates/zh-cn/`: seed files for English and Simplified Chinese initialization.
-- `scripts/heartbeat.py`: background heartbeat entry point (contract — not yet implemented).
-- `memorytree-daemon` CLI: heartbeat lifecycle manager (contract — not yet implemented).
+- `scripts/heartbeat.py`: background heartbeat entry point.
+- `scripts/memorytree_daemon.py`: heartbeat lifecycle manager (install/uninstall/run-once/watch/status).
+- `scripts/recall-session.py`: on-demand transcript sync and latest session recall for cross-session context recovery.
 - `scripts/detect-memorytree-locale.py`: print the effective locale for a target repository.
 - `scripts/discover-transcripts.py`: scan supported local client stores, mirror current-project transcripts into the repo, and backfill other projects into the global archive only.
 - `scripts/import-transcripts.py`: import one transcript into the repo mirror and global archive, then generate clean Markdown deterministically by code.
