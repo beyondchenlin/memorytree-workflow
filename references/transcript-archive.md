@@ -84,6 +84,8 @@ Memory/06_transcripts/
 
 Do not place other projects' transcript mirrors inside the current repository.
 
+For the complete `~/.memorytree/` directory structure, see `references/global-configuration.md`.
+
 ## Client Sources
 
 ### Codex
@@ -129,9 +131,11 @@ Do not place other projects' transcript mirrors inside the current repository.
 
 When the user asks to search all memories or all chat history:
 
-1. Search the global cleaned transcript index first.
-2. Use the matching raw transcript files for exact confirmation.
-3. Then combine those results with the active repository's `Memory/` files when answering.
+1. Search `~/.memorytree/transcripts/index/search.sqlite` first for fast full-text lookup.
+2. Use `sessions.jsonl` for session-level metadata filtering (client, project, date range).
+3. Load the matching cleaned Markdown files for context. When exact wording matters, confirm against the raw transcript.
+4. Combine transcript results with the active repository's `Memory/` files when answering.
+5. If the search index does not exist, fall back to scanning the `clean/` directory directly.
 
 ## Git Rules
 

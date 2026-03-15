@@ -12,9 +12,10 @@ Use this skill for repo-level project memory. Do not treat it as an application 
 When this skill is invoked, immediately perform these steps without waiting for further user input:
 
 1. Detect the repo state (`not-installed`, `partial`, or `installed`) using `references/project-detection.md`.
-2. If `not-installed`: run `scripts/init-memorytree.py` to scaffold the workspace, then report what was created.
-3. If `partial`: run `scripts/upgrade-memorytree.py` to add missing pieces, then report what was added.
-4. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next.
+2. Check `~/.memorytree/alerts.json`. If pending alerts exist, display them to the user before proceeding.
+3. If `not-installed`: run `scripts/init-memorytree.py` to scaffold the workspace, then report what was created.
+4. If `partial`: run `scripts/upgrade-memorytree.py` to add missing pieces, then report what was added.
+5. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next. If `memorytree-daemon` is available but not registered, suggest the user run `memorytree-daemon install`.
 
 Do not stop after detection to ask whether you should proceed. Act on the result immediately.
 
@@ -31,6 +32,8 @@ Do not stop after detection to ask whether you should proceed. Act on the result
 9. For partial repos, use the non-destructive upgrade path before manual maintenance. Use `references/upgrade-path.md`.
 10. When transcript archival is enabled, import transcripts with deterministic code, preserve raw transcripts as evidence in both the current repo mirror and the global archive, generate cleaned Markdown for indexing, keep cross-project backfills and ambiguous ownership cases in the global archive only, and ask once per repository whether raw transcript files may be committed or pushed. Use `references/transcript-archive.md`.
 11. When scripts are needed, prefer an existing `uv run python` environment first, then a system `python`, and only fall back to manual scaffolding or conservative manual review if no runner is available. Use `references/execution-environment.md`.
+12. Transcript discovery, import, cleaning, and push are handled by the background heartbeat process. The model only writes chat log summaries and updates goals and todos. See `references/heartbeat-scheduling.md`.
+13. Global configuration is stored in `~/.memorytree/config.toml`. See `references/global-configuration.md`.
 
 ## Read Order
 
@@ -89,6 +92,8 @@ Do not stop after detection to ask whether you should proceed. Act on the result
 6. Keep raw transcript files under `Memory/06_transcripts/raw/**` in the repo, but exclude them from automatic staging until the user explicitly approved raw transcript uploads for that repository.
 7. If the diff mixes product code, shared policy files, cross-project transcript archives, or unclear ownership, stop and ask the user before committing or pushing.
 8. If the repo has protected branches or PR-only rules, follow them even if older MemoryTree rules say otherwise.
+9. When `auto_push` is enabled, the heartbeat process pushes automatically after committing. If no Git remote is configured, the push is skipped. If a push fails, the heartbeat retries once. In either case an alert is written to `~/.memorytree/alerts.json`. See `references/git-policy.md`.
+10. During transcript cleaning, the heartbeat scans for sensitive information (API keys, passwords, tokens). Matches are logged as warnings only — no automatic deletion or redaction. See `references/heartbeat-scheduling.md`.
 
 ## Resources
 
@@ -101,7 +106,11 @@ Do not stop after detection to ask whether you should proceed. Act on the result
 - `references/transcript-archive.md`: raw transcript archival, clean transcript indexing, per-client source rules, and repo upload confirmation rules.
 - `references/upgrade-path.md`: safe adoption flow for partial repos.
 - `references/execution-environment.md`: how to run MemoryTree scripts without assuming a project-local Python environment.
+- `references/heartbeat-scheduling.md`: background heartbeat architecture, daemon CLI, and execution flow.
+- `references/global-configuration.md`: `~/.memorytree/` directory layout, `config.toml` schema, and `alerts.json` format.
 - `assets/templates/en/` and `assets/templates/zh-cn/`: seed files for English and Simplified Chinese initialization.
+- `scripts/heartbeat.py`: background heartbeat entry point (contract — not yet implemented).
+- `memorytree-daemon` CLI: heartbeat lifecycle manager (contract — not yet implemented).
 - `scripts/detect-memorytree-locale.py`: print the effective locale for a target repository.
 - `scripts/discover-transcripts.py`: scan supported local client stores, mirror current-project transcripts into the repo, and backfill other projects into the global archive only.
 - `scripts/import-transcripts.py`: import one transcript into the repo mirror and global archive, then generate clean Markdown deterministically by code.

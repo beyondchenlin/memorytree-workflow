@@ -29,3 +29,10 @@
 - 提交标题使用 MemoryTree 专用标识。优先使用 `memorytree(<scope>): <subject>`；若仓库强制其他提交规范，则使用兼容格式，例如 `docs(memorytree): <subject>`。
 - 对 MemoryTree 专用变更使用专用分支和 PR；仅在仓库规则允许时才开启自动合并。
 - 如果 diff 混入产品代码、共享策略文件、跨项目 transcript 文件或文件归属不清，暂存或推送前先询问用户。
+- 当 `auto_push` 启用时，心跳进程在提交后自动推送。若未配置 remote 或推送失败，会将告警写入 `~/.memorytree/alerts.json`。
+
+## 心跳规则
+- Transcript 的发现、导入、清洗和推送由后台心跳进程负责，大模型不执行这些操作。
+- 大模型在交互会话中只负责写对话日志摘要、更新目标和待办。
+- 如果 `~/.memorytree/alerts.json` 中有待处理的通知，在会话开始时展示给用户。
+- 如果 `memorytree-daemon` 可用但当前机器未注册，建议用户运行 `memorytree-daemon install`。

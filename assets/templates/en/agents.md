@@ -29,3 +29,10 @@
 - Use a MemoryTree-scoped commit title. Prefer `memorytree(<scope>): <subject>`, or the repository-required equivalent such as `docs(memorytree): <subject>`.
 - Use a dedicated branch and PR for MemoryTree-only changes. Enable auto-merge only when repository rules permit it.
 - If a diff includes product code, shared policy files, cross-project transcript files, or unclear ownership, stop and ask the user before staging or pushing.
+- When `auto_push` is enabled, the heartbeat process pushes automatically after committing. If no remote is configured or a push fails, an alert is written to `~/.memorytree/alerts.json`.
+
+## Heartbeat Rules
+- Transcript discovery, import, cleaning, and push are handled by the background heartbeat process. The model does not execute these operations.
+- The model only writes chat log summaries and updates goals and todos during interactive sessions.
+- If `~/.memorytree/alerts.json` contains pending notifications, display them at the start of the session.
+- If `memorytree-daemon` is available but not registered on this machine, suggest the user run `memorytree-daemon install`.

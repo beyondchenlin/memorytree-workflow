@@ -65,6 +65,38 @@ Memory/
 - **Locale-aware** — English and Simplified Chinese templates, auto-detects from repo content
 - **Zero dependencies** — all scripts use Python standard library only
 
+## Background Heartbeat
+
+> **Note**: `heartbeat.py` and `memorytree-daemon` are contract specifications — code is not yet implemented.
+
+MemoryTree includes a background heartbeat that automatically discovers, imports, cleans, commits, and pushes transcripts without consuming model tokens.
+
+### Install the daemon
+
+```bash
+memorytree-daemon install
+```
+
+### CLI commands
+
+| Command                     | Description |
+|-----------------------------|-------------|
+| `memorytree-daemon install`   | Register the heartbeat with the OS scheduler (cron / launchd / Task Scheduler). |
+| `memorytree-daemon uninstall` | Remove the scheduled heartbeat task. |
+| `memorytree-daemon run-once`  | Run a single heartbeat cycle immediately. |
+| `memorytree-daemon watch`     | Continuous loop for development and debugging only. |
+| `memorytree-daemon status`    | Show registration state and last execution result. |
+
+### Key settings (`~/.memorytree/config.toml`)
+
+| Setting              | Default  | Description |
+|----------------------|----------|-------------|
+| `auto_push`          | `true`   | Push to remote after each commit. Skips if no remote is configured. |
+| `heartbeat_interval` | `"15m"`  | Interval between heartbeat executions. |
+| `log_level`          | `"info"` | Log verbosity (`debug`, `info`, `warn`, `error`). |
+
+For details see [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md) and [`references/global-configuration.md`](references/global-configuration.md).
+
 ## Update
 
 ```bash

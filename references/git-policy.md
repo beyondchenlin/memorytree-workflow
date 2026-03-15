@@ -41,6 +41,23 @@ Use this flow only for MemoryTree-only changes and only when the host repo does 
 7. If transcript files are included, keep the PR scoped to one repository's transcript mirror only. Do not mix cross-project transcript archives into the same PR.
 8. Keep the global transcript archive updated in the same import operation, but never stage or push that user-level global archive as part of a repo PR.
 
+## Auto Push
+
+When `auto_push = true` in `~/.memorytree/config.toml`:
+
+1. The heartbeat process pushes the current branch after each commit.
+2. Before pushing, verify that a Git remote is configured. If no remote exists, skip the push and write an alert to `~/.memorytree/alerts.json`.
+3. If a push fails (network, authentication, rejected by server), retry once. On second failure, write an alert and continue to the next project.
+4. On the very first push for a newly registered project, confirm with the user that the remote and branch are correct.
+5. Do not force-push. Use only fast-forward pushes.
+
+When `auto_push = false`:
+
+1. The heartbeat commits locally but does not push.
+2. The user pushes manually or through the interactive skill session.
+
+Rationale: project memory is a user asset. Local-only storage risks data loss from hardware failure or accidental deletion. Automatic push to a remote provides a durable backup.
+
 ## Commit Guidance
 
 - Keep the title concise and specific.
@@ -94,3 +111,4 @@ Stop and ask the user before committing, pushing, or opening a PR when any of th
 5. The repository's review or CI rules conflict with the default MemoryTree-only flow.
 6. Raw transcript upload permission for the repository is unknown.
 7. The diff includes raw transcripts or cleaned transcript indexes from other projects.
+8. `auto_push` is enabled but the target branch is a protected branch that refuses direct pushes.
