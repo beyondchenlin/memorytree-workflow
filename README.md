@@ -16,6 +16,7 @@
   <a href="#usage">Usage</a> &nbsp;&bull;&nbsp;
   <a href="#features">Features</a> &nbsp;&bull;&nbsp;
   <a href="#background-heartbeat">Heartbeat</a> &nbsp;&bull;&nbsp;
+  <a href="#scripts">Scripts</a> &nbsp;&bull;&nbsp;
   <a href="#reference-docs">Docs</a>
 </p>
 
@@ -256,8 +257,37 @@ For details see [`references/heartbeat-scheduling.md`](references/heartbeat-sche
 | **Minimal dependencies** | Scripts target Python standard library; no third-party packages required at install time |
 | **Deterministic** | Transcript cleaning done by code, not model tokens |
 | **Single source of truth** | Each concept defined in one reference file, others cross-reference |
-| **Contract first** | Document the spec (heartbeat, daemon) before writing code |
+| **Spec-driven** | Reference docs define the contract; code implements it faithfully |
 | **User asset** | Memory belongs to the user; auto_push on by default to prevent local data loss |
+
+## Scripts
+
+All scripts live under `scripts/` and target Python 3.11+ stdlib only (no third-party packages).
+
+### Entry Points
+
+| Script | Purpose |
+|--------|---------|
+| [`heartbeat.py`](scripts/heartbeat.py) | Background heartbeat — discover, import, clean, commit, push transcripts |
+| [`memorytree_daemon.py`](scripts/memorytree_daemon.py) | Daemon lifecycle manager: `install` / `uninstall` / `run-once` / `watch` / `status` |
+| [`recall-session.py`](scripts/recall-session.py) | On-demand transcript sync and latest session recall for cross-session context recovery |
+| [`init-memorytree.py`](scripts/init-memorytree.py) | Scaffold `Memory/` and `AGENTS.md` for a new repository |
+| [`upgrade-memorytree.py`](scripts/upgrade-memorytree.py) | Add missing MemoryTree pieces to a partial repository |
+| [`import-transcripts.py`](scripts/import-transcripts.py) | Import one transcript into repo mirror and global archive |
+| [`discover-transcripts.py`](scripts/discover-transcripts.py) | Scan local client stores and mirror matching transcripts |
+| [`detect-memorytree-locale.py`](scripts/detect-memorytree-locale.py) | Print the effective locale for a target repository |
+
+### Internal Modules
+
+| Module | Purpose |
+|--------|---------|
+| [`_transcript_utils.py`](scripts/_transcript_utils.py) | Transcript parsing (Codex/Claude/Gemini), import, SQLite indexing, discovery |
+| [`_config_utils.py`](scripts/_config_utils.py) | Load/validate `~/.memorytree/config.toml` with `tomllib` |
+| [`_alert_utils.py`](scripts/_alert_utils.py) | Manage `alerts.json` — dedup, threshold-based alerting, failure counts |
+| [`_lock_utils.py`](scripts/_lock_utils.py) | PID-based lock file with atomic creation and stale lock detection |
+| [`_log_utils.py`](scripts/_log_utils.py) | Date-rotated file logging to `~/.memorytree/logs/` |
+| [`_scaffold_utils.py`](scripts/_scaffold_utils.py) | Template rendering and directory scaffolding helpers |
+| [`_locale_utils.py`](scripts/_locale_utils.py) | Locale detection and normalization |
 
 ## Reference Docs
 
