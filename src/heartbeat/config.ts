@@ -1,2 +1,205 @@
-// Heartbeat config — Config type + TOML load/save/project registration
-// To be implemented in Phase 2
+/**
+ * Load, validate, and manage ~/.memorytree/config.toml.
+ * Port of scripts/_config_utils.py
+ */
+
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { homedir } from 'node:os'
+import { dirname, resolve } from 'node:path'
+
+import { parse as parseToml } from 'smol-toml'
+
+import { toPosixPath } from '../utils/path.js'
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const DEFAULT_HEARTBEAT_INTERVAL = '5m'
+const DEFAULT_AUTO_PUSH = true
+const DEFAULT_LOG_LEVEL = 'info'
+const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(['debug', 'info', 'warn', 'error'])
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface ProjectEntry {
+  readonly path: string
+  readonly name: string
+}
+
+export interface Config {
+  readonly heartbeat_interval: string
+  readonly watch_dirs: readonly string[]
+  readonly projects: readonly ProjectEntry[]
+  readonly auto_push: boolean
+  readonly log_level: string
+}
+
+// ---------------------------------------------------------------------------
+// Path helpers
+// ---------------------------------------------------------------------------
+
+export function memorytreeRoot(): string {
+  return resolve(homedir(), '.memorytree')
+}
+
+export function configPath(): string {
+  return resolve(memorytreeRoot(), 'config.toml')
+}
+
+// ---------------------------------------------------------------------------
+// Load / Save
+// ---------------------------------------------------------------------------
+
+export function loadConfig(): Config {
+  const path = configPath()
+  if (!existsSync(path)) {
+    return defaultConfig()
+  }
+  let raw: Record<string, unknown>
+  try {
+    const text = readFileSync(path, 'utf-8')
+    raw = parseToml(text) as Record<string, unknown>
+  } catch {
+    return defaultConfig()
+  }
+  return parseRaw(raw)
+}
+
+export function saveConfig(cfg: Config): void {
+  const path = configPath()
+  mkdirSync(dirname(path), { recursive: true })
+
+  const lines: string[] = [
+    `heartbeat_interval = "${cfg.heartbeat_interval}"`,
+    `auto_push = ${cfg.auto_push ? 'true' : 'false'}`,
+    `log_level = "${cfg.log_level}"`,
+  ]
+
+  if (cfg.watch_dirs.length > 0) {
+    const items = cfg.watch_dirs.map(d => `"${d}"`).join(', ')
+    lines.push(`watch_dirs = [${items}]`)
+  } else {
+    lines.push('watch_dirs = []')
+  }
+
+  lines.push('')
+  for (const project of cfg.projects) {
+    lines.push('[[projects]]')
+    lines.push(`path = "${project.path}"`)
+    if (project.name) {
+      lines.push(`name = "${project.name}"`)
+    }
+    lines.push('')
+  }
+
+  writeFileSync(path, lines.join('\n') + '\n', 'utf-8')
+}
+
+// ---------------------------------------------------------------------------
+// Interval parsing
+// ---------------------------------------------------------------------------
+
+export function intervalToSeconds(interval: string): number {
+  const match = interval.trim().toLowerCase().match(/^(\d+)\s*(s|m|h)$/)
+  if (!match) {
+    return intervalToSeconds(DEFAULT_HEARTBEAT_INTERVAL)
+  }
+  const value = parseInt(match[1]!, 10)
+  const unit = match[2]!
+  if (value <= 0) {
+    return intervalToSeconds(DEFAULT_HEARTBEAT_INTERVAL)
+  }
+  const multiplier: Record<string, number> = { s: 1, m: 60, h: 3600 }
+  return value * (multiplier[unit] ?? 60)
+}
+
+// ---------------------------------------------------------------------------
+// Project registration
+// ---------------------------------------------------------------------------
+
+export function registerProject(cfg: Config, repoPath: string): Config {
+  const resolved = toPosixPath(resolve(repoPath))
+  for (const entry of cfg.projects) {
+    if (toPosixPath(resolve(entry.path)) === resolved) {
+      return cfg
+    }
+  }
+  const name = resolved.split('/').pop() ?? ''
+  return {
+    ...cfg,
+    projects: [...cfg.projects, { path: resolved, name }],
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+function defaultConfig(): Config {
+  return {
+    heartbeat_interval: DEFAULT_HEARTBEAT_INTERVAL,
+    watch_dirs: [],
+    projects: [],
+    auto_push: DEFAULT_AUTO_PUSH,
+    log_level: DEFAULT_LOG_LEVEL,
+  }
+}
+
+function parseRaw(raw: Record<string, unknown>): Config {
+  let interval = raw['heartbeat_interval']
+  if (typeof interval !== 'string' || !isValidInterval(interval)) {
+    interval = DEFAULT_HEARTBEAT_INTERVAL
+  }
+
+  let autoPush = raw['auto_push']
+  if (typeof autoPush !== 'boolean') {
+    autoPush = DEFAULT_AUTO_PUSH
+  }
+
+  let logLevel = raw['log_level']
+  if (typeof logLevel !== 'string' || !VALID_LOG_LEVELS.has(logLevel.toLowerCase())) {
+    logLevel = DEFAULT_LOG_LEVEL
+  }
+  logLevel = (logLevel as string).toLowerCase()
+
+  const watchDirs: string[] = []
+  const rawDirs = raw['watch_dirs']
+  if (Array.isArray(rawDirs)) {
+    for (const d of rawDirs) {
+      if (typeof d === 'string') watchDirs.push(d)
+    }
+  }
+
+  const projects: ProjectEntry[] = []
+  const rawProjects = raw['projects']
+  if (Array.isArray(rawProjects)) {
+    for (const entry of rawProjects) {
+      if (entry !== null && typeof entry === 'object' && !Array.isArray(entry)) {
+        const rec = entry as Record<string, unknown>
+        if (typeof rec['path'] === 'string') {
+          projects.push({
+            path: rec['path'] as string,
+            name: String(rec['name'] ?? ''),
+          })
+        }
+      }
+    }
+  }
+
+  return {
+    heartbeat_interval: interval as string,
+    watch_dirs: watchDirs,
+    projects,
+    auto_push: autoPush as boolean,
+    log_level: logLevel as string,
+  }
+}
+
+function isValidInterval(value: string): boolean {
+  const match = value.trim().toLowerCase().match(/^(\d+)\s*(s|m|h)$/)
+  if (!match) return false
+  return parseInt(match[1]!, 10) > 0
+}
