@@ -4,7 +4,7 @@
  */
 
 import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 
 import { slugify } from '../transcript/common.js'
 import { defaultGlobalTranscriptRoot, inferProjectSlug, transcriptMatchesRepo } from '../transcript/discover.js'
@@ -36,7 +36,7 @@ export async function cmdImport(options: ImportOptions): Promise<number> {
 
   const client = inferClient(options.client, source)
   const globalRoot = options.globalRoot ? resolve(options.globalRoot) : defaultGlobalTranscriptRoot()
-  const repoSlug = slugify(options.projectName.trim() || (root.split(/[/\\]/).pop() ?? ''), 'project')
+  const repoSlug = slugify(options.projectName.trim() || basename(root), 'project')
 
   const parsed = parseTranscript(client, source)
   if (!transcriptHasContent(parsed)) {

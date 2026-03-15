@@ -17,7 +17,7 @@ import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
 import { git } from '../utils/exec.js'
 import { toPosixPath } from '../utils/path.js'
-import { resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 import { existsSync } from 'node:fs'
 
 // ---------------------------------------------------------------------------
@@ -75,13 +75,13 @@ export async function runHeartbeat(config: Config): Promise<number> {
       continue
     }
     try {
-      await processProject(config, projectPath, entry.name || (projectPath.split(/[/\\]/).pop() ?? ''))
+      await processProject(config, projectPath, entry.name || basename(projectPath))
     } catch (err: unknown) {
       logger.exception(`Error processing project: ${projectPath}`, err)
       writeAlertWithThreshold(
         toPosixPath(projectPath),
         'push_failed',
-        `Heartbeat error for project: ${projectPath.split(/[/\\]/).pop() ?? ''}`,
+        `Heartbeat error for project: ${basename(projectPath)}`,
       )
     }
   }
@@ -143,12 +143,12 @@ export function scanSensitive(parsed: ParsedTranscript, projectPath: string): vo
     for (const pattern of SENSITIVE_PATTERNS) {
       if (pattern.test(msg.text)) {
         logger.warn(
-          `Sensitive pattern detected in transcript ${parsed.source_path} (project: ${projectPath.split(/[/\\]/).pop() ?? ''}, role: ${msg.role})`,
+          `Sensitive pattern detected in transcript ${parsed.source_path} (project: ${basename(projectPath)}, role: ${msg.role})`,
         )
         writeAlert(
           toPosixPath(projectPath),
           'sensitive_match',
-          `Sensitive pattern in transcript: ${parsed.source_path.split(/[/\\]/).pop() ?? ''}`,
+          `Sensitive pattern in transcript: ${basename(parsed.source_path)}`,
         )
         return
       }

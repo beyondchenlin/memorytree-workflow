@@ -4,7 +4,7 @@
  */
 
 import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 
 import { CLIENTS, slugify } from '../transcript/common.js'
 import { defaultGlobalTranscriptRoot, discoverSourceFiles, inferProjectSlug, transcriptMatchesRepo } from '../transcript/discover.js'
@@ -30,7 +30,7 @@ export async function cmdDiscover(options: DiscoverOptions): Promise<number> {
     return 1
   }
 
-  const repoSlug = slugify(options.projectName.trim() || (root.split(/[/\\]/).pop() ?? ''), 'project')
+  const repoSlug = slugify(options.projectName.trim() || basename(root), 'project')
   const globalRoot = options.globalRoot ? resolve(options.globalRoot) : defaultGlobalTranscriptRoot()
   const requestedClients = options.client === 'all' ? CLIENTS : new Set([options.client])
   const discovered = discoverSourceFiles(requestedClients)

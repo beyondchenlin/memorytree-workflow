@@ -4,7 +4,7 @@
  */
 
 import { existsSync, readdirSync, statSync, openSync, readSync, closeSync } from 'node:fs'
-import { join, extname } from 'node:path'
+import { basename, join, extname } from 'node:path'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -47,7 +47,7 @@ export function detectRepoLocale(root: string): string | null {
   let enScore = 0
 
   for (const filePath of iterRepoTextCandidates(root)) {
-    const name = filePath.split(/[/\\]/).pop()?.toLowerCase() ?? ''
+    const name = basename(filePath).toLowerCase()
     if (name.includes('zh-cn') || name.includes('zh_cn')) {
       zhScore += 12
     }

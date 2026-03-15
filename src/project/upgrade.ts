@@ -4,7 +4,7 @@
  */
 
 import { existsSync, readFileSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 
 import {
   createMemoryDirs,
@@ -48,7 +48,7 @@ export function detectState(root: string): string {
 
 export function extractGoalVersion(filePath: string | null): string | null {
   if (filePath === null) return null
-  const name = filePath.replace(/\\/g, '/').split('/').pop() ?? ''
+  const name = basename(filePath)
   const match = /^goal_v(\d{3})_\d{8}\.md$/.exec(name)
   return match?.[1] ?? null
 }

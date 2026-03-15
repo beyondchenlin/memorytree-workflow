@@ -4,7 +4,7 @@
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs'
-import { dirname, extname, join, relative } from 'node:path'
+import { dirname, extname, join, basename, relative } from 'node:path'
 
 import type { ManifestEntry, ParsedTranscript } from '../types/transcript.js'
 import { toPosixPath } from '../utils/path.js'
@@ -227,7 +227,7 @@ export function copyFile(source: string, destination: string): void {
 // ---------------------------------------------------------------------------
 
 function stemOf(filePath: string): string {
-  const base = filePath.replace(/\\/g, '/').split('/').pop() ?? ''
+  const base = basename(filePath)
   const ext = extname(base)
   return ext ? base.slice(0, -ext.length) : base
 }

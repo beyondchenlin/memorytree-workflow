@@ -4,7 +4,7 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs'
-import { resolve, join } from 'node:path'
+import { basename, resolve, join } from 'node:path'
 
 import initSqlJs from 'sql.js'
 
@@ -47,7 +47,7 @@ export async function recall(
   activationTime: string,
 ): Promise<RecallResult> {
   const resolvedRoot = resolve(root)
-  const repoSlug = slugify(projectName.trim() || (resolvedRoot.split(/[/\\]/).pop() ?? ''), 'project')
+  const repoSlug = slugify(projectName.trim() || basename(resolvedRoot), 'project')
   const globalRoot = globalRootOverride ? resolve(globalRootOverride) : defaultGlobalTranscriptRoot()
   const effectiveActivation = activationTime || nowIso()
 
