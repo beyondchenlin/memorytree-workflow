@@ -34,6 +34,8 @@ Do not stop after detection to ask whether you should proceed. Act on the result
 11. When scripts are needed, prefer an existing `uv run python` environment first, then a system `python`, and only fall back to manual scaffolding or conservative manual review if no runner is available. Use `references/execution-environment.md`.
 12. Transcript discovery, import, cleaning, and push are handled by the background heartbeat process. The model only writes chat log summaries and updates goals and todos. See `references/heartbeat-scheduling.md`.
 13. Global configuration is stored in `~/.memorytree/config.toml`. See `references/global-configuration.md`.
+14. When the user asks to see their most recent conversation, trigger an on-demand transcript sync for the current project, locate the latest session across all three clients, and generate a continuation summary. See `references/transcript-archive.md` and `references/heartbeat-scheduling.md`.
+15. All interactive prompts (heartbeat install, configuration, session continuity) must use plain-text questions compatible with every AI assistant that supports this skill. Do not rely on client-specific UI components. See `references/heartbeat-scheduling.md`.
 
 ## Read Order
 

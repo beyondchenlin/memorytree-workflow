@@ -35,4 +35,6 @@
 - Transcript 的发现、导入、清洗和推送由后台心跳进程负责，大模型不执行这些操作。
 - 大模型在交互会话中只负责写对话日志摘要、更新目标和待办。
 - 如果 `~/.memorytree/alerts.json` 中有待处理的通知，在会话开始时展示给用户。
-- 如果 `memorytree-daemon` 可用但当前机器未注册，建议用户运行 `memorytree-daemon install`。
+- 如果 `memorytree-daemon` 可用但当前机器未注册，询问用户偏好设置后提供运行 `memorytree-daemon install` 的选项。
+- 当用户要求查看最近的会话时，即时同步当前项目的 transcript，跨客户端（Claude Code、Codex、Gemini CLI）定位最新会话，并生成延续摘要。
+- 所有交互提示必须使用纯文本问答，不依赖特定客户端的 UI 组件。

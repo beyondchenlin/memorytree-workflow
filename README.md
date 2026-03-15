@@ -144,6 +144,25 @@ When searching all memories or chat history:
 4. Combine with the current repo's `Memory/` files
 5. Fall back to scanning `clean/` directory if the index does not exist
 
+### Session Continuity
+
+When you open a new session and want to continue where you left off, ask MemoryTree to show your most recent conversation:
+
+> "Look at my last chat" / "看看我最近的聊天" / "Continue where I left off"
+
+The skill will:
+
+1. **Instant sync** — immediately scan all three client directories (not waiting for the scheduled heartbeat)
+2. **Locate** — find the latest session for the current project across Claude Code, Codex, and Gemini CLI
+3. **Summarize** — generate a continuation summary: what was discussed, what was tried, and what remains unresolved
+4. **Handoff** — you can say "continue" and pick up exactly where the previous session stopped
+
+This works **cross-client**: a Codex session can be recovered from Claude Code, and vice versa.
+
+> **Contract**: On-demand sync is a specification — code is not yet implemented.
+
+For details see [`references/transcript-archive.md`](references/transcript-archive.md) and [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md).
+
 ### Git Safety
 
 MemoryTree follows strict isolation rules to never interfere with your repo's workflow:

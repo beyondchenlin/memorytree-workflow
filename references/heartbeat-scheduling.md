@@ -57,18 +57,51 @@ Before pushing, verify that the target repository has a configured Git remote:
 
 ## First Install
 
-After `scripts/init-memorytree.py` completes for the first time, prompt the user to register the heartbeat:
+When the skill activates for the first time and `memorytree-daemon` is not registered, use an interactive prompt to configure the heartbeat before installing. Ask the user for:
 
-```text
-Run `memorytree-daemon install` to enable automatic transcript sync.
-```
+1. Heartbeat interval (default: 5 minutes).
+2. Whether `auto_push` should be enabled (default: true).
+3. Confirmation of the project scope (which directories to scan).
+
+After confirmation, run `memorytree-daemon install` with the chosen settings.
+
+The prompt must use plain-text questions and wait for the user's reply. Do not rely on client-specific UI components (buttons, checkboxes, multi-select widgets) — the same prompt must work in Claude Code, Codex, and Gemini CLI.
 
 Do not register the heartbeat task silently during initialization.
+
+## On-Demand Sync
+
+When the user asks to see their most recent conversation (e.g., "look at my last chat"), trigger an immediate sync instead of waiting for the next scheduled heartbeat:
+
+1. Scan all three client transcript directories for the current project.
+2. Incrementally import any new transcripts into the global archive and project mirror.
+3. Query the global index (`sessions.jsonl` / `search.sqlite`) with `project = current directory`, sorted by timestamp descending.
+4. Exclude the current session to avoid returning the session that just started.
+5. Load the matched transcript and generate a continuation summary using model tokens.
+
+The continuation summary should extract:
+
+- What problem was being discussed.
+- What approaches were tried.
+- How far the work progressed.
+- What remains unresolved and where it got stuck.
+
+This path is distinct from the scheduled heartbeat: it is user-triggered, immediate, scoped to one project, and produces a model-generated summary. The scheduled heartbeat is background-only and never consumes model tokens.
+
+See `references/transcript-archive.md` for the session continuity search flow.
 
 ## Stop And Ask
 
 Stop and ask the user before proceeding when any of these are true:
 
-1. The `install` subcommand would register a new OS-level scheduled task. Confirm the interval and scope first.
+1. The `install` subcommand would register a new OS-level scheduled task. Confirm the interval, auto_push preference, and scope first.
 2. A push target has no configured Git remote.
 3. An existing heartbeat registration would be overwritten by a new `install`.
+
+## Cross-Client Compatibility
+
+All interactive prompts in this skill (heartbeat install, configuration, on-demand sync confirmation) must work across every AI assistant that supports the skill:
+
+1. Use plain-text questions and wait for the user's text reply. Do not use client-specific UI components.
+2. Follow the user's language or the repo locale for prompt text. Do not hardcode a single language.
+3. Keep script CLI interfaces uniform regardless of which client invokes them.
