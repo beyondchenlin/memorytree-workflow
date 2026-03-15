@@ -222,7 +222,7 @@ memorytree-daemon install
 | Setting              | Default  | Description |
 |----------------------|----------|-------------|
 | `auto_push`          | `true`   | Push to remote after each commit. Skips if no remote is configured. |
-| `heartbeat_interval` | `"15m"`  | Interval between heartbeat executions. |
+| `heartbeat_interval` | `"5m"`   | Interval between heartbeat executions. |
 | `log_level`          | `"info"` | Log verbosity (`debug`, `info`, `warn`, `error`). |
 
 ### Design constraints

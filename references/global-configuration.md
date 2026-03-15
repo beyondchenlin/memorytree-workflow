@@ -34,7 +34,7 @@ Path roots:
 
 | Field                | Type       | Default          | Description |
 |----------------------|------------|------------------|-------------|
-| `heartbeat_interval` | string     | `"15m"`          | Interval between heartbeat executions. Passed to the OS scheduler. |
+| `heartbeat_interval` | string     | `"5m"`           | Interval between heartbeat executions. Passed to the OS scheduler. |
 | `watch_dirs`         | string[]   | `[]`             | Additional directories to scan for transcript sources beyond the default client stores. |
 | `projects`           | table[]    | `[]`             | Registered project entries. Each entry has `path` (repo root) and optional `name`. |
 | `auto_push`          | boolean    | `true`           | Whether the heartbeat pushes after committing. See `references/git-policy.md`. |

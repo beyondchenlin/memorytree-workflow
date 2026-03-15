@@ -15,7 +15,7 @@ When this skill is invoked, immediately perform these steps without waiting for 
 2. Check `~/.memorytree/alerts.json`. If pending alerts exist, display them to the user before proceeding.
 3. If `not-installed`: run `scripts/init-memorytree.py` to scaffold the workspace, then report what was created.
 4. If `partial`: run `scripts/upgrade-memorytree.py` to add missing pieces, then report what was added.
-5. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next. If `memorytree-daemon` is available but not registered, suggest the user run `memorytree-daemon install`.
+5. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next. If `memorytree-daemon` is available but not registered, ask the user for their preferred heartbeat interval, auto_push preference, and scope, then offer to run `memorytree-daemon install`. Use plain-text questions compatible with all AI assistants, not client-specific UI components.
 
 Do not stop after detection to ask whether you should proceed. Act on the result immediately.
 
