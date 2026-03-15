@@ -137,18 +137,20 @@ def _find_latest_session(
 
     try:
         conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.execute(
-            """
-            SELECT * FROM transcripts
-            WHERE started_at < ?
-            ORDER BY started_at DESC
-            LIMIT 20
-            """,
-            (activation_time,),
-        )
-        rows = cursor.fetchall()
-        conn.close()
+        try:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.execute(
+                """
+                SELECT * FROM transcripts
+                WHERE started_at < ?
+                ORDER BY started_at DESC
+                LIMIT 20
+                """,
+                (activation_time,),
+            )
+            rows = cursor.fetchall()
+        finally:
+            conn.close()
     except (sqlite3.Error, OSError):
         return _find_latest_from_jsonl(global_root, root, repo_slug, activation_time)
 
@@ -209,12 +211,15 @@ def _find_latest_from_jsonl(
 
 
 def _cwd_matches(cwd: str, resolved_root: str) -> bool:
-    """Check if a transcript's cwd matches the repo root."""
+    """Check if a transcript's cwd matches the repo root (exact or subdirectory)."""
     if not cwd:
         return False
     try:
         cwd_resolved = Path(cwd).resolve().as_posix()
-        return cwd_resolved == resolved_root or resolved_root in cwd_resolved
+        if cwd_resolved == resolved_root:
+            return True
+        # Check if cwd is a subdirectory of resolved_root
+        return cwd_resolved.startswith(resolved_root + "/")
     except OSError:
         return False
 

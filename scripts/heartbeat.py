@@ -15,11 +15,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-from _alert_utils import write_alert
+from _alert_utils import reset_failure_count, write_alert, write_alert_with_threshold
 from _config_utils import Config, load_config
 from _lock_utils import acquire_lock, release_lock
 from _log_utils import get_logger, setup_logging
 from _transcript_utils import (
+    ParsedTranscript,
     discover_source_files,
     import_transcript,
     infer_project_slug,
@@ -71,7 +72,7 @@ def _run_heartbeat(config: Config) -> int:
             _process_project(config, project_path, entry.name or project_path.name)
         except Exception:
             logger.exception("Error processing project: %s", project_path)
-            write_alert(
+            write_alert_with_threshold(
                 project=project_path.as_posix(),
                 alert_type="push_failed",
                 message=f"Heartbeat error for project: {project_path.name}",
@@ -129,7 +130,7 @@ def _process_project(config: Config, project_path: Path, project_name: str) -> N
     _git_commit_and_push(config, project_path, project_name, imported_count)
 
 
-def _scan_sensitive(parsed, project_path: Path) -> None:
+def _scan_sensitive(parsed: ParsedTranscript, project_path: Path) -> None:
     """Scan transcript messages for sensitive patterns. Warn only, never delete."""
     logger = get_logger()
     for msg in parsed.messages:
@@ -188,11 +189,14 @@ def _git_commit_and_push(config: Config, project_path: Path, project_name: str, 
         logger.warning("[%s] Push failed, retrying once...", project_name)
         if not _try_push(project_path, project_name):
             logger.error("[%s] Push failed after retry.", project_name)
-            write_alert(
+            write_alert_with_threshold(
                 project=project_path.as_posix(),
                 alert_type="push_failed",
                 message="Push failed after retry.",
             )
+            return
+
+    reset_failure_count(project_path.as_posix(), "push_failed")
 
 
 def _try_push(project_path: Path, project_name: str) -> bool:

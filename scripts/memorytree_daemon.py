@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import platform
+import shlex
 import shutil
 import subprocess
 import sys
@@ -116,7 +117,7 @@ def cmd_uninstall(_args: argparse.Namespace) -> int:
 def cmd_run_once(_args: argparse.Namespace) -> int:
     heartbeat_script = _heartbeat_script_path()
     python = _python_path()
-    result = subprocess.run([python, str(heartbeat_script)], cwd=heartbeat_script.parent)
+    result = subprocess.run([*python, str(heartbeat_script)], cwd=heartbeat_script.parent)
     return result.returncode
 
 
@@ -130,7 +131,7 @@ def cmd_watch(args: argparse.Namespace) -> int:
     print(f"Watch mode: running heartbeat every {seconds}s. Press Ctrl+C to stop.")
     try:
         while True:
-            subprocess.run([python, str(heartbeat_script)], cwd=heartbeat_script.parent)
+            subprocess.run([*python, str(heartbeat_script)], cwd=heartbeat_script.parent)
             time.sleep(seconds)
     except KeyboardInterrupt:
         print("\nWatch mode stopped.")
@@ -184,7 +185,14 @@ def _install_cron(heartbeat_script: Path, seconds: int) -> int:
     log_dir = Path.home() / ".memorytree" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    cron_line = f"*/{minutes} * * * * cd {heartbeat_script.parent} && {python} {heartbeat_script} >> {log_dir}/heartbeat-cron.log 2>&1 # memorytree"
+    python_cmd = " ".join(shlex.quote(p) for p in python)
+    cron_line = (
+        f"*/{minutes} * * * * "
+        f"cd {shlex.quote(str(heartbeat_script.parent))} && "
+        f"{python_cmd} {shlex.quote(str(heartbeat_script))} "
+        f">> {shlex.quote(str(log_dir / 'heartbeat-cron.log'))} 2>&1 "
+        f"# memorytree"
+    )
 
     existing = _get_crontab()
     new_crontab = existing.rstrip("\n") + "\n" + cron_line + "\n" if existing.strip() else cron_line + "\n"
@@ -232,6 +240,8 @@ def _install_launchd(heartbeat_script: Path, seconds: int) -> int:
     log_dir = Path.home() / ".memorytree" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
 
+    program_args = "\n".join(f"        <string>{p}</string>" for p in [*python, str(heartbeat_script)])
+
     plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -240,8 +250,7 @@ def _install_launchd(heartbeat_script: Path, seconds: int) -> int:
     <string>{LAUNCHD_LABEL}</string>
     <key>ProgramArguments</key>
     <array>
-        <string>{python}</string>
-        <string>{heartbeat_script}</string>
+{program_args}
     </array>
     <key>StartInterval</key>
     <integer>{seconds}</integer>
@@ -290,13 +299,15 @@ def _install_schtasks(heartbeat_script: Path, seconds: int) -> int:
     python = _python_path()
     minutes = max(1, seconds // 60)
 
+    tr_command = " ".join(f'"{p}"' for p in [*python, str(heartbeat_script)])
+
     result = subprocess.run(
         [
             "schtasks", "/create",
             "/tn", TASK_NAME,
             "/sc", "minute",
             "/mo", str(minutes),
-            "/tr", f'"{python}" "{heartbeat_script}"',
+            "/tr", tr_command,
             "/f",
         ],
         capture_output=True,
@@ -336,11 +347,11 @@ def _heartbeat_script_path() -> Path:
     return Path(__file__).resolve().parent / "heartbeat.py"
 
 
-def _python_path() -> str:
+def _python_path() -> list[str]:
     uv = shutil.which("uv")
     if uv:
-        return f"{uv} run python"
-    return sys.executable
+        return [uv, "run", "python"]
+    return [sys.executable]
 
 
 if __name__ == "__main__":

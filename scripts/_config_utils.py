@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 import re
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
+
+log = logging.getLogger("memorytree")
 
 
 DEFAULT_HEARTBEAT_INTERVAL = "5m"
@@ -44,11 +47,13 @@ def load_config() -> Config:
     """Load config.toml, falling back to defaults on any error."""
     path = config_path()
     if not path.exists():
+        log.info("config.toml not found, using defaults.")
         return Config()
     try:
         with path.open("rb") as fh:
             raw = tomllib.load(fh)
-    except (OSError, tomllib.TOMLDecodeError):
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        log.error("Failed to parse config.toml: %s. Using defaults.", exc)
         return Config()
     return _parse_raw(raw)
 
@@ -56,14 +61,17 @@ def load_config() -> Config:
 def _parse_raw(raw: dict) -> Config:
     interval = raw.get("heartbeat_interval", DEFAULT_HEARTBEAT_INTERVAL)
     if not isinstance(interval, str) or not _is_valid_interval(interval):
+        log.warning("Invalid heartbeat_interval '%s', using default '%s'.", interval, DEFAULT_HEARTBEAT_INTERVAL)
         interval = DEFAULT_HEARTBEAT_INTERVAL
 
     auto_push = raw.get("auto_push", DEFAULT_AUTO_PUSH)
     if not isinstance(auto_push, bool):
+        log.warning("Invalid auto_push value '%s', using default %s.", auto_push, DEFAULT_AUTO_PUSH)
         auto_push = DEFAULT_AUTO_PUSH
 
     log_level = raw.get("log_level", DEFAULT_LOG_LEVEL)
     if not isinstance(log_level, str) or log_level.lower() not in VALID_LOG_LEVELS:
+        log.warning("Invalid log_level '%s', using default '%s'.", log_level, DEFAULT_LOG_LEVEL)
         log_level = DEFAULT_LOG_LEVEL
     log_level = log_level.lower()
 

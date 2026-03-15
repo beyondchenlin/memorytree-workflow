@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from pathlib import Path
+
+log = logging.getLogger("memorytree")
 
 
 def lock_path() -> Path:
@@ -21,15 +24,23 @@ def acquire_lock() -> bool:
             stored_pid = int(path.read_text(encoding="utf-8").strip())
         except (OSError, ValueError):
             # Corrupt lock file — treat as stale
+            log.warning("Corrupt lock file detected, removing: %s", path)
             _remove_lock(path)
         else:
             if _is_process_alive(stored_pid):
                 return False
             # Stale lock from a dead process
+            log.warning("Stale lock detected (PID %d is dead), reclaiming.", stored_pid)
             _remove_lock(path)
 
+    # Use exclusive create to prevent TOCTOU race
     try:
-        path.write_text(str(os.getpid()), encoding="utf-8")
+        fd = os.open(str(path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.write(fd, str(os.getpid()).encode("utf-8"))
+        os.close(fd)
+    except FileExistsError:
+        # Another process created the lock between our check and create
+        return False
     except OSError:
         return False
     return True
