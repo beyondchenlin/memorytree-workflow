@@ -5,5 +5,5 @@ import { normalize } from 'node:path'
  * All paths written to files (JSON / SQLite / Markdown / JSONL) must use posix format.
  */
 export function toPosixPath(p: string): string {
-  return normalize(p.replace(/\\/g, '/')).replace(/\\/g, '/')
+  return normalize(p.replace(/\\/g, '/').replace(/\/+/g, '/')).replace(/\\/g, '/')
 }
