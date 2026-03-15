@@ -10,7 +10,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 SCRIPTS_DIR = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
@@ -26,7 +26,27 @@ from _transcript_parse import (  # noqa: E402
 )
 
 # heartbeat imports
-from heartbeat import SENSITIVE_PATTERNS, _scan_sensitive  # noqa: E402
+from heartbeat import (  # noqa: E402
+    SENSITIVE_PATTERNS,
+    _git,
+    _git_commit_and_push,
+    _process_project,
+    _run_heartbeat,
+    _scan_sensitive,
+    _try_push,
+    main as heartbeat_main,
+)
+from _config_utils import Config, ProjectEntry  # noqa: E402
+from _log_utils import LOGGER_NAME  # noqa: E402
+
+
+def _null_logger() -> logging.Logger:
+    """Return a silent logger for test isolation."""
+    logger = logging.getLogger(LOGGER_NAME)
+    logger.handlers.clear()
+    logger.addHandler(logging.NullHandler())
+    logger.setLevel(logging.DEBUG)
+    return logger
 
 
 def _make_claude_jsonl(path: Path, cwd: str = "") -> None:
@@ -218,18 +238,99 @@ class SensitiveScanTest(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 4: heartbeat integration (git init → import → commit)
+# Scenario 4: heartbeat integration — calling heartbeat.py functions directly
 # ---------------------------------------------------------------------------
 
 
-class HeartbeatIntegrationTest(unittest.TestCase):
-    """Full heartbeat cycle: discover → import → git commit."""
+class HeartbeatMainTest(unittest.TestCase):
+    """Tests for heartbeat.main() — lock, dispatch, release."""
 
-    def test_heartbeat_imports_and_commits(self) -> None:
+    def test_lock_failure_returns_zero(self) -> None:
+        logger = _null_logger()
+        with (
+            patch("heartbeat.load_config", return_value=Config()),
+            patch("heartbeat.setup_logging", return_value=logger),
+            patch("heartbeat.acquire_lock", return_value=False),
+            patch("heartbeat.write_alert") as mock_alert,
+            patch("heartbeat.release_lock") as mock_release,
+        ):
+            result = heartbeat_main()
+        self.assertEqual(result, 0)
+        mock_alert.assert_called_once()
+        mock_release.assert_not_called()
+
+    def test_lock_acquired_runs_and_releases(self) -> None:
+        logger = _null_logger()
+        config = Config()  # no projects → _run_heartbeat returns 0 quickly
+        with (
+            patch("heartbeat.load_config", return_value=config),
+            patch("heartbeat.setup_logging", return_value=logger),
+            patch("heartbeat.acquire_lock", return_value=True),
+            patch("heartbeat.release_lock") as mock_release,
+            patch("heartbeat.get_logger", return_value=logger),
+        ):
+            result = heartbeat_main()
+        self.assertEqual(result, 0)
+        mock_release.assert_called_once()
+
+
+class RunHeartbeatTest(unittest.TestCase):
+    """Tests for heartbeat._run_heartbeat()."""
+
+    def test_no_projects_returns_zero(self) -> None:
+        logger = _null_logger()
+        with patch("heartbeat.get_logger", return_value=logger):
+            result = _run_heartbeat(Config())
+        self.assertEqual(result, 0)
+
+    def test_with_projects_calls_process_project(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = Path(tmp) / "repo"
+            proj.mkdir()
+            config = Config(projects=[ProjectEntry(path=proj.as_posix(), name="repo")])
+            with (
+                patch("heartbeat.get_logger", return_value=logger),
+                patch("heartbeat._process_project") as mock_pp,
+            ):
+                _run_heartbeat(config)
+            mock_pp.assert_called_once()
+
+    def test_missing_project_path_skipped(self) -> None:
+        logger = _null_logger()
+        config = Config(projects=[ProjectEntry(path="/nonexistent/path/xyz", name="ghost")])
+        with (
+            patch("heartbeat.get_logger", return_value=logger),
+            patch("heartbeat._process_project") as mock_pp,
+        ):
+            _run_heartbeat(config)
+        mock_pp.assert_not_called()
+
+    def test_process_project_exception_writes_alert(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = Path(tmp) / "repo"
+            proj.mkdir()
+            config = Config(projects=[ProjectEntry(path=proj.as_posix(), name="repo")])
+            with (
+                patch("heartbeat.get_logger", return_value=logger),
+                patch("heartbeat._process_project", side_effect=RuntimeError("boom")),
+                patch("heartbeat.write_alert_with_threshold") as mock_alert,
+            ):
+                _run_heartbeat(config)
+            mock_alert.assert_called_once()
+
+
+class ProcessProjectTest(unittest.TestCase):
+    """Tests for heartbeat._process_project() — full discover→import→git cycle."""
+
+    def test_process_project_imports_and_commits(self) -> None:
+        """End-to-end: real file system, real git, calling _process_project directly."""
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp) / "myrepo"
             project_root.mkdir()
-            global_root = Path(tmp) / "global_transcripts"
+            home_dir = Path(tmp) / "fakehome"
+            home_dir.mkdir()
 
             # Init git repo
             subprocess.run(["git", "init"], cwd=project_root, capture_output=True, check=True)
@@ -242,21 +343,18 @@ class HeartbeatIntegrationTest(unittest.TestCase):
                 cwd=project_root, capture_output=True, check=True,
             )
 
-            # Create Memory/ structure + a placeholder so git has something to commit
+            # Create Memory/ + initial commit
             create_memory_dirs(project_root)
             (project_root / "Memory" / ".gitkeep").write_text("", encoding="utf-8")
-
-            # Create initial commit so HEAD exists
             subprocess.run(["git", "add", "."], cwd=project_root, capture_output=True, check=True)
             subprocess.run(
                 ["git", "commit", "-m", "init"],
                 cwd=project_root, capture_output=True, check=True,
             )
 
-            # Create mock Claude transcript pointing at this project
+            # Create mock Claude transcript
             claude_root = Path(tmp) / ".claude"
-            slug = "myrepo"
-            transcript_file = claude_root / "projects" / slug / "session.jsonl"
+            transcript_file = claude_root / "projects" / "myrepo" / "session.jsonl"
             _make_claude_jsonl(transcript_file, cwd=project_root.as_posix())
 
             mock_roots = {
@@ -264,83 +362,202 @@ class HeartbeatIntegrationTest(unittest.TestCase):
                 "codex": Path(tmp) / ".codex",
                 "gemini": Path(tmp) / ".gemini",
             }
-
-            # Import heartbeat modules
-            from _config_utils import Config, ProjectEntry  # noqa: E402
-            from _log_utils import LOGGER_NAME  # noqa: E402
-
-            config = Config(
-                projects=[ProjectEntry(path=project_root.as_posix(), name="myrepo")],
-                auto_push=False,
-            )
-
-            # Suppress logging noise
-            logger = logging.getLogger(LOGGER_NAME)
-            logger.handlers.clear()
-            logger.addHandler(logging.NullHandler())
-
-            from heartbeat import _process_project  # noqa: E402
+            config = Config(auto_push=False)
+            logger = _null_logger()
 
             with (
                 patch("_transcript_discover.default_client_roots", return_value=mock_roots),
-                patch("heartbeat.setup_logging", return_value=logger),
                 patch("heartbeat.get_logger", return_value=logger),
                 patch("heartbeat.write_alert"),
                 patch("heartbeat.write_alert_with_threshold"),
                 patch("heartbeat.reset_failure_count"),
+                patch("pathlib.Path.home", return_value=home_dir),
             ):
-                from _transcript_discover import discover_source_files as _discover  # noqa: E402
-                from _transcript_import import import_transcript as _import  # noqa: E402
-                from _transcript_parse import parse_transcript as _parse  # noqa: E402
-                from _transcript_discover import transcript_matches_repo as _matches  # noqa: E402
-                from _transcript_import import transcript_has_content as _has_content  # noqa: E402
+                _process_project(config, project_root, "myrepo")
 
-                discovered = _discover()
-                imported = 0
-                for client, source in discovered:
-                    try:
-                        parsed = _parse(client, source)
-                    except Exception:
-                        continue
-                    if not _has_content(parsed):
-                        continue
-                    if not _matches(parsed, project_root, slug):
-                        continue
-                    _import(
-                        parsed=parsed,
-                        root=project_root,
-                        global_root=global_root,
-                        project_slug=slug,
-                        raw_upload_permission="not-set",
-                        mirror_to_repo=True,
-                    )
-                    imported += 1
-
-            self.assertGreater(imported, 0, "Should have imported at least 1 transcript")
-
-            # Verify files were created in Memory/
+            # Verify transcript files imported into Memory/
             transcript_dir = project_root / "Memory" / "06_transcripts"
-            self.assertTrue(transcript_dir.exists(), "06_transcripts dir should exist")
+            self.assertTrue(transcript_dir.exists())
 
-            # Git add + commit
-            subprocess.run(["git", "add", "Memory/"], cwd=project_root, capture_output=True, check=True)
-            status = subprocess.run(
-                ["git", "status", "--porcelain", "Memory/"],
+            # Verify git committed the imports
+            log_result = subprocess.run(
+                ["git", "log", "--oneline"],
                 cwd=project_root, capture_output=True, text=True, check=True,
             )
-            if status.stdout.strip():
-                result = subprocess.run(
-                    ["git", "commit", "-m", f"memorytree(transcripts): import {imported} transcript(s)"],
-                    cwd=project_root, capture_output=True, text=True, check=True,
-                )
-                self.assertEqual(result.returncode, 0)
+            self.assertIn("memorytree(transcripts)", log_result.stdout)
 
-                # Verify git log has the commit
-                log_result = subprocess.run(
-                    ["git", "log", "--oneline", "-1"],
-                    cwd=project_root, capture_output=True, text=True, check=True,
-                )
-                self.assertIn("memorytree(transcripts)", log_result.stdout)
+    def test_no_new_transcripts_skips_commit(self) -> None:
+        logger = _null_logger()
+        config = Config()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = Path(tmp) / "repo"
+            proj.mkdir()
+            home_dir = Path(tmp) / "fakehome"
+            home_dir.mkdir()
+            # No transcripts to discover
+            mock_roots = {
+                "claude": Path(tmp) / ".claude",
+                "codex": Path(tmp) / ".codex",
+                "gemini": Path(tmp) / ".gemini",
+            }
+            with (
+                patch("_transcript_discover.default_client_roots", return_value=mock_roots),
+                patch("heartbeat.get_logger", return_value=logger),
+                patch("heartbeat._git_commit_and_push") as mock_git,
+                patch("pathlib.Path.home", return_value=home_dir),
+            ):
+                _process_project(config, proj, "repo")
+            mock_git.assert_not_called()
+
+
+class GitCommitAndPushTest(unittest.TestCase):
+    """Tests for heartbeat._git_commit_and_push()."""
+
+    def _git_repo(self, tmp: str) -> Path:
+        proj = Path(tmp) / "repo"
+        proj.mkdir()
+        subprocess.run(["git", "init"], cwd=proj, capture_output=True, check=True)
+        subprocess.run(["git", "config", "user.email", "t@t.com"], cwd=proj, capture_output=True, check=True)
+        subprocess.run(["git", "config", "user.name", "T"], cwd=proj, capture_output=True, check=True)
+        (proj / "Memory").mkdir()
+        (proj / "Memory" / ".gitkeep").write_text("", encoding="utf-8")
+        subprocess.run(["git", "add", "."], cwd=proj, capture_output=True, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=proj, capture_output=True, check=True)
+        return proj
+
+    def test_no_changes_skips_commit(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = self._git_repo(tmp)
+            with patch("heartbeat.get_logger", return_value=logger):
+                _git_commit_and_push(Config(), proj, "repo", 1)
+            # Should not have a second commit
+            log = subprocess.run(
+                ["git", "log", "--oneline"], cwd=proj, capture_output=True, text=True, check=True
+            )
+            self.assertEqual(log.stdout.strip().count("\n"), 0)  # only "init"
+
+    def test_commits_when_changes_exist(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = self._git_repo(tmp)
+            # Create a change in Memory/
+            (proj / "Memory" / "new_file.txt").write_text("data", encoding="utf-8")
+            with patch("heartbeat.get_logger", return_value=logger):
+                _git_commit_and_push(Config(auto_push=False), proj, "repo", 1)
+            log = subprocess.run(
+                ["git", "log", "--oneline"], cwd=proj, capture_output=True, text=True, check=True
+            )
+            self.assertIn("memorytree(transcripts)", log.stdout)
+
+    def test_auto_push_false_skips_push(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = self._git_repo(tmp)
+            (proj / "Memory" / "new.txt").write_text("x", encoding="utf-8")
+            with (
+                patch("heartbeat.get_logger", return_value=logger),
+                patch("heartbeat._try_push") as mock_push,
+            ):
+                _git_commit_and_push(Config(auto_push=False), proj, "repo", 1)
+            mock_push.assert_not_called()
+
+    def test_no_remote_writes_alert(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = self._git_repo(tmp)
+            (proj / "Memory" / "new.txt").write_text("x", encoding="utf-8")
+            with (
+                patch("heartbeat.get_logger", return_value=logger),
+                patch("heartbeat.write_alert") as mock_alert,
+            ):
+                _git_commit_and_push(Config(auto_push=True), proj, "repo", 1)
+            # No remote configured → alert
+            mock_alert.assert_called_once()
+            self.assertEqual(mock_alert.call_args[1].get("alert_type") or mock_alert.call_args[0][1], "no_remote")
+
+    def test_push_success_resets_failure(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = self._git_repo(tmp)
+            (proj / "Memory" / "new.txt").write_text("x", encoding="utf-8")
+            # Add a fake remote so push path is taken
+            subprocess.run(
+                ["git", "remote", "add", "origin", "https://example.com/repo.git"],
+                cwd=proj, capture_output=True, check=True,
+            )
+            with (
+                patch("heartbeat.get_logger", return_value=logger),
+                patch("heartbeat._try_push", return_value=True) as mock_push,
+                patch("heartbeat.reset_failure_count") as mock_reset,
+            ):
+                _git_commit_and_push(Config(auto_push=True), proj, "repo", 1)
+            mock_push.assert_called_once()
+            mock_reset.assert_called_once()
+
+    def test_push_fail_retry_then_alert(self) -> None:
+        logger = _null_logger()
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = self._git_repo(tmp)
+            (proj / "Memory" / "new.txt").write_text("x", encoding="utf-8")
+            subprocess.run(
+                ["git", "remote", "add", "origin", "https://example.com/repo.git"],
+                cwd=proj, capture_output=True, check=True,
+            )
+            with (
+                patch("heartbeat.get_logger", return_value=logger),
+                patch("heartbeat._try_push", return_value=False) as mock_push,
+                patch("heartbeat.write_alert_with_threshold") as mock_alert,
+            ):
+                _git_commit_and_push(Config(auto_push=True), proj, "repo", 1)
+            self.assertEqual(mock_push.call_count, 2)  # initial + 1 retry
+            mock_alert.assert_called_once()
+
+
+class TryPushTest(unittest.TestCase):
+    """Tests for heartbeat._try_push()."""
+
+    def test_success(self) -> None:
+        logger = _null_logger()
+        with (
+            patch("heartbeat.get_logger", return_value=logger),
+            patch("heartbeat._git", return_value=""),
+        ):
+            self.assertTrue(_try_push(Path("/repo"), "proj"))
+
+    def test_failure(self) -> None:
+        logger = _null_logger()
+        with (
+            patch("heartbeat.get_logger", return_value=logger),
+            patch("heartbeat._git", side_effect=subprocess.CalledProcessError(1, "git push")),
+        ):
+            self.assertFalse(_try_push(Path("/repo"), "proj"))
+
+
+class GitHelperTest(unittest.TestCase):
+    """Tests for heartbeat._git() subprocess wrapper."""
+
+    def test_returns_stdout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = Path(tmp)
+            subprocess.run(["git", "init"], cwd=proj, capture_output=True, check=True)
+            output = _git(proj, "status", "--porcelain")
+            self.assertIsInstance(output, str)
+
+    def test_non_zero_raises_for_non_status(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = Path(tmp)
+            subprocess.run(["git", "init"], cwd=proj, capture_output=True, check=True)
+            with self.assertRaises(subprocess.CalledProcessError):
+                _git(proj, "log")  # no commits → error
+
+    def test_status_and_remote_tolerate_non_zero(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proj = Path(tmp)
+            subprocess.run(["git", "init"], cwd=proj, capture_output=True, check=True)
+            # These should not raise even on non-zero exit
+            _git(proj, "status", "--porcelain", "nonexistent/")
+            _git(proj, "remote")
 
 
 if __name__ == "__main__":
