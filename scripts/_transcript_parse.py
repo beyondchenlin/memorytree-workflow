@@ -13,6 +13,8 @@ from _transcript_common import (
     TEXT_BLOCK_TYPES,
     TOOL_RESULT_TYPES,
     TOOL_USE_TYPES,
+    deduplicate_messages,
+    deduplicate_tool_events,
     earliest_timestamp,
     ensure_dict,
     ensure_list,
@@ -170,6 +172,9 @@ def parse_codex_transcript(path: Path) -> ParsedTranscript:
                 )
             )
 
+    messages = deduplicate_messages(messages)
+    tool_events = deduplicate_tool_events(tool_events)
+
     return ParsedTranscript(
         client="codex",
         session_id=session_id,
@@ -256,6 +261,9 @@ def parse_claude_transcript(path: Path) -> ParsedTranscript:
         if role in {"user", "assistant"} and text:
             messages.append(TranscriptMessage(role=role, text=text, timestamp=timestamp))
 
+    messages = deduplicate_messages(messages)
+    tool_events = deduplicate_tool_events(tool_events)
+
     return ParsedTranscript(
         client="claude",
         session_id=session_id,
@@ -288,7 +296,6 @@ def parse_gemini_transcript(path: Path) -> ParsedTranscript:
     else:
         payload = json.loads(path.read_text(encoding="utf-8"))
 
-    message_signatures: set[tuple[str, str, str | None]] = set()
     first_meta = find_first_mapping_with_keys(payload, {"sessionId", "chatId", "cwd", "branch", "timestamp"})
     if first_meta:
         session_id = str(first_meta.get("sessionId") or first_meta.get("chatId") or first_meta.get("id") or session_id)
@@ -315,9 +322,7 @@ def parse_gemini_transcript(path: Path) -> ParsedTranscript:
         if role in {"user", "assistant", "model"}:
             normalized_role = "assistant" if role == "model" else role
             text = extract_gemini_text(node)
-            signature = (normalized_role, text, timestamp)
-            if text and signature not in message_signatures:
-                message_signatures.add(signature)
+            if text:
                 messages.append(TranscriptMessage(role=normalized_role, text=text, timestamp=timestamp))
 
         tool_name = (
@@ -338,6 +343,9 @@ def parse_gemini_transcript(path: Path) -> ParsedTranscript:
             visit(value)
 
     visit(payload)
+
+    messages = deduplicate_messages(messages)
+    tool_events = deduplicate_tool_events(tool_events)
 
     return ParsedTranscript(
         client="gemini",

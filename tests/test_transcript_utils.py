@@ -14,6 +14,8 @@ from _transcript_utils import (  # noqa: E402
     ParsedTranscript,
     TranscriptMessage,
     TranscriptToolEvent,
+    deduplicate_messages,
+    deduplicate_tool_events,
     earliest_timestamp,
     import_transcript,
     infer_client,
@@ -459,6 +461,164 @@ class ImportTranscriptTests(unittest.TestCase):
 
             self.assertEqual(result1["raw_sha256"], result2["raw_sha256"])
             self.assertEqual(result1["imported_at"], result2["imported_at"])
+
+
+class DeduplicateMessagesTests(unittest.TestCase):
+    def test_no_duplicates_unchanged(self) -> None:
+        msgs = [
+            TranscriptMessage(role="user", text="Hello", timestamp="2026-03-14T10:00:00Z"),
+            TranscriptMessage(role="assistant", text="Hi", timestamp="2026-03-14T10:00:01Z"),
+        ]
+        result = deduplicate_messages(msgs)
+        self.assertEqual(len(result), 2)
+
+    def test_exact_duplicate_removed(self) -> None:
+        msgs = [
+            TranscriptMessage(role="user", text="Hello", timestamp="2026-03-14T10:00:00Z"),
+            TranscriptMessage(role="user", text="Hello", timestamp="2026-03-14T10:00:00Z"),
+        ]
+        result = deduplicate_messages(msgs)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].text, "Hello")
+
+    def test_same_content_different_timestamp_kept(self) -> None:
+        msgs = [
+            TranscriptMessage(role="user", text="Hello", timestamp="2026-03-14T10:00:00Z"),
+            TranscriptMessage(role="user", text="Hello", timestamp="2026-03-14T10:05:00Z"),
+        ]
+        result = deduplicate_messages(msgs)
+        self.assertEqual(len(result), 2)
+
+    def test_same_role_timestamp_different_content_kept(self) -> None:
+        msgs = [
+            TranscriptMessage(role="user", text="Hello", timestamp="2026-03-14T10:00:00Z"),
+            TranscriptMessage(role="user", text="Goodbye", timestamp="2026-03-14T10:00:00Z"),
+        ]
+        result = deduplicate_messages(msgs)
+        self.assertEqual(len(result), 2)
+
+    def test_preserves_order(self) -> None:
+        msgs = [
+            TranscriptMessage(role="user", text="First", timestamp="2026-03-14T10:00:00Z"),
+            TranscriptMessage(role="assistant", text="Second", timestamp="2026-03-14T10:00:01Z"),
+            TranscriptMessage(role="user", text="First", timestamp="2026-03-14T10:00:00Z"),
+        ]
+        result = deduplicate_messages(msgs)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].text, "First")
+        self.assertEqual(result[1].text, "Second")
+
+    def test_empty_list(self) -> None:
+        self.assertEqual(deduplicate_messages([]), [])
+
+    def test_returns_new_list(self) -> None:
+        msgs = [TranscriptMessage(role="user", text="Hello", timestamp="2026-03-14T10:00:00Z")]
+        result = deduplicate_messages(msgs)
+        self.assertIsNot(result, msgs)
+
+
+class DeduplicateToolEventsTests(unittest.TestCase):
+    def test_no_duplicates_unchanged(self) -> None:
+        events = [
+            TranscriptToolEvent(summary="read_file input=/a.txt", timestamp="2026-03-14T10:00:00Z"),
+            TranscriptToolEvent(summary="write_file input=/b.txt", timestamp="2026-03-14T10:00:01Z"),
+        ]
+        result = deduplicate_tool_events(events)
+        self.assertEqual(len(result), 2)
+
+    def test_exact_duplicate_removed(self) -> None:
+        events = [
+            TranscriptToolEvent(summary="read_file input=/a.txt", timestamp="2026-03-14T10:00:00Z"),
+            TranscriptToolEvent(summary="read_file input=/a.txt", timestamp="2026-03-14T10:00:00Z"),
+        ]
+        result = deduplicate_tool_events(events)
+        self.assertEqual(len(result), 1)
+
+    def test_empty_list(self) -> None:
+        self.assertEqual(deduplicate_tool_events([]), [])
+
+    def test_returns_new_list(self) -> None:
+        events = [TranscriptToolEvent(summary="read_file", timestamp="2026-03-14T10:00:00Z")]
+        result = deduplicate_tool_events(events)
+        self.assertIsNot(result, events)
+
+
+class CodexDeduplicationIntegrationTests(unittest.TestCase):
+    def test_codex_deduplicates_messages(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "session.jsonl"
+            msg = {"type": "response_item", "timestamp": "2026-03-14T10:00:00Z",
+                   "payload": {"type": "message", "role": "user",
+                               "content": [{"type": "input_text", "text": "Hello"}]}}
+            records = [msg, msg]
+            path.write_text("\n".join(json.dumps(r) for r in records), encoding="utf-8")
+
+            parsed = parse_codex_transcript(path)
+            self.assertEqual(len(parsed.messages), 1)
+
+    def test_codex_deduplicates_tool_events(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "session.jsonl"
+            evt = {"type": "response_item", "timestamp": "2026-03-14T10:00:00Z",
+                   "payload": {"type": "function_call", "name": "read_file", "arguments": "/a.txt"}}
+            records = [evt, evt]
+            path.write_text("\n".join(json.dumps(r) for r in records), encoding="utf-8")
+
+            parsed = parse_codex_transcript(path)
+            self.assertEqual(len(parsed.tool_events), 1)
+
+
+class ClaudeDeduplicationIntegrationTests(unittest.TestCase):
+    def test_claude_deduplicates_messages(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "session.jsonl"
+            msg = {"type": "user", "timestamp": "2026-03-14T10:00:00Z",
+                   "message": {"role": "user", "content": "Hello"}}
+            records = [msg, msg]
+            path.write_text("\n".join(json.dumps(r) for r in records), encoding="utf-8")
+
+            parsed = parse_claude_transcript(path)
+            self.assertEqual(len(parsed.messages), 1)
+
+    def test_claude_deduplicates_tool_events(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "session.jsonl"
+            rec = {"type": "assistant", "timestamp": "2026-03-14T10:00:00Z",
+                   "message": {"role": "assistant", "content": [
+                       {"type": "tool_use", "name": "Read", "input": {"path": "/a.txt"}},
+                   ]}}
+            records = [rec, rec]
+            path.write_text("\n".join(json.dumps(r) for r in records), encoding="utf-8")
+
+            parsed = parse_claude_transcript(path)
+            self.assertEqual(len(parsed.tool_events), 1)
+
+
+class GeminiDeduplicationIntegrationTests(unittest.TestCase):
+    def test_gemini_deduplicates_messages(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "chat.json"
+            data = [
+                {"role": "user", "text": "Hello", "timestamp": "2026-03-14T10:00:00Z"},
+                {"role": "user", "text": "Hello", "timestamp": "2026-03-14T10:00:00Z"},
+                {"role": "model", "text": "Hi", "timestamp": "2026-03-14T10:00:01Z"},
+            ]
+            path.write_text(json.dumps(data), encoding="utf-8")
+
+            parsed = parse_gemini_transcript(path)
+            self.assertEqual(len(parsed.messages), 2)
+
+    def test_gemini_deduplicates_tool_events(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "chat.json"
+            data = [
+                {"toolName": "read_file", "args": "/a.txt", "timestamp": "2026-03-14T10:00:00Z"},
+                {"toolName": "read_file", "args": "/a.txt", "timestamp": "2026-03-14T10:00:00Z"},
+            ]
+            path.write_text(json.dumps(data), encoding="utf-8")
+
+            parsed = parse_gemini_transcript(path)
+            self.assertEqual(len(parsed.tool_events), 1)
 
 
 if __name__ == "__main__":

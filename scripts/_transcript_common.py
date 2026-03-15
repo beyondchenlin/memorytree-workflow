@@ -7,7 +7,10 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from _transcript_parse import TranscriptMessage, TranscriptToolEvent
 
 
 # ---------------------------------------------------------------------------
@@ -255,3 +258,36 @@ def find_first_mapping_with_keys(value: Any, keys: set[str]) -> dict[str, Any] |
             if result is not None:
                 return result
     return None
+
+
+# ---------------------------------------------------------------------------
+# Deduplication helpers
+# ---------------------------------------------------------------------------
+
+
+def _content_hash(text: str) -> str:
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
+def deduplicate_messages(messages: list[TranscriptMessage]) -> list[TranscriptMessage]:
+    """Deduplicate based on (timestamp, role, content_sha256_prefix). Keep first."""
+    seen: set[tuple[str | None, str, str]] = set()
+    result: list[TranscriptMessage] = []
+    for msg in messages:
+        sig = (msg.timestamp, msg.role, _content_hash(msg.text))
+        if sig not in seen:
+            seen.add(sig)
+            result.append(msg)
+    return result
+
+
+def deduplicate_tool_events(events: list[TranscriptToolEvent]) -> list[TranscriptToolEvent]:
+    """Deduplicate based on (timestamp, summary_sha256_prefix). Keep first."""
+    seen: set[tuple[str | None, str]] = set()
+    result: list[TranscriptToolEvent] = []
+    for evt in events:
+        sig = (evt.timestamp, _content_hash(evt.summary))
+        if sig not in seen:
+            seen.add(sig)
+            result.append(evt)
+    return result
