@@ -19,16 +19,13 @@ from _alert_utils import reset_failure_count, write_alert, write_alert_with_thre
 from _config_utils import Config, load_config
 from _lock_utils import acquire_lock, release_lock
 from _log_utils import get_logger, setup_logging
-from _transcript_utils import (
-    ParsedTranscript,
+from _transcript_discover import (
     discover_source_files,
-    import_transcript,
     infer_project_slug,
-    parse_transcript,
-    slugify,
-    transcript_has_content,
     transcript_matches_repo,
 )
+from _transcript_import import import_transcript, transcript_has_content
+from _transcript_parse import ParsedTranscript, parse_transcript, slugify
 
 SENSITIVE_PATTERNS = [
     re.compile(r"(?:api[_-]?key|apikey)\s*[:=]\s*\S+", re.IGNORECASE),

@@ -10,17 +10,14 @@ import argparse
 import json
 from pathlib import Path
 
-from _transcript_utils import (
-    CLIENTS,
+from _transcript_discover import (
     default_global_transcript_root,
     discover_source_files,
-    import_transcript,
     infer_project_slug,
-    parse_transcript,
-    slugify,
-    transcript_has_content,
     transcript_matches_repo,
 )
+from _transcript_import import import_transcript, transcript_has_content
+from _transcript_parse import CLIENTS, parse_transcript, slugify
 
 
 def main() -> int:
