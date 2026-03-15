@@ -29,14 +29,70 @@ The `memorytree-daemon` command manages the heartbeat lifecycle:
 | `watch`     | Run a continuous loop for development and debugging only. |
 | `status`    | Show whether a heartbeat task is registered and its last execution result. |
 
+## OS Scheduler Integration
+
+`memorytree-daemon install` detects the current platform and registers the heartbeat using the native scheduler:
+
+### Linux (cron)
+
+```text
+*/5 * * * * /path/to/python /path/to/heartbeat.py >> ~/.memorytree/logs/heartbeat-cron.log 2>&1
+```
+
+Detection: check for existing entry with `crontab -l | grep memorytree`.
+Removal: `crontab -l | grep -v memorytree | crontab -`.
+
+### macOS (launchd)
+
+Write a plist to `~/Library/LaunchAgents/com.memorytree.heartbeat.plist`:
+
+```xml
+<key>ProgramArguments</key>
+<array>
+  <string>/path/to/python</string>
+  <string>/path/to/heartbeat.py</string>
+</array>
+<key>StartInterval</key>
+<integer>300</integer>
+```
+
+Load with `launchctl load`, unload with `launchctl unload`.
+
+### Windows (Task Scheduler)
+
+```text
+schtasks /create /tn "MemoryTree Heartbeat" /sc minute /mo 5 /tr "python heartbeat.py" /f
+```
+
+Detection: `schtasks /query /tn "MemoryTree Heartbeat"`.
+Removal: `schtasks /delete /tn "MemoryTree Heartbeat" /f`.
+
 ## Execution Flow
 
-1. Acquire `~/.memorytree/heartbeat.lock`. If the lock is held, exit immediately.
-2. Load `~/.memorytree/config.toml`.
+1. Acquire `~/.memorytree/heartbeat.lock`. If the lock is held by a live process, exit immediately.
+2. Load `~/.memorytree/config.toml`. If the file is missing or malformed, use built-in defaults and log a warning.
 3. Iterate over registered projects in `config.toml`.
-4. For each project: discover new transcripts → import → clean → commit.
-5. If `auto_push = true` and a Git remote exists, push.
+4. For each project: discover new transcripts → import → clean → commit. If any step fails for one project, log the error, write an alert, and continue to the next project. Never abort the entire heartbeat run because of a single project failure.
+5. If `auto_push = true` and a Git remote exists, push. If the push fails, retry once. On second failure, write an alert and continue.
 6. Release the lock and exit.
+
+## Lock Mechanism
+
+The heartbeat uses a PID-based lock file at `~/.memorytree/heartbeat.lock`:
+
+1. On startup, check if the lock file exists.
+2. If it exists, read the PID from the file. Check whether that PID is still alive (`os.kill(pid, 0)` on Unix, `OpenProcess` on Windows).
+3. If the PID is alive, the lock is held — exit immediately with a `lock_held` alert.
+4. If the PID is not alive (stale lock from a crashed process), delete the lock file, log a warning, and proceed.
+5. Write the current PID to the lock file.
+6. On exit (normal or error), always delete the lock file. Use `try/finally` to ensure cleanup.
+
+## Error Handling
+
+- **Per-project isolation**: A failure in one project must not prevent other projects from being processed. Catch exceptions at the project level, log the error, write an alert, and continue.
+- **Failure threshold**: After 3 consecutive failures for the same project across heartbeat runs, write a `push_failed` or relevant alert to `~/.memorytree/alerts.json`. The count resets on a successful run.
+- **Config errors**: If `config.toml` contains invalid values (e.g., negative interval, non-existent path), use built-in defaults for those fields and log a warning. Do not abort.
+- **Git errors**: If `git add` or `git commit` fails, skip the push for that project and write an alert. Do not attempt to push uncommitted state.
 
 ## Sensitive Info Scanning
 
@@ -76,8 +132,9 @@ When the user asks to see their most recent conversation (e.g., "look at my last
 1. Scan all three client transcript directories for the current project.
 2. Incrementally import any new transcripts into the global archive and project mirror.
 3. Query the global index (`sessions.jsonl` / `search.sqlite`) with `project = current directory`, sorted by timestamp descending.
-4. Exclude the current session to avoid returning the session that just started.
-5. Load the matched transcript and generate a continuation summary using model tokens.
+4. Exclude the current session: record the skill activation timestamp when the session starts. Any transcript with `started_at` >= activation timestamp is considered the current session and excluded. This approach is cross-client and does not require knowing client-specific session IDs.
+5. If no matching previous session is found, inform the user: "No previous session found for this project." Do not generate a summary.
+6. Load the matched transcript and generate a continuation summary using model tokens.
 
 The continuation summary should extract:
 

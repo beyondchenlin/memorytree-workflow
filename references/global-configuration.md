@@ -42,6 +42,18 @@ Path roots:
 
 Projects are added automatically when the skill activates in a repository and can also be added manually.
 
+### Validation
+
+If `config.toml` contains invalid values, the heartbeat uses built-in defaults for those fields and logs a warning:
+
+- `heartbeat_interval`: must be a positive duration string (e.g., `"5m"`, `"300s"`). Invalid or zero values fall back to `"5m"`.
+- `watch_dirs`: non-existent directories are silently skipped during scanning.
+- `projects`: entries with non-existent `path` values are skipped during the heartbeat run (not removed from config).
+- `auto_push`: non-boolean values fall back to `true`.
+- `log_level`: unrecognized values fall back to `"info"`.
+
+If the file itself is malformed TOML, the heartbeat logs an error, uses all built-in defaults, and continues.
+
 ## alerts.json
 
 A JSON array of alert objects. Each object has:
@@ -65,7 +77,18 @@ Alert types:
 | `push_failed`     | Push attempted but failed (network, auth, protected branch). |
 | `lock_held`       | Heartbeat exited because another instance held the lock. |
 
-When the skill activates in an interactive session, it reads `alerts.json`, displays pending alerts to the user, and clears acknowledged entries.
+When the skill activates in an interactive session, it reads `alerts.json`, displays pending alerts to the user, and clears all displayed entries (display = acknowledgement, no explicit dismiss required).
+
+Alert lifecycle rules:
+
+1. **Deduplication**: Before appending a new alert, check if an existing alert with the same `project` and `type` exists. If so, increment its `count` and update its `timestamp` instead of adding a duplicate.
+2. **Maximum entries**: Keep at most 100 alert entries. When the limit is reached, drop the oldest entries first.
+3. **Clearing**: After the skill displays alerts to the user, remove all displayed entries from the file. If the file becomes empty, delete it.
+4. **Failure threshold**: The heartbeat writes a `push_failed` alert only after 3 consecutive failures for the same project. The count resets on a successful push.
+
+## Python Version
+
+Scripts in this project require Python 3.11 or later. The `tomllib` module (stdlib in 3.11+) is used for `config.toml` parsing. No third-party TOML packages are needed.
 
 ## Project Registration
 

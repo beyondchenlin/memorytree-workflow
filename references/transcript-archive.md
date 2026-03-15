@@ -143,11 +143,12 @@ When the user opens a new session and asks to see their most recent conversation
 
 1. Trigger an on-demand sync: immediately scan all three client transcript directories for the current project, bypassing the scheduled heartbeat interval. See `references/heartbeat-scheduling.md`.
 2. Query the global index with `project = current directory` and `client IN (claude, codex, gemini)`, sorted by timestamp descending.
-3. Exclude the current session ID to avoid returning the session that just started.
+3. Exclude the current session: any transcript with `started_at` >= the skill's activation timestamp is considered the current session and excluded. This is cross-client and does not require client-specific session ID knowledge.
 4. Load the located transcript: prefer cleaned Markdown for readability, confirm against raw when exact wording matters.
 5. Supplement with the latest `Memory/03_chat_logs/` entry if the previous session wrote a chat log summary.
 6. Generate a continuation summary (consumes model tokens) that extracts: the problem under discussion, approaches tried, progress made, and what remains unresolved.
 7. Include source metadata in the output: client name, session timestamp, approximate duration.
+8. If no matching previous session is found for the current project, inform the user: "No previous session found for this project." Do not generate a summary.
 
 This feature covers all three clients. A user who worked in Codex and then opens Claude Code can recover the Codex session context, and vice versa.
 

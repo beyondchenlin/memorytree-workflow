@@ -7,7 +7,7 @@
 **Persistent, Git-tracked project memory for AI coding assistants.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-cc785c.svg?logo=anthropic&logoColor=white)](https://claude.ai/claude-code)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#requirements)
 
@@ -288,7 +288,7 @@ cd ~/.claude/skills/memorytree-workflow && git pull
 ## Requirements
 
 - [Claude Code](https://claude.ai/claude-code) CLI
-- Python 3.9+ (for transcript scripts; prefer `uv run python`)
+- Python 3.11+ (for transcript and heartbeat scripts; `tomllib` is stdlib in 3.11+)
 - Git
 
 ## License
