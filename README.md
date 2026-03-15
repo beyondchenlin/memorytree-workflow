@@ -7,7 +7,7 @@
 **Persistent, Git-tracked project memory for AI coding assistants.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-cc785c.svg?logo=anthropic&logoColor=white)](https://claude.ai/claude-code)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#requirements)
 
@@ -16,7 +16,7 @@
   <a href="#usage">Usage</a> &nbsp;&bull;&nbsp;
   <a href="#features">Features</a> &nbsp;&bull;&nbsp;
   <a href="#background-heartbeat">Heartbeat</a> &nbsp;&bull;&nbsp;
-  <a href="#scripts">Scripts</a> &nbsp;&bull;&nbsp;
+  <a href="#cli">CLI</a> &nbsp;&bull;&nbsp;
   <a href="#reference-docs">Docs</a>
 </p>
 
@@ -42,11 +42,13 @@ All stored as plain Markdown files under `Memory/`, tracked by Git, minimal depe
 
 ```bash
 git clone https://github.com/beyondchenlin/memorytree-workflow ~/.claude/skills/memorytree-workflow
+cd ~/.claude/skills/memorytree-workflow && npm install && npm run build
 ```
 
 On Windows (Git Bash):
 ```bash
 git clone https://github.com/beyondchenlin/memorytree-workflow "$USERPROFILE/.claude/skills/memorytree-workflow"
+cd "$USERPROFILE/.claude/skills/memorytree-workflow" && npm install && npm run build
 ```
 
 ## Usage
@@ -101,7 +103,7 @@ Cross-project shared state:
     clean/                   #   Cleaned Markdown
     index/
       sessions.jsonl         #   Session metadata
-      search.sqlite          #   Full-text search index
+      search.sqlite          #   Search index
 ```
 
 For the full schema see [`references/global-configuration.md`](references/global-configuration.md).
@@ -125,8 +127,8 @@ Import AI chat history from three clients:
 | Client | Source |
 |--------|--------|
 | **Codex** | `~/.codex/sessions/**/rollout-*.jsonl` |
-| **Claude Code** | `transcript_path` if exposed; otherwise `~/.claude/projects/<project>/*.jsonl` |
-| **Gemini CLI** | Saved chats first; checkpoints under `~/.gemini/tmp/<hash>/checkpoints` if enabled |
+| **Claude Code** | `~/.claude/projects/<project>/*.jsonl` |
+| **Gemini CLI** | `~/.gemini/tmp/<hash>/checkpoints`, `~/.gemini/history`, `~/.gemini/chats` |
 
 Key principles:
 
@@ -139,7 +141,7 @@ Key principles:
 
 When searching all memories or chat history:
 
-1. Query `search.sqlite` for fast full-text lookup
+1. Query `search.sqlite` for fast lookup
 2. Use `sessions.jsonl` for session-level metadata filtering (client, project, date range)
 3. Load matching cleaned Markdown for context; confirm exact wording against raw transcripts
 4. Combine with the current repo's `Memory/` files
@@ -196,16 +198,6 @@ During transcript cleaning, the heartbeat scans for API keys, passwords, tokens,
 | Reply language | Follows user explicit request > message language > repo locale > template locale > `en` |
 | Non-destructive | Never rewrites existing files just to translate them |
 
-### Environment Adaptation
-
-MemoryTree does not assume the target repo has a Python environment:
-
-```
-Prefer uv run python → fall back to system python → fall back to direct template scaffolding
-```
-
-Never auto-creates `.venv` or `pyproject.toml` inside the project.
-
 ## Background Heartbeat
 
 The heartbeat automates transcript discovery, import, cleaning, commit, and push without consuming model tokens or requiring human intervention.
@@ -220,18 +212,8 @@ Acquire lock → Load config.toml → Iterate projects → Discover → Import
 ### Install the daemon
 
 ```bash
-memorytree-daemon install
+memorytree daemon install
 ```
-
-### CLI commands
-
-| Command                     | Description |
-|-----------------------------|-------------|
-| `memorytree-daemon install`   | Register the heartbeat with the OS scheduler (cron / launchd / Task Scheduler). |
-| `memorytree-daemon uninstall` | Remove the scheduled heartbeat task. |
-| `memorytree-daemon run-once`  | Run a single heartbeat cycle immediately. |
-| `memorytree-daemon watch`     | Continuous loop for development and debugging only. |
-| `memorytree-daemon status`    | Show registration state and last execution result. |
 
 ### Key settings (`~/.memorytree/config.toml`)
 
@@ -254,40 +236,29 @@ For details see [`references/heartbeat-scheduling.md`](references/heartbeat-sche
 | Principle | How |
 |-----------|-----|
 | **Zero intrusion** | Never changes the repo's branch model, CI, or review process |
-| **Minimal dependencies** | Scripts target Python standard library; no third-party packages required at install time |
+| **Minimal dependencies** | Built on Node.js stdlib + sql.js (WASM); no native compilation required |
 | **Deterministic** | Transcript cleaning done by code, not model tokens |
 | **Single source of truth** | Each concept defined in one reference file, others cross-reference |
 | **Spec-driven** | Reference docs define the contract; code implements it faithfully |
 | **User asset** | Memory belongs to the user; auto_push on by default to prevent local data loss |
 
-## Scripts
+## CLI
 
-All scripts live under `scripts/` and target Python 3.11+ stdlib only (no third-party packages).
+All commands are available via `memorytree <subcommand>`:
 
-### Entry Points
-
-| Script | Purpose |
-|--------|---------|
-| [`heartbeat.py`](scripts/heartbeat.py) | Background heartbeat — discover, import, clean, commit, push transcripts |
-| [`memorytree_daemon.py`](scripts/memorytree_daemon.py) | Daemon lifecycle manager: `install` / `uninstall` / `run-once` / `watch` / `status` |
-| [`recall-session.py`](scripts/recall-session.py) | On-demand transcript sync and latest session recall for cross-session context recovery |
-| [`init-memorytree.py`](scripts/init-memorytree.py) | Scaffold `Memory/` and `AGENTS.md` for a new repository |
-| [`upgrade-memorytree.py`](scripts/upgrade-memorytree.py) | Add missing MemoryTree pieces to a partial repository |
-| [`import-transcripts.py`](scripts/import-transcripts.py) | Import one transcript into repo mirror and global archive |
-| [`discover-transcripts.py`](scripts/discover-transcripts.py) | Scan local client stores and mirror matching transcripts |
-| [`detect-memorytree-locale.py`](scripts/detect-memorytree-locale.py) | Print the effective locale for a target repository |
-
-### Internal Modules
-
-| Module | Purpose |
-|--------|---------|
-| [`_transcript_utils.py`](scripts/_transcript_utils.py) | Transcript parsing (Codex/Claude/Gemini), import, SQLite indexing, discovery |
-| [`_config_utils.py`](scripts/_config_utils.py) | Load/validate `~/.memorytree/config.toml` with `tomllib` |
-| [`_alert_utils.py`](scripts/_alert_utils.py) | Manage `alerts.json` — dedup, threshold-based alerting, failure counts |
-| [`_lock_utils.py`](scripts/_lock_utils.py) | PID-based lock file with atomic creation and stale lock detection |
-| [`_log_utils.py`](scripts/_log_utils.py) | Date-rotated file logging to `~/.memorytree/logs/` |
-| [`_scaffold_utils.py`](scripts/_scaffold_utils.py) | Template rendering and directory scaffolding helpers |
-| [`_locale_utils.py`](scripts/_locale_utils.py) | Locale detection and normalization |
+| Command | Description |
+|---------|-------------|
+| `memorytree init` | Scaffold `Memory/` and `AGENTS.md` for a new repository |
+| `memorytree upgrade` | Add missing MemoryTree pieces to a partial repository |
+| `memorytree import --source <file>` | Import one transcript into repo mirror and global archive |
+| `memorytree discover` | Scan local client stores and import matching transcripts |
+| `memorytree locale` | Print the effective locale for a target repository |
+| `memorytree recall` | On-demand transcript sync and latest session recall |
+| `memorytree daemon install` | Register heartbeat with the OS scheduler (cron / launchd / Task Scheduler) |
+| `memorytree daemon uninstall` | Remove the scheduled heartbeat task |
+| `memorytree daemon run-once` | Run a single heartbeat cycle immediately |
+| `memorytree daemon watch` | Continuous loop for development and debugging only |
+| `memorytree daemon status` | Show registration state and lock info |
 
 ## Reference Docs
 
@@ -302,19 +273,19 @@ All scripts live under `scripts/` and target Python 3.11+ stdlib only (no third-
 | [`references/transcript-archive.md`](references/transcript-archive.md) | Transcript archival, cleaning, search, and upload rules |
 | [`references/locale-selection.md`](references/locale-selection.md) | Locale choice rules |
 | [`references/response-language.md`](references/response-language.md) | Reply-language precedence |
-| [`references/execution-environment.md`](references/execution-environment.md) | How to run scripts without a project-local Python environment |
+| [`references/execution-environment.md`](references/execution-environment.md) | Runtime requirements (Node.js >= 20) |
 | [`references/upgrade-path.md`](references/upgrade-path.md) | Safe adoption flow for partial repos |
 
 ## Update
 
 ```bash
-cd ~/.claude/skills/memorytree-workflow && git pull
+cd ~/.claude/skills/memorytree-workflow && git pull && npm install && npm run build
 ```
 
 ## Requirements
 
 - [Claude Code](https://claude.ai/claude-code) CLI
-- Python 3.11+ (for transcript and heartbeat scripts; `tomllib` is stdlib in 3.11+)
+- Node.js 20+ (LTS)
 - Git
 
 ## License
