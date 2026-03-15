@@ -1,18 +1,41 @@
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/beyondchenlin/memorytree-workflow/master/assets/logo.svg" alt="MemoryTree" width="120" />
+
 # MemoryTree Workflow
 
-A Claude Code skill that adds persistent, Git-tracked project memory to any code repository.
+**Persistent, Git-tracked project memory for AI coding assistants.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-cc785c.svg?logo=anthropic&logoColor=white)](https://claude.ai/claude-code)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)]()
+
+<p>
+  <a href="#install">Install</a> &nbsp;&bull;&nbsp;
+  <a href="#usage">Usage</a> &nbsp;&bull;&nbsp;
+  <a href="#features">Features</a> &nbsp;&bull;&nbsp;
+  <a href="#background-heartbeat">Heartbeat</a> &nbsp;&bull;&nbsp;
+  <a href="#reference-docs">Docs</a>
+</p>
+
+</div>
+
+---
 
 ## What It Does
 
 MemoryTree gives AI coding assistants (Claude Code, Codex, Gemini CLI) a structured memory layer that survives across sessions:
 
-- **Goals** — track your project's north star across sessions
-- **Todos** — version-bound task lists that stay in sync with goals
-- **Chat Logs** — append-only session records for full traceability
-- **Knowledge** — durable notes, specs, and architecture decisions
-- **Transcripts** — import and archive local AI chat history from Codex, Claude Code, and Gemini CLI
+| | Feature | Description |
+|---|---------|-------------|
+| :dart: | **Goals** | Track your project's north star across sessions |
+| :white_check_mark: | **Todos** | Version-bound task lists that stay in sync with goals |
+| :speech_balloon: | **Chat Logs** | Append-only session records for full traceability |
+| :books: | **Knowledge** | Durable notes, specs, and architecture decisions |
+| :inbox_tray: | **Transcripts** | Import and archive AI chat history from Codex, Claude Code, and Gemini CLI |
 
-All stored as plain Markdown files under `Memory/`, tracked by Git, no extra dependencies.
+All stored as plain Markdown files under `Memory/`, tracked by Git, zero dependencies.
 
 ## Install
 
