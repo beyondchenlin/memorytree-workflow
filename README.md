@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-cc785c.svg?logo=anthropic&logoColor=white)](https://claude.ai/claude-code)
-[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)]()
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#requirements)
 
 <p>
   <a href="#install">Install</a> &nbsp;&bull;&nbsp;
@@ -32,10 +32,10 @@ MemoryTree gives AI coding assistants (Claude Code, Codex, Gemini CLI) a structu
 | :dart: | **Goals** | Track your project's north star across sessions |
 | :white_check_mark: | **Todos** | Version-bound task lists that stay in sync with goals |
 | :speech_balloon: | **Chat Logs** | Append-only session records for full traceability |
-| :books: | **Knowledge** | Durable notes, specs, and architecture decisions |
+| :books: | **Knowledge** | Durable notes, specs, and architecture decisions (also stored in goals when scope-relevant) |
 | :inbox_tray: | **Transcripts** | Import and archive AI chat history from Codex, Claude Code, and Gemini CLI |
 
-All stored as plain Markdown files under `Memory/`, tracked by Git, zero dependencies.
+All stored as plain Markdown files under `Memory/`, tracked by Git, minimal dependencies.
 
 ## Install
 
@@ -114,8 +114,8 @@ For the full schema see [`references/global-configuration.md`](references/global
 | **Goals** | Changed only after explicit user confirmation of a scope or requirement change. Versioned. |
 | **Todos** | Kept in sync with the active goal. Updated when progress changes or next task becomes clearer. |
 | **Chat Logs** | Append-only. Never rewritten or deleted. |
-| **Knowledge** | Stores architecture decisions, product ideas, operating constraints. |
-| **Archive** | Stale context moved here to keep active files concise. |
+| **Knowledge** | Stores architecture decisions, product ideas, operating constraints. Goals may also hold scope-relevant items. |
+| **Archive** | Stale context moved here or to knowledge files to keep active files concise. |
 
 ### Multi-Client Transcript Import
 
@@ -124,8 +124,8 @@ Import AI chat history from three clients:
 | Client | Source |
 |--------|--------|
 | **Codex** | `~/.codex/sessions/**/rollout-*.jsonl` |
-| **Claude Code** | `~/.claude/projects/<project>/*.jsonl` |
-| **Gemini CLI** | Saved chats or checkpoints under `~/.gemini/` |
+| **Claude Code** | `transcript_path` if exposed; otherwise `~/.claude/projects/<project>/*.jsonl` |
+| **Gemini CLI** | Saved chats first; checkpoints under `~/.gemini/tmp/<hash>/checkpoints` if enabled |
 
 Key principles:
 
@@ -150,7 +150,7 @@ MemoryTree follows strict isolation rules to never interfere with your repo's wo
 
 | Rule | Description |
 |------|-------------|
-| File isolation | Only stages/commits `Memory/**` and `AGENTS.md` — never product code |
+| File isolation | Only stages/commits `Memory/**` (excluding `raw/` until approved) and `AGENTS.md` (when managed by MemoryTree) |
 | Branch isolation | Uses dedicated branch `memorytree/<scope>-<date>-<slug>` |
 | Commit format | `memorytree(<scope>): <subject>` or repo-compatible equivalent |
 | PR isolation | Separate PR for MemoryTree-only changes |
@@ -175,7 +175,7 @@ During transcript cleaning, the heartbeat scans for API keys, passwords, tokens,
 |---------|-------------|
 | Templates | English (`en`) and Simplified Chinese (`zh-cn`) |
 | Auto-detect | Detects language from repo content first, then system locale |
-| Reply language | Follows user language > repo locale > system locale |
+| Reply language | Follows user explicit request > message language > repo locale > template locale > `en` |
 | Non-destructive | Never rewrites existing files just to translate them |
 
 ### Environment Adaptation
@@ -238,7 +238,7 @@ For details see [`references/heartbeat-scheduling.md`](references/heartbeat-sche
 | Principle | How |
 |-----------|-----|
 | **Zero intrusion** | Never changes the repo's branch model, CI, or review process |
-| **Zero dependencies** | All scripts use Python standard library only |
+| **Minimal dependencies** | Scripts target Python standard library; no third-party packages required at install time |
 | **Deterministic** | Transcript cleaning done by code, not model tokens |
 | **Single source of truth** | Each concept defined in one reference file, others cross-reference |
 | **Contract first** | Document the spec (heartbeat, daemon) before writing code |
