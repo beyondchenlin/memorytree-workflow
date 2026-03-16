@@ -17,7 +17,7 @@ import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
 import { git } from '../utils/exec.js'
 import { toPosixPath } from '../utils/path.js'
-import { basename, resolve } from 'node:path'
+import { basename, join, resolve } from 'node:path'
 import { existsSync } from 'node:fs'
 
 // ---------------------------------------------------------------------------
@@ -131,6 +131,22 @@ export async function processProject(config: Config, projectPath: string, projec
 
   logger.info(`[${projectName}] Imported ${importedCount} transcript(s).`)
   gitCommitAndPush(config, projectPath, projectName, importedCount)
+
+  if (config.generate_report) {
+    try {
+      const { buildReport } = await import('../report/build.js')
+      await buildReport({
+        root: projectPath,
+        output: join(projectPath, 'Memory', '07_reports'),
+        noAi: !process.env['ANTHROPIC_API_KEY'],
+        model: config.ai_summary_model,
+      })
+      logger.info(`[${projectName}] Report generated.`)
+    } catch (err: unknown) {
+      logger.warn(`[${projectName}] Report generation failed: ${String(err)}`)
+      // Never propagate — report failure must not abort heartbeat cycle
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

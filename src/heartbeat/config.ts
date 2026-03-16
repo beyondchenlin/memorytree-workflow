@@ -18,6 +18,8 @@ import { toPosixPath } from '../utils/path.js'
 const DEFAULT_HEARTBEAT_INTERVAL = '5m'
 const DEFAULT_AUTO_PUSH = true
 const DEFAULT_LOG_LEVEL = 'info'
+const DEFAULT_GENERATE_REPORT = false
+const DEFAULT_AI_SUMMARY_MODEL = 'claude-haiku-4-5-20251001'
 const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(['debug', 'info', 'warn', 'error'])
 
 // ---------------------------------------------------------------------------
@@ -35,6 +37,8 @@ export interface Config {
   readonly projects: readonly ProjectEntry[]
   readonly auto_push: boolean
   readonly log_level: string
+  readonly generate_report: boolean
+  readonly ai_summary_model: string
 }
 
 // ---------------------------------------------------------------------------
@@ -76,6 +80,8 @@ export function saveConfig(cfg: Config): void {
     `heartbeat_interval = ${tomlString(cfg.heartbeat_interval)}`,
     `auto_push = ${cfg.auto_push ? 'true' : 'false'}`,
     `log_level = ${tomlString(cfg.log_level)}`,
+    `generate_report = ${cfg.generate_report ? 'true' : 'false'}`,
+    `ai_summary_model = ${tomlString(cfg.ai_summary_model)}`,
   ]
 
   if (cfg.watch_dirs.length > 0) {
@@ -145,6 +151,8 @@ function defaultConfig(): Config {
     projects: [],
     auto_push: DEFAULT_AUTO_PUSH,
     log_level: DEFAULT_LOG_LEVEL,
+    generate_report: DEFAULT_GENERATE_REPORT,
+    ai_summary_model: DEFAULT_AI_SUMMARY_MODEL,
   }
 }
 
@@ -189,12 +197,24 @@ function parseRaw(raw: Record<string, unknown>): Config {
     }
   }
 
+  let generateReport = raw['generate_report']
+  if (typeof generateReport !== 'boolean') {
+    generateReport = DEFAULT_GENERATE_REPORT
+  }
+
+  let aiSummaryModel = raw['ai_summary_model']
+  if (typeof aiSummaryModel !== 'string' || !aiSummaryModel) {
+    aiSummaryModel = DEFAULT_AI_SUMMARY_MODEL
+  }
+
   return {
     heartbeat_interval: interval as string,
     watch_dirs: watchDirs,
     projects,
     auto_push: autoPush as boolean,
     log_level: logLevel as string,
+    generate_report: generateReport as boolean,
+    ai_summary_model: aiSummaryModel as string,
   }
 }
 

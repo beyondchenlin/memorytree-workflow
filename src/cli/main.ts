@@ -154,6 +154,59 @@ program
     })
   })
 
+// ── report ────────────────────────────────────────────────────────────────
+
+const report = program
+  .command('report')
+  .description('Generate or serve the MemoryTree HTML report website')
+
+report
+  .command('build')
+  .description('Build a self-contained HTML report website from Memory/')
+  .option('--root <path>', 'Repository root (must contain Memory/)', '.')
+  .option(
+    '--output <path>',
+    'Output directory (default: <root>/Memory/07_reports)',
+    '',
+  )
+  .option('--no-ai', 'Disable AI-generated session summaries')
+  .option(
+    '--model <model>',
+    'Claude model for AI summaries',
+    'claude-haiku-4-5-20251001',
+  )
+  .action(async (opts) => {
+    const { cmdReportBuild } = await import('./cmd-report.js')
+    const root = opts.root as string
+    const rawOutput = opts.output as string
+    const output = rawOutput || `${root}/Memory/07_reports`
+    // Commander's --no-ai sets opts.ai = false
+    const noAi = opts.ai === false
+    process.exitCode = await cmdReportBuild({
+      root,
+      output,
+      noAi,
+      model: opts.model as string,
+    })
+  })
+
+report
+  .command('serve')
+  .description('Serve the generated report website on a local HTTP server')
+  .option(
+    '--dir <path>',
+    'Report directory to serve (default: ./Memory/07_reports)',
+    './Memory/07_reports',
+  )
+  .option('--port <n>', 'Port to listen on', '4321')
+  .action(async (opts) => {
+    const { cmdReportServe } = await import('./cmd-report.js')
+    process.exitCode = cmdReportServe({
+      dir: opts.dir as string,
+      port: parseInt(opts.port as string, 10) || 4321,
+    })
+  })
+
 // ── daemon ────────────────────────────────────────────────────────────────
 
 const daemon = program

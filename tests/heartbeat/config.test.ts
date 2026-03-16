@@ -139,6 +139,8 @@ describe('saveConfig', () => {
         { path: '/home/user/project-a', name: 'project-a' },
         { path: '/home/user/project-b', name: 'project-b' },
       ],
+      generate_report: true,
+      ai_summary_model: 'claude-opus-4-6',
     } as const
 
     saveConfig(original)
@@ -151,6 +153,8 @@ describe('saveConfig', () => {
     expect(loaded.projects).toHaveLength(2)
     expect(loaded.projects[0]!.path).toBe(original.projects[0]!.path)
     expect(loaded.projects[1]!.name).toBe(original.projects[1]!.name)
+    expect(loaded.generate_report).toBe(original.generate_report)
+    expect(loaded.ai_summary_model).toBe(original.ai_summary_model)
   })
 
   it('serializes empty projects list', () => {
@@ -160,6 +164,8 @@ describe('saveConfig', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     saveConfig(cfg)
@@ -217,6 +223,8 @@ describe('registerProject', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     const updated = registerProject(cfg, tmpDir)
@@ -233,6 +241,8 @@ describe('registerProject', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     const updated1 = registerProject(cfg, tmpDir)
@@ -247,10 +257,69 @@ describe('registerProject', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     const updated = registerProject(cfg, tmpDir)
     expect(cfg.projects).toHaveLength(0)
     expect(updated.projects).toHaveLength(1)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// New fields: generate_report and ai_summary_model
+// ---------------------------------------------------------------------------
+
+describe('generate_report and ai_summary_model fields', () => {
+  it('defaults to false and haiku model', () => {
+    const cfg = loadConfig()
+    expect(cfg.generate_report).toBe(false)
+    expect(cfg.ai_summary_model).toBe('claude-haiku-4-5-20251001')
+  })
+
+  it('parses generate_report from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(
+      path,
+      ['generate_report = true', 'ai_summary_model = "claude-opus-4-6"', ''].join('\n'),
+    )
+    const cfg = loadConfig()
+    expect(cfg.generate_report).toBe(true)
+    expect(cfg.ai_summary_model).toBe('claude-opus-4-6')
+  })
+
+  it('defaults generate_report on invalid value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'generate_report = "yes"\n')
+    const cfg = loadConfig()
+    expect(cfg.generate_report).toBe(false)
+  })
+
+  it('defaults ai_summary_model on empty value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'ai_summary_model = ""\n')
+    const cfg = loadConfig()
+    expect(cfg.ai_summary_model).toBe('claude-haiku-4-5-20251001')
+  })
+
+  it('round-trips generate_report and ai_summary_model', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: true,
+      ai_summary_model: 'claude-sonnet-4-6',
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.generate_report).toBe(true)
+    expect(loaded.ai_summary_model).toBe('claude-sonnet-4-6')
   })
 })
