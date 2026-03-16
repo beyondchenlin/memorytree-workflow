@@ -9,6 +9,7 @@ import {
   parseCodexTranscript,
   parseClaudeTranscript,
   parseGeminiTranscript,
+  isCodexSystemInjection,
 } from '../../src/transcript/parse.js'
 
 // ---------------------------------------------------------------------------
@@ -116,7 +117,8 @@ describe('parseCodexTranscript', () => {
     expect(result.messages[1]!.text).toBe('Hello from assistant')
   })
 
-  it('parses user_message and agent_message payload types', () => {
+  it('uses user_message / agent_message as fallback when no message records exist', () => {
+    // Simulates older Codex versions that emit only streaming event_msg records.
     const filePath = join(tmpDir, 'session.jsonl')
     const lines = [
       JSON.stringify({
@@ -138,6 +140,136 @@ describe('parseCodexTranscript', () => {
     expect(result.messages[0]!.text).toBe('User says hi')
     expect(result.messages[1]!.role).toBe('assistant')
     expect(result.messages[1]!.text).toBe('Agent responds')
+  })
+
+  it('prefers canonical message records over streaming agent_message / user_message', () => {
+    // The Codex CLI double-encodes every message: each turn appears as both an
+    // event_msg (streaming) and a response_item (canonical). The canonical form
+    // must win and streaming events must be ignored entirely, even when their
+    // timestamps differ by a millisecond from the canonical record.
+    const filePath = join(tmpDir, 'dual-encoding.jsonl')
+    const lines = [
+      // Streaming event fires first at T=264ms
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:00.264Z',
+        payload: { type: 'user_message', message: 'Hello from user' },
+      }),
+      // Canonical record arrives at T=265ms (1 ms later)
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:00.265Z',
+        payload: {
+          type: 'message',
+          role: 'user',
+          content: [{ type: 'input_text', text: 'Hello from user' }],
+        },
+      }),
+      // Streaming assistant event
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:05.100Z',
+        payload: { type: 'agent_message', message: 'Hello from assistant' },
+      }),
+      // Canonical assistant record (same ms — dedup would catch this too, but
+      // the streaming path should not run at all when canonical records exist)
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:05.100Z',
+        payload: {
+          type: 'message',
+          role: 'assistant',
+          content: [{ type: 'output_text', text: 'Hello from assistant' }],
+        },
+      }),
+    ]
+    writeFileSync(filePath, lines.join('\n'))
+
+    const result = parseCodexTranscript(filePath)
+    // Must have exactly 2 messages — no duplicates from streaming events.
+    expect(result.messages).toHaveLength(2)
+    expect(result.messages[0]!.role).toBe('user')
+    expect(result.messages[0]!.text).toBe('Hello from user')
+    expect(result.messages[1]!.role).toBe('assistant')
+    expect(result.messages[1]!.text).toBe('Hello from assistant')
+  })
+
+  it('filters Codex system context injections from user messages', () => {
+    // The Codex CLI injects AGENTS.md instructions, skill definitions, and
+    // environment metadata as the first message(role=user) record. These must
+    // not appear in the clean transcript.
+    const filePath = join(tmpDir, 'injection.jsonl')
+    const injectionText =
+      '# AGENTS.md instructions for D:\\demo1\\project\n<INSTRUCTIONS>\n## Skills\n...</INSTRUCTIONS>'
+    const lines = [
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:00Z',
+        payload: {
+          type: 'message',
+          role: 'user',
+          content: [{ type: 'input_text', text: injectionText }],
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:01Z',
+        payload: {
+          type: 'message',
+          role: 'user',
+          content: [{ type: 'input_text', text: '如何安装这个skill' }],
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:05Z',
+        payload: {
+          type: 'message',
+          role: 'assistant',
+          content: [{ type: 'output_text', text: '使用 skill-installer' }],
+        },
+      }),
+    ]
+    writeFileSync(filePath, lines.join('\n'))
+
+    const result = parseCodexTranscript(filePath)
+    // Injection must be filtered; only the real user question and answer remain.
+    expect(result.messages).toHaveLength(2)
+    expect(result.messages[0]!.role).toBe('user')
+    expect(result.messages[0]!.text).toBe('如何安装这个skill')
+    expect(result.messages[1]!.role).toBe('assistant')
+    expect(result.messages[1]!.text).toBe('使用 skill-installer')
+  })
+
+  it('also filters injections from streaming fallback messages', () => {
+    // Same injection filter applies when only streaming events exist.
+    const filePath = join(tmpDir, 'stream-injection.jsonl')
+    const lines = [
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:00Z',
+        payload: {
+          type: 'user_message',
+          message: '<environment_context><cwd>/home/user</cwd></environment_context>',
+        },
+      }),
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:01Z',
+        payload: { type: 'user_message', message: 'Real user question' },
+      }),
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:05Z',
+        payload: { type: 'agent_message', message: 'Real assistant answer' },
+      }),
+    ]
+    writeFileSync(filePath, lines.join('\n'))
+
+    const result = parseCodexTranscript(filePath)
+    expect(result.messages).toHaveLength(2)
+    expect(result.messages[0]!.text).toBe('Real user question')
+    expect(result.messages[1]!.text).toBe('Real assistant answer')
   })
 
   it('parses function_call and function_call_output', () => {
@@ -619,5 +751,42 @@ describe('parseTranscript', () => {
     const result = parseTranscript('auto', filePath)
     expect(result.client).toBe('codex')
     expect(result.messages[0]!.text).toBe('auto-detected')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// isCodexSystemInjection
+// ---------------------------------------------------------------------------
+
+describe('isCodexSystemInjection', () => {
+  it('returns true for AGENTS.md header', () => {
+    expect(isCodexSystemInjection('# AGENTS.md instructions for D:\\project\n...')).toBe(true)
+  })
+
+  it('returns true for <INSTRUCTIONS> block', () => {
+    expect(isCodexSystemInjection('<INSTRUCTIONS>\n## Skills\n...</INSTRUCTIONS>')).toBe(true)
+  })
+
+  it('returns true for <environment_context> block', () => {
+    expect(isCodexSystemInjection('<environment_context><cwd>/home/user</cwd></environment_context>')).toBe(true)
+  })
+
+  it('returns true for <permissions instructions> block', () => {
+    expect(isCodexSystemInjection('<permissions instructions>\nFilesystem sandboxing...')).toBe(true)
+  })
+
+  it('returns true for <collaboration_mode> block', () => {
+    expect(isCodexSystemInjection('<collaboration_mode># Collaboration Mode: Default\n...')).toBe(true)
+  })
+
+  it('returns false for normal user messages', () => {
+    expect(isCodexSystemInjection('如何安装这个skill')).toBe(false)
+    expect(isCodexSystemInjection('Hello, can you help me?')).toBe(false)
+    expect(isCodexSystemInjection('Please review my code')).toBe(false)
+  })
+
+  it('returns false for assistant messages that mention instructions', () => {
+    // Should not accidentally filter assistant responses that quote markers
+    expect(isCodexSystemInjection('The AGENTS.md file contains project rules')).toBe(false)
   })
 })
