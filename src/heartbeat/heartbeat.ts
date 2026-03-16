@@ -140,6 +140,10 @@ export async function processProject(config: Config, projectPath: string, projec
         output: join(projectPath, 'Memory', '07_reports'),
         noAi: !process.env['ANTHROPIC_API_KEY'],
         model: config.ai_summary_model,
+        locale: config.locale,
+        ghPagesBranch: config.gh_pages_branch,
+        cname: config.cname,
+        webhookUrl: config.webhook_url,
       })
       logger.info(`[${projectName}] Report generated.`)
     } catch (err: unknown) {

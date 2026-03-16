@@ -3,6 +3,7 @@
  */
 
 import type { ManifestEntry } from '../../types/transcript.js'
+import type { Translations } from '../i18n/types.js'
 import { clientBadge, escHtml, htmlShell, renderNav, transcriptUrlFromTranscript } from './layout.js'
 
 // ---------------------------------------------------------------------------
@@ -24,14 +25,15 @@ export function renderTranscript(
   manifest: ManifestEntry,
   summary: string,
   backlinks: ManifestEntry[],
+  t?: Translations,
 ): string {
-  const nav = renderNav('transcripts', false)
+  const nav = renderNav('transcripts', 2, t)
 
   const content = [
-    renderHeader(manifest),
-    summary ? renderSummaryCard(summary) : '',
-    backlinks.length > 0 ? renderBacklinks(backlinks) : '',
-    renderMessages(messages),
+    renderHeader(manifest, t),
+    summary ? renderSummaryCard(summary, t) : '',
+    backlinks.length > 0 ? renderBacklinks(backlinks, t) : '',
+    renderMessages(messages, t),
   ]
     .filter(Boolean)
     .join('\n')
@@ -44,36 +46,45 @@ export function renderTranscript(
 // Sub-renderers
 // ---------------------------------------------------------------------------
 
-function renderHeader(m: ManifestEntry): string {
+function renderHeader(m: ManifestEntry, t?: Translations): string {
   const badge = clientBadge(m.client)
   const date = m.started_at.slice(0, 10)
   const time = m.started_at.slice(11, 19)
+  const clientLabel = t?.transcript.client ?? 'Client'
+  const sessionIdLabel = t?.transcript.sessionId ?? 'Session ID'
+  const msgsLabel = t?.transcript.messages ?? 'Messages'
+  const toolEventsLabel = t?.transcript.toolEvents ?? 'Tool Events'
+  const branchLabel = t?.transcript.branch ?? 'Branch'
+  const cwdLabel = t?.transcript.workingDir ?? 'Working Dir'
+  const shaLabel = t?.transcript.sha256 ?? 'SHA-256'
 
   return `<div class="page-header">
   <h1>${escHtml(m.title || m.session_id)}</h1>
 </div>
 <table class="meta-table card">
 <tbody>
-  <tr><td>Client</td><td>${badge}</td></tr>
+  <tr><td>${escHtml(clientLabel)}</td><td>${badge}</td></tr>
   <tr><td>Date</td><td>${escHtml(date)} ${escHtml(time)}</td></tr>
-  <tr><td>Session ID</td><td><code>${escHtml(m.session_id)}</code></td></tr>
-  <tr><td>Messages</td><td>${m.message_count}</td></tr>
-  <tr><td>Tool Events</td><td>${m.tool_event_count}</td></tr>
-  <tr><td>Branch</td><td><code>${escHtml(m.branch || '—')}</code></td></tr>
-  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">${escHtml(m.cwd || '—')}</code></td></tr>
-  <tr><td>SHA256</td><td><code style="font-size:0.75rem">${escHtml(m.raw_sha256.slice(0, 16))}…</code></td></tr>
+  <tr><td>${escHtml(sessionIdLabel)}</td><td><code>${escHtml(m.session_id)}</code></td></tr>
+  <tr><td>${escHtml(msgsLabel)}</td><td>${m.message_count}</td></tr>
+  <tr><td>${escHtml(toolEventsLabel)}</td><td>${m.tool_event_count}</td></tr>
+  <tr><td>${escHtml(branchLabel)}</td><td><code>${escHtml(m.branch || '—')}</code></td></tr>
+  <tr><td>${escHtml(cwdLabel)}</td><td><code style="font-size:0.8rem">${escHtml(m.cwd || '—')}</code></td></tr>
+  <tr><td>${escHtml(shaLabel)}</td><td><code style="font-size:0.75rem">${escHtml(m.raw_sha256.slice(0, 16))}…</code></td></tr>
 </tbody>
 </table>`
 }
 
-function renderSummaryCard(summary: string): string {
+function renderSummaryCard(summary: string, t?: Translations): string {
+  const label = t?.transcript.aiSummary ?? 'AI Summary'
   return `<div class="summary-card">
-  <div class="summary-label">AI Summary</div>
+  <div class="summary-label">${escHtml(label)}</div>
   <div>${escHtml(summary)}</div>
 </div>`
 }
 
-function renderBacklinks(backlinks: ManifestEntry[]): string {
+function renderBacklinks(backlinks: ManifestEntry[], t?: Translations): string {
+  const heading = t?.transcript.referencedBy ?? 'Referenced By'
   const items = backlinks
     .map(m => {
       const url = transcriptHref(m)
@@ -81,14 +92,16 @@ function renderBacklinks(backlinks: ManifestEntry[]): string {
     })
     .join('')
   return `<div class="backlinks">
-  <div class="backlinks-title">Referenced by ${backlinks.length} session(s)</div>
+  <div class="backlinks-title">${escHtml(heading)} ${backlinks.length} session(s)</div>
   <ul>${items}</ul>
 </div>`
 }
 
-function renderMessages(messages: RenderedMessage[]): string {
+function renderMessages(messages: RenderedMessage[], t?: Translations): string {
+  const heading = t?.transcript.messages ?? 'Messages'
+  const noMessages = t?.transcript.noMessages ?? 'No messages available for this session.'
   if (messages.length === 0) {
-    return `<div class="card" style="color:var(--text-muted)">No messages available for this session.</div>`
+    return `<div class="card" style="color:var(--text-muted)">${escHtml(noMessages)}</div>`
   }
 
   const rendered = messages
@@ -105,7 +118,7 @@ function renderMessages(messages: RenderedMessage[]): string {
     })
     .join('\n')
 
-  return `<h2 style="margin-top:1.5rem">Messages</h2>
+  return `<h2 style="margin-top:1.5rem">${escHtml(heading)}</h2>
 <div class="messages">${rendered}</div>`
 }
 

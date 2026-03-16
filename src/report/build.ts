@@ -24,10 +24,17 @@ import { renderKnowledge } from './render/knowledge.js'
 import type { KnowledgeFile } from './render/knowledge.js'
 import { renderGoals } from './render/goals.js'
 import type { GoalFile } from './render/goals.js'
+import { renderTodos } from './render/todos.js'
+import { renderArchive } from './render/archive.js'
+import { renderProjects } from './render/projects.js'
+import { renderGraph } from './render/graph.js'
 import { buildSearchIndex, renderSearchPage } from './render/search.js'
 import { buildLinkGraph } from './render/links.js'
 import { getSummary } from './summarize.js'
 import type { SummaryOptions } from './summarize.js'
+import { loadLocale } from './i18n/index.js'
+import type { Translations } from './i18n/types.js'
+import { getLogger } from '../heartbeat/log.js'
 
 const DEFAULT_MODEL = 'claude-haiku-4-5-20251001'
 
@@ -39,14 +46,26 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   const { root, output } = options
   const noAi = options.noAi ?? false
   const model = options.model ?? DEFAULT_MODEL
+  const locale = options.locale ?? 'en'
+  const ghPagesBranch = options.ghPagesBranch ?? ''
+  const cname = options.cname ?? ''
+  const webhookUrl = options.webhookUrl ?? ''
+  const newSessionIds = options.newSessionIds ?? []
+
   // Cache lives outside the gitignored output dir so it survives rm -rf
   const cacheDir = join(root, 'Memory', '.report-cache')
+
+  // Load translations
+  const t: Translations = loadLocale(locale)
 
   // Ensure output dirs exist
   mkdirSync(output, { recursive: true })
   mkdirSync(join(output, 'transcripts'), { recursive: true })
   mkdirSync(join(output, 'goals'), { recursive: true })
   mkdirSync(join(output, 'knowledge'), { recursive: true })
+  mkdirSync(join(output, 'todos'), { recursive: true })
+  mkdirSync(join(output, 'archive'), { recursive: true })
+  mkdirSync(join(output, 'projects'), { recursive: true })
   mkdirSync(cacheDir, { recursive: true })
 
   // Ensure Memory/07_reports is gitignored
@@ -66,6 +85,7 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
 
   // Process each transcript: parse → summarize → render → write → discard
   const snippets: Record<string, string> = {}
+  const summaries: Record<string, string> = {}
   const summaryPromises: Array<Promise<void>> = []
 
   for (const m of manifests) {
@@ -92,16 +112,22 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
     const msgs = messages
     summaryPromises.push(
       (async () => {
+        try {
         const summary = await getSummary(manifest.raw_sha256, msgs, summaryOptions)
+        summaries[manifest.session_id] = summary
         const backlinkIds = linkGraph.backlinks[manifest.session_id] ?? []
         const backlinkManifests = backlinkIds
           .map(id => manifests.find(x => x.session_id === id))
           .filter((x): x is ManifestEntry => x !== undefined)
 
-        const html = renderTranscript(msgs, manifest, summary, backlinkManifests)
+        const html = renderTranscript(msgs, manifest, summary, backlinkManifests, t)
         const outPath = transcriptOutputPath(output, manifest)
         mkdirSync(dirname(outPath), { recursive: true })
         writeFileSync(outPath, html, 'utf-8')
+        } catch (err: unknown) {
+          // eslint-disable-next-line no-console
+          getLogger().warn(`[build] Failed to render ${manifest.session_id}: ${String(err)}`)
+        }
       })(),
     )
   }
@@ -112,35 +138,94 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   // Compute final stats with accumulated tool counts
   const stats = computeStats(manifests, toolCounts)
 
+  // Load markdown content for various pages
+  const goalFiles = loadMarkdownFiles(join(root, 'Memory', '01_goals'))
+  const todoFiles = loadMarkdownFiles(join(root, 'Memory', '02_todos'))
+  const knowledgeFiles = loadMarkdownFiles(join(root, 'Memory', '04_knowledge'))
+  const archiveFiles = loadMarkdownFiles(join(root, 'Memory', '05_archive'))
+
   // Dashboard
-  writeFileSync(join(output, 'index.html'), renderDashboard(stats, manifests), 'utf-8')
+  writeFileSync(join(output, 'index.html'), renderDashboard(stats, manifests, t), 'utf-8')
 
   // Session list
   writeFileSync(
     join(output, 'transcripts', 'index.html'),
-    renderTranscriptList(manifests),
+    renderTranscriptList(manifests, t, summaries),
     'utf-8',
   )
 
   // Goals page
-  const goalFiles = loadMarkdownFiles(join(root, 'Memory', '01_goals'))
   writeFileSync(
     join(output, 'goals', 'index.html'),
-    renderGoals(goalFiles),
+    renderGoals(goalFiles, t),
     'utf-8',
   )
 
   // Knowledge page
-  const knowledgeFiles = loadMarkdownFiles(join(root, 'Memory', '04_knowledge'))
   writeFileSync(
     join(output, 'knowledge', 'index.html'),
-    renderKnowledge(knowledgeFiles),
+    renderKnowledge(knowledgeFiles, t),
+    'utf-8',
+  )
+
+  // Todos page
+  writeFileSync(
+    join(output, 'todos', 'index.html'),
+    renderTodos(todoFiles, t),
+    'utf-8',
+  )
+
+  // Archive page
+  writeFileSync(
+    join(output, 'archive', 'index.html'),
+    renderArchive(archiveFiles, t),
+    'utf-8',
+  )
+
+  // Projects page
+  writeFileSync(
+    join(output, 'projects', 'index.html'),
+    renderProjects(manifests, t),
+    'utf-8',
+  )
+
+  // Knowledge graph
+  writeFileSync(
+    join(output, 'graph.html'),
+    renderGraph(manifests, knowledgeFiles, linkGraph, t),
     'utf-8',
   )
 
   // Search
   const searchIndex = buildSearchIndex(manifests, m => snippets[m.session_id] ?? '')
-  writeFileSync(join(output, 'search.html'), renderSearchPage(searchIndex), 'utf-8')
+  writeFileSync(join(output, 'search.html'), renderSearchPage(searchIndex, t), 'utf-8')
+
+  // GitHub Pages deployment (non-blocking on failure)
+  if (ghPagesBranch) {
+    try {
+      const { deployGithubPages } = await import('./deploy/github-pages.js')
+      await deployGithubPages({ repoRoot: root, outputDir: output, branch: ghPagesBranch, cname })
+    } catch {
+      // Logged inside deployGithubPages
+    }
+  } else if (cname) {
+    // Write CNAME even without deploy (writeFileSync already imported at top)
+    writeFileSync(join(output, 'CNAME'), cname + '\n', 'utf-8')
+  }
+
+  // Webhook notification (non-blocking on failure)
+  if (webhookUrl) {
+    try {
+      const { sendWebhook } = await import('./deploy/webhook.js')
+      await sendWebhook({
+        url: webhookUrl,
+        sessionCount: manifests.length,
+        newSessionIds,
+      })
+    } catch {
+      // Logged inside sendWebhook
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -169,9 +254,14 @@ function loadManifestsRecursive(dir: string, out: ManifestEntry[]): void {
     if (entry.endsWith('.json')) {
       try {
         const raw = readFileSync(fullPath, 'utf-8')
-        const parsed = JSON.parse(raw) as ManifestEntry
-        if (parsed.session_id && parsed.client) {
-          out.push(parsed)
+        const parsed: unknown = JSON.parse(raw)
+        if (
+          parsed !== null &&
+          typeof parsed === 'object' &&
+          typeof (parsed as Record<string, unknown>)['session_id'] === 'string' &&
+          typeof (parsed as Record<string, unknown>)['client'] === 'string'
+        ) {
+          out.push(parsed as ManifestEntry)
         }
       } catch {
         // Skip malformed manifests
@@ -331,7 +421,7 @@ function resolveRawPath(m: ManifestEntry, root: string): string | null {
 }
 
 // ---------------------------------------------------------------------------
-// Markdown file loader (for goals/knowledge)
+// Markdown file loader (for goals/knowledge/todos/archive)
 // ---------------------------------------------------------------------------
 
 function loadMarkdownFiles(dir: string): Array<{ filename: string; title: string; content: string }> {

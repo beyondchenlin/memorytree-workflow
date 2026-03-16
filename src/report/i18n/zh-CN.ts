@@ -1,0 +1,66 @@
+import type { Translations } from './types.js'
+
+export const zhCN: Translations = {
+  nav: {
+    dashboard: '仪表盘',
+    sessions: '会话',
+    projects: '项目',
+    graph: '知识图谱',
+    goals: '目标',
+    todos: '待办',
+    knowledge: '知识库',
+    archive: '归档',
+    search: '搜索',
+  },
+  dashboard: {
+    title: '记忆仪表盘',
+    subtitle: '活动时间：{from} 至 {to}',
+    sessions: '会话数',
+    messages: '消息数',
+    toolEvents: '工具调用',
+    activeDays: '活跃天数',
+    recentSessions: '最近会话',
+  },
+  sessions: {
+    title: '会话列表',
+    noSessions: '暂无导入的会话。',
+    client: '客户端',
+    date: '日期',
+    id: 'ID',
+    msgs: '消息',
+    tools: '工具',
+    all: '全部',
+  },
+  transcript: {
+    aiSummary: 'AI 摘要',
+    referencedBy: '被引用',
+    messages: '消息',
+    noMessages: '未找到消息。',
+    client: '客户端',
+    sessionId: '会话 ID',
+    branch: '分支',
+    workingDir: '工作目录',
+    sha256: 'SHA-256',
+    toolEvents: '工具调用',
+  },
+  graph: {
+    title: '知识图谱',
+    subtitle: '会话与知识文件之间的关联',
+    noData: '暂无图谱数据。',
+  },
+  projects: {
+    title: '项目',
+    noProjects: '未找到项目。',
+    sessions: '个会话',
+  },
+  search: {
+    title: '搜索',
+    placeholder: '搜索会话...',
+    results: '条结果',
+    noResults: '未找到结果。',
+  },
+  common: {
+    loading: '加载中...',
+    unknown: '未知',
+  },
+}

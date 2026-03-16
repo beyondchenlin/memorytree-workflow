@@ -2,6 +2,7 @@
  * Knowledge page: renders markdown files from Memory/04_knowledge/.
  */
 
+import type { Translations } from '../i18n/types.js'
 import { escHtml, htmlShell, renderNav, slugifyName } from './layout.js'
 import type { MarkdownFile } from './layout.js'
 import { markdownToHtml } from './markdown.js'
@@ -12,17 +13,16 @@ import { markdownToHtml } from './markdown.js'
 
 export type KnowledgeFile = MarkdownFile
 
-export function renderKnowledge(files: KnowledgeFile[]): string {
-  const nav = renderNav('knowledge', false)
-
-  const subtitle = `${files.length} knowledge file(s)`
+export function renderKnowledge(files: KnowledgeFile[], t?: Translations): string {
+  const nav = renderNav('knowledge', 1, t)
+  const title = t?.nav.knowledge ?? 'Knowledge'
 
   if (files.length === 0) {
     const content = `<div class="page-header">
-  <h1>Knowledge</h1>
+  <h1>${escHtml(title)}</h1>
   <p class="subtitle">No knowledge files found in Memory/04_knowledge/.</p>
 </div>`
-    return htmlShell('Knowledge', content, nav)
+    return htmlShell(title, content, nav)
   }
 
   const sections = files
@@ -37,11 +37,10 @@ export function renderKnowledge(files: KnowledgeFile[]): string {
     .join('\n')
 
   const content = `<div class="page-header">
-  <h1>Knowledge</h1>
-  <p class="subtitle">${subtitle}</p>
+  <h1>${escHtml(title)}</h1>
+  <p class="subtitle">${files.length} knowledge file(s)</p>
 </div>
 ${sections}`
 
-  return htmlShell('Knowledge', content, nav)
+  return htmlShell(title, content, nav)
 }
-

@@ -323,3 +323,96 @@ describe('generate_report and ai_summary_model fields', () => {
     expect(loaded.ai_summary_model).toBe('claude-sonnet-4-6')
   })
 })
+
+// ---------------------------------------------------------------------------
+// New fields: locale, gh_pages_branch, cname, webhook_url
+// ---------------------------------------------------------------------------
+
+describe('locale / gh_pages_branch / cname / webhook_url fields', () => {
+  it('defaults locale to "en"', () => {
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('en')
+  })
+
+  it('defaults gh_pages_branch to ""', () => {
+    const cfg = loadConfig()
+    expect(cfg.gh_pages_branch).toBe('')
+  })
+
+  it('defaults cname to ""', () => {
+    const cfg = loadConfig()
+    expect(cfg.cname).toBe('')
+  })
+
+  it('defaults webhook_url to ""', () => {
+    const cfg = loadConfig()
+    expect(cfg.webhook_url).toBe('')
+  })
+
+  it('parses all 4 fields from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(
+      path,
+      [
+        'locale = "zh-CN"',
+        'gh_pages_branch = "gh-pages"',
+        'cname = "memory.example.com"',
+        'webhook_url = "https://open.feishu.cn/open-apis/bot/v2/hook/xxx"',
+        '',
+      ].join('\n'),
+    )
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('zh-CN')
+    expect(cfg.gh_pages_branch).toBe('gh-pages')
+    expect(cfg.cname).toBe('memory.example.com')
+    expect(cfg.webhook_url).toBe('https://open.feishu.cn/open-apis/bot/v2/hook/xxx')
+  })
+
+  it('defaults locale on missing field', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'heartbeat_interval = "5m"\n')
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('en')
+  })
+
+  it('defaults locale on empty string', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'locale = ""\n')
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('en')
+  })
+
+  it('round-trips all 4 fields via saveConfig/loadConfig', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'zh-CN',
+      gh_pages_branch: 'gh-pages',
+      cname: 'memory.example.com',
+      webhook_url: 'https://hooks.slack.com/services/test',
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.locale).toBe('zh-CN')
+    expect(loaded.gh_pages_branch).toBe('gh-pages')
+    expect(loaded.cname).toBe('memory.example.com')
+    expect(loaded.webhook_url).toBe('https://hooks.slack.com/services/test')
+  })
+
+  it('handles non-string gh_pages_branch gracefully', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'gh_pages_branch = 42\n')
+    const cfg = loadConfig()
+    expect(cfg.gh_pages_branch).toBe('')
+  })
+})

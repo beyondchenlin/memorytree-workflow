@@ -5,6 +5,7 @@
 import { basename } from 'node:path'
 
 import type { ManifestEntry } from '../../types/transcript.js'
+import type { Translations } from '../i18n/types.js'
 import { REPORT_CSS } from './css.js'
 
 // ---------------------------------------------------------------------------
@@ -21,37 +22,160 @@ export function escHtml(text: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Navigation
+// Navigation page IDs
 // ---------------------------------------------------------------------------
 
-export type NavPage = 'dashboard' | 'transcripts' | 'goals' | 'knowledge' | 'search'
+export type NavPage =
+  | 'dashboard'
+  | 'transcripts'
+  | 'projects'
+  | 'graph'
+  | 'goals'
+  | 'todos'
+  | 'knowledge'
+  | 'archive'
+  | 'search'
 
-const NAV_ITEMS: Array<{ id: NavPage; label: string; href: string }> = [
-  { id: 'dashboard', label: 'Dashboard', href: '../index.html' },
-  { id: 'transcripts', label: 'Transcripts', href: '../transcripts/index.html' },
-  { id: 'goals', label: 'Goals', href: '../goals/index.html' },
-  { id: 'knowledge', label: 'Knowledge', href: '../knowledge/index.html' },
-  { id: 'search', label: 'Search', href: '../search.html' },
-]
+// ---------------------------------------------------------------------------
+// Sidebar navigation
+// ---------------------------------------------------------------------------
 
-/** Nav items for root-level pages (index.html, search.html) use relative paths */
-const NAV_ITEMS_ROOT: Array<{ id: NavPage; label: string; href: string }> = [
-  { id: 'dashboard', label: 'Dashboard', href: 'index.html' },
-  { id: 'transcripts', label: 'Transcripts', href: 'transcripts/index.html' },
-  { id: 'goals', label: 'Goals', href: 'goals/index.html' },
-  { id: 'knowledge', label: 'Knowledge', href: 'knowledge/index.html' },
-  { id: 'search', label: 'Search', href: 'search.html' },
-]
+const SIDEBAR_INLINE_JS = `
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>`
 
-export function renderNav(current: NavPage, rootLevel = false): string {
-  const items = rootLevel ? NAV_ITEMS_ROOT : NAV_ITEMS
-  const links = items
-    .map(item => {
-      const cls = item.id === current ? 'nav-link active' : 'nav-link'
-      return `<a href="${escHtml(item.href)}" class="${cls}">${escHtml(item.label)}</a>`
-    })
-    .join('')
-  return `<nav class="nav"><span class="nav-brand">MemoryTree</span>${links}</nav>`
+interface NavItem {
+  id: NavPage
+  icon: string
+  labelKey: keyof Translations['nav']
+  href: string
+}
+
+function buildNavItems(depth: 0 | 1 | 2): NavItem[] {
+  const p = '../'.repeat(depth)
+  return [
+    { id: 'dashboard', icon: '◈', labelKey: 'dashboard', href: `${p}index.html` },
+    { id: 'transcripts', icon: '💬', labelKey: 'sessions', href: `${p}transcripts/index.html` },
+    { id: 'projects', icon: '📁', labelKey: 'projects', href: `${p}projects/index.html` },
+    { id: 'graph', icon: '⬡', labelKey: 'graph', href: `${p}graph.html` },
+    { id: 'goals', icon: '🎯', labelKey: 'goals', href: `${p}goals/index.html` },
+    { id: 'todos', icon: '✓', labelKey: 'todos', href: `${p}todos/index.html` },
+    { id: 'knowledge', icon: '📚', labelKey: 'knowledge', href: `${p}knowledge/index.html` },
+    { id: 'archive', icon: '🗄', labelKey: 'archive', href: `${p}archive/index.html` },
+    { id: 'search', icon: '🔍', labelKey: 'search', href: `${p}search.html` },
+  ]
+}
+
+export function renderNav(current: NavPage, depth: 0 | 1 | 2, t?: Translations): string {
+  const items = buildNavItems(depth)
+
+  // Labels for each nav item
+  const label = (item: NavItem): string => {
+    if (t) return t.nav[item.labelKey]
+    // Fallback English labels
+    const defaults: Record<string, string> = {
+      dashboard: 'Dashboard', sessions: 'Sessions', projects: 'Projects',
+      graph: 'Graph', goals: 'Goals', todos: 'Todos',
+      knowledge: 'Knowledge', archive: 'Archive', search: 'Search',
+    }
+    return defaults[item.labelKey] ?? item.labelKey
+  }
+
+  const themeLabel = '☀ Light'
+
+  const navLinks = items.map(item => {
+    const cls = item.id === current ? 'nav-link active' : 'nav-link'
+    return `<a href="${escHtml(item.href)}" class="${cls}">${escHtml(item.icon)} ${escHtml(label(item))}</a>`
+  }).join('\n      ')
+
+  return `<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+  </div>
+  <nav class="sidebar-nav">
+    ${navLinks}
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">${escHtml(themeLabel)}</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>`
 }
 
 // ---------------------------------------------------------------------------
@@ -117,20 +241,32 @@ export function slugifyName(name: string): string {
 // HTML shell
 // ---------------------------------------------------------------------------
 
-export function htmlShell(title: string, content: string, nav: string, extraHead = ''): string {
+export function htmlShell(title: string, content: string, nav: string, extraHead = '', lang = 'en'): string {
+  const topbar = `<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>`
+
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${escHtml(lang)}" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escHtml(title)} — MemoryTree</title>
 <style>${REPORT_CSS}</style>
 ${extraHead}
+${SIDEBAR_INLINE_JS}
 </head>
 <body>
+${topbar}
 ${nav}
-<div class="container">
+<div class="main-content">
+  <div class="container">
 ${content}
+  </div>
 </div>
 </body>
 </html>`

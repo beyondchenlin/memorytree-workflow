@@ -43,4 +43,14 @@ export interface BuildReportOptions {
   output: string
   noAi?: boolean
   model?: string
+  /** Build-time locale (e.g. 'en', 'zh-CN'). Default: 'en'. */
+  locale?: string
+  /** gh-pages branch name. Empty string = skip deploy. Default: ''. */
+  ghPagesBranch?: string
+  /** Custom domain for CNAME file. Empty string = skip. Default: ''. */
+  cname?: string
+  /** Webhook URL for post-build notifications. Empty string = skip. Default: ''. */
+  webhookUrl?: string
+  /** Session IDs newly imported in this heartbeat cycle (for webhook). */
+  newSessionIds?: string[]
 }

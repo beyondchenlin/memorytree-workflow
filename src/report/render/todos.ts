@@ -1,5 +1,5 @@
 /**
- * Goals page: renders markdown files from Memory/01_goals/.
+ * Todos page: renders markdown files from Memory/02_todos/.
  */
 
 import type { Translations } from '../i18n/types.js'
@@ -7,16 +7,16 @@ import { escHtml, htmlShell, renderNav, slugifyName } from './layout.js'
 import type { MarkdownFile } from './layout.js'
 import { markdownToHtml } from './markdown.js'
 
-export type GoalFile = MarkdownFile
+export type TodoFile = MarkdownFile
 
-export function renderGoals(files: GoalFile[], t?: Translations): string {
-  const nav = renderNav('goals', 1, t)
-  const title = t?.nav.goals ?? 'Goals'
+export function renderTodos(files: TodoFile[], t?: Translations): string {
+  const nav = renderNav('todos', 1, t)
+  const title = t?.nav.todos ?? 'Todos'
 
   if (files.length === 0) {
     const content = `<div class="page-header">
   <h1>${escHtml(title)}</h1>
-  <p class="subtitle">No goal files found in Memory/01_goals/.</p>
+  <p class="subtitle">No todo files found in Memory/02_todos/.</p>
 </div>`
     return htmlShell(title, content, nav)
   }
@@ -34,7 +34,7 @@ export function renderGoals(files: GoalFile[], t?: Translations): string {
 
   const content = `<div class="page-header">
   <h1>${escHtml(title)}</h1>
-  <p class="subtitle">${files.length} goal file(s)</p>
+  <p class="subtitle">${files.length} todo file(s)</p>
 </div>
 ${sections}`
 

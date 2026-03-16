@@ -5,6 +5,7 @@
 
 import type { ManifestEntry } from '../../types/transcript.js'
 import type { SearchIndexEntry } from '../../types/report.js'
+import type { Translations } from '../i18n/types.js'
 import { escHtml, htmlShell, renderNav, transcriptUrlFromRoot } from './layout.js'
 
 const MAX_INDEX_BYTES = 50_000
@@ -53,10 +54,12 @@ function transcriptUrl(m: ManifestEntry): string {
 // Search page renderer
 // ---------------------------------------------------------------------------
 
-export function renderSearchPage(index: SearchIndexEntry[]): string {
+export function renderSearchPage(index: SearchIndexEntry[], t?: Translations): string {
   // Escape </script> to prevent script-injection via manifest-controlled content
   const indexJson = JSON.stringify(index).replace(/<\//g, '<\\/')
-  const nav = renderNav('search', true)
+  const nav = renderNav('search', 0, t)
+  const title = t?.search.title ?? 'Search'
+  const placeholder = t?.search.placeholder ?? 'Search sessions, messages, and content...'
 
   const extraHead = `<script>
 const SEARCH_INDEX = ${indexJson};
@@ -64,7 +67,7 @@ const SEARCH_INDEX = ${indexJson};
 
   const content = `
 <div class="page-header">
-  <h1>Search</h1>
+  <h1>${escHtml(title)}</h1>
   <p class="subtitle">Full-text search across all imported sessions</p>
 </div>
 
@@ -72,7 +75,7 @@ const SEARCH_INDEX = ${indexJson};
   type="search"
   id="search-input"
   class="search-box"
-  placeholder="Search sessions, messages, and content..."
+  placeholder="${escHtml(placeholder)}"
   autofocus
 >
 <div id="search-count"></div>
@@ -133,5 +136,5 @@ const SEARCH_INDEX = ${indexJson};
 })();
 </script>`
 
-  return htmlShell('Search', content, nav, extraHead)
+  return htmlShell(title, content, nav, extraHead)
 }
