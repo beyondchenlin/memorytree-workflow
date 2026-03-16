@@ -32,6 +32,8 @@ const SENSITIVE_PATTERNS: readonly RegExp[] = [
   /Bearer\s+\S{20,}/i,
 ]
 
+const RAW_TRANSCRIPT_PREFIX = 'Memory/06_transcripts/raw/'
+
 // ---------------------------------------------------------------------------
 // Main entry point
 // ---------------------------------------------------------------------------
@@ -176,13 +178,19 @@ export function scanSensitive(parsed: ParsedTranscript, projectPath: string): vo
 export function gitCommitAndPush(config: Config, projectPath: string, projectName: string, count: number): void {
   const logger = getLogger()
 
-  const status = git(projectPath, 'status', '--porcelain', 'Memory/')
-  if (!status.trim()) {
+  const changedPaths = changedMemoryPaths(projectPath)
+  if (changedPaths.length === 0) {
     logger.info(`[${projectName}] No git changes in Memory/.`)
     return
   }
 
-  git(projectPath, 'add', 'Memory/')
+  const stageablePaths = changedPaths.filter(path => !isRepoRawTranscriptPath(path))
+  if (stageablePaths.length === 0) {
+    logger.info(`[${projectName}] Only raw transcript mirror changes detected; skipping commit.`)
+    return
+  }
+
+  git(projectPath, 'add', '--', ...stageablePaths)
   git(projectPath, 'commit', '-m', `memorytree(transcripts): import ${count} transcript(s)`)
   logger.info(`[${projectName}] Committed ${count} transcript import(s).`)
 
@@ -226,4 +234,45 @@ export function currentBranch(projectPath: string): string {
 
 export function isDedicatedMemorytreeBranch(branch: string): boolean {
   return branch.trim().startsWith('memorytree/')
+}
+
+export function changedMemoryPaths(projectPath: string): string[] {
+  const status = git(projectPath, 'status', '--porcelain', '--untracked-files=all', '--', 'Memory/')
+  const seen = new Set<string>()
+  const paths: string[] = []
+
+  for (const rawLine of status.split(/\r?\n/)) {
+    const path = statusLinePath(rawLine)
+    if (path === null || seen.has(path)) continue
+    seen.add(path)
+    paths.push(path)
+  }
+
+  return paths
+}
+
+export function isRepoRawTranscriptPath(path: string): boolean {
+  return path.replace(/\\/g, '/').startsWith(RAW_TRANSCRIPT_PREFIX)
+}
+
+function statusLinePath(line: string): string | null {
+  if (line.length < 4) return null
+
+  const rawPath = line.slice(3).trim()
+  if (!rawPath) return null
+
+  const path = rawPath.includes(' -> ')
+    ? rawPath.slice(rawPath.lastIndexOf(' -> ') + 4)
+    : rawPath
+
+  return unquotePath(path)
+}
+
+function unquotePath(path: string): string {
+  if (!(path.startsWith('"') && path.endsWith('"'))) return path
+
+  return path
+    .slice(1, -1)
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\')
 }
