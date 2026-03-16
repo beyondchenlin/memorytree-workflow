@@ -98,6 +98,15 @@ export async function processProject(config: Config, projectPath: string, projec
   const logger = getLogger()
   const repoSlug = slugify(projectName, 'project')
   const globalRoot = defaultGlobalTranscriptRoot()
+  const branch = currentBranch(projectPath)
+  const mirrorToRepo = isDedicatedMemorytreeBranch(branch)
+
+  if (!mirrorToRepo) {
+    logger.warn(
+      `[${projectName}] Current branch '${branch}' is not a dedicated memorytree/* branch. ` +
+      'Importing to the global archive only.',
+    )
+  }
 
   const discovered = discoverSourceFiles()
   let importedCount = 0
@@ -117,7 +126,7 @@ export async function processProject(config: Config, projectPath: string, projec
     scanSensitive(parsed, projectPath)
 
     try {
-      await importTranscript(parsed, projectPath, globalRoot, repoSlug, 'not-set', true)
+      await importTranscript(parsed, projectPath, globalRoot, repoSlug, 'not-set', mirrorToRepo)
       importedCount++
     } catch {
       logger.exception(`Failed to import transcript: ${source}`)
@@ -130,7 +139,11 @@ export async function processProject(config: Config, projectPath: string, projec
   }
 
   logger.info(`[${projectName}] Imported ${importedCount} transcript(s).`)
-  gitCommitAndPush(config, projectPath, projectName, importedCount)
+  if (mirrorToRepo) {
+    gitCommitAndPush(config, projectPath, projectName, importedCount)
+  } else {
+    logger.info(`[${projectName}] Skipped repo-local commit/push on branch '${branch}'.`)
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -205,4 +218,12 @@ export function tryPush(projectPath: string, projectName: string): boolean {
   } catch {
     return false
   }
+}
+
+export function currentBranch(projectPath: string): string {
+  return git(projectPath, 'rev-parse', '--abbrev-ref', 'HEAD').trim()
+}
+
+export function isDedicatedMemorytreeBranch(branch: string): boolean {
+  return branch.trim().startsWith('memorytree/')
 }
