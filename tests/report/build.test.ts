@@ -176,7 +176,6 @@ I'll help with that!
       root: tmpDir,
       output,
       noAi: true,
-      pdf: false,
     })
 
     expect(existsSync(join(output, 'index.html'))).toBe(true)
@@ -190,7 +189,7 @@ I'll help with that!
     scaffoldMemory(tmpDir)
     const output = join(tmpDir, 'Memory', '07_reports')
 
-    await buildReport({ root: tmpDir, output, noAi: true, pdf: false })
+    await buildReport({ root: tmpDir, output, noAi: true })
 
     // Dashboard should contain SVG
     const dashHtml = readFileSync(join(output, 'index.html'), 'utf-8')
@@ -207,7 +206,7 @@ I'll help with that!
     scaffoldMemory(tmpDir)
     const output = join(tmpDir, 'Memory', '07_reports')
 
-    await buildReport({ root: tmpDir, output, noAi: true, pdf: false })
+    await buildReport({ root: tmpDir, output, noAi: true })
 
     const gitignore = readFileSync(join(tmpDir, '.gitignore'), 'utf-8')
     expect(gitignore).toContain('Memory/07_reports/')
@@ -219,7 +218,7 @@ I'll help with that!
     const output = join(tmpDir, 'Memory', '07_reports')
 
     await expect(
-      buildReport({ root: tmpDir, output, noAi: true, pdf: false }),
+      buildReport({ root: tmpDir, output, noAi: true }),
     ).resolves.toBeUndefined()
 
     expect(existsSync(join(output, 'index.html'))).toBe(true)

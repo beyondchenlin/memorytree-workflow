@@ -4,7 +4,7 @@
 
 import type { ManifestEntry } from '../../types/transcript.js'
 import type { Translations } from '../i18n/types.js'
-import { clientBadge, escHtml, htmlShell, renderNav, transcriptUrlFromTranscript } from './layout.js'
+import { clientBadge, escHtml, htmlShell, renderNav, transcriptUrlFromRoot, transcriptUrlFromTranscript } from './layout.js'
 
 // ---------------------------------------------------------------------------
 // Parsed message for rendering
@@ -26,6 +26,7 @@ export function renderTranscript(
   summary: string,
   backlinks: ManifestEntry[],
   t?: Translations,
+  reportBaseUrl = '',
 ): string {
   const nav = renderNav('transcripts', 2, t)
 
@@ -39,7 +40,13 @@ export function renderTranscript(
     .join('\n')
 
   const title = manifest.title || manifest.session_id
-  return htmlShell(title, content, nav)
+  const ogUrl = reportBaseUrl
+    ? `${reportBaseUrl.replace(/\/$/, '')}/${transcriptUrlFromRoot(manifest)}`
+    : ''
+  return htmlShell(title, content, nav, {
+    ogDescription: summary || undefined,
+    ogUrl: ogUrl || undefined,
+  })
 }
 
 // ---------------------------------------------------------------------------

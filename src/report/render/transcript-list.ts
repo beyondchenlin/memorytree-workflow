@@ -5,12 +5,13 @@
 import type { ManifestEntry } from '../../types/transcript.js'
 import type { Translations } from '../i18n/types.js'
 import { clientBadge, escHtml, htmlShell, renderNav, transcriptUrlFromRoot } from './layout.js'
+import { renderTagBadges } from '../tags.js'
 
 // ---------------------------------------------------------------------------
 // Transcript list
 // ---------------------------------------------------------------------------
 
-export function renderTranscriptList(manifests: ManifestEntry[], t?: Translations, summaries?: Record<string, string>): string {
+export function renderTranscriptList(manifests: ManifestEntry[], t?: Translations, summaries?: Record<string, string>, tags?: Record<string, string[]>): string {
   const nav = renderNav('transcripts', 1, t)
 
   const sorted = [...manifests].sort((a, b) => b.started_at.localeCompare(a.started_at))
@@ -46,10 +47,12 @@ export function renderTranscriptList(manifests: ManifestEntry[], t?: Translation
       const time = m.started_at.slice(11, 16)
       const badge = clientBadge(m.client)
       const summary = summaries?.[m.session_id] ?? ''
+      const sessionTags = tags?.[m.session_id] ?? []
+      const tagBadges = renderTagBadges(sessionTags)
       const meta = `${escHtml(m.client)} · ${escHtml(date)} · ${m.message_count} msgs`
       return `<tr data-client="${escHtml(m.client)}">
   <td>${badge}</td>
-  <td><a href="${escHtml(url)}" data-summary="${escHtml(summary)}" data-meta="${escHtml(meta)}">${escHtml(m.title || m.session_id)}</a></td>
+  <td><a href="${escHtml(url)}" data-summary="${escHtml(summary)}" data-meta="${escHtml(meta)}">${escHtml(m.title || m.session_id)}</a>${tagBadges}</td>
   <td style="color:var(--text-muted)">${escHtml(date)} ${escHtml(time)}</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">${escHtml(m.session_id.slice(0, 8))}</td>
   <td style="text-align:right;color:var(--text-muted)">${m.message_count}</td>

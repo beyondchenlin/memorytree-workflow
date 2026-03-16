@@ -46,6 +46,8 @@ const SIDEBAR_INLINE_JS = `
   // Theme
   var saved = localStorage.getItem('mt-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
   function updateThemeBtn() {
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
@@ -72,6 +74,40 @@ const SIDEBAR_INLINE_JS = `
       if (ov) ov.classList.toggle('open');
     });
     if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
     // Popover preview
     var popover = null;
     document.querySelectorAll('a[data-summary]').forEach(function(el) {
@@ -130,14 +166,14 @@ interface NavItem {
 function buildNavItems(depth: 0 | 1 | 2): NavItem[] {
   const p = '../'.repeat(depth)
   return [
-    { id: 'dashboard', icon: '◈', labelKey: 'dashboard', href: `${p}index.html` },
+    { id: 'dashboard', icon: '📊', labelKey: 'dashboard', href: `${p}index.html` },
     { id: 'transcripts', icon: '💬', labelKey: 'sessions', href: `${p}transcripts/index.html` },
     { id: 'projects', icon: '📁', labelKey: 'projects', href: `${p}projects/index.html` },
-    { id: 'graph', icon: '⬡', labelKey: 'graph', href: `${p}graph.html` },
+    { id: 'graph', icon: '🕸️', labelKey: 'graph', href: `${p}graph.html` },
     { id: 'goals', icon: '🎯', labelKey: 'goals', href: `${p}goals/index.html` },
-    { id: 'todos', icon: '✓', labelKey: 'todos', href: `${p}todos/index.html` },
+    { id: 'todos', icon: '✅', labelKey: 'todos', href: `${p}todos/index.html` },
     { id: 'knowledge', icon: '📚', labelKey: 'knowledge', href: `${p}knowledge/index.html` },
-    { id: 'archive', icon: '🗄', labelKey: 'archive', href: `${p}archive/index.html` },
+    { id: 'archive', icon: '🗄️', labelKey: 'archive', href: `${p}archive/index.html` },
     { id: 'search', icon: '🔍', labelKey: 'search', href: `${p}search.html` },
   ]
 }
@@ -161,12 +197,13 @@ export function renderNav(current: NavPage, depth: 0 | 1 | 2, t?: Translations):
 
   const navLinks = items.map(item => {
     const cls = item.id === current ? 'nav-link active' : 'nav-link'
-    return `<a href="${escHtml(item.href)}" class="${cls}">${escHtml(item.icon)} ${escHtml(label(item))}</a>`
+    return `<a href="${escHtml(item.href)}" class="${cls}" title="${escHtml(label(item))}">${escHtml(item.icon)} <span class="nav-label">${escHtml(label(item))}</span></a>`
   }).join('\n      ')
 
   return `<aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
   </div>
   <nav class="sidebar-nav">
     ${navLinks}
@@ -241,7 +278,45 @@ export function slugifyName(name: string): string {
 // HTML shell
 // ---------------------------------------------------------------------------
 
-export function htmlShell(title: string, content: string, nav: string, extraHead = '', lang = 'en'): string {
+export interface HtmlShellOptions {
+  extraHead?: string
+  lang?: string
+  breadcrumb?: string
+  /** Inject reader-mode toggle button into the page */
+  readerMode?: boolean
+  /** Open Graph description (og:description). Truncated to 200 chars. */
+  ogDescription?: string
+  /** Absolute URL for og:url. Omitted when empty. */
+  ogUrl?: string
+}
+
+export function htmlShell(
+  title: string,
+  content: string,
+  nav: string,
+  extraHeadOrOpts: string | HtmlShellOptions = '',
+  lang = 'en',
+): string {
+  // Accept legacy string arg (extraHead) or new options object
+  const opts: HtmlShellOptions = typeof extraHeadOrOpts === 'string'
+    ? { extraHead: extraHeadOrOpts, lang }
+    : extraHeadOrOpts
+  const extraHead = opts.extraHead ?? ''
+  const resolvedLang = opts.lang ?? lang
+  const breadcrumb = opts.breadcrumb ?? ''
+  const readerBtn = opts.readerMode !== false
+    ? `<button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button>`
+    : ''
+
+  // Open Graph meta tags
+  const ogDesc = opts.ogDescription ? opts.ogDescription.slice(0, 200) : ''
+  const ogMeta = [
+    `<meta property="og:title" content="${escHtml(title)}">`,
+    `<meta property="og:type" content="website">`,
+    ogDesc ? `<meta property="og:description" content="${escHtml(ogDesc)}">` : '',
+    opts.ogUrl ? `<meta property="og:url" content="${escHtml(opts.ogUrl)}">` : '',
+  ].filter(Boolean).join('\n')
+
   const topbar = `<header class="topbar" id="topbar">
   <span class="topbar-brand">MemoryTree</span>
   <div class="topbar-actions">
@@ -251,11 +326,12 @@ export function htmlShell(title: string, content: string, nav: string, extraHead
 </header>`
 
   return `<!DOCTYPE html>
-<html lang="${escHtml(lang)}" data-theme="dark">
+<html lang="${escHtml(resolvedLang)}" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escHtml(title)} — MemoryTree</title>
+${ogMeta}
 <style>${REPORT_CSS}</style>
 ${extraHead}
 ${SIDEBAR_INLINE_JS}
@@ -265,6 +341,7 @@ ${topbar}
 ${nav}
 <div class="main-content">
   <div class="container">
+${breadcrumb ? `${breadcrumb}\n` : ''}<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem">${readerBtn}</div>
 ${content}
   </div>
 </div>

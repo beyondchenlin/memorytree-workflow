@@ -175,6 +175,8 @@ report
     'Claude model for AI summaries',
     'claude-haiku-4-5-20251001',
   )
+  .option('--locale <locale>', 'Report locale: en or zh-CN', '')
+  .option('--report-base-url <url>', 'Absolute base URL for RSS and OG meta (e.g. https://memory.example.com)', '')
   .action(async (opts) => {
     const { cmdReportBuild } = await import('./cmd-report.js')
     const root = opts.root as string
@@ -187,6 +189,8 @@ report
       output,
       noAi,
       model: opts.model as string,
+      locale: (opts.locale as string) || undefined,
+      reportBaseUrl: (opts.reportBaseUrl as string) || undefined,
     })
   })
 

@@ -1,10 +1,44 @@
 /**
  * Minimal Markdown → HTML converter.
- * Handles: headings, bold, italic, inline code, fenced code blocks, lists.
+ * Handles: headings, bold, italic, inline code, fenced code blocks,
+ *          lists, blockquotes, callouts (> [!type]), mermaid diagrams.
  * All content is HTML-escaped before applying structural tags.
  */
 
 import { escHtml } from './layout.js'
+
+// ---------------------------------------------------------------------------
+// Callout configuration
+// ---------------------------------------------------------------------------
+
+const CALLOUT_ICONS: Record<string, string> = {
+  note:      '📝',
+  tip:       '💡',
+  important: '❗',
+  warning:   '⚠️',
+  caution:   '🔥',
+  info:      'ℹ️',
+  success:   '✅',
+  error:     '❌',
+}
+
+// ---------------------------------------------------------------------------
+// Mermaid detection (separate from conversion)
+// ---------------------------------------------------------------------------
+
+/** Returns true if the markdown source contains at least one ```mermaid block. */
+export function hasMermaidBlocks(md: string): boolean {
+  return /^```mermaid\s*$/m.test(md)
+}
+
+/**
+ * CDN script tag to inject on pages containing mermaid diagrams.
+ * Pinned to mermaid@11 via jsDelivr with SRI integrity hash.
+ */
+export const MERMAID_CDN_SCRIPT = `<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+mermaid.initialize({ startOnLoad: true, theme: document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark' });
+</script>`
 
 // ---------------------------------------------------------------------------
 // Main converter
@@ -28,7 +62,7 @@ export function markdownToHtml(md: string): string {
   while (i < lines.length) {
     const line = lines[i] ?? ''
 
-    // Fenced code block
+    // Fenced code block (including mermaid)
     if (line.startsWith('```')) {
       closeList()
       const lang = line.slice(3).trim()
@@ -38,7 +72,13 @@ export function markdownToHtml(md: string): string {
         codeLines.push(lines[i] ?? '')
         i++
       }
-      output.push(`<pre><code${lang ? ` class="language-${escHtml(lang)}"` : ''}>${escHtml(codeLines.join('\n'))}</code></pre>`)
+      const codeContent = codeLines.join('\n')
+      if (lang === 'mermaid') {
+        // Mermaid: render as <pre class="mermaid"> — processed client-side by mermaid.js
+        output.push(`<pre class="mermaid">${escHtml(codeContent)}</pre>`)
+      } else {
+        output.push(`<pre><code${lang ? ` class="language-${escHtml(lang)}"` : ''}>${escHtml(codeContent)}</code></pre>`)
+      }
       i++
       continue
     }
@@ -98,6 +138,18 @@ export function markdownToHtml(md: string): string {
       continue
     }
 
+    // Blockquote / Callout
+    if (line.startsWith('> ') || line === '>') {
+      closeList()
+      const bqLines: string[] = []
+      while (i < lines.length && ((lines[i] ?? '').startsWith('> ') || (lines[i] ?? '') === '>')) {
+        bqLines.push((lines[i] ?? '').replace(/^> ?/, ''))
+        i++
+      }
+      output.push(renderBlockquote(bqLines))
+      continue
+    }
+
     // Blank line
     if (!line.trim()) {
       closeList()
@@ -113,6 +165,31 @@ export function markdownToHtml(md: string): string {
 
   closeList()
   return output.join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Blockquote / Callout renderer
+// ---------------------------------------------------------------------------
+
+function renderBlockquote(innerLines: string[]): string {
+  const firstLine = innerLines[0] ?? ''
+  const calloutMatch = firstLine.match(/^\[!(note|tip|important|warning|caution|info|success|error)\]$/i)
+
+  if (calloutMatch) {
+    const type = calloutMatch[1]!.toLowerCase()
+    const icon = CALLOUT_ICONS[type] ?? '💬'
+    const title = type.charAt(0).toUpperCase() + type.slice(1)
+    const bodyLines = innerLines.slice(1).filter(l => l !== '')
+    const body = bodyLines.map(l => `<p>${applyInline(l)}</p>`).join('\n')
+    return `<div class="callout callout-${escHtml(type)}">
+  <div class="callout-title">${icon} ${escHtml(title)}</div>
+  <div class="callout-body">${body}</div>
+</div>`
+  }
+
+  // Regular blockquote
+  const inner = innerLines.map(l => `<p>${applyInline(l)}</p>`).join('\n')
+  return `<blockquote>${inner}</blockquote>`
 }
 
 // ---------------------------------------------------------------------------

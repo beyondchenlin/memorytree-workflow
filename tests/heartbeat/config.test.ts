@@ -315,6 +315,11 @@ describe('generate_report and ai_summary_model fields', () => {
       projects: [],
       generate_report: true,
       ai_summary_model: 'claude-sonnet-4-6',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
     } as const
 
     saveConfig(original)
@@ -398,6 +403,7 @@ describe('locale / gh_pages_branch / cname / webhook_url fields', () => {
       gh_pages_branch: 'gh-pages',
       cname: 'memory.example.com',
       webhook_url: 'https://hooks.slack.com/services/test',
+      report_base_url: '',
     } as const
 
     saveConfig(original)
@@ -414,5 +420,61 @@ describe('locale / gh_pages_branch / cname / webhook_url fields', () => {
     writeFileSync(path, 'gh_pages_branch = 42\n')
     const cfg = loadConfig()
     expect(cfg.gh_pages_branch).toBe('')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// New field: report_base_url
+// ---------------------------------------------------------------------------
+
+describe('report_base_url field', () => {
+  it('defaults to empty string', () => {
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('')
+  })
+
+  it('parses report_base_url from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_base_url = "https://memory.example.com"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('https://memory.example.com')
+  })
+
+  it('defaults on missing field', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'heartbeat_interval = "5m"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('')
+  })
+
+  it('defaults on non-string value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_base_url = 123\n')
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('')
+  })
+
+  it('round-trips via saveConfig/loadConfig', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: false,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: 'https://memory.example.com',
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.report_base_url).toBe('https://memory.example.com')
   })
 })

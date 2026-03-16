@@ -144,10 +144,6 @@ function fmtNum(n: number): string {
   return n.toLocaleString('en-US')
 }
 
-function transcriptHref(m: ManifestEntry): string {
-  return transcriptUrlFromRoot(m)
-}
-
 function detectLang(t: Translations): string {
   // Heuristic: check if nav.dashboard is Chinese
   return /[\u4e00-\u9fff]/.test(t.nav.dashboard) ? 'zh-CN' : 'en'

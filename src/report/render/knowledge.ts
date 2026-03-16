@@ -5,7 +5,8 @@
 import type { Translations } from '../i18n/types.js'
 import { escHtml, htmlShell, renderNav, slugifyName } from './layout.js'
 import type { MarkdownFile } from './layout.js'
-import { markdownToHtml } from './markdown.js'
+import { hasMermaidBlocks, markdownToHtml, MERMAID_CDN_SCRIPT } from './markdown.js'
+import { extractToc, renderToc, injectHeadingIds } from './toc.js'
 
 // ---------------------------------------------------------------------------
 // Knowledge page
@@ -25,12 +26,18 @@ export function renderKnowledge(files: KnowledgeFile[], t?: Translations): strin
     return htmlShell(title, content, nav)
   }
 
+  const hasMermaid = files.some(f => hasMermaidBlocks(f.content))
+
   const sections = files
     .map(f => {
-      const htmlContent = markdownToHtml(f.content)
+      const tocEntries = extractToc(f.content)
+      const rawHtml = markdownToHtml(f.content)
+      const htmlContent = injectHeadingIds(rawHtml, tocEntries)
+      const toc = renderToc(tocEntries)
       return `<div class="card" id="${escHtml(slugifyName(f.filename))}">
   <h2>${escHtml(f.title)}</h2>
-  <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">${escHtml(f.filename)}</p>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem">${escHtml(f.filename)}</p>
+  ${toc}
   <div class="markdown-body">${htmlContent}</div>
 </div>`
     })
@@ -42,5 +49,5 @@ export function renderKnowledge(files: KnowledgeFile[], t?: Translations): strin
 </div>
 ${sections}`
 
-  return htmlShell(title, content, nav)
+  return htmlShell(title, content, nav, hasMermaid ? { extraHead: MERMAID_CDN_SCRIPT } : {})
 }

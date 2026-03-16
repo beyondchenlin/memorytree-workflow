@@ -24,20 +24,30 @@ export function buildSearchIndex(
 
   for (const m of manifests) {
     let snippet = getSnippet(m).slice(0, SNIPPET_LEN)
+    const project = m.project || lastPathSegment(m.cwd) || 'unknown'
+
+    // Check if truncating the snippet is needed to stay within budget
+    const baseBytes = JSON.stringify({
+      url: transcriptUrl(m),
+      title: m.title || m.session_id,
+      client: m.client,
+      project,
+      date: m.started_at.slice(0, 10),
+      snippet: '',
+    }).length
+    const budgetForSnippet = MAX_INDEX_BYTES - totalBytes - baseBytes - 10
+    if (budgetForSnippet < 20) break
+    if (baseBytes + snippet.length > MAX_INDEX_BYTES - totalBytes) {
+      snippet = snippet.slice(0, Math.max(0, budgetForSnippet))
+    }
+
     const entry: SearchIndexEntry = {
       url: transcriptUrl(m),
       title: m.title || m.session_id,
       client: m.client,
+      project,
       date: m.started_at.slice(0, 10),
       snippet,
-    }
-    const entryBytes = JSON.stringify(entry).length
-    if (totalBytes + entryBytes > MAX_INDEX_BYTES) {
-      // Truncate snippet to fit within budget
-      const remaining = MAX_INDEX_BYTES - totalBytes - (entryBytes - snippet.length) - 10
-      if (remaining < 20) break
-      snippet = snippet.slice(0, remaining)
-      entry.snippet = snippet
     }
     totalBytes += JSON.stringify(entry).length
     entries.push(entry)
@@ -48,6 +58,10 @@ export function buildSearchIndex(
 
 function transcriptUrl(m: ManifestEntry): string {
   return transcriptUrlFromRoot(m)
+}
+
+function lastPathSegment(p: string): string {
+  return p.split(/[/\\]/).filter(Boolean).at(-1) ?? ''
 }
 
 // ---------------------------------------------------------------------------
@@ -61,6 +75,17 @@ export function renderSearchPage(index: SearchIndexEntry[], t?: Translations): s
   const title = t?.search.title ?? 'Search'
   const placeholder = t?.search.placeholder ?? 'Search sessions, messages, and content...'
 
+  // Build unique client and project lists for filter dropdowns
+  const clients = [...new Set(index.map(e => e.client).filter(Boolean))].sort()
+  const projects = [...new Set(index.map(e => e.project).filter(Boolean))].sort()
+
+  const clientOptions = clients
+    .map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`)
+    .join('')
+  const projectOptions = projects
+    .map(p => `<option value="${escHtml(p)}">${escHtml(p)}</option>`)
+    .join('')
+
   const extraHead = `<script>
 const SEARCH_INDEX = ${indexJson};
 </script>`
@@ -71,6 +96,16 @@ const SEARCH_INDEX = ${indexJson};
   <p class="subtitle">Full-text search across all imported sessions</p>
 </div>
 
+<div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:wrap">
+  <select id="filter-client" class="search-filter-select">
+    <option value="">All Clients</option>
+    ${clientOptions}
+  </select>
+  <select id="filter-project" class="search-filter-select">
+    <option value="">All Projects</option>
+    ${projectOptions}
+  </select>
+</div>
 <input
   type="search"
   id="search-input"
@@ -83,21 +118,23 @@ const SEARCH_INDEX = ${indexJson};
 
 <script>
 (function() {
-  const input = document.getElementById('search-input');
-  const resultsEl = document.getElementById('search-results');
-  const countEl = document.getElementById('search-count');
+  var input = document.getElementById('search-input');
+  var resultsEl = document.getElementById('search-results');
+  var countEl = document.getElementById('search-count');
+  var clientSel = document.getElementById('filter-client');
+  var projectSel = document.getElementById('filter-project');
 
   function highlight(text, query) {
     if (!query) return escHtml(text);
-    const escaped = escHtml(text);
-    const escapedQ = escHtml(query);
-    const lower = escaped.toLowerCase();
-    const lowerQ = escapedQ.toLowerCase();
+    var escaped = escHtml(text);
+    var escapedQ = escHtml(query);
+    var lower = escaped.toLowerCase();
+    var lowerQ = escapedQ.toLowerCase();
     if (!lowerQ) return escaped;
-    let result = '';
-    let i = 0;
+    var result = '';
+    var i = 0;
     while (i < escaped.length) {
-      const idx = lower.indexOf(lowerQ, i);
+      var idx = lower.indexOf(lowerQ, i);
       if (idx === -1) { result += escaped.slice(i); break; }
       result += escaped.slice(i, idx) + '<mark>' + escaped.slice(idx, idx + lowerQ.length) + '</mark>';
       i = idx + lowerQ.length;
@@ -106,23 +143,28 @@ const SEARCH_INDEX = ${indexJson};
   }
 
   function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function renderResults(query) {
-    const q = (query || '').toLowerCase().trim();
-    if (!q) {
+  function renderResults() {
+    var query = (input.value || '');
+    var q = query.toLowerCase().trim();
+    var filterClient = clientSel ? clientSel.value : '';
+    var filterProject = projectSel ? projectSel.value : '';
+    var filtered = SEARCH_INDEX.filter(function(e) {
+      if (filterClient && e.client !== filterClient) return false;
+      if (filterProject && e.project !== filterProject) return false;
+      if (!q) return true;
+      return (e.title || '').toLowerCase().includes(q) ||
+             (e.snippet || '').toLowerCase().includes(q);
+    });
+    if (!q && !filterClient && !filterProject) {
       resultsEl.innerHTML = '';
       countEl.textContent = SEARCH_INDEX.length + ' session(s) indexed';
       return;
     }
-    const matches = SEARCH_INDEX.filter(function(e) {
-      return (e.title || '').toLowerCase().includes(q) ||
-             (e.snippet || '').toLowerCase().includes(q) ||
-             (e.client || '').toLowerCase().includes(q);
-    });
-    countEl.textContent = matches.length + ' result(s) for "' + escHtml(q) + '"';
-    resultsEl.innerHTML = matches.map(function(e) {
+    countEl.textContent = filtered.length + ' result(s)' + (q ? ' for "' + escHtml(q) + '"' : '');
+    resultsEl.innerHTML = filtered.map(function(e) {
       return '<div class="search-result">' +
         '<div class="search-result-title"><a href="' + escHtml(e.url) + '">' + highlight(e.title, query) + '</a></div>' +
         '<div class="search-result-meta"><span class="badge badge-' + escHtml(e.client) + '">' + escHtml(e.client) + '</span> &nbsp; ' + escHtml(e.date) + '</div>' +
@@ -131,8 +173,10 @@ const SEARCH_INDEX = ${indexJson};
     }).join('');
   }
 
-  renderResults('');
-  input.addEventListener('input', function() { renderResults(input.value); });
+  renderResults();
+  input.addEventListener('input', renderResults);
+  if (clientSel) clientSel.addEventListener('change', renderResults);
+  if (projectSel) projectSel.addEventListener('change', renderResults);
 })();
 </script>`
 

@@ -24,6 +24,7 @@ const DEFAULT_LOCALE = 'en'
 const DEFAULT_GH_PAGES_BRANCH = ''
 const DEFAULT_CNAME = ''
 const DEFAULT_WEBHOOK_URL = ''
+const DEFAULT_REPORT_BASE_URL = ''
 const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(['debug', 'info', 'warn', 'error'])
 
 // ---------------------------------------------------------------------------
@@ -47,6 +48,8 @@ export interface Config {
   readonly gh_pages_branch: string
   readonly cname: string
   readonly webhook_url: string
+  /** Base URL for RSS/OG meta (e.g. 'https://memory.example.com'). Empty = skip. */
+  readonly report_base_url: string
 }
 
 // ---------------------------------------------------------------------------
@@ -94,6 +97,7 @@ export function saveConfig(cfg: Config): void {
     `gh_pages_branch = ${tomlString(cfg.gh_pages_branch ?? DEFAULT_GH_PAGES_BRANCH)}`,
     `cname = ${tomlString(cfg.cname ?? DEFAULT_CNAME)}`,
     `webhook_url = ${tomlString(cfg.webhook_url ?? DEFAULT_WEBHOOK_URL)}`,
+    `report_base_url = ${tomlString(cfg.report_base_url ?? DEFAULT_REPORT_BASE_URL)}`,
   ]
 
   if (cfg.watch_dirs.length > 0) {
@@ -169,6 +173,7 @@ function defaultConfig(): Config {
     gh_pages_branch: DEFAULT_GH_PAGES_BRANCH,
     cname: DEFAULT_CNAME,
     webhook_url: DEFAULT_WEBHOOK_URL,
+    report_base_url: DEFAULT_REPORT_BASE_URL,
   }
 }
 
@@ -243,6 +248,11 @@ function parseRaw(raw: Record<string, unknown>): Config {
     webhookUrl = DEFAULT_WEBHOOK_URL
   }
 
+  let reportBaseUrl = raw['report_base_url']
+  if (typeof reportBaseUrl !== 'string') {
+    reportBaseUrl = DEFAULT_REPORT_BASE_URL
+  }
+
   return {
     heartbeat_interval: interval as string,
     watch_dirs: watchDirs,
@@ -255,6 +265,7 @@ function parseRaw(raw: Record<string, unknown>): Config {
     gh_pages_branch: ghPagesBranch as string,
     cname: cname as string,
     webhook_url: webhookUrl as string,
+    report_base_url: reportBaseUrl as string,
   }
 }
 

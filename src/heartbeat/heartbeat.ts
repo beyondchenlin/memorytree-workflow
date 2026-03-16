@@ -144,6 +144,7 @@ export async function processProject(config: Config, projectPath: string, projec
         ghPagesBranch: config.gh_pages_branch,
         cname: config.cname,
         webhookUrl: config.webhook_url,
+        reportBaseUrl: config.report_base_url,
       })
       logger.info(`[${projectName}] Report generated.`)
     } catch (err: unknown) {

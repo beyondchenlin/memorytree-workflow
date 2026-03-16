@@ -15,6 +15,8 @@ export interface CmdReportBuildOptions {
   output: string
   noAi: boolean
   model: string
+  locale?: string
+  reportBaseUrl?: string
 }
 
 export async function cmdReportBuild(opts: CmdReportBuildOptions): Promise<number> {
@@ -25,6 +27,8 @@ export async function cmdReportBuild(opts: CmdReportBuildOptions): Promise<numbe
       output: resolve(opts.output),
       noAi: opts.noAi,
       model: opts.model,
+      locale: opts.locale,
+      reportBaseUrl: opts.reportBaseUrl,
     })
     console.log(`Report generated at: ${resolve(opts.output)}`)
     console.log(`Open: ${join(resolve(opts.output), 'index.html')}`)

@@ -34,6 +34,8 @@ export interface SearchIndexEntry {
   url: string
   title: string
   client: string
+  /** Last path segment of ManifestEntry.cwd (e.g. 'openmnemo') */
+  project: string
   date: string
   snippet: string
 }
@@ -53,4 +55,6 @@ export interface BuildReportOptions {
   webhookUrl?: string
   /** Session IDs newly imported in this heartbeat cycle (for webhook). */
   newSessionIds?: string[]
+  /** Absolute base URL for RSS/OG links (e.g. 'https://memory.example.com'). Empty = skip. */
+  reportBaseUrl?: string
 }

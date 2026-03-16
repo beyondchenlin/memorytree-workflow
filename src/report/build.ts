@@ -30,8 +30,10 @@ import { renderProjects } from './render/projects.js'
 import { renderGraph } from './render/graph.js'
 import { buildSearchIndex, renderSearchPage } from './render/search.js'
 import { buildLinkGraph } from './render/links.js'
+import { renderRssFeed } from './render/rss.js'
 import { getSummary } from './summarize.js'
 import type { SummaryOptions } from './summarize.js'
+import { getTags } from './tags.js'
 import { loadLocale } from './i18n/index.js'
 import type { Translations } from './i18n/types.js'
 import { getLogger } from '../heartbeat/log.js'
@@ -51,6 +53,7 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   const cname = options.cname ?? ''
   const webhookUrl = options.webhookUrl ?? ''
   const newSessionIds = options.newSessionIds ?? []
+  const reportBaseUrl = options.reportBaseUrl ?? ''
 
   // Cache lives outside the gitignored output dir so it survives rm -rf
   const cacheDir = join(root, 'Memory', '.report-cache')
@@ -120,7 +123,7 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
           .map(id => manifests.find(x => x.session_id === id))
           .filter((x): x is ManifestEntry => x !== undefined)
 
-        const html = renderTranscript(msgs, manifest, summary, backlinkManifests, t)
+        const html = renderTranscript(msgs, manifest, summary, backlinkManifests, t, reportBaseUrl)
         const outPath = transcriptOutputPath(output, manifest)
         mkdirSync(dirname(outPath), { recursive: true })
         writeFileSync(outPath, html, 'utf-8')
@@ -134,6 +137,16 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
 
   // Wait for all transcript renders (parallel, bounded by semaphore in summarize.ts)
   await Promise.all(summaryPromises)
+
+  // Extract tags in parallel (after summaries are ready)
+  const tagOptions = { cacheDir, noAi, model }
+  const tags: Record<string, string[]> = {}
+  await Promise.all(
+    manifests.map(async m => {
+      const summary = summaries[m.session_id] ?? ''
+      tags[m.session_id] = await getTags(m.raw_sha256, summary, tagOptions)
+    }),
+  )
 
   // Compute final stats with accumulated tool counts
   const stats = computeStats(manifests, toolCounts)
@@ -150,7 +163,7 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   // Session list
   writeFileSync(
     join(output, 'transcripts', 'index.html'),
-    renderTranscriptList(manifests, t, summaries),
+    renderTranscriptList(manifests, t, summaries, tags),
     'utf-8',
   )
 
@@ -199,6 +212,9 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   // Search
   const searchIndex = buildSearchIndex(manifests, m => snippets[m.session_id] ?? '')
   writeFileSync(join(output, 'search.html'), renderSearchPage(searchIndex, t), 'utf-8')
+
+  // RSS Feed
+  writeFileSync(join(output, 'feed.xml'), renderRssFeed(manifests, summaries, reportBaseUrl), 'utf-8')
 
   // GitHub Pages deployment (non-blocking on failure)
   if (ghPagesBranch) {
