@@ -180,6 +180,8 @@ MemoryTree follows strict isolation rules to never interfere with your repo's wo
 
 The skill stops and asks before proceeding in 8 scenarios: mixed product code, AGENTS.md conflicts, unclear target branch, repo forbids bot pushes, CI conflicts, unknown raw transcript permission, cross-project transcripts, or protected branch refusal.
 
+If a repository wants lighter CI for MemoryTree-only PRs, treat that as an explicit opt-in. Prefer path filters or dedicated lightweight workflows for `Memory/**` and managed `AGENTS.md`, and ask before changing workflow or required-check settings.
+
 For the full policy see [`references/git-policy.md`](references/git-policy.md).
 
 ### Sensitive Info Scanning
