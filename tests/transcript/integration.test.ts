@@ -74,8 +74,8 @@ describe('integration: parse → import → verify', () => {
     expect(cleanContent).toContain('Fix the login bug')
     expect(cleanContent).toContain('### 2. assistant')
     expect(cleanContent).toContain('I will fix the login bug for you.')
-    expect(cleanContent).toContain('## Tool Events')
-    expect(cleanContent).toContain('read_file')
+    expect(cleanContent).not.toContain('## Tool Events')
+    expect(cleanContent).not.toContain('read_file')
 
     // 8. Verify manifest JSON written
     const manifestContent = JSON.parse(
