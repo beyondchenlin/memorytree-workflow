@@ -19,6 +19,7 @@ export interface ImportOptions {
   globalRoot: string
   rawUploadPermission: string
   format: string
+  forceRepo: boolean
 }
 
 export async function cmdImport(options: ImportOptions): Promise<number> {
@@ -45,7 +46,7 @@ export async function cmdImport(options: ImportOptions): Promise<number> {
   }
 
   const detectedProject = inferProjectSlug(parsed)
-  const matchesCurrentRepo = transcriptMatchesRepo(parsed, root, repoSlug)
+  const matchesCurrentRepo = options.forceRepo || transcriptMatchesRepo(parsed, root, repoSlug)
 
   const result = await importTranscript(
     parsed,
