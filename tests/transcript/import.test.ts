@@ -105,8 +105,8 @@ describe('writeCleanMarkdown', () => {
     expect(content).toContain('Hello')
     expect(content).toContain('### 2. assistant')
     expect(content).toContain('Hi there')
-    expect(content).toContain('## Tool Events')
-    expect(content).toContain('read_file')
+    expect(content).not.toContain('## Tool Events')
+    expect(content).not.toContain('read_file')
   })
 
   it('writes no-messages placeholder when messages empty', () => {
@@ -119,14 +119,14 @@ describe('writeCleanMarkdown', () => {
     expect(content).toContain('No user or assistant messages')
   })
 
-  it('writes no-tool-events placeholder when tool_events empty', () => {
+  it('does not write tool events section', () => {
     const filePath = join(tmpDir, 'no-tools.md')
     const parsed = makeParsed({ tool_events: [] })
     const manifest = makeManifest()
     writeCleanMarkdown(parsed, manifest, filePath)
 
     const content = readFileSync(filePath, 'utf-8')
-    expect(content).toContain('No tool events were extracted.')
+    expect(content).not.toContain('## Tool Events')
   })
 })
 
