@@ -40,16 +40,43 @@ All stored as plain Markdown files under `Memory/`, tracked by Git, minimal depe
 
 ## Install
 
+Requirements:
+
+- Node.js 20+
+- npm
+
+### Claude Code
+
 ```bash
 git clone https://github.com/beyondchenlin/memorytree-workflow ~/.claude/skills/memorytree-workflow
-cd ~/.claude/skills/memorytree-workflow && npm install && npm run build
+cd ~/.claude/skills/memorytree-workflow
+npm install
+npm run build
 ```
 
-On Windows (Git Bash):
+### Codex
+
 ```bash
-git clone https://github.com/beyondchenlin/memorytree-workflow "$USERPROFILE/.claude/skills/memorytree-workflow"
-cd "$USERPROFILE/.claude/skills/memorytree-workflow" && npm install && npm run build
+git clone https://github.com/beyondchenlin/memorytree-workflow ~/.codex/skills/memorytree-workflow
+cd ~/.codex/skills/memorytree-workflow
+npm install
+npm run build
 ```
+
+### Windows PowerShell (Codex)
+
+```powershell
+git clone https://github.com/beyondchenlin/memorytree-workflow.git `
+  $env:USERPROFILE\.codex\skills\memorytree-workflow
+
+cd $env:USERPROFILE\.codex\skills\memorytree-workflow
+npm install
+npm run build
+```
+
+### Note for GitHub-based skill installers
+
+`SKILL.md` is located at the repository root, so the repository root is the skill path. If your installer accepts a repo path, use `.` rather than a nested subdirectory.
 
 ## Usage
 
