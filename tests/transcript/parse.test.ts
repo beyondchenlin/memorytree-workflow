@@ -272,6 +272,55 @@ describe('parseCodexTranscript', () => {
     expect(result.messages[1]!.text).toBe('Real assistant answer')
   })
 
+  it('keeps later user turns that legitimately mention injection markers', () => {
+    const filePath = join(tmpDir, 'late-marker.jsonl')
+    const lines = [
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:00Z',
+        payload: {
+          type: 'message',
+          role: 'user',
+          content: [{ type: 'input_text', text: '<INSTRUCTIONS>\ninternal bootstrap' }],
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:01Z',
+        payload: {
+          type: 'message',
+          role: 'user',
+          content: [{ type: 'input_text', text: 'Please explain how Codex uses AGENTS.md.' }],
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:05Z',
+        payload: {
+          type: 'message',
+          role: 'assistant',
+          content: [{ type: 'output_text', text: 'It injects AGENTS.md at session start.' }],
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:10Z',
+        payload: {
+          type: 'message',
+          role: 'user',
+          content: [{ type: 'input_text', text: 'Show me the literal tag <environment_context> in the payload.' }],
+        },
+      }),
+    ]
+    writeFileSync(filePath, lines.join('\n'))
+
+    const result = parseCodexTranscript(filePath)
+    expect(result.messages).toHaveLength(3)
+    expect(result.messages[0]!.text).toBe('Please explain how Codex uses AGENTS.md.')
+    expect(result.messages[1]!.text).toBe('It injects AGENTS.md at session start.')
+    expect(result.messages[2]!.text).toBe('Show me the literal tag <environment_context> in the payload.')
+  })
+
   it('parses function_call and function_call_output', () => {
     const filePath = join(tmpDir, 'tools.jsonl')
     const lines = [

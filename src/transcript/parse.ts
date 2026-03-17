@@ -114,7 +114,7 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
       const role = String(payload['role'] ?? '').toLowerCase()
       if (role === 'user' || role === 'assistant') {
         const text = extractTextBlocks(payload['content'])
-        if (text && !isCodexSystemInjection(text)) {
+        if (text) {
           messages.push({ role, text, timestamp })
         }
       }
@@ -125,7 +125,7 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
     if (payloadType === 'user_message' || payloadType === 'agent_message') {
       const role = payloadType === 'user_message' ? 'user' : 'assistant'
       const text = String(payload['message'] ?? '').trim()
-      if (text && !isCodexSystemInjection(text)) {
+      if (text) {
         streamingMessages.push({ role, text, timestamp })
       }
       continue
@@ -171,7 +171,12 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
   }
 
   // Use canonical records when available; fall back to streaming events otherwise.
-  const finalMessages = messages.length > 0 ? messages : streamingMessages
+  // Then drop only the leading Codex system injection messages so we do not
+  // accidentally erase later turns where the user is legitimately discussing
+  // AGENTS.md, environment tags, or other injected scaffolding.
+  const finalMessages = trimLeadingCodexSystemInjections(
+    messages.length > 0 ? messages : streamingMessages,
+  )
 
   return {
     client: 'codex',
@@ -205,6 +210,18 @@ const CODEX_INJECTION_MARKERS: readonly string[] = [
 
 export function isCodexSystemInjection(text: string): boolean {
   return CODEX_INJECTION_MARKERS.some(marker => text.includes(marker))
+}
+
+function trimLeadingCodexSystemInjections(messages: TranscriptMessage[]): TranscriptMessage[] {
+  let firstRealIndex = 0
+  while (firstRealIndex < messages.length) {
+    const message = messages[firstRealIndex]
+    if (!message || message.role !== 'user' || !isCodexSystemInjection(message.text)) {
+      break
+    }
+    firstRealIndex++
+  }
+  return messages.slice(firstRealIndex)
 }
 
 // ---------------------------------------------------------------------------
