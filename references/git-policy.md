@@ -8,6 +8,7 @@ MemoryTree must adapt to the host repository. It does not get to override it.
 - Do not stage or push unrelated user work.
 - Do not assume direct commits to protected branches are allowed.
 - Do not bypass review, CI, E2E, or release controls.
+- Do not modify the host repository's CI, E2E, branch protection, or required-check configuration by default.
 - Keep raw transcript files in the current project's transcript mirror by default, but exclude them from automatic staging unless the user explicitly approved raw transcript uploads for the current repository.
 - Do not mirror or stage transcript files from unrelated projects inside the current repository.
 
@@ -100,6 +101,14 @@ Notes:
 - State whether raw transcripts were included or intentionally left unstaged in the repo mirror.
 - Follow the repository's required target branch, review policy, and CI gates.
 
+## Optional CI Optimization For MemoryTree-Only PRs
+
+- If the repository owner explicitly approves it, MemoryTree-only PRs may use lighter CI for `Memory/**` and managed `AGENTS.md` changes.
+- Prefer repo-native path filters or dedicated lightweight workflows over disabling CI wholesale.
+- Keep branch protection and required checks coherent with the repository's governance model. Do not silently remove protections just to make MemoryTree PRs merge faster.
+- If the repository still requires full CI or E2E for documentation-only PRs, follow that stricter rule.
+- Ask the user before creating or editing workflow files, path filters, or required-check settings for this optimization.
+
 ## Stop And Ask
 
 Stop and ask the user before committing, pushing, or opening a PR when any of these are true:
@@ -112,3 +121,4 @@ Stop and ask the user before committing, pushing, or opening a PR when any of th
 6. Raw transcript upload permission for the repository is unknown.
 7. The diff includes raw transcripts or cleaned transcript indexes from other projects.
 8. `auto_push` is enabled but the target branch is a protected branch that refuses direct pushes.
+9. Enabling lighter CI for MemoryTree-only PRs would require changing workflow files, path filters, or required-check settings.

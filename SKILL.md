@@ -96,6 +96,8 @@ Do not stop after detection to ask whether you should proceed. Act on the result
 9. When `auto_push` is enabled, the heartbeat process pushes automatically after committing. If no Git remote is configured, the push is skipped. If a push fails, the heartbeat retries once. In either case an alert is written to `~/.memorytree/alerts.json`. See `references/git-policy.md`.
 10. During transcript cleaning, the heartbeat scans for sensitive information (API keys, passwords, tokens). Matches are logged as warnings only — no automatic deletion or redaction. See `references/heartbeat-scheduling.md`.
 
+11. Do not modify the host repository's CI or E2E workflow definitions by default. If the user explicitly approves a MemoryTree-only optimization, prefer path-filtered or lightweight workflows for `Memory/**` and managed `AGENTS.md` PRs without weakening required branch protection.
+
 ## Resources
 
 - `references/project-detection.md`: detect install state and choose init vs maintain.
