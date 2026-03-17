@@ -1,9 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir, homedir } from 'node:os'
 
 import {
   heartbeatScriptPath,
   isLaunchdRegistered,
   cmdUninstall,
+  vbsLauncherPath,
+  writeVbsLauncher,
 } from '../../src/cli/cmd-daemon.js'
 
 // ---------------------------------------------------------------------------
@@ -232,5 +237,67 @@ describe('cmdUninstall', () => {
     const result = cmdUninstall()
     // On any supported platform it returns 0; unsupported returns 1
     expect([0, 1]).toContain(result)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// writeVbsLauncher
+// ---------------------------------------------------------------------------
+
+describe('writeVbsLauncher', () => {
+  it('writes a VBS file with UTF-16 LE BOM', () => {
+    const vbsPath = writeVbsLauncher('C:\\test\\cli.js')
+    expect(existsSync(vbsPath)).toBe(true)
+
+    const raw = readFileSync(vbsPath)
+    // UTF-16 LE BOM: 0xFF 0xFE
+    expect(raw[0]).toBe(0xff)
+    expect(raw[1]).toBe(0xfe)
+
+    // Clean up
+    rmSync(vbsPath, { force: true })
+  })
+
+  it('uses process.execPath instead of hardcoded node', () => {
+    const vbsPath = writeVbsLauncher('C:\\test\\cli.js')
+    const raw = readFileSync(vbsPath)
+    // Decode UTF-16 LE (skip BOM)
+    const content = raw.subarray(2).toString('utf16le')
+
+    // Should contain the full node path, not bare "node"
+    const expectedNode = process.execPath.replace(/"/g, '""')
+    expect(content).toContain(expectedNode)
+    expect(content).not.toMatch(/^WshShell\.Run "node /m)
+
+    rmSync(vbsPath, { force: true })
+  })
+
+  it('escapes double quotes in script path', () => {
+    const vbsPath = writeVbsLauncher('C:\\path with "quotes"\\cli.js')
+    const raw = readFileSync(vbsPath)
+    const content = raw.subarray(2).toString('utf16le')
+
+    // VBScript "" escaping
+    expect(content).toContain('path with ""quotes""')
+
+    rmSync(vbsPath, { force: true })
+  })
+
+  it('contains WScript.Shell and Run with SW_HIDE (0)', () => {
+    const vbsPath = writeVbsLauncher('C:\\test\\cli.js')
+    const raw = readFileSync(vbsPath)
+    const content = raw.subarray(2).toString('utf16le')
+
+    expect(content).toContain('CreateObject("WScript.Shell")')
+    expect(content).toContain(', 0, False')
+    expect(content).toContain('daemon run-once')
+
+    rmSync(vbsPath, { force: true })
+  })
+
+  it('vbsLauncherPath returns path under .memorytree', () => {
+    const p = vbsLauncherPath()
+    expect(p).toContain('.memorytree')
+    expect(p).toContain('heartbeat-launcher.vbs')
   })
 })

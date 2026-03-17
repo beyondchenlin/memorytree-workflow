@@ -897,7 +897,7 @@ describe('parseDoubaoTranscript', () => {
     expect(result.client).toBe('doubao')
     expect(result.title).toBe('小说创作平台调研')
     expect(result.session_id).toBe('38416801786598914')
-    expect(result.started_at).toBe('2026-03-16T10:22:17Z')
+    expect(result.started_at).toBe('2026-03-16T10:22:17')
   })
 
   it('parses user and AI message turns with correct roles', () => {
@@ -951,8 +951,8 @@ describe('parseDoubaoTranscript', () => {
     }))
 
     const result = parseDoubaoTranscript(filePath)
-    expect(result.messages[0]!.timestamp).toBe('2026-03-05T22:45:10Z')
-    expect(result.messages[1]!.timestamp).toBe('2026-03-05T22:45:15Z')
+    expect(result.messages[0]!.timestamp).toBe('2026-03-05T22:45:10')
+    expect(result.messages[1]!.timestamp).toBe('2026-03-05T22:45:15')
   })
 
   it('returns empty tool_events (doubao has no tool calls)', () => {

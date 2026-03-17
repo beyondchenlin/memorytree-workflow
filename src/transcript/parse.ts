@@ -473,9 +473,11 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
 
     const createdMatch = line.match(/^Created:\s*(.+)$/)
     if (createdMatch) {
-      // Convert "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DDTHH:MM:SS"
-      const iso = (createdMatch[1] ?? '').trim().replace(' ', 'T')
-      startedAt = normalizeTimestamp(iso, startedAt)
+      // Doubao exports user-local time with no timezone info.
+      // Convert "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DDTHH:MM:SS" (naive, no Z suffix)
+      // so we don't falsely claim UTC.
+      const raw = (createdMatch[1] ?? '').trim().replace(' ', 'T')
+      if (raw) startedAt = raw
       continue
     }
   }
@@ -498,8 +500,8 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
     }
 
     const role: string = match[1] === 'User' ? 'user' : 'assistant'
-    const iso = (match[2] ?? '').trim().replace(' ', 'T')
-    const timestamp = normalizeTimestamp(iso, startedAt)
+    // Doubao exports user-local time — keep as naive ISO, no Z suffix.
+    const timestamp = (match[2] ?? '').trim().replace(' ', 'T')
     lineIndex++ // advance past turn header
 
     // Skip blank line that follows the turn header

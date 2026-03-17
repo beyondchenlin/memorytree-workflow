@@ -250,18 +250,21 @@ export function isLaunchdRegistered(): boolean {
 // VBScript Run(..., 0, False): 0 = SW_HIDE hides the window; False = fire-and-forget.
 // Written as UTF-16 LE with BOM so wscript.exe handles non-ASCII paths (e.g. Chinese
 // usernames) correctly on all Windows versions.
-function vbsLauncherPath(): string {
+export function vbsLauncherPath(): string {
   return resolve(homedir(), '.memorytree', 'heartbeat-launcher.vbs')
 }
 
-function writeVbsLauncher(scriptPath: string): string {
+export function writeVbsLauncher(scriptPath: string): string {
   const vbsPath = vbsLauncherPath()
   mkdirSync(dirname(vbsPath), { recursive: true })
   // Inside VBScript strings, double-quote is escaped as ""
-  const escaped = scriptPath.replace(/"/g, '""')
+  const escapedScript = scriptPath.replace(/"/g, '""')
+  // Use the full node binary path so the launcher works even when Task Scheduler's
+  // PATH differs from the user's shell (e.g. nvm/fnm environments).
+  const escapedNode = process.execPath.replace(/"/g, '""')
   const content = [
     'Set WshShell = CreateObject("WScript.Shell")',
-    `WshShell.Run "node ""${escaped}"" daemon run-once", 0, False`,
+    `WshShell.Run """${escapedNode}"" ""${escapedScript}"" daemon run-once", 0, False`,
   ].join('\r\n') + '\r\n'
   // UTF-16 LE BOM: recognised by wscript.exe on all Windows versions and preserves
   // non-ASCII characters (e.g. Chinese home directory paths) without corruption.
