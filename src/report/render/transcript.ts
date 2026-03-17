@@ -43,10 +43,11 @@ export function renderTranscript(
   const ogUrl = reportBaseUrl
     ? `${reportBaseUrl.replace(/\/$/, '')}/${transcriptUrlFromRoot(manifest)}`
     : ''
-  return htmlShell(title, content, nav, {
-    ogDescription: summary || undefined,
-    ogUrl: ogUrl || undefined,
-  })
+  const shellOptions = {
+    ...(summary ? { ogDescription: summary } : {}),
+    ...(ogUrl ? { ogUrl } : {}),
+  }
+  return htmlShell(title, content, nav, shellOptions)
 }
 
 // ---------------------------------------------------------------------------

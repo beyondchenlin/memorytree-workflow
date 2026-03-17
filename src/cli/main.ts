@@ -184,14 +184,15 @@ report
     const output = rawOutput || `${root}/Memory/07_reports`
     // Commander's --no-ai sets opts.ai = false
     const noAi = opts.ai === false
-    process.exitCode = await cmdReportBuild({
+    const buildOpts = {
       root,
       output,
       noAi,
       model: opts.model as string,
-      locale: (opts.locale as string) || undefined,
-      reportBaseUrl: (opts.reportBaseUrl as string) || undefined,
-    })
+      ...((opts.locale as string) ? { locale: opts.locale as string } : {}),
+      ...((opts.reportBaseUrl as string) ? { reportBaseUrl: opts.reportBaseUrl as string } : {}),
+    }
+    process.exitCode = await cmdReportBuild(buildOpts)
   })
 
 report

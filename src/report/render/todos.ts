@@ -6,7 +6,7 @@ import type { Translations } from '../i18n/types.js'
 import { escHtml, htmlShell, renderNav, slugifyName } from './layout.js'
 import type { MarkdownFile } from './layout.js'
 import { hasMermaidBlocks, markdownToHtml, MERMAID_CDN_SCRIPT } from './markdown.js'
-import { extractToc, renderToc, injectHeadingIds } from './toc.js'
+import { extractToc, renderToc, injectHeadingIds, prefixTocIds } from './toc.js'
 
 export type TodoFile = MarkdownFile
 
@@ -24,11 +24,12 @@ export function renderTodos(files: TodoFile[], t?: Translations): string {
 
   const sections = files
     .map(f => {
-      const tocEntries = extractToc(f.content)
+      const sectionId = slugifyName(f.filename)
+      const tocEntries = prefixTocIds(extractToc(f.content), sectionId)
       const rawHtml = markdownToHtml(f.content)
       const htmlContent = injectHeadingIds(rawHtml, tocEntries)
       const toc = renderToc(tocEntries)
-      return `<div class="card" id="${escHtml(slugifyName(f.filename))}">
+      return `<div class="card" id="${escHtml(sectionId)}">
   <h2>${escHtml(f.title)}</h2>
   <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">${escHtml(f.filename)}</p>
   ${toc}

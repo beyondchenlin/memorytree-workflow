@@ -95,7 +95,6 @@ function renderRecentSessions(manifests: ManifestEntry[], t?: Translations): str
 
   const heading = t?.dashboard.recentSessions ?? 'Recent Sessions'
   const clientLabel = t?.sessions.client ?? 'Client'
-  const titleLabel = 'Title'
   const dateLabel = t?.sessions.date ?? 'Date'
   const msgsLabel = t?.sessions.msgs ?? 'Msgs'
   const toolsLabel = t?.sessions.tools ?? 'Tools'

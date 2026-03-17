@@ -77,6 +77,18 @@ export function renderToc(entries: TocEntry[]): string {
 }
 
 // ---------------------------------------------------------------------------
+// TOC ID scoping
+// ---------------------------------------------------------------------------
+
+export function prefixTocIds(entries: TocEntry[], prefix: string): TocEntry[] {
+  if (!prefix) return entries
+  return entries.map(entry => ({
+    ...entry,
+    id: `${prefix}-${entry.id}`,
+  }))
+}
+
+// ---------------------------------------------------------------------------
 // Heading anchor injection
 // ---------------------------------------------------------------------------
 

@@ -10,8 +10,9 @@ import {
   readFileSync,
   writeFileSync,
   appendFileSync,
+  rmSync,
 } from 'node:fs'
-import { basename, dirname, join, relative } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 
 import type { BuildReportOptions } from '../types/report.js'
 import type { ManifestEntry } from '../types/transcript.js'
@@ -21,9 +22,7 @@ import { renderTranscriptList } from './render/transcript-list.js'
 import { renderTranscript } from './render/transcript.js'
 import type { RenderedMessage } from './render/transcript.js'
 import { renderKnowledge } from './render/knowledge.js'
-import type { KnowledgeFile } from './render/knowledge.js'
 import { renderGoals } from './render/goals.js'
-import type { GoalFile } from './render/goals.js'
 import { renderTodos } from './render/todos.js'
 import { renderArchive } from './render/archive.js'
 import { renderProjects } from './render/projects.js'
@@ -60,6 +59,8 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
 
   // Load translations
   const t: Translations = loadLocale(locale)
+
+  clearOutputDir(output)
 
   // Ensure output dirs exist
   mkdirSync(output, { recursive: true })
@@ -464,6 +465,25 @@ function loadMarkdownFiles(dir: string): Array<{ filename: string; title: string
       const title = extractMarkdownTitle(content) || basename(filename, '.md')
       return { filename, title, content }
     })
+}
+
+function clearOutputDir(output: string): void {
+  if (!existsSync(output)) return
+
+  let entries: string[]
+  try {
+    entries = readdirSync(output)
+  } catch {
+    return
+  }
+
+  for (const entry of entries) {
+    try {
+      rmSync(join(output, entry), { recursive: true, force: true })
+    } catch {
+      // Best-effort cleanup
+    }
+  }
 }
 
 function extractMarkdownTitle(content: string): string {

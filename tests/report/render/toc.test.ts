@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractToc, renderToc, injectHeadingIds } from '../../../src/report/render/toc.js'
+import { extractToc, renderToc, injectHeadingIds, prefixTocIds } from '../../../src/report/render/toc.js'
 
 describe('extractToc', () => {
   it('extracts h2 and h3 headings', () => {
@@ -97,5 +97,23 @@ describe('injectHeadingIds', () => {
     const entries = [{ level: 2 as const, text: 'Different', id: 'different' }]
     const result = injectHeadingIds(html, entries)
     expect(result).toBe('<h2>Unknown Heading</h2>')
+  })
+})
+
+describe('prefixTocIds', () => {
+  it('prefixes ids to keep anchors unique across merged documents', () => {
+    const entries = [
+      { level: 2 as const, text: 'Overview', id: 'overview' },
+      { level: 3 as const, text: 'Details', id: 'details' },
+    ]
+    expect(prefixTocIds(entries, 'goal-a-md')).toEqual([
+      { level: 2, text: 'Overview', id: 'goal-a-md-overview' },
+      { level: 3, text: 'Details', id: 'goal-a-md-details' },
+    ])
+  })
+
+  it('returns original ids when prefix is empty', () => {
+    const entries = [{ level: 2 as const, text: 'Overview', id: 'overview' }]
+    expect(prefixTocIds(entries, '')).toEqual(entries)
   })
 })

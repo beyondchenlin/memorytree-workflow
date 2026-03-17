@@ -22,14 +22,15 @@ export interface CmdReportBuildOptions {
 export async function cmdReportBuild(opts: CmdReportBuildOptions): Promise<number> {
   const { buildReport } = await import('../report/build.js')
   try {
-    await buildReport({
+    const buildOptions = {
       root: resolve(opts.root),
       output: resolve(opts.output),
       noAi: opts.noAi,
       model: opts.model,
-      locale: opts.locale,
-      reportBaseUrl: opts.reportBaseUrl,
-    })
+      ...(opts.locale ? { locale: opts.locale } : {}),
+      ...(opts.reportBaseUrl ? { reportBaseUrl: opts.reportBaseUrl } : {}),
+    }
+    await buildReport(buildOptions)
     console.log(`Report generated at: ${resolve(opts.output)}`)
     console.log(`Open: ${join(resolve(opts.output), 'index.html')}`)
     return 0

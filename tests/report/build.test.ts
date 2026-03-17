@@ -212,6 +212,36 @@ I'll help with that!
     expect(gitignore).toContain('Memory/07_reports/')
   })
 
+  it('removes stale generated files before rebuilding', async () => {
+    scaffoldMemory(tmpDir)
+    const output = join(tmpDir, 'Memory', '07_reports')
+    const stalePath = join(output, 'transcripts', 'codex', 'stale.html')
+
+    mkdirSync(join(output, 'transcripts', 'codex'), { recursive: true })
+    writeFileSync(stalePath, '<html>stale</html>', 'utf-8')
+
+    await buildReport({ root: tmpDir, output, noAi: true })
+
+    expect(existsSync(stalePath)).toBe(false)
+  })
+
+  it('scopes duplicate heading anchors per markdown file', async () => {
+    scaffoldMemory(tmpDir)
+    const goalsDir = join(tmpDir, 'Memory', '01_goals')
+    mkdirSync(goalsDir, { recursive: true })
+    writeFileSync(join(goalsDir, 'a.md'), '# Goal A\n\n## Overview\n\nAlpha\n', 'utf-8')
+    writeFileSync(join(goalsDir, 'b.md'), '# Goal B\n\n## Overview\n\nBeta\n', 'utf-8')
+    const output = join(tmpDir, 'Memory', '07_reports')
+
+    await buildReport({ root: tmpDir, output, noAi: true })
+
+    const html = readFileSync(join(output, 'goals', 'index.html'), 'utf-8')
+    expect(html).toContain('href="#a-md-overview"')
+    expect(html).toContain('href="#b-md-overview"')
+    expect((html.match(/id="a-md-overview"/g) ?? [])).toHaveLength(1)
+    expect((html.match(/id="b-md-overview"/g) ?? [])).toHaveLength(1)
+  })
+
   it('handles empty Memory directory gracefully', async () => {
     // Create root but no transcripts
     mkdirSync(join(tmpDir, 'Memory'), { recursive: true })
