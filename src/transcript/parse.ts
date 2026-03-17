@@ -76,7 +76,17 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
   let startedAt = normalizeTimestamp(statSync(filePath).mtimeMs / 1000)
   let cwd = ''
   let branch = ''
+  // Canonical messages from `payload.type === 'message'` (response_item records).
   const messages: TranscriptMessage[] = []
+  // Streaming fallback: `agent_message` / `user_message` from event_msg records.
+  // The Codex CLI double-encodes every message: each turn fires as a streaming
+  // `event_msg` (agent_message / user_message) AND later as a canonical
+  // `response_item` (message). Processing both causes duplicates because the two
+  // representations share almost-identical but not always equal timestamps
+  // (millisecond jitter), defeating timestamp-based deduplication. We therefore
+  // prefer canonical records and use streaming records only as a fallback for
+  // sessions recorded by older Codex versions that emit only streaming events.
+  const streamingMessages: TranscriptMessage[] = []
   const toolEvents: TranscriptToolEvent[] = []
 
   for (const record of records) {
@@ -111,11 +121,12 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
       continue
     }
 
+    // Collect streaming events as fallback only — never mix with canonical records.
     if (payloadType === 'user_message' || payloadType === 'agent_message') {
       const role = payloadType === 'user_message' ? 'user' : 'assistant'
       const text = String(payload['message'] ?? '').trim()
       if (text) {
-        messages.push({ role, text, timestamp })
+        streamingMessages.push({ role, text, timestamp })
       }
       continue
     }
@@ -159,6 +170,14 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
     }
   }
 
+  // Use canonical records when available; fall back to streaming events otherwise.
+  // Then drop only the leading Codex system injection messages so we do not
+  // accidentally erase later turns where the user is legitimately discussing
+  // AGENTS.md, environment tags, or other injected scaffolding.
+  const finalMessages = trimLeadingCodexSystemInjections(
+    messages.length > 0 ? messages : streamingMessages,
+  )
+
   return {
     client: 'codex',
     session_id: sessionId,
@@ -166,10 +185,43 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
     started_at: startedAt,
     cwd,
     branch,
-    messages: deduplicateMessages(messages),
+    messages: deduplicateMessages(finalMessages),
     tool_events: deduplicateToolEvents(toolEvents),
     source_path: filePath,
   }
+}
+
+// ---------------------------------------------------------------------------
+// Codex system injection detection
+// ---------------------------------------------------------------------------
+
+// The Codex CLI injects system context — AGENTS.md instructions, skill
+// definitions, environment metadata, and permissions — as the first
+// `message(role=user)` record of every session. These are not real user turns
+// and must be filtered so the clean transcript starts with the actual
+// conversation.
+const CODEX_INJECTION_MARKERS: readonly string[] = [
+  '<INSTRUCTIONS>',
+  '<environment_context>',
+  '<permissions instructions>',
+  '<collaboration_mode>',
+  '# AGENTS.md instructions for',
+]
+
+export function isCodexSystemInjection(text: string): boolean {
+  return CODEX_INJECTION_MARKERS.some(marker => text.includes(marker))
+}
+
+function trimLeadingCodexSystemInjections(messages: TranscriptMessage[]): TranscriptMessage[] {
+  let firstRealIndex = 0
+  while (firstRealIndex < messages.length) {
+    const message = messages[firstRealIndex]
+    if (!message || message.role !== 'user' || !isCodexSystemInjection(message.text)) {
+      break
+    }
+    firstRealIndex++
+  }
+  return messages.slice(firstRealIndex)
 }
 
 // ---------------------------------------------------------------------------

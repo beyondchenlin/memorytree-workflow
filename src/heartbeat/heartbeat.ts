@@ -17,7 +17,7 @@ import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
 import { git } from '../utils/exec.js'
 import { toPosixPath } from '../utils/path.js'
-import { basename, resolve } from 'node:path'
+import { basename, join, resolve } from 'node:path'
 import { existsSync } from 'node:fs'
 
 // ---------------------------------------------------------------------------
@@ -31,6 +31,8 @@ const SENSITIVE_PATTERNS: readonly RegExp[] = [
   /(?:sk-|pk_live_|sk_live_|ghp_|gho_|glpat-)\S{10,}/,
   /Bearer\s+\S{20,}/i,
 ]
+
+const RAW_TRANSCRIPT_PREFIX = 'Memory/06_transcripts/raw/'
 
 // ---------------------------------------------------------------------------
 // Main entry point
@@ -98,6 +100,15 @@ export async function processProject(config: Config, projectPath: string, projec
   const logger = getLogger()
   const repoSlug = slugify(projectName, 'project')
   const globalRoot = defaultGlobalTranscriptRoot()
+  const branch = currentBranch(projectPath)
+  const mirrorToRepo = isDedicatedMemorytreeBranch(branch)
+
+  if (!mirrorToRepo) {
+    logger.warn(
+      `[${projectName}] Current branch '${branch}' is not a dedicated memorytree/* branch. ` +
+      'Importing to the global archive only.',
+    )
+  }
 
   const discovered = discoverSourceFiles()
   let importedCount = 0
@@ -117,7 +128,7 @@ export async function processProject(config: Config, projectPath: string, projec
     scanSensitive(parsed, projectPath)
 
     try {
-      await importTranscript(parsed, projectPath, globalRoot, repoSlug, 'not-set', true)
+      await importTranscript(parsed, projectPath, globalRoot, repoSlug, 'not-set', mirrorToRepo)
       importedCount++
     } catch {
       logger.exception(`Failed to import transcript: ${source}`)
@@ -130,7 +141,32 @@ export async function processProject(config: Config, projectPath: string, projec
   }
 
   logger.info(`[${projectName}] Imported ${importedCount} transcript(s).`)
-  gitCommitAndPush(config, projectPath, projectName, importedCount)
+  if (mirrorToRepo) {
+    gitCommitAndPush(config, projectPath, projectName, importedCount)
+  } else {
+    logger.info(`[${projectName}] Skipped repo-local commit/push on branch '${branch}'.`)
+  }
+
+  if (config.generate_report) {
+    try {
+      const { buildReport } = await import('../report/build.js')
+      await buildReport({
+        root: projectPath,
+        output: join(projectPath, 'Memory', '07_reports'),
+        noAi: !process.env['ANTHROPIC_API_KEY'],
+        model: config.ai_summary_model,
+        locale: config.locale,
+        ghPagesBranch: config.gh_pages_branch,
+        cname: config.cname,
+        webhookUrl: config.webhook_url,
+        reportBaseUrl: config.report_base_url,
+      })
+      logger.info(`[${projectName}] Report generated.`)
+    } catch (err: unknown) {
+      logger.warn(`[${projectName}] Report generation failed: ${String(err)}`)
+      // Never propagate — report failure must not abort heartbeat cycle
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -163,13 +199,19 @@ export function scanSensitive(parsed: ParsedTranscript, projectPath: string): vo
 export function gitCommitAndPush(config: Config, projectPath: string, projectName: string, count: number): void {
   const logger = getLogger()
 
-  const status = git(projectPath, 'status', '--porcelain', 'Memory/')
-  if (!status.trim()) {
+  const changedPaths = changedMemoryPaths(projectPath)
+  if (changedPaths.length === 0) {
     logger.info(`[${projectName}] No git changes in Memory/.`)
     return
   }
 
-  git(projectPath, 'add', 'Memory/')
+  const stageablePaths = changedPaths.filter(path => !isRepoRawTranscriptPath(path))
+  if (stageablePaths.length === 0) {
+    logger.info(`[${projectName}] Only raw transcript mirror changes detected; skipping commit.`)
+    return
+  }
+
+  git(projectPath, 'add', '--', ...stageablePaths)
   git(projectPath, 'commit', '-m', `memorytree(transcripts): import ${count} transcript(s)`)
   logger.info(`[${projectName}] Committed ${count} transcript import(s).`)
 
@@ -205,4 +247,53 @@ export function tryPush(projectPath: string, projectName: string): boolean {
   } catch {
     return false
   }
+}
+
+export function currentBranch(projectPath: string): string {
+  return git(projectPath, 'rev-parse', '--abbrev-ref', 'HEAD').trim()
+}
+
+export function isDedicatedMemorytreeBranch(branch: string): boolean {
+  return branch.trim().startsWith('memorytree/')
+}
+
+export function changedMemoryPaths(projectPath: string): string[] {
+  const status = git(projectPath, 'status', '--porcelain', '--untracked-files=all', '--', 'Memory/')
+  const seen = new Set<string>()
+  const paths: string[] = []
+
+  for (const rawLine of status.split(/\r?\n/)) {
+    const path = statusLinePath(rawLine)
+    if (path === null || seen.has(path)) continue
+    seen.add(path)
+    paths.push(path)
+  }
+
+  return paths
+}
+
+export function isRepoRawTranscriptPath(path: string): boolean {
+  return path.replace(/\\/g, '/').startsWith(RAW_TRANSCRIPT_PREFIX)
+}
+
+function statusLinePath(line: string): string | null {
+  if (line.length < 4) return null
+
+  const rawPath = line.slice(3).trim()
+  if (!rawPath) return null
+
+  const path = rawPath.includes(' -> ')
+    ? rawPath.slice(rawPath.lastIndexOf(' -> ') + 4)
+    : rawPath
+
+  return unquotePath(path)
+}
+
+function unquotePath(path: string): string {
+  if (!(path.startsWith('"') && path.endsWith('"'))) return path
+
+  return path
+    .slice(1, -1)
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\')
 }

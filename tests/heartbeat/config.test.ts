@@ -139,6 +139,8 @@ describe('saveConfig', () => {
         { path: '/home/user/project-a', name: 'project-a' },
         { path: '/home/user/project-b', name: 'project-b' },
       ],
+      generate_report: true,
+      ai_summary_model: 'claude-opus-4-6',
     } as const
 
     saveConfig(original)
@@ -151,6 +153,8 @@ describe('saveConfig', () => {
     expect(loaded.projects).toHaveLength(2)
     expect(loaded.projects[0]!.path).toBe(original.projects[0]!.path)
     expect(loaded.projects[1]!.name).toBe(original.projects[1]!.name)
+    expect(loaded.generate_report).toBe(original.generate_report)
+    expect(loaded.ai_summary_model).toBe(original.ai_summary_model)
   })
 
   it('serializes empty projects list', () => {
@@ -160,6 +164,8 @@ describe('saveConfig', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     saveConfig(cfg)
@@ -217,6 +223,8 @@ describe('registerProject', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     const updated = registerProject(cfg, tmpDir)
@@ -233,6 +241,8 @@ describe('registerProject', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     const updated1 = registerProject(cfg, tmpDir)
@@ -247,10 +257,224 @@ describe('registerProject', () => {
       log_level: 'info',
       watch_dirs: [],
       projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
     } as const
 
     const updated = registerProject(cfg, tmpDir)
     expect(cfg.projects).toHaveLength(0)
     expect(updated.projects).toHaveLength(1)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// New fields: generate_report and ai_summary_model
+// ---------------------------------------------------------------------------
+
+describe('generate_report and ai_summary_model fields', () => {
+  it('defaults to false and haiku model', () => {
+    const cfg = loadConfig()
+    expect(cfg.generate_report).toBe(false)
+    expect(cfg.ai_summary_model).toBe('claude-haiku-4-5-20251001')
+  })
+
+  it('parses generate_report from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(
+      path,
+      ['generate_report = true', 'ai_summary_model = "claude-opus-4-6"', ''].join('\n'),
+    )
+    const cfg = loadConfig()
+    expect(cfg.generate_report).toBe(true)
+    expect(cfg.ai_summary_model).toBe('claude-opus-4-6')
+  })
+
+  it('defaults generate_report on invalid value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'generate_report = "yes"\n')
+    const cfg = loadConfig()
+    expect(cfg.generate_report).toBe(false)
+  })
+
+  it('defaults ai_summary_model on empty value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'ai_summary_model = ""\n')
+    const cfg = loadConfig()
+    expect(cfg.ai_summary_model).toBe('claude-haiku-4-5-20251001')
+  })
+
+  it('round-trips generate_report and ai_summary_model', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: true,
+      ai_summary_model: 'claude-sonnet-4-6',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.generate_report).toBe(true)
+    expect(loaded.ai_summary_model).toBe('claude-sonnet-4-6')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// New fields: locale, gh_pages_branch, cname, webhook_url
+// ---------------------------------------------------------------------------
+
+describe('locale / gh_pages_branch / cname / webhook_url fields', () => {
+  it('defaults locale to "en"', () => {
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('en')
+  })
+
+  it('defaults gh_pages_branch to ""', () => {
+    const cfg = loadConfig()
+    expect(cfg.gh_pages_branch).toBe('')
+  })
+
+  it('defaults cname to ""', () => {
+    const cfg = loadConfig()
+    expect(cfg.cname).toBe('')
+  })
+
+  it('defaults webhook_url to ""', () => {
+    const cfg = loadConfig()
+    expect(cfg.webhook_url).toBe('')
+  })
+
+  it('parses all 4 fields from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(
+      path,
+      [
+        'locale = "zh-CN"',
+        'gh_pages_branch = "gh-pages"',
+        'cname = "memory.example.com"',
+        'webhook_url = "https://open.feishu.cn/open-apis/bot/v2/hook/xxx"',
+        '',
+      ].join('\n'),
+    )
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('zh-CN')
+    expect(cfg.gh_pages_branch).toBe('gh-pages')
+    expect(cfg.cname).toBe('memory.example.com')
+    expect(cfg.webhook_url).toBe('https://open.feishu.cn/open-apis/bot/v2/hook/xxx')
+  })
+
+  it('defaults locale on missing field', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'heartbeat_interval = "5m"\n')
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('en')
+  })
+
+  it('defaults locale on empty string', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'locale = ""\n')
+    const cfg = loadConfig()
+    expect(cfg.locale).toBe('en')
+  })
+
+  it('round-trips all 4 fields via saveConfig/loadConfig', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'zh-CN',
+      gh_pages_branch: 'gh-pages',
+      cname: 'memory.example.com',
+      webhook_url: 'https://hooks.slack.com/services/test',
+      report_base_url: '',
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.locale).toBe('zh-CN')
+    expect(loaded.gh_pages_branch).toBe('gh-pages')
+    expect(loaded.cname).toBe('memory.example.com')
+    expect(loaded.webhook_url).toBe('https://hooks.slack.com/services/test')
+  })
+
+  it('handles non-string gh_pages_branch gracefully', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'gh_pages_branch = 42\n')
+    const cfg = loadConfig()
+    expect(cfg.gh_pages_branch).toBe('')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// New field: report_base_url
+// ---------------------------------------------------------------------------
+
+describe('report_base_url field', () => {
+  it('defaults to empty string', () => {
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('')
+  })
+
+  it('parses report_base_url from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_base_url = "https://memory.example.com"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('https://memory.example.com')
+  })
+
+  it('defaults on missing field', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'heartbeat_interval = "5m"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('')
+  })
+
+  it('defaults on non-string value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_base_url = 123\n')
+    const cfg = loadConfig()
+    expect(cfg.report_base_url).toBe('')
+  })
+
+  it('round-trips via saveConfig/loadConfig', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: false,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: 'https://memory.example.com',
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.report_base_url).toBe('https://memory.example.com')
   })
 })

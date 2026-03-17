@@ -1,21 +1,20 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/beyondchenlin/memorytree-workflow/master/assets/logo.svg" alt="MemoryTree" width="120" />
+<img src="assets/logo.svg" alt="MemoryTree" width="120" />
 
 # MemoryTree Workflow
 
-**Persistent, Git-tracked project memory for AI coding assistants.**
+**Persistent, Git-tracked project memory and transcript workflows for Claude Code, Codex, and Gemini CLI.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-cc785c.svg?logo=anthropic&logoColor=white)](https://claude.ai/claude-code)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#requirements)
 
 <p>
-  <a href="#install">Install</a> &nbsp;&bull;&nbsp;
-  <a href="#usage">Usage</a> &nbsp;&bull;&nbsp;
-  <a href="#features">Features</a> &nbsp;&bull;&nbsp;
-  <a href="#background-heartbeat">Heartbeat</a> &nbsp;&bull;&nbsp;
+  <a href="#quick-start">Quick Start</a> &nbsp;&bull;&nbsp;
+  <a href="#what-you-get">What You Get</a> &nbsp;&bull;&nbsp;
+  <a href="#report-site">Report Site</a> &nbsp;&bull;&nbsp;
+  <a href="#heartbeat">Heartbeat</a> &nbsp;&bull;&nbsp;
   <a href="#cli">CLI</a> &nbsp;&bull;&nbsp;
   <a href="#reference-docs">Docs</a>
 </p>
@@ -24,269 +23,361 @@
 
 ---
 
-## What It Does
+## Overview
 
-MemoryTree gives AI coding assistants (Claude Code, Codex, Gemini CLI) a structured memory layer that survives across sessions:
+MemoryTree gives AI-assisted projects a durable memory layer that survives across sessions, branches, and clients.
 
-| | Feature | Description |
-|---|---------|-------------|
-| :dart: | **Goals** | Track your project's north star across sessions |
-| :white_check_mark: | **Todos** | Version-bound task lists that stay in sync with goals |
-| :speech_balloon: | **Chat Logs** | Append-only session records for full traceability |
-| :books: | **Knowledge** | Durable notes, specs, and architecture decisions (also stored in goals when scope-relevant) |
-| :inbox_tray: | **Transcripts** | Import and archive AI chat history from Codex, Claude Code, and Gemini CLI |
+This repository ships two things:
 
-All stored as plain Markdown files under `Memory/`, tracked by Git, minimal dependencies.
+1. A reusable skill defined by [SKILL.md](SKILL.md)
+2. A Node.js CLI for initialization, transcript import, session recall, reporting, and heartbeat automation
 
-## Install
+The workflow is designed around two storage scopes:
+
+- Per-repository memory in `Memory/`
+- Cross-project transcript archives in `~/.memorytree/`
+
+The result is a Git-native memory system that can:
+
+- scaffold and maintain project memory files
+- archive raw AI transcripts plus cleaned Markdown indexes
+- recall the latest prior session for the current project
+- generate a static HTML report site
+- publish reports to GitHub Pages through the heartbeat pipeline
+
+## Quick Start
+
+### Install as a skill
+
+Claude Code:
 
 ```bash
 git clone https://github.com/beyondchenlin/memorytree-workflow ~/.claude/skills/memorytree-workflow
-cd ~/.claude/skills/memorytree-workflow && npm install && npm run build
+cd ~/.claude/skills/memorytree-workflow
+npm install
+npm run build
 ```
 
-On Windows (Git Bash):
+Codex:
+
 ```bash
-git clone https://github.com/beyondchenlin/memorytree-workflow "$USERPROFILE/.claude/skills/memorytree-workflow"
-cd "$USERPROFILE/.claude/skills/memorytree-workflow" && npm install && npm run build
+git clone https://github.com/beyondchenlin/memorytree-workflow ~/.codex/skills/memorytree-workflow
+cd ~/.codex/skills/memorytree-workflow
+npm install
+npm run build
 ```
 
-## Usage
+Windows PowerShell (Codex):
 
-In any Claude Code session, run:
+```powershell
+git clone https://github.com/beyondchenlin/memorytree-workflow.git `
+  $env:USERPROFILE\.codex\skills\memorytree-workflow
 
+cd $env:USERPROFILE\.codex\skills\memorytree-workflow
+npm install
+npm run build
 ```
+
+If your installer expects a skill path, use the repository root. `SKILL.md` lives at the top level.
+
+### Use the skill
+
+In Claude Code, run:
+
+```text
 /memorytree-workflow
 ```
 
-The skill will immediately:
-1. **Detect** — check if the current repo has MemoryTree installed
-2. **Alert** — display pending notifications from `~/.memorytree/alerts.json`
-3. **Init** — if missing, scaffold `AGENTS.md` and `Memory/` folders
-4. **Upgrade** — if partial, add missing pieces without overwriting existing policy
-5. **Maintain** — if installed, read the active goal/todo and report current state
+The skill will detect whether the current repository is `not-installed`, `partial`, or `installed`, then immediately take the appropriate next step.
 
-No manual confirmation needed — the skill acts on the detection result immediately.
+If you prefer to work directly through the CLI, build the project and run commands with `node dist/cli.js ...`.
 
-## Architecture
-
-### Per-Repository Structure
-
-After initialization, your repo will have:
-
-```
-AGENTS.md                    # AI behavior rules for this repo
-Memory/
-  01_goals/                  # Versioned project goals
-  02_todos/                  # Task lists bound to goals
-  03_chat_logs/              # Append-only session logs
-  04_knowledge/              # (optional) Durable project notes
-  05_archive/                # (optional) Retired goals/todos
-  06_transcripts/            # (optional) AI chat history archive
-    clean/                   #   Cleaned Markdown indexes
-    manifests/               #   Import metadata
-    raw/                     #   Raw transcript mirrors
-```
-
-### Global Directory (`~/.memorytree/`)
-
-Cross-project shared state:
-
-```
-~/.memorytree/
-  config.toml                # User-level settings
-  alerts.json                # Pending notifications
-  heartbeat.lock             # Single-instance lock
-  logs/                      # Heartbeat execution logs
-  transcripts/               # Global transcript archive
-    raw/                     #   By client/project/year/month
-    clean/                   #   Cleaned Markdown
-    index/
-      sessions.jsonl         #   Session metadata
-      search.sqlite          #   Search index
-```
-
-For the full schema see [`references/global-configuration.md`](references/global-configuration.md).
-
-## Features
-
-### Memory Management
-
-| Memory Type | Behavior |
-|-------------|----------|
-| **Goals** | Changed only after explicit user confirmation of a scope or requirement change. Versioned. |
-| **Todos** | Kept in sync with the active goal. Updated when progress changes or next task becomes clearer. |
-| **Chat Logs** | Append-only. Never rewritten or deleted. |
-| **Knowledge** | Stores architecture decisions, product ideas, operating constraints. Goals may also hold scope-relevant items. |
-| **Archive** | Stale context moved here or to knowledge files to keep active files concise. |
-
-### Multi-Client Transcript Import
-
-Import AI chat history from three clients:
-
-| Client | Source |
-|--------|--------|
-| **Codex** | `~/.codex/sessions/**/rollout-*.jsonl` |
-| **Claude Code** | `~/.claude/projects/<project>/*.jsonl` |
-| **Gemini CLI** | `~/.gemini/tmp/<hash>/checkpoints`, `~/.gemini/history`, `~/.gemini/chats` |
-
-Key principles:
-
-- Raw transcripts preserved unchanged as source of truth
-- Cleaned Markdown generated by **deterministic code** (not model tokens)
-- Current repo only stores transcripts belonging to this project; others go to global archive only
-- First import asks once whether raw transcripts may be committed to the repo
-
-### Cross-Project Search
-
-When searching all memories or chat history:
-
-1. Query `search.sqlite` for fast lookup
-2. Use `sessions.jsonl` for session-level metadata filtering (client, project, date range)
-3. Load matching cleaned Markdown for context; confirm exact wording against raw transcripts
-4. Combine with the current repo's `Memory/` files
-5. Fall back to scanning `clean/` directory if the index does not exist
-
-### Session Continuity
-
-When you open a new session and want to continue where you left off, ask MemoryTree to show your most recent conversation:
-
-> "Look at my last chat" / "看看我最近的聊天" / "Continue where I left off"
-
-The skill will:
-
-1. **Instant sync** — immediately scan all three client directories (not waiting for the scheduled heartbeat)
-2. **Locate** — find the latest session for the current project across Claude Code, Codex, and Gemini CLI
-3. **Summarize** — generate a continuation summary: what was discussed, what was tried, and what remains unresolved
-4. **Handoff** — you can say "continue" and pick up exactly where the previous session stopped
-
-This works **cross-client**: a Codex session can be recovered from Claude Code, and vice versa.
-
-For details see [`references/transcript-archive.md`](references/transcript-archive.md) and [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md).
-
-### Git Safety
-
-MemoryTree follows strict isolation rules to never interfere with your repo's workflow:
-
-| Rule | Description |
-|------|-------------|
-| File isolation | Only stages/commits `Memory/**` (excluding `raw/` until approved) and `AGENTS.md` (when managed by MemoryTree) |
-| Branch isolation | Uses dedicated branch `memorytree/<scope>-<date>-<slug>` |
-| Commit format | `memorytree(<scope>): <subject>` or repo-compatible equivalent |
-| PR isolation | Separate PR for MemoryTree-only changes |
-| Auto-merge | Only when repo still enforces its review and CI checks |
-| Auto-push | On by default; skips if no remote; fast-forward only |
-| Protected branches | Never overrides branch protection or CI rules |
-
-The skill stops and asks before proceeding in 8 scenarios: mixed product code, AGENTS.md conflicts, unclear target branch, repo forbids bot pushes, CI conflicts, unknown raw transcript permission, cross-project transcripts, or protected branch refusal.
-
-For the full policy see [`references/git-policy.md`](references/git-policy.md).
-
-### Sensitive Info Scanning
-
-During transcript cleaning, the heartbeat scans for API keys, passwords, tokens, and other secrets:
-
-- Matches are logged as warnings and written to `alerts.json`
-- **No automatic deletion or redaction** — the user decides how to handle them
-
-### Locale Support
-
-| Feature | Description |
-|---------|-------------|
-| Templates | English (`en`) and Simplified Chinese (`zh-cn`) |
-| Auto-detect | Detects language from repo content first, then system locale |
-| Reply language | Follows user explicit request > message language > repo locale > template locale > `en` |
-| Non-destructive | Never rewrites existing files just to translate them |
-
-## Background Heartbeat
-
-The heartbeat automates transcript discovery, import, cleaning, commit, and push without consuming model tokens or requiring human intervention.
-
-**Execution flow**:
-
-```
-Acquire lock → Load config.toml → Iterate projects → Discover → Import
-→ Clean → Commit → (auto_push) Push → Release lock → Exit
-```
-
-### Install the daemon
+Optional: make the CLI available as `memorytree` from your shell:
 
 ```bash
-memorytree daemon install
+npm link
 ```
 
-### Key settings (`~/.memorytree/config.toml`)
+### First CLI examples
 
-| Setting              | Default  | Description |
-|----------------------|----------|-------------|
-| `auto_push`          | `true`   | Push to remote after each commit. Skips if no remote is configured. |
-| `heartbeat_interval` | `"5m"`   | Interval between heartbeat executions. |
-| `log_level`          | `"info"` | Log verbosity (`debug`, `info`, `warn`, `error`). |
+```bash
+node dist/cli.js upgrade --root . --format json
+node dist/cli.js discover --root . --client all --scope current-project --format json
+node dist/cli.js recall --root . --format text
+node dist/cli.js report build --root . --no-ai --locale en
+node dist/cli.js report serve --dir ./Memory/07_reports --port 4321
+```
 
-### Design constraints
+## What You Get
 
-- Single execution, stateless, idempotent — safe to re-run at any interval
-- One computer = one scheduled heartbeat task
-- Will not silently register — always confirms before `install`
+### Per-repository layout
 
-For details see [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md) and [`references/global-configuration.md`](references/global-configuration.md).
+After initialization or upgrade, a repository can contain:
 
-## Design Principles
+```text
+AGENTS.md
+Memory/
+  01_goals/
+  02_todos/
+  03_chat_logs/
+  04_knowledge/
+  05_archive/
+  06_transcripts/
+    clean/
+    manifests/
+    raw/
+  07_reports/
+```
 
-| Principle | How |
-|-----------|-----|
-| **Zero intrusion** | Never changes the repo's branch model, CI, or review process |
-| **Minimal dependencies** | Built on Node.js stdlib + sql.js (WASM); no native compilation required |
-| **Deterministic** | Transcript cleaning done by code, not model tokens |
-| **Single source of truth** | Each concept defined in one reference file, others cross-reference |
-| **Spec-driven** | Reference docs define the contract; code implements it faithfully |
-| **User asset** | Memory belongs to the user; auto_push on by default to prevent local data loss |
+### Global archive layout
+
+Shared state lives under `~/.memorytree/`:
+
+```text
+~/.memorytree/
+  config.toml
+  alerts.json
+  heartbeat.lock
+  logs/
+  transcripts/
+    raw/
+    clean/
+    index/
+      sessions.jsonl
+      search.sqlite
+```
+
+### Core capabilities
+
+| Capability | What it does |
+|---|---|
+| Workspace scaffolding | Creates or upgrades `AGENTS.md` and the `Memory/` workspace without overwriting stronger existing repo policy |
+| Transcript archive | Imports raw transcripts from supported clients and generates cleaned Markdown plus manifests |
+| Session recall | Finds the latest prior session for the current project across clients |
+| Static report site | Builds a multi-page HTML site from the repository memory and transcript archive |
+| Heartbeat automation | Runs discovery, import, report generation, commit, and optional push on a schedule |
+| Git-safe behavior | Keeps automatic repo writes on dedicated `memorytree/*` branches and avoids polluting normal product branches |
+
+## Transcript Sources
+
+MemoryTree currently discovers transcripts from these default client stores:
+
+| Client | Source patterns |
+|---|---|
+| Codex | `~/.codex/sessions/**/*.jsonl` |
+| Claude Code | `~/.claude/projects/**/*.jsonl` |
+| Gemini CLI | `~/.gemini/tmp/*/checkpoints/**/*.json`, `~/.gemini/tmp/*/checkpoints/**/*.jsonl`, `~/.gemini/history/**/*.json`, `~/.gemini/history/**/*.jsonl`, `~/.gemini/chats/**/*.json`, `~/.gemini/chats/**/*.jsonl` |
+
+Import rules:
+
+- Raw transcripts stay unchanged as evidence.
+- Clean transcripts are generated deterministically by code.
+- Repo-local mirrors are limited to transcripts that belong to the current repository.
+- Unrelated transcripts are archived in the global archive only.
+- Raw transcript mirrors are excluded from automatic staging until the user approves raw uploads for that repository.
+
+## Session Continuity
+
+When you ask for your latest prior conversation, MemoryTree can:
+
+1. scan the supported local transcript stores immediately
+2. import any new matching transcripts
+3. query the global index for the current project
+4. exclude the current session by activation time
+5. return the latest prior clean transcript content and metadata
+
+This works across clients, so a project session recorded in one client can be recalled from another.
+
+## Report Site
+
+`memorytree report build` generates a static HTML site under `Memory/07_reports/`.
+
+Current report coverage includes:
+
+- dashboard
+- transcript list and per-session pages
+- goals, todos, knowledge, archive, and projects pages
+- client and project filters in search
+- graph view
+- tags and AI summaries
+- breadcrumbs and table of contents
+- RSS feed
+- OG metadata when `report_base_url` is configured
+- English and Simplified Chinese locales
+
+Serve the generated site locally:
+
+```bash
+node dist/cli.js report serve --dir ./Memory/07_reports --port 4321
+```
+
+Build it manually:
+
+```bash
+node dist/cli.js report build --root . --no-ai --locale en --report-base-url https://memory.example.com
+```
+
+## Heartbeat
+
+The heartbeat is the background automation layer. It can discover transcripts, import them, generate reports, commit repo-local memory updates, and optionally push.
+
+Execution flow:
+
+```text
+Acquire lock -> load config -> iterate projects -> discover -> import -> build report -> commit -> push -> release lock
+```
+
+Important branch-safety rule:
+
+- On `memorytree/*` branches, the heartbeat can mirror transcripts into the repository and commit MemoryTree changes.
+- On non-`memorytree/*` branches, the heartbeat still imports into the global archive, but keeps the repository clean.
+
+Install the heartbeat:
+
+```bash
+node dist/cli.js daemon install
+```
+
+Run it once right now:
+
+```bash
+node dist/cli.js daemon run-once
+```
+
+### Example config
+
+`~/.memorytree/config.toml`
+
+```toml
+heartbeat_interval = "5m"
+auto_push = true
+log_level = "info"
+generate_report = true
+locale = "en"
+gh_pages_branch = "gh-pages"
+cname = "memory.example.com"
+webhook_url = ""
+report_base_url = "https://memory.example.com"
+
+[[projects]]
+path = "/path/to/repo"
+name = "repo"
+```
+
+Config fields that matter most for report publishing:
+
+| Field | Default | Meaning |
+|---|---|---|
+| `generate_report` | `false` | Generate `Memory/07_reports/` during heartbeat runs |
+| `locale` | `"en"` | Report locale |
+| `gh_pages_branch` | `""` | Publish the generated report to a dedicated branch when set |
+| `cname` | `""` | Write a `CNAME` file into the published report output |
+| `webhook_url` | `""` | Send a report update notification after report generation |
+| `report_base_url` | `""` | Base URL for RSS and OG metadata |
+
+## Git Safety
+
+MemoryTree is strict about not taking over your main development flow.
+
+| Rule | Behavior |
+|---|---|
+| Branch isolation | Automatic repo-local transcript commits happen only on dedicated `memorytree/*` branches |
+| Scope isolation | Repo mirrors include only the current project's transcripts |
+| Raw upload control | Raw transcript files are not auto-staged until explicitly approved |
+| Push safety | If no remote exists, push is skipped and an alert is written |
+| Failure handling | Push failures alert and retry once; report deploy failures never abort the heartbeat |
+| Secret scanning | Transcript imports log potential secrets but do not auto-delete or auto-redact them |
 
 ## CLI
 
-All commands are available via `memorytree <subcommand>`:
+All commands are available through `node dist/cli.js <subcommand> ...`, or `memorytree <subcommand> ...` if you ran `npm link`.
 
 | Command | Description |
-|---------|-------------|
-| `memorytree init` | Scaffold `Memory/` and `AGENTS.md` for a new repository |
-| `memorytree upgrade` | Add missing MemoryTree pieces to a partial repository |
-| `memorytree import --source <file>` | Import one transcript into repo mirror and global archive |
+|---|---|
+| `memorytree init` | Initialize a MemoryTree workspace in a repository |
+| `memorytree upgrade` | Upgrade a partial repository without overwriting stronger repo policy |
+| `memorytree import --source <file>` | Import one transcript into the repo mirror and global archive |
 | `memorytree discover` | Scan local client stores and import matching transcripts |
-| `memorytree locale` | Print the effective locale for a target repository |
-| `memorytree recall` | On-demand transcript sync and latest session recall |
-| `memorytree daemon install` | Register heartbeat with the OS scheduler (cron / launchd / Task Scheduler) |
+| `memorytree locale` | Detect the effective repository locale |
+| `memorytree recall` | Run on-demand sync and return the latest prior session |
+| `memorytree report build` | Build the static HTML report site |
+| `memorytree report serve` | Serve the generated report locally over HTTP |
+| `memorytree daemon install` | Register the heartbeat with the OS scheduler |
 | `memorytree daemon uninstall` | Remove the scheduled heartbeat task |
-| `memorytree daemon run-once` | Run a single heartbeat cycle immediately |
-| `memorytree daemon watch` | Continuous loop for development and debugging only |
-| `memorytree daemon status` | Show registration state and lock info |
+| `memorytree daemon run-once` | Execute one heartbeat cycle immediately |
+| `memorytree daemon watch` | Development-only continuous heartbeat loop |
+| `memorytree daemon status` | Show scheduler registration and lock status |
+
+## Development And Validation
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Build:
+
+```bash
+npm run build
+```
+
+Validate locally:
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run test:e2e
+```
+
+Current validation expectations:
+
+- Node.js 20+ is required
+- CI is verified on Node.js 20, 22, and 24
+- Black-box E2E covers upgrade, import, discover, recall, report serve, heartbeat branch safety, GitHub Pages publish, and webhook resilience
 
 ## Reference Docs
 
 | File | Purpose |
-|------|---------|
-| [`references/project-detection.md`](references/project-detection.md) | Detect install state |
-| [`references/memory-layout.md`](references/memory-layout.md) | Folder and file naming rules |
-| [`references/update-rules.md`](references/update-rules.md) | When to version goals, todos, and session logs |
-| [`references/git-policy.md`](references/git-policy.md) | Git defaults, auto-push, and policy merge |
-| [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md) | Heartbeat architecture, daemon CLI, execution flow |
-| [`references/global-configuration.md`](references/global-configuration.md) | `~/.memorytree/` layout, `config.toml` schema, `alerts.json` format |
-| [`references/transcript-archive.md`](references/transcript-archive.md) | Transcript archival, cleaning, search, and upload rules |
-| [`references/locale-selection.md`](references/locale-selection.md) | Locale choice rules |
-| [`references/response-language.md`](references/response-language.md) | Reply-language precedence |
-| [`references/execution-environment.md`](references/execution-environment.md) | Runtime requirements (Node.js >= 20) |
-| [`references/upgrade-path.md`](references/upgrade-path.md) | Safe adoption flow for partial repos |
+|---|---|
+| [references/project-detection.md](references/project-detection.md) | Install-state detection |
+| [references/memory-layout.md](references/memory-layout.md) | Memory folder layout |
+| [references/update-rules.md](references/update-rules.md) | Goal, todo, and chat-log update rules |
+| [references/git-policy.md](references/git-policy.md) | Safe Git defaults and policy guidance |
+| [references/heartbeat-scheduling.md](references/heartbeat-scheduling.md) | Heartbeat lifecycle and scheduler behavior |
+| [references/global-configuration.md](references/global-configuration.md) | `~/.memorytree/` layout and config schema |
+| [references/transcript-archive.md](references/transcript-archive.md) | Transcript import, cleaning, indexing, and recall |
+| [references/locale-selection.md](references/locale-selection.md) | Locale detection rules |
+| [references/response-language.md](references/response-language.md) | Reply-language precedence |
+| [references/upgrade-path.md](references/upgrade-path.md) | Non-destructive adoption path |
 
 ## Update
 
+Claude Code:
+
 ```bash
-cd ~/.claude/skills/memorytree-workflow && git pull && npm install && npm run build
+cd ~/.claude/skills/memorytree-workflow
+git pull
+npm install
+npm run build
+```
+
+Codex:
+
+```bash
+cd ~/.codex/skills/memorytree-workflow
+git pull
+npm install
+npm run build
 ```
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/claude-code) CLI
-- Node.js 20+ (LTS)
+- Node.js 20 or newer
+- npm
 - Git
+- Claude Code, Codex, or another environment that can consume the skill or CLI
 
 ## License
 

@@ -9,6 +9,7 @@ import { resolve } from 'node:path'
 import { normalizeLocale } from '../project/locale.js'
 import { buildDatetime, resolveTemplateDir } from '../project/scaffold.js'
 import { upgrade, formatResultText } from '../project/upgrade.js'
+import { resolveSkillRoot } from '../utils/path.js'
 
 export interface UpgradeOptions {
   root: string
@@ -27,7 +28,7 @@ export function cmdUpgrade(options: UpgradeOptions): number {
     return 1
   }
 
-  const skillRoot = resolve(new URL(import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1'), '..', '..', '..')
+  const skillRoot = resolveSkillRoot(import.meta.url)
   const templates = resolveTemplateDir(skillRoot, root, options.locale)
   const effectiveLocale = normalizeLocale(options.locale, root)
   const dt = buildDatetime(options.date, options.time)

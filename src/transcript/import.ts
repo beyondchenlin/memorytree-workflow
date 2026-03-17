@@ -162,16 +162,6 @@ export function writeCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestE
     )
   }
 
-  lines.push('## Tool Events')
-  if (parsed.tool_events.length > 0) {
-    for (const event of parsed.tool_events) {
-      lines.push(`- \`${event.timestamp ?? manifest.started_at}\` ${event.summary}`)
-    }
-  } else {
-    lines.push('- No tool events were extracted.')
-  }
-  lines.push('')
-
   writeFileSync(filePath, lines.join('\n'), 'utf-8')
 }
 
