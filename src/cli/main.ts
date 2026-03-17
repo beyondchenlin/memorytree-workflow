@@ -71,11 +71,12 @@ program
   .description('Import one local transcript into MemoryTree archives')
   .requiredOption('--source <path>', 'Raw transcript source file path')
   .option('--root <path>', 'Target repository root', '.')
-  .option('--client <client>', 'Transcript client: auto, codex, claude, gemini', 'auto')
+  .option('--client <client>', 'Transcript client: auto, codex, claude, gemini, doubao', 'auto')
   .option('--project-name <name>', 'Project label', '')
   .option('--global-root <path>', 'Override global transcript root')
   .option('--raw-upload-permission <perm>', 'Permission: not-set, approved, denied', 'not-set')
   .option('--format <format>', 'Output format: text or json', 'text')
+  .option('--force-repo', 'Force writing to repo Memory/ (use for external imports like doubao)', false)
   .action(async (opts) => {
     const { cmdImport } = await import('./cmd-import.js')
     process.exitCode = await cmdImport({
@@ -86,6 +87,7 @@ program
       globalRoot: opts.globalRoot ?? '',
       rawUploadPermission: opts.rawUploadPermission,
       format: opts.format,
+      forceRepo: opts.forceRepo ?? false,
     })
   })
 

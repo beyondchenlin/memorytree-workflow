@@ -1,7 +1,7 @@
 // Types — ParsedTranscript, Message, ToolEvent interfaces
 // To be implemented in Phase 1
 
-export type Client = 'codex' | 'claude' | 'gemini'
+export type Client = 'codex' | 'claude' | 'gemini' | 'doubao'
 
 export interface TranscriptMessage {
   role: string
