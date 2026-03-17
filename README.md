@@ -285,7 +285,8 @@ cd ~/.claude/skills/memorytree-workflow && git pull && npm install && npm run bu
 ## Requirements
 
 - [Claude Code](https://claude.ai/claude-code) CLI
-- Node.js 20+ (LTS)
+- Node.js 20+ (minimum supported version)
+- CI-verified on Node.js 20, 22, and 24
 - Git
 
 ## License
