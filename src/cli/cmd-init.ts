@@ -15,6 +15,7 @@ import {
   scaffoldContentFiles,
   writeTemplate,
 } from '../project/scaffold.js'
+import { resolveSkillRoot } from '../utils/path.js'
 
 export interface InitOptions {
   root: string
@@ -60,7 +61,7 @@ export function cmdInit(options: InitOptions): number {
     return 1
   }
 
-  const skillRoot = resolve(new URL(import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1'), '..', '..', '..')
+  const skillRoot = resolveSkillRoot(import.meta.url)
   const templates = resolveTemplateDir(skillRoot, root, options.locale)
   const dt = buildDatetime(options.date, options.time)
 
