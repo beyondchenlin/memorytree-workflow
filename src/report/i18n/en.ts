@@ -1,0 +1,66 @@
+import type { Translations } from './types.js'
+
+export const en: Translations = {
+  nav: {
+    dashboard: 'Dashboard',
+    sessions: 'Sessions',
+    projects: 'Projects',
+    graph: 'Graph',
+    goals: 'Goals',
+    todos: 'Todos',
+    knowledge: 'Knowledge',
+    archive: 'Archive',
+    search: 'Search',
+  },
+  dashboard: {
+    title: 'Memory Dashboard',
+    subtitle: 'Activity from {from} to {to}',
+    sessions: 'Sessions',
+    messages: 'Messages',
+    toolEvents: 'Tool Events',
+    activeDays: 'Active Days',
+    recentSessions: 'Recent Sessions',
+  },
+  sessions: {
+    title: 'Sessions',
+    noSessions: 'No sessions imported yet.',
+    client: 'Client',
+    date: 'Date',
+    id: 'ID',
+    msgs: 'Msgs',
+    tools: 'Tools',
+    all: 'All',
+  },
+  transcript: {
+    aiSummary: 'AI Summary',
+    referencedBy: 'Referenced By',
+    messages: 'Messages',
+    noMessages: 'No messages found.',
+    client: 'Client',
+    sessionId: 'Session ID',
+    branch: 'Branch',
+    workingDir: 'Working Dir',
+    sha256: 'SHA-256',
+    toolEvents: 'Tool Events',
+  },
+  graph: {
+    title: 'Knowledge Graph',
+    subtitle: 'Connections between sessions and knowledge files',
+    noData: 'No graph data available.',
+  },
+  projects: {
+    title: 'Projects',
+    noProjects: 'No projects found.',
+    sessions: 'sessions',
+  },
+  search: {
+    title: 'Search',
+    placeholder: 'Search sessions...',
+    results: 'results',
+    noResults: 'No results found.',
+  },
+  common: {
+    loading: 'Loading...',
+    unknown: 'unknown',
+  },
+}

@@ -48,4 +48,6 @@ export interface ManifestEntry {
   tool_event_count: number
   cleaning_mode: string
   repo_mirror_enabled: boolean
+  /** AI-extracted keyword tags. Populated during report build; absent in older manifests. */
+  tags?: string[]
 }
