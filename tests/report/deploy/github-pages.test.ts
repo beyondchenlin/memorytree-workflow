@@ -1,34 +1,34 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mkdtempSync, mkdirSync, readFileSync, existsSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
-// Mock child_process.execFileSync so no actual git commands run
+const logger = {
+  info: vi.fn(),
+  warn: vi.fn(),
+  debug: vi.fn(),
+  error: vi.fn(),
+}
+
 vi.mock('node:child_process', () => ({
-  execFileSync: vi.fn().mockReturnValue(Buffer.from('')),
+  execFileSync: vi.fn(),
 }))
 
-// Mock getLogger to avoid needing full setup
 vi.mock('../../../src/heartbeat/log.js', () => ({
-  getLogger: () => ({
-    info: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
-    error: vi.fn(),
-  }),
+  getLogger: () => logger,
 }))
 
-import { deployGithubPages } from '../../../src/report/deploy/github-pages.js'
 import { execFileSync } from 'node:child_process'
-
-// ---------------------------------------------------------------------------
-// Setup / Teardown
-// ---------------------------------------------------------------------------
+import { deployGithubPages } from '../../../src/report/deploy/github-pages.js'
 
 let tmpDir: string
+let outputDir: string
 
 beforeEach(() => {
   tmpDir = mkdtempSync(join(tmpdir(), 'ghpages-test-'))
+  outputDir = join(tmpDir, 'output')
+  mkdirSync(outputDir, { recursive: true })
+  writeFileSync(join(outputDir, 'index.html'), '<h1>report</h1>\n', 'utf-8')
   vi.clearAllMocks()
 })
 
@@ -36,122 +36,159 @@ afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true })
 })
 
-// ---------------------------------------------------------------------------
-// CNAME file generation
-// ---------------------------------------------------------------------------
-
-describe('CNAME file', () => {
+describe('deployGithubPages', () => {
   it('writes CNAME when cname is set', async () => {
-    mkdirSync(join(tmpDir, 'output'), { recursive: true })
-    // Make execFileSync throw on ls-remote so branch is treated as non-existent
-    const mockExec = vi.mocked(execFileSync)
-    mockExec.mockImplementationOnce(() => { throw new Error('ls-remote failed') })
-    // Other calls succeed (worktree add, commit, push, subtree push, etc.)
-    mockExec.mockReturnValue(Buffer.from(''))
+    mockGit()
 
     await deployGithubPages({
       repoRoot: tmpDir,
-      outputDir: join(tmpDir, 'output'),
+      outputDir,
       branch: 'gh-pages',
       cname: 'memory.example.com',
     })
 
-    const cnamePath = join(tmpDir, 'output', 'CNAME')
+    const cnamePath = join(outputDir, 'CNAME')
     expect(existsSync(cnamePath)).toBe(true)
     expect(readFileSync(cnamePath, 'utf-8').trim()).toBe('memory.example.com')
   })
 
-  it('skips CNAME when cname is empty string', async () => {
-    mkdirSync(join(tmpDir, 'output'), { recursive: true })
-    vi.mocked(execFileSync).mockReturnValue(Buffer.from(''))
-
-    await deployGithubPages({
-      repoRoot: tmpDir,
-      outputDir: join(tmpDir, 'output'),
-      branch: 'gh-pages',
-      cname: '',
-    })
-
-    const cnamePath = join(tmpDir, 'output', 'CNAME')
-    expect(existsSync(cnamePath)).toBe(false)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// Branch name validation
-// ---------------------------------------------------------------------------
-
-describe('branch name validation', () => {
   it('skips deploy for branch with shell meta-chars', async () => {
     await deployGithubPages({
       repoRoot: tmpDir,
-      outputDir: tmpDir,
+      outputDir,
       branch: 'gh-pages; rm -rf /',
       cname: '',
     })
+
     expect(execFileSync).not.toHaveBeenCalled()
   })
-})
 
-// ---------------------------------------------------------------------------
-// Skip deploy when branch is empty
-// ---------------------------------------------------------------------------
-
-describe('skip when branch is empty', () => {
   it('does nothing when branch is empty string', async () => {
     await deployGithubPages({
       repoRoot: tmpDir,
-      outputDir: tmpDir,
+      outputDir,
       branch: '',
       cname: '',
     })
+
     expect(execFileSync).not.toHaveBeenCalled()
   })
-})
 
-// ---------------------------------------------------------------------------
-// git subtree push command
-// ---------------------------------------------------------------------------
-
-describe('git subtree push', () => {
-  it('calls git subtree push with correct branch', async () => {
-    mkdirSync(join(tmpDir, 'output'), { recursive: true })
-    const mockExec = vi.mocked(execFileSync)
-    // ls-remote succeeds (branch exists)
-    mockExec.mockReturnValue(Buffer.from('refs/heads/gh-pages'))
+  it('publishes to an existing remote branch via a temporary repo', async () => {
+    const calls = mockGit({ branchExists: true })
 
     await deployGithubPages({
       repoRoot: tmpDir,
-      outputDir: join(tmpDir, 'output'),
+      outputDir,
       branch: 'gh-pages',
       cname: '',
     })
 
-    // execFileSync is called as: execFileSync('git', [...args], opts)
-    // c[0] = 'git', c[1] = args array
-    expect(vi.mocked(execFileSync)).toHaveBeenCalledWith(
-      'git',
-      expect.arrayContaining(['subtree', 'push', '--prefix', expect.any(String), 'origin', 'gh-pages']),
-      expect.objectContaining({ cwd: tmpDir }),
-    )
+    expect(hasCommand(calls, ['remote', 'get-url', 'origin'], tmpDir)).toBe(true)
+    expect(hasCommand(calls, ['init'])).toBe(true)
+    expect(hasCommand(calls, ['remote', 'add', 'origin', 'https://example.com/repo.git'])).toBe(true)
+    expect(hasCommand(calls, ['fetch', '--depth', '1', 'origin', 'gh-pages'])).toBe(true)
+    expect(hasCommand(calls, ['checkout', '-B', 'gh-pages', 'FETCH_HEAD'])).toBe(true)
+    expect(hasCommand(calls, ['add', '--all'])).toBe(true)
+    expect(hasCommand(calls, ['status', '--short'])).toBe(true)
+    expect(hasCommand(calls, [
+      '-c', 'user.name=MemoryTree',
+      '-c', 'user.email=memorytree@local.invalid',
+      'commit', '-m', 'chore: publish memorytree report',
+    ])).toBe(true)
+    expect(hasCommand(calls, ['push', 'origin', 'HEAD:gh-pages'])).toBe(true)
+    expect(calls.some(call => call.args.includes('subtree'))).toBe(false)
   })
-})
 
-// ---------------------------------------------------------------------------
-// Failure handling
-// ---------------------------------------------------------------------------
+  it('creates an orphan branch when the remote branch does not exist', async () => {
+    const calls = mockGit({ branchExists: false })
 
-describe('failure handling', () => {
+    await deployGithubPages({
+      repoRoot: tmpDir,
+      outputDir,
+      branch: 'gh-pages',
+      cname: '',
+    })
+
+    expect(hasCommand(calls, ['checkout', '--orphan', 'gh-pages'])).toBe(true)
+    expect(hasCommand(calls, ['push', 'origin', 'HEAD:gh-pages'])).toBe(true)
+  })
+
+  it('skips commit and push when there is nothing new to publish', async () => {
+    const calls = mockGit({ branchExists: true, statusOutput: '' })
+
+    await deployGithubPages({
+      repoRoot: tmpDir,
+      outputDir,
+      branch: 'gh-pages',
+      cname: '',
+    })
+
+    expect(hasCommand(calls, ['status', '--short'])).toBe(true)
+    expect(hasCommand(calls, ['push', 'origin', 'HEAD:gh-pages'])).toBe(false)
+    expect(hasCommand(calls, ['commit', '-m', 'chore: publish memorytree report'])).toBe(false)
+  })
+
   it('does not throw when git commands fail', async () => {
-    vi.mocked(execFileSync).mockImplementation(() => { throw new Error('git failure') })
+    vi.mocked(execFileSync).mockImplementation(() => {
+      throw new Error('git failure')
+    })
 
     await expect(
       deployGithubPages({
         repoRoot: tmpDir,
-        outputDir: tmpDir,
+        outputDir,
         branch: 'gh-pages',
         cname: '',
-      })
+      }),
     ).resolves.not.toThrow()
   })
 })
+
+interface GitCall {
+  cwd?: string
+  args: string[]
+}
+
+function mockGit(options: {
+  branchExists?: boolean
+  remoteUrl?: string
+  statusOutput?: string
+} = {}): GitCall[] {
+  const calls: GitCall[] = []
+  const mockExec = vi.mocked(execFileSync)
+
+  mockExec.mockImplementation((_command, rawArgs, rawOptions) => {
+    const args = [...(rawArgs as string[])]
+    const cwd = (rawOptions as { cwd?: string } | undefined)?.cwd
+    calls.push({ cwd, args })
+
+    if (matches(args, ['remote', 'get-url', 'origin'])) {
+      return Buffer.from(options.remoteUrl ?? 'https://example.com/repo.git')
+    }
+
+    if (matches(args, ['ls-remote', '--exit-code', '--heads', 'origin', 'gh-pages'])) {
+      if (options.branchExists === false) {
+        throw new Error('branch not found')
+      }
+      return Buffer.from('refs/heads/gh-pages\n')
+    }
+
+    if (matches(args, ['status', '--short'])) {
+      return Buffer.from(options.statusOutput ?? 'A  index.html\n')
+    }
+
+    return Buffer.from('')
+  })
+
+  return calls
+}
+
+function hasCommand(calls: GitCall[], expected: string[], cwd?: string): boolean {
+  return calls.some(call => matches(call.args, expected) && (cwd === undefined || call.cwd === cwd))
+}
+
+function matches(actual: string[], expected: string[]): boolean {
+  if (actual.length !== expected.length) return false
+  return actual.every((value, index) => value === expected[index])
+}

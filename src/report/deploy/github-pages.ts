@@ -1,9 +1,9 @@
 /**
- * GitHub Pages deployment: push report output to gh-pages branch.
+ * GitHub Pages deployment: publish report output to a dedicated branch.
  */
 
-import { writeFileSync, mkdtempSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { cpSync, existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { execFileSync } from 'node:child_process'
 
@@ -20,7 +20,11 @@ export interface GithubPagesOptions {
   cname: string
 }
 
-/** Safe character set for branch names — blocks shell meta-chars. */
+const COMMIT_MESSAGE = 'chore: publish memorytree report'
+const COMMITTER_NAME = 'MemoryTree'
+const COMMITTER_EMAIL = 'memorytree@local.invalid'
+
+/** Safe character set for branch names. */
 const BRANCH_RE = /^[a-zA-Z0-9._/-]+$/
 
 export async function deployGithubPages(options: GithubPagesOptions): Promise<void> {
@@ -29,59 +33,98 @@ export async function deployGithubPages(options: GithubPagesOptions): Promise<vo
 
   if (!branch) return
 
-  // Validate branch name to prevent any injection
   if (!BRANCH_RE.test(branch)) {
     logger.warn(`[gh-pages] Invalid branch name, skipping deploy: "${branch}"`)
     return
   }
 
+  if (!existsSync(outputDir)) {
+    logger.warn(`[gh-pages] Output directory does not exist, skipping deploy: ${outputDir}`)
+    return
+  }
+
   try {
-    // 1. Write CNAME file if configured
     if (cname) {
       const cnamePath = join(outputDir, 'CNAME')
       writeFileSync(cnamePath, cname + '\n', 'utf-8')
       logger.info(`[gh-pages] CNAME written: ${cname}`)
     }
 
-    // 2. Check if branch exists on remote
-    let branchExists = false
+    const remoteUrl = git(repoRoot, 'remote', 'get-url', 'origin').trim()
+    if (!remoteUrl) {
+      logger.warn('[gh-pages] No origin remote configured, skipping deploy.')
+      return
+    }
+
+    const publishRoot = mkdtempSync(join(tmpdir(), 'mt-gh-pages-'))
     try {
-      git(repoRoot, 'ls-remote', '--exit-code', '--heads', 'origin', branch)
-      branchExists = true
-    } catch {
-      branchExists = false
-    }
+      git(publishRoot, 'init')
+      git(publishRoot, 'remote', 'add', 'origin', remoteUrl)
 
-    if (!branchExists) {
-      // Create orphan branch via a temporary worktree (mkdtempSync avoids collision)
-      logger.info(`[gh-pages] Branch '${branch}' not found, creating orphan...`)
-      const worktreePath = mkdtempSync(join(tmpdir(), 'mt-gh-pages-'))
-      try {
-        git(repoRoot, 'worktree', 'add', '--orphan', '-b', branch, worktreePath)
-        git(worktreePath, 'commit', '--allow-empty', '-m', 'chore: init gh-pages')
-        git(repoRoot, 'push', 'origin', branch)
-      } finally {
-        try { git(repoRoot, 'worktree', 'remove', '--force', worktreePath) } catch { /* ignore */ }
+      if (remoteBranchExists(publishRoot, branch)) {
+        logger.info(`[gh-pages] Updating existing origin/${branch} branch.`)
+        git(publishRoot, 'fetch', '--depth', '1', 'origin', branch)
+        git(publishRoot, 'checkout', '-B', branch, 'FETCH_HEAD')
+      } else {
+        logger.info(`[gh-pages] Branch '${branch}' not found, creating orphan publish branch.`)
+        git(publishRoot, 'checkout', '--orphan', branch)
       }
-    }
 
-    // 3. Push using git subtree
-    // path.relative() is authoritative; normalize separators for git
-    const relOutput = relative(repoRoot, outputDir).replace(/\\/g, '/')
-    logger.info(`[gh-pages] Pushing ${relOutput} to origin/${branch}...`)
-    git(repoRoot, 'subtree', 'push', '--prefix', relOutput, 'origin', branch)
-    logger.info(`[gh-pages] Successfully pushed to origin/${branch}`)
+      clearDirectory(publishRoot)
+      copyDirectoryContents(outputDir, publishRoot)
+
+      git(publishRoot, 'add', '--all')
+      if (!hasPendingChanges(publishRoot)) {
+        logger.info(`[gh-pages] No changes to publish for origin/${branch}.`)
+        return
+      }
+
+      git(
+        publishRoot,
+        '-c', `user.name=${COMMITTER_NAME}`,
+        '-c', `user.email=${COMMITTER_EMAIL}`,
+        'commit',
+        '-m',
+        COMMIT_MESSAGE,
+      )
+      git(publishRoot, 'push', 'origin', `HEAD:${branch}`)
+      logger.info(`[gh-pages] Successfully pushed report to origin/${branch}`)
+    } finally {
+      rmSync(publishRoot, { recursive: true, force: true })
+    }
   } catch (err: unknown) {
     logger.warn(`[gh-pages] Deploy failed: ${String(err)}`)
-    // Never throw — report deploy failure must not abort heartbeat
+    // Never throw; report deploy failure must not abort heartbeat.
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+function remoteBranchExists(cwd: string, branch: string): boolean {
+  try {
+    git(cwd, 'ls-remote', '--exit-code', '--heads', 'origin', branch)
+    return true
+  } catch {
+    return false
+  }
+}
 
-/** Invoke git with explicit args — no shell interpolation. */
+function clearDirectory(root: string): void {
+  for (const entry of readdirSync(root)) {
+    if (entry === '.git') continue
+    rmSync(join(root, entry), { recursive: true, force: true })
+  }
+}
+
+function copyDirectoryContents(source: string, destination: string): void {
+  for (const entry of readdirSync(source)) {
+    cpSync(join(source, entry), join(destination, entry), { recursive: true, force: true })
+  }
+}
+
+function hasPendingChanges(cwd: string): boolean {
+  return git(cwd, 'status', '--short').trim().length > 0
+}
+
+/** Invoke git with explicit args; no shell interpolation. */
 function git(cwd: string, ...args: string[]): string {
   return execFileSync('git', args, { cwd, stdio: 'pipe' }).toString()
 }

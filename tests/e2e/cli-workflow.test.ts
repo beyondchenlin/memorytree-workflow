@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import {
   existsSync,
   mkdirSync,
@@ -9,6 +9,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs'
+import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join, relative, resolve } from 'node:path'
 
@@ -25,23 +26,43 @@ interface RunOptions {
   readonly env?: NodeJS.ProcessEnv
 }
 
+interface RunningProcess {
+  readonly child: ChildProcessWithoutNullStreams
+  readonly stdout: () => string
+  readonly stderr: () => string
+}
+
 const workspaceRoot = resolve(process.cwd())
 const cliPath = join(workspaceRoot, 'dist', 'cli.js')
 
 let sandboxRoot: string
 let homeDir: string
 let repoRoot: string
+let otherRepoRoot: string
 let globalRoot: string
+let liveProcesses: ChildProcessWithoutNullStreams[]
 
 beforeEach(() => {
   sandboxRoot = mkdtempSync(join(tmpdir(), 'memorytree-e2e-'))
   homeDir = join(sandboxRoot, 'home')
   repoRoot = join(sandboxRoot, 'repo')
+  otherRepoRoot = join(sandboxRoot, 'other-repo')
   globalRoot = join(sandboxRoot, 'global')
+  liveProcesses = []
   mkdirSync(homeDir, { recursive: true })
 })
 
 afterEach(() => {
+  for (const child of liveProcesses) {
+    if (child.exitCode === null && !child.killed) {
+      try {
+        child.kill()
+      } catch {
+        // Ignore cleanup errors from already-closed processes.
+      }
+    }
+  }
+
   rmSync(sandboxRoot, { recursive: true, force: true })
 })
 
@@ -117,6 +138,168 @@ describe('CLI E2E', () => {
     expect(existsSync(join(repoRoot, 'Memory', '07_reports', 'feed.xml'))).toBe(true)
     expect(readFileSync(join(repoRoot, '.gitignore'), 'utf-8')).toContain('Memory/07_reports/')
     expect(readFileSync(join(repoRoot, 'Memory', '07_reports', 'feed.xml'), 'utf-8')).toContain('https://memory.example.com')
+  })
+
+  it('discovers current-project and all-projects transcripts through the built CLI', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+    initGitRepo(otherRepoRoot, 'main')
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'discover-current',
+      startedAt: '2026-03-17T10:30:00Z',
+    })
+    writeCodexTranscript({
+      homeDir,
+      repoPath: otherRepoRoot,
+      branch: 'main',
+      stem: 'discover-other',
+      startedAt: '2026-03-17T10:45:00Z',
+    })
+
+    const currentProject = runCli([
+      'discover',
+      '--root', repoRoot,
+      '--client', 'codex',
+      '--scope', 'current-project',
+      '--project-name', 'repo',
+      '--global-root', globalRoot,
+      '--raw-upload-permission', 'approved',
+      '--format', 'json',
+    ], { env: isolatedEnv(homeDir) })
+    assertSuccess(currentProject, 'memorytree discover current-project')
+
+    const currentPayload = JSON.parse(currentProject.stdout) as Record<string, unknown>
+    expect(currentPayload['discovered_count']).toBe(2)
+    expect(currentPayload['imported_count']).toBe(1)
+    expect(currentPayload['repo_mirror_count']).toBe(1)
+    expect(currentPayload['global_only_count']).toBe(0)
+    expect(currentPayload['skipped_count']).toBe(1)
+    expect(listFiles(join(repoRoot, 'Memory', '06_transcripts', 'manifests')).length).toBe(1)
+
+    const allProjects = runCli([
+      'discover',
+      '--root', repoRoot,
+      '--client', 'codex',
+      '--scope', 'all-projects',
+      '--project-name', 'repo',
+      '--global-root', globalRoot,
+      '--raw-upload-permission', 'approved',
+      '--format', 'json',
+    ], { env: isolatedEnv(homeDir) })
+    assertSuccess(allProjects, 'memorytree discover all-projects')
+
+    const allPayload = JSON.parse(allProjects.stdout) as Record<string, unknown>
+    expect(allPayload['discovered_count']).toBe(2)
+    expect(allPayload['imported_count']).toBe(2)
+    expect(allPayload['repo_mirror_count']).toBe(1)
+    expect(allPayload['global_only_count']).toBe(1)
+    expect(allPayload['skipped_count']).toBe(0)
+    expect(listFiles(join(globalRoot, 'index', 'manifests')).length).toBe(2)
+  })
+
+  it('recalls the latest prior session and returns clean transcript content', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'older',
+      startedAt: '2024-03-17T10:30:00Z',
+      title: 'Older session',
+      userText: 'First idea.',
+      assistantText: 'First answer.',
+    })
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'latest',
+      startedAt: '2024-03-17T11:30:00Z',
+      title: 'Latest session',
+      userText: 'Second idea.',
+      assistantText: 'Second answer.',
+    })
+
+    const result = runCli([
+      'recall',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--global-root', globalRoot,
+      '--activation-time', '2025-03-17T12:00:00Z',
+      '--format', 'json',
+    ], { env: isolatedEnv(homeDir) })
+    assertSuccess(result, 'memorytree recall')
+
+    const payload = JSON.parse(result.stdout) as Record<string, unknown>
+    expect(payload['found']).toBe(true)
+    expect(payload['imported_count']).toBe(2)
+    expect(payload['session_id']).toBe('sess-latest')
+    expect(payload['title']).toBe('Latest session')
+    expect(payload['branch']).toBe('main')
+    expect(String(payload['clean_content'] ?? '')).toContain('Second idea.')
+    expect(String(payload['clean_content'] ?? '')).toContain('Second answer.')
+    expect(existsSync(String(payload['global_clean_path'] ?? ''))).toBe(true)
+  })
+
+  it('serves the generated report over real HTTP', async () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const transcriptPath = writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'serve-report',
+    })
+
+    const importResult = runCli([
+      'import',
+      '--root', repoRoot,
+      '--source', transcriptPath,
+      '--client', 'codex',
+      '--project-name', 'repo',
+      '--global-root', globalRoot,
+      '--raw-upload-permission', 'approved',
+      '--format', 'json',
+    ], { env: isolatedEnv(homeDir) })
+    assertSuccess(importResult, 'memorytree import for serve')
+
+    const buildResult = runCli([
+      'report',
+      'build',
+      '--root', repoRoot,
+      '--no-ai',
+      '--locale', 'en',
+      '--report-base-url', 'https://memory.example.com',
+    ], { env: isolatedEnv(homeDir) })
+    assertSuccess(buildResult, 'memorytree report build for serve')
+
+    const port = await getAvailablePort()
+    const server = await startCli([
+      'report',
+      'serve',
+      '--dir', join(repoRoot, 'Memory', '07_reports'),
+      '--port', String(port),
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+      waitForUrl: `http://127.0.0.1:${port}/`,
+    })
+
+    const rootResponse = await fetch(`http://127.0.0.1:${port}/`)
+    expect(rootResponse.status).toBe(200)
+    const rootHtml = await rootResponse.text()
+    expect(rootHtml.toLowerCase()).toContain('<html')
+
+    const searchResponse = await fetch(`http://127.0.0.1:${port}/search.html`)
+    expect(searchResponse.status).toBe(200)
+    expect(server.stdout()).toContain(`http://localhost:${port}/`)
   })
 
   it('runs heartbeat end-to-end on a dedicated memorytree branch and commits imports', () => {
@@ -196,6 +379,109 @@ describe('CLI E2E', () => {
     expect(existsSync(join(repoRoot, 'Memory', '06_transcripts'))).toBe(false)
     expect(listFiles(join(homeDir, '.memorytree', 'transcripts', 'index', 'manifests')).length).toBe(1)
   })
+
+  it('deploys heartbeat reports to a gh-pages branch with CNAME', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'memorytree/e2e')
+
+    const bareRemote = join(sandboxRoot, 'remote.git')
+    initBareRemote(bareRemote)
+    assertSuccess(runGit(['remote', 'add', 'origin', bareRemote], repoRoot), 'git remote add origin')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade for gh-pages deploy')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'Memory/07_reports/\n', 'utf-8')
+    commitAll(repoRoot, 'chore: scaffold memorytree workspace')
+
+    writeConfig(homeDir, {
+      projectPath: repoRoot,
+      autoPush: false,
+      generateReport: true,
+      ghPagesBranch: 'gh-pages',
+      cname: 'memory.example.com',
+      reportBaseUrl: 'https://memory.example.com',
+    })
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'memorytree/e2e',
+      stem: 'heartbeat-gh-pages',
+    })
+
+    const result = runCli(['daemon', 'run-once'], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once with gh-pages deploy')
+
+    expect(runGitDir(['rev-parse', 'gh-pages'], bareRemote).status).toBe(0)
+    expect(runGitDir(['show', 'gh-pages:CNAME'], bareRemote).stdout.trim()).toBe('memory.example.com')
+
+    const tree = runGitDir(['ls-tree', '--name-only', '-r', 'gh-pages'], bareRemote)
+    expect(tree.stdout).toContain('index.html')
+    expect(tree.stdout).toContain('transcripts/index.html')
+    expect(tree.stdout).toContain('feed.xml')
+
+    const feed = runGitDir(['show', 'gh-pages:feed.xml'], bareRemote)
+    expect(feed.stdout).toContain('https://memory.example.com')
+  })
+
+  it('keeps heartbeat successful when webhook delivery is rejected', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'memorytree/e2e')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade for webhook resilience')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'Memory/07_reports/\n', 'utf-8')
+    commitAll(repoRoot, 'chore: scaffold memorytree workspace')
+
+    writeConfig(homeDir, {
+      projectPath: repoRoot,
+      autoPush: false,
+      generateReport: true,
+      webhookUrl: 'https://127.0.0.1/hook',
+      reportBaseUrl: 'https://memory.example.com',
+    })
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'memorytree/e2e',
+      stem: 'heartbeat-webhook',
+    })
+
+    const result = runCli(['daemon', 'run-once'], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once with rejected webhook')
+
+    expect(existsSync(join(repoRoot, 'Memory', '07_reports', 'index.html'))).toBe(true)
+    expect(runGit(['log', '-1', '--pretty=%s'], repoRoot).stdout.trim()).toBe(
+      'memorytree(transcripts): import 1 transcript(s)',
+    )
+  })
 })
 
 function runCli(args: readonly string[], options: RunOptions = {}): CommandResult {
@@ -204,6 +490,10 @@ function runCli(args: readonly string[], options: RunOptions = {}): CommandResul
 
 function runGit(args: readonly string[], cwd: string, env?: NodeJS.ProcessEnv): CommandResult {
   return runCommand('git', args, { cwd, env })
+}
+
+function runGitDir(args: readonly string[], gitDir: string): CommandResult {
+  return runCommand('git', ['--git-dir', gitDir, ...args], {})
 }
 
 function runCommand(command: string, args: readonly string[], options: RunOptions): CommandResult {
@@ -226,6 +516,60 @@ function runCommand(command: string, args: readonly string[], options: RunOption
     status: result.status,
     stdout: result.stdout ?? '',
     stderr: result.stderr ?? '',
+  }
+}
+
+async function startCli(
+  args: readonly string[],
+  options: RunOptions & { waitForUrl?: string } = {},
+): Promise<RunningProcess> {
+  let stdout = ''
+  let stderr = ''
+
+  const child = spawn(process.execPath, [cliPath, ...args], {
+    cwd: options.cwd,
+    env: {
+      ...process.env,
+      ...options.env,
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+
+  liveProcesses.push(child)
+  child.stdout.on('data', chunk => {
+    stdout += chunk.toString()
+  })
+  child.stderr.on('data', chunk => {
+    stderr += chunk.toString()
+  })
+
+  await waitFor(async () => {
+    if (child.exitCode !== null) {
+      throw new Error([
+        `process exited early with code ${String(child.exitCode)}`,
+        'stdout:',
+        stdout.trim(),
+        'stderr:',
+        stderr.trim(),
+      ].join('\n'))
+    }
+
+    if (!options.waitForUrl) {
+      return stdout.length > 0
+    }
+
+    try {
+      const response = await fetch(options.waitForUrl)
+      return response.status === 200
+    } catch {
+      return false
+    }
+  }, 15_000)
+
+  return {
+    child,
+    stdout: () => stdout,
+    stderr: () => stderr,
   }
 }
 
@@ -259,6 +603,13 @@ function initGitRepo(root: string, branch: string): void {
   assertSuccess(runGit(['commit', '-m', 'chore: init repo'], root), 'git commit init')
 }
 
+function initBareRemote(root: string): void {
+  assertSuccess(
+    runCommand('git', ['init', '--bare', root], { cwd: sandboxRoot }),
+    'git init --bare',
+  )
+}
+
 function commitAll(root: string, message: string): void {
   assertSuccess(runGit(['add', '.'], root), 'git add .')
   assertSuccess(runGit(['commit', '-m', message], root), `git commit ${message}`)
@@ -266,7 +617,15 @@ function commitAll(root: string, message: string): void {
 
 function writeConfig(
   homePath: string,
-  options: { projectPath: string; autoPush: boolean; generateReport: boolean },
+  options: {
+    projectPath: string
+    autoPush: boolean
+    generateReport: boolean
+    ghPagesBranch?: string
+    cname?: string
+    webhookUrl?: string
+    reportBaseUrl?: string
+  },
 ): void {
   const configDir = join(homePath, '.memorytree')
   mkdirSync(configDir, { recursive: true })
@@ -278,10 +637,10 @@ function writeConfig(
     `generate_report = ${options.generateReport ? 'true' : 'false'}`,
     'ai_summary_model = "claude-haiku-4-5-20251001"',
     'locale = "en"',
-    'gh_pages_branch = ""',
-    'cname = ""',
-    'webhook_url = ""',
-    'report_base_url = ""',
+    `gh_pages_branch = "${escapeToml(options.ghPagesBranch ?? '')}"`,
+    `cname = "${escapeToml(options.cname ?? '')}"`,
+    `webhook_url = "${escapeToml(options.webhookUrl ?? '')}"`,
+    `report_base_url = "${escapeToml(options.reportBaseUrl ?? '')}"`,
     'watch_dirs = []',
     '',
     '[[projects]]',
@@ -294,11 +653,21 @@ function writeConfig(
 }
 
 function writeCodexTranscript(
-  options: { homeDir: string; repoPath: string; branch: string; stem: string },
+  options: {
+    homeDir: string
+    repoPath: string
+    branch: string
+    stem: string
+    startedAt?: string
+    title?: string
+    userText?: string
+    assistantText?: string
+  },
 ): string {
   const transcriptDir = join(options.homeDir, '.codex', 'sessions', 'e2e')
   mkdirSync(transcriptDir, { recursive: true })
 
+  const startedAt = options.startedAt ?? '2026-03-17T10:30:00Z'
   const transcriptPath = join(transcriptDir, `${options.stem}.jsonl`)
   const repoPath = toPosix(options.repoPath)
   const records = [
@@ -306,33 +675,33 @@ function writeCodexTranscript(
       type: 'session_meta',
       payload: {
         id: `sess-${options.stem}`,
-        title: `E2E ${options.stem}`,
+        title: options.title ?? `E2E ${options.stem}`,
         cwd: repoPath,
         git: { branch: options.branch },
-        timestamp: '2026-03-17T10:30:00Z',
+        timestamp: startedAt,
       },
     },
     {
       type: 'response_item',
-      timestamp: '2026-03-17T10:30:01Z',
+      timestamp: offsetIso(startedAt, 1),
       payload: {
         type: 'message',
         role: 'user',
-        content: [{ type: 'input_text', text: 'Capture this coding session.' }],
+        content: [{ type: 'input_text', text: options.userText ?? 'Capture this coding session.' }],
       },
     },
     {
       type: 'response_item',
-      timestamp: '2026-03-17T10:30:02Z',
+      timestamp: offsetIso(startedAt, 2),
       payload: {
         type: 'message',
         role: 'assistant',
-        content: [{ type: 'text', text: 'Captured and indexed.' }],
+        content: [{ type: 'text', text: options.assistantText ?? 'Captured and indexed.' }],
       },
     },
     {
       type: 'response_item',
-      timestamp: '2026-03-17T10:30:03Z',
+      timestamp: offsetIso(startedAt, 3),
       payload: {
         type: 'function_call',
         name: 'read_file',
@@ -341,7 +710,7 @@ function writeCodexTranscript(
     },
     {
       type: 'response_item',
-      timestamp: '2026-03-17T10:30:04Z',
+      timestamp: offsetIso(startedAt, 4),
       payload: {
         type: 'function_call_output',
         name: 'read_file',
@@ -380,6 +749,64 @@ function listFiles(root: string): string[] {
   }
 
   return files.sort()
+}
+
+async function getAvailablePort(): Promise<number> {
+  return await new Promise<number>((resolvePort, reject) => {
+    const server = createServer()
+    server.unref()
+    server.on('error', reject)
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address()
+      if (address === null || typeof address === 'string') {
+        server.close()
+        reject(new Error('failed to allocate port'))
+        return
+      }
+
+      server.close(error => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolvePort(address.port)
+      })
+    })
+  })
+}
+
+async function waitFor(
+  predicate: () => boolean | Promise<boolean>,
+  timeoutMs: number,
+  intervalMs = 100,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs
+  let lastError: unknown = null
+
+  while (Date.now() < deadline) {
+    try {
+      if (await predicate()) {
+        return
+      }
+      lastError = null
+    } catch (error) {
+      lastError = error
+    }
+
+    await new Promise(resolveSleep => setTimeout(resolveSleep, intervalMs))
+  }
+
+  if (lastError instanceof Error) {
+    throw lastError
+  }
+  if (lastError !== null) {
+    throw new Error(String(lastError))
+  }
+  throw new Error('timed out waiting for condition')
+}
+
+function offsetIso(baseIso: string, seconds: number): string {
+  return new Date(Date.parse(baseIso) + seconds * 1000).toISOString().replace(/\.\d{3}Z$/, 'Z')
 }
 
 function toPosix(value: string): string {
