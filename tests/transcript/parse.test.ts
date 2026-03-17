@@ -9,6 +9,7 @@ import {
   parseCodexTranscript,
   parseClaudeTranscript,
   parseGeminiTranscript,
+  parseDoubaoTranscript,
   isCodexSystemInjection,
 } from '../../src/transcript/parse.js'
 
@@ -837,5 +838,191 @@ describe('isCodexSystemInjection', () => {
   it('returns false for assistant messages that mention instructions', () => {
     // Should not accidentally filter assistant responses that quote markers
     expect(isCodexSystemInjection('The AGENTS.md file contains project rules')).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// parseDoubaoTranscript
+// ---------------------------------------------------------------------------
+
+/** Build a minimal valid Doubao TXT file content */
+function makeDoubaoTxt(overrides: {
+  title?: string
+  url?: string
+  created?: string
+  messages?: Array<{ role: 'User' | 'AI'; time: string; text: string }>
+}): string {
+  const title = overrides.title ?? '测试对话'
+  const url = overrides.url ?? 'https://www.doubao.com/chat/12345678901234567'
+  const created = overrides.created ?? '2026-03-16 10:22:17'
+  const messages = overrides.messages ?? [
+    { role: 'User', time: '2026-03-16 10:22:17', text: '你好' },
+    { role: 'AI', time: '2026-03-16 10:22:20', text: '你好！有什么可以帮你的？' },
+  ]
+
+  const header = [
+    `Title: ${title}`,
+    `URL: ${url}`,
+    `Platform: 豆包`,
+    `Created: ${created}`,
+    `Messages: ${messages.length}`,
+  ].join('\n')
+
+  const body = messages
+    .map(m => `${m.role}: [${m.time}]\n${m.text}`)
+    .join('\n\n')
+
+  return `${header}\n\n${body}\n`
+}
+
+describe('parseDoubaoTranscript', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'doubao-parse-'))
+  })
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  it('parses header fields: title, session_id (from URL), started_at', () => {
+    const filePath = join(tmpDir, 'doubao_20260316_test.txt')
+    writeFileSync(filePath, makeDoubaoTxt({
+      title: '小说创作平台调研',
+      url: 'https://www.doubao.com/chat/38416801786598914',
+      created: '2026-03-16 10:22:17',
+    }))
+
+    const result = parseDoubaoTranscript(filePath)
+    expect(result.client).toBe('doubao')
+    expect(result.title).toBe('小说创作平台调研')
+    expect(result.session_id).toBe('38416801786598914')
+    expect(result.started_at).toBe('2026-03-16T10:22:17')
+  })
+
+  it('parses user and AI message turns with correct roles', () => {
+    const filePath = join(tmpDir, 'doubao_test.txt')
+    writeFileSync(filePath, makeDoubaoTxt({
+      messages: [
+        { role: 'User', time: '2026-03-16 10:22:17', text: '你好，请介绍一下自己' },
+        { role: 'AI',   time: '2026-03-16 10:22:20', text: '我是豆包，字节跳动推出的 AI 助手。' },
+        { role: 'User', time: '2026-03-16 10:22:25', text: '你能做什么？' },
+        { role: 'AI',   time: '2026-03-16 10:22:28', text: '我可以回答问题、写作、编程等。' },
+      ],
+    }))
+
+    const result = parseDoubaoTranscript(filePath)
+    expect(result.messages).toHaveLength(4)
+    expect(result.messages[0]!.role).toBe('user')
+    expect(result.messages[0]!.text).toBe('你好，请介绍一下自己')
+    expect(result.messages[1]!.role).toBe('assistant')
+    expect(result.messages[1]!.text).toBe('我是豆包，字节跳动推出的 AI 助手。')
+    expect(result.messages[2]!.role).toBe('user')
+    expect(result.messages[3]!.role).toBe('assistant')
+  })
+
+  it('parses multi-line AI responses correctly', () => {
+    const filePath = join(tmpDir, 'doubao_multiline.txt')
+    const content = makeDoubaoTxt({
+      messages: [
+        { role: 'User', time: '2026-03-16 10:00:00', text: '列一个清单' },
+        {
+          role: 'AI',
+          time: '2026-03-16 10:00:05',
+          text: '当然：\n1. 第一项\n2. 第二项\n3. 第三项',
+        },
+      ],
+    })
+    writeFileSync(filePath, content)
+
+    const result = parseDoubaoTranscript(filePath)
+    expect(result.messages).toHaveLength(2)
+    expect(result.messages[1]!.text).toContain('1. 第一项')
+    expect(result.messages[1]!.text).toContain('3. 第三项')
+  })
+
+  it('extracts correct timestamps from turn headers', () => {
+    const filePath = join(tmpDir, 'doubao_ts.txt')
+    writeFileSync(filePath, makeDoubaoTxt({
+      messages: [
+        { role: 'User', time: '2026-03-05 22:45:10', text: '早上好' },
+        { role: 'AI',   time: '2026-03-05 22:45:15', text: '早上好！' },
+      ],
+    }))
+
+    const result = parseDoubaoTranscript(filePath)
+    expect(result.messages[0]!.timestamp).toBe('2026-03-05T22:45:10')
+    expect(result.messages[1]!.timestamp).toBe('2026-03-05T22:45:15')
+  })
+
+  it('returns empty tool_events (doubao has no tool calls)', () => {
+    const filePath = join(tmpDir, 'doubao_tools.txt')
+    writeFileSync(filePath, makeDoubaoTxt({}))
+
+    const result = parseDoubaoTranscript(filePath)
+    expect(result.tool_events).toHaveLength(0)
+  })
+
+  it('returns empty cwd and branch (external platform has no local context)', () => {
+    const filePath = join(tmpDir, 'doubao_ctx.txt')
+    writeFileSync(filePath, makeDoubaoTxt({}))
+
+    const result = parseDoubaoTranscript(filePath)
+    expect(result.cwd).toBe('')
+    expect(result.branch).toBe('')
+  })
+
+  it('falls back to filename stem as session_id when URL is missing', () => {
+    const filePath = join(tmpDir, 'doubao_20260316_fallback.txt')
+    // Omit URL line
+    const content = 'Title: 无URL对话\nPlatform: 豆包\nCreated: 2026-03-16 10:00:00\nMessages: 1\n\nUser: [2026-03-16 10:00:00]\n问题\n\nAI: [2026-03-16 10:00:05]\n回答\n'
+    writeFileSync(filePath, content)
+
+    const result = parseDoubaoTranscript(filePath)
+    expect(result.session_id).toBe('doubao_20260316_fallback')
+  })
+
+  it('deduplicates identical consecutive messages', () => {
+    const filePath = join(tmpDir, 'doubao_dedup.txt')
+    // Same timestamp + role + text = duplicate
+    const content = makeDoubaoTxt({
+      messages: [
+        { role: 'User', time: '2026-03-16 10:00:00', text: '重复消息' },
+        { role: 'User', time: '2026-03-16 10:00:00', text: '重复消息' },
+        { role: 'AI',   time: '2026-03-16 10:00:05', text: '回答' },
+      ],
+    })
+    writeFileSync(filePath, content)
+
+    const result = parseDoubaoTranscript(filePath)
+    // Deduplication should collapse the two identical user messages
+    expect(result.messages.length).toBeLessThan(3)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// inferClient — doubao additions
+// ---------------------------------------------------------------------------
+
+describe('inferClient — doubao', () => {
+  let tmpDir: string
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'infer-doubao-'))
+  })
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true })
+  })
+
+  it('infers doubao from filename starting with doubao_', () => {
+    expect(inferClient('auto', '/tmp/doubao_20260316_test.txt')).toBe('doubao')
+  })
+
+  it('infers doubao from path containing /doubao/', () => {
+    expect(inferClient('auto', '/exports/doubao/session.txt')).toBe('doubao')
+  })
+
+  it('returns explicit doubao client unchanged', () => {
+    expect(inferClient('doubao', '/any/path/file.txt')).toBe('doubao')
   })
 })

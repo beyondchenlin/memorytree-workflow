@@ -245,6 +245,34 @@ export function isLaunchdRegistered(): boolean {
 // Windows (Task Scheduler)
 // ---------------------------------------------------------------------------
 
+// Write a VBScript launcher that runs node silently (no console window).
+// wscript.exe /B runs in batch mode (suppresses script error popups).
+// VBScript Run(..., 0, False): 0 = SW_HIDE hides the window; False = fire-and-forget.
+// Written as UTF-16 LE with BOM so wscript.exe handles non-ASCII paths (e.g. Chinese
+// usernames) correctly on all Windows versions.
+export function vbsLauncherPath(): string {
+  return resolve(homedir(), '.memorytree', 'heartbeat-launcher.vbs')
+}
+
+export function writeVbsLauncher(scriptPath: string): string {
+  const vbsPath = vbsLauncherPath()
+  mkdirSync(dirname(vbsPath), { recursive: true })
+  // Inside VBScript strings, double-quote is escaped as ""
+  const escapedScript = scriptPath.replace(/"/g, '""')
+  // Use the full node binary path so the launcher works even when Task Scheduler's
+  // PATH differs from the user's shell (e.g. nvm/fnm environments).
+  const escapedNode = process.execPath.replace(/"/g, '""')
+  const content = [
+    'Set WshShell = CreateObject("WScript.Shell")',
+    `WshShell.Run """${escapedNode}"" ""${escapedScript}"" daemon run-once", 0, False`,
+  ].join('\r\n') + '\r\n'
+  // UTF-16 LE BOM: recognised by wscript.exe on all Windows versions and preserves
+  // non-ASCII characters (e.g. Chinese home directory paths) without corruption.
+  const buf = Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(content, 'utf16le')])
+  writeFileSync(vbsPath, buf)
+  return vbsPath
+}
+
 function installSchtasks(scriptPath: string, seconds: number): number {
   if (isSchtasksRegistered()) {
     process.stderr.write("Heartbeat is already registered in Task Scheduler. Use 'uninstall' first.\n")
@@ -252,7 +280,8 @@ function installSchtasks(scriptPath: string, seconds: number): number {
   }
 
   const minutes = Math.max(1, Math.floor(seconds / 60))
-  const trCommand = `node "${scriptPath}" daemon run-once`
+  const vbsPath = writeVbsLauncher(scriptPath)
+  const trCommand = `wscript.exe /B "${vbsPath}"`
 
   try {
     execCommand('schtasks', [
@@ -260,6 +289,8 @@ function installSchtasks(scriptPath: string, seconds: number): number {
       '/tr', trCommand, '/f',
     ])
   } catch {
+    // schtasks failed — remove the launcher file we just wrote to keep state clean
+    try { unlinkSync(vbsPath) } catch { /* ignore */ }
     process.stderr.write('Failed to create scheduled task.\n')
     return 1
   }
@@ -273,6 +304,10 @@ function uninstallSchtasks(): number {
     execCommand('schtasks', ['/delete', '/tn', TASK_NAME, '/f'], { allowFailure: true })
   } catch {
     // best effort
+  }
+  const vbsPath = vbsLauncherPath()
+  if (existsSync(vbsPath)) {
+    try { unlinkSync(vbsPath) } catch { /* ignore */ }
   }
   process.stdout.write('Heartbeat removed from Task Scheduler.\n')
   return 0
