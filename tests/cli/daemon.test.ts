@@ -25,6 +25,152 @@ describe('heartbeatScriptPath', () => {
   })
 })
 
+describe('cmdRunOnce', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.resetModules()
+  })
+
+  it('forwards root and force options to heartbeat.main', async () => {
+    const main = vi.fn(async () => 0)
+    vi.doMock('../../src/heartbeat/heartbeat.js', () => ({
+      main,
+    }))
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '5m',
+        auto_push: true,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+      }),
+      intervalToSeconds: () => 300,
+      saveConfig: () => {},
+      findProjectForPath: () => null,
+      upsertProject: (cfg: unknown) => cfg,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      ensureProjectWorktree: () => ({ branch: 'memorytree/repo', created: true }),
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = await mod.cmdRunOnce({ root: '/repo', force: true })
+
+    expect(result).toBe(0)
+    expect(main).toHaveBeenCalledWith({ root: '/repo', force: true })
+  })
+})
+
+describe('cmdRegisterProject', () => {
+  let stdoutChunks: string[]
+  const originalWrite = process.stdout.write
+
+  beforeEach(() => {
+    stdoutChunks = []
+    process.stdout.write = ((chunk: string) => {
+      stdoutChunks.push(chunk)
+      return true
+    }) as typeof process.stdout.write
+  })
+
+  afterEach(() => {
+    process.stdout.write = originalWrite
+    vi.restoreAllMocks()
+    vi.resetModules()
+  })
+
+  it('upserts config and ensures a dedicated worktree', async () => {
+    const savedConfigs: unknown[] = []
+    const upserted = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      projects: [
+        {
+          id: 'repo',
+          path: '/memorytree/worktrees/repo',
+          name: 'repo',
+          development_path: '/repo',
+          memory_path: '/memorytree/worktrees/repo',
+          heartbeat_interval: '5m',
+          refresh_interval: '30m',
+          auto_push: true,
+          generate_report: true,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 10010,
+          last_heartbeat_at: '',
+          last_refresh_at: '',
+        },
+      ],
+    }
+
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: false,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: () => 300,
+      findProjectForPath: () => upserted.projects[0],
+      upsertProject: () => upserted,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      ensureProjectWorktree: () => ({ branch: 'memorytree/repo', created: true }),
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdRegisterProject({
+      root: '/repo',
+      quickStart: true,
+    })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).toHaveLength(1)
+    expect(stdoutChunks.join('')).toContain('Worktree branch: memorytree/repo')
+  })
+})
+
 // ---------------------------------------------------------------------------
 // cmdStatus — tested via dynamic import with mocks set before import
 // ---------------------------------------------------------------------------

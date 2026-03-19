@@ -352,6 +352,85 @@ describe('CLI E2E', () => {
     expect(server.stdout()).toContain(`http://localhost:${port}/`)
   })
 
+  it('registers a repository with a dedicated heartbeat worktree through the CLI', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const result = runCli([
+      'daemon',
+      'register',
+      '--root', repoRoot,
+      '--quick-start',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon register')
+
+    const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
+    const configText = readFileSync(join(homeDir, '.memorytree', 'config.toml'), 'utf-8')
+    expect(configText).toContain(`development_path = "${escapeToml(toPosix(repoRoot))}"`)
+    expect(configText).toContain(`memory_path = "${escapeToml(toPosix(worktreePath))}"`)
+    expect(configText).toContain('heartbeat_interval = "5m"')
+    expect(configText).toContain('refresh_interval = "30m"')
+    expect(configText).toContain('generate_report = true')
+    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree/repo')
+  })
+
+  it('runs heartbeat through a registered worktree and syncs outputs back to the development directory', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade for worktree heartbeat')
+
+    const registerResult = runCli([
+      'daemon',
+      'register',
+      '--root', repoRoot,
+      '--quick-start',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(registerResult, 'memorytree daemon register for worktree heartbeat')
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'heartbeat-worktree-sync',
+    })
+
+    const result = runCli([
+      'daemon',
+      'run-once',
+      '--root', repoRoot,
+      '--force',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once via worktree')
+
+    const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
+    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree/repo')
+    expect(runGit(['log', '-1', '--pretty=%s'], worktreePath).stdout.trim()).toBe(
+      'memorytree(transcripts): import 1 transcript(s)',
+    )
+    expect(listFiles(join(repoRoot, 'Memory', '06_transcripts', 'manifests')).length).toBe(1)
+    expect(existsSync(join(repoRoot, 'Memory', '07_reports', 'index.html'))).toBe(true)
+  })
+
   it('runs heartbeat end-to-end on a dedicated memorytree branch and commits imports', () => {
     expect(existsSync(cliPath)).toBe(true)
     initGitRepo(repoRoot, 'memorytree/e2e')
