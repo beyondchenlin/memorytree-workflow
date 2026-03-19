@@ -9,12 +9,24 @@ import { importTranscript, transcriptHasContent } from '../transcript/import.js'
 import { parseTranscript } from '../transcript/parse.js'
 import { slugify } from '../transcript/common.js'
 import { defaultGlobalTranscriptRoot } from '../transcript/discover.js'
-import type { Config } from './config.js'
-import { loadConfig } from './config.js'
+import type { Config, ProjectEntry } from './config.js'
+import {
+  findProjectForPath,
+  loadConfig,
+  noteProjectHeartbeatRun,
+  noteProjectRefreshRun,
+  projectDisplayName,
+  projectExecutionPath,
+  projectIsDue,
+  projectRefreshIsDue,
+  saveConfig,
+} from './config.js'
 import { acquireLock, releaseLock } from './lock.js'
 import { resetFailureCount, writeAlert, writeAlertWithThreshold } from './alert.js'
 import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
+import { syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
+import { ensureProjectWorktree } from './worktree.js'
 import { git } from '../utils/exec.js'
 import { toPosixPath } from '../utils/path.js'
 import { basename, join, resolve } from 'node:path'
@@ -38,7 +50,12 @@ const RAW_TRANSCRIPT_PREFIX = 'Memory/06_transcripts/raw/'
 // Main entry point
 // ---------------------------------------------------------------------------
 
-export async function main(): Promise<number> {
+export interface HeartbeatRunOptions {
+  readonly force?: boolean
+  readonly root?: string
+}
+
+export async function main(options: HeartbeatRunOptions = {}): Promise<number> {
   const config = loadConfig()
   setupLogging(config.log_level as LogLevel)
   const logger = getLogger()
@@ -50,7 +67,7 @@ export async function main(): Promise<number> {
   }
 
   try {
-    return await runHeartbeat(config)
+    return await runHeartbeat(config, options)
   } finally {
     releaseLock()
   }
@@ -60,24 +77,75 @@ export async function main(): Promise<number> {
 // Heartbeat orchestration
 // ---------------------------------------------------------------------------
 
-export async function runHeartbeat(config: Config): Promise<number> {
+export async function runHeartbeat(config: Config, options: HeartbeatRunOptions = {}): Promise<number> {
   const logger = getLogger()
+  const targetProject = options.root ? findProjectForPath(config, resolve(options.root)) : null
 
   if (config.projects.length === 0) {
     logger.info('No projects registered in config.toml. Nothing to do.')
     return 0
   }
+  if (options.root && !targetProject) {
+    logger.warn(`No registered project matched: ${resolve(options.root)}`)
+    return 1
+  }
 
-  logger.info(`Heartbeat started. ${config.projects.length} project(s) registered.`)
+  const projects = targetProject ? [targetProject] : config.projects
 
-  for (const entry of config.projects) {
-    const projectPath = resolve(entry.path)
-    if (!existsSync(projectPath)) {
-      logger.warn(`Project path does not exist, skipping: ${projectPath}`)
+  logger.info(`Heartbeat started. ${projects.length} project(s) selected.`)
+
+  let nextConfig = config
+  let configChanged = false
+  const now = new Date()
+  const runTimestamp = now.toISOString()
+
+  for (const entry of projects) {
+    const projectName = projectDisplayName(entry)
+    const projectPath = resolve(projectExecutionPath(entry))
+    const heartbeatDue = options.force === true || projectIsDue(entry, now)
+    const refreshDue = options.force === true || projectRefreshIsDue(entry, now)
+
+    if (!heartbeatDue && !refreshDue) {
+      logger.debug(`[${projectName}] Not due yet, skipping.`)
       continue
     }
+
     try {
-      await processProject(config, projectPath, entry.name || basename(projectPath))
+      const worktree = ensureProjectWorktree(entry)
+      if (!existsSync(projectPath)) {
+        logger.warn(`Project path does not exist, skipping: ${projectPath}`)
+        continue
+      }
+
+      if (worktree.created) {
+        logger.info(`[${projectName}] Created worktree on branch '${worktree.branch}'.`)
+      }
+
+      if (heartbeatDue) {
+        const contextSync = syncProjectContextToMemory(entry)
+        if (!contextSync.skipped) {
+          logger.info(
+            `[${projectName}] Synced context to ${worktree.branch} ` +
+            `(copied ${contextSync.copied}, deleted ${contextSync.deleted}).`,
+          )
+        }
+
+        await processProject(config, projectPath, projectName, entry)
+        nextConfig = noteProjectHeartbeatRun(nextConfig, entry.id, runTimestamp)
+        configChanged = true
+      }
+
+      if (heartbeatDue || refreshDue) {
+        const outputSync = syncProjectOutputsToDevelopment(entry)
+        if (!outputSync.skipped) {
+          logger.info(
+            `[${projectName}] Synced outputs back to development directory ` +
+            `(copied ${outputSync.copied}, deleted ${outputSync.deleted}).`,
+          )
+        }
+        nextConfig = noteProjectRefreshRun(nextConfig, entry.id, runTimestamp)
+        configChanged = true
+      }
     } catch (err: unknown) {
       logger.exception(`Error processing project: ${projectPath}`, err)
       writeAlertWithThreshold(
@@ -88,6 +156,10 @@ export async function runHeartbeat(config: Config): Promise<number> {
     }
   }
 
+  if (configChanged) {
+    saveConfig(nextConfig)
+  }
+
   logger.info('Heartbeat finished.')
   return 0
 }
@@ -96,12 +168,25 @@ export async function runHeartbeat(config: Config): Promise<number> {
 // Per-project processing
 // ---------------------------------------------------------------------------
 
-export async function processProject(config: Config, projectPath: string, projectName: string): Promise<void> {
+export async function processProject(
+  config: Config,
+  projectPath: string,
+  projectName: string,
+  project?: ProjectEntry,
+): Promise<void> {
   const logger = getLogger()
   const repoSlug = slugify(projectName, 'project')
   const globalRoot = defaultGlobalTranscriptRoot()
   const branch = currentBranch(projectPath)
   const mirrorToRepo = isDedicatedMemorytreeBranch(branch)
+  const autoPush = project?.auto_push ?? config.auto_push ?? true
+  const generateReport = project?.generate_report ?? config.generate_report ?? false
+  const aiSummaryModel = project?.ai_summary_model ?? config.ai_summary_model ?? 'claude-haiku-4-5-20251001'
+  const locale = project?.locale ?? config.locale ?? 'en'
+  const ghPagesBranch = project?.gh_pages_branch ?? config.gh_pages_branch ?? ''
+  const cname = project?.cname ?? config.cname ?? ''
+  const webhookUrl = project?.webhook_url ?? config.webhook_url ?? ''
+  const reportBaseUrl = project?.report_base_url ?? config.report_base_url ?? ''
 
   if (!mirrorToRepo) {
     logger.warn(
@@ -142,24 +227,24 @@ export async function processProject(config: Config, projectPath: string, projec
 
   logger.info(`[${projectName}] Imported ${importedCount} transcript(s).`)
   if (mirrorToRepo) {
-    gitCommitAndPush(config, projectPath, projectName, importedCount)
+    gitCommitAndPush({ auto_push: autoPush }, projectPath, projectName, importedCount)
   } else {
     logger.info(`[${projectName}] Skipped repo-local commit/push on branch '${branch}'.`)
   }
 
-  if (config.generate_report) {
+  if (generateReport) {
     try {
       const { buildReport } = await import('../report/build.js')
       await buildReport({
         root: projectPath,
         output: join(projectPath, 'Memory', '07_reports'),
         noAi: !process.env['ANTHROPIC_API_KEY'],
-        model: config.ai_summary_model,
-        locale: config.locale,
-        ghPagesBranch: config.gh_pages_branch,
-        cname: config.cname,
-        webhookUrl: config.webhook_url,
-        reportBaseUrl: config.report_base_url,
+        model: aiSummaryModel,
+        locale,
+        ghPagesBranch,
+        cname,
+        webhookUrl,
+        reportBaseUrl,
       })
       logger.info(`[${projectName}] Report generated.`)
     } catch (err: unknown) {
@@ -196,7 +281,12 @@ export function scanSensitive(parsed: ParsedTranscript, projectPath: string): vo
 // Git operations
 // ---------------------------------------------------------------------------
 
-export function gitCommitAndPush(config: Config, projectPath: string, projectName: string, count: number): void {
+export function gitCommitAndPush(
+  config: Pick<Config, 'auto_push'>,
+  projectPath: string,
+  projectName: string,
+  count: number,
+): void {
   const logger = getLogger()
 
   const changedPaths = changedMemoryPaths(projectPath)
