@@ -5,11 +5,19 @@
 
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { resolve, dirname } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 import { platform } from 'node:process'
 
-import { configPath, intervalToSeconds, loadConfig, saveConfig } from '../heartbeat/config.js'
+import {
+  configPath,
+  findProjectForPath,
+  intervalToSeconds,
+  loadConfig,
+  saveConfig,
+  upsertProject,
+} from '../heartbeat/config.js'
 import { readLockPid } from '../heartbeat/lock.js'
+import { defaultProjectWorktreePath, ensureProjectWorktree } from '../heartbeat/worktree.js'
 import { execCommand } from '../utils/exec.js'
 
 // ---------------------------------------------------------------------------
@@ -56,9 +64,9 @@ export function cmdUninstall(): number {
   return 1
 }
 
-export async function cmdRunOnce(): Promise<number> {
+export async function cmdRunOnce(options: { root?: string; force?: boolean } = {}): Promise<number> {
   const { main } = await import('../heartbeat/heartbeat.js')
-  return main()
+  return main(options)
 }
 
 export async function cmdWatch(options: { interval?: string }): Promise<number> {
@@ -108,6 +116,70 @@ export function cmdStatus(): number {
     process.stdout.write('Config:     not found (using defaults)\n')
   }
 
+  return 0
+}
+
+export function cmdRegisterProject(options: {
+  root: string
+  name?: string
+  worktree?: string
+  quickStart?: boolean
+  heartbeatInterval?: string
+  refreshInterval?: string
+  autoPush?: string
+  generateReport?: string
+  reportPort?: string
+}): number {
+  const root = resolve(options.root)
+  const config = loadConfig()
+
+  const heartbeatInterval = options.quickStart
+    ? '5m'
+    : options.heartbeatInterval ?? config.heartbeat_interval
+  const refreshInterval = options.quickStart
+    ? '30m'
+    : options.refreshInterval ?? '30m'
+  const autoPush = options.quickStart
+    ? true
+    : parseOptionalBoolean(options.autoPush) ?? config.auto_push
+  const generateReport = options.quickStart
+    ? true
+    : parseOptionalBoolean(options.generateReport) ?? config.generate_report
+
+  const requestedPort = options.reportPort ? parseInt(options.reportPort, 10) : NaN
+  const reportPort = Number.isInteger(requestedPort) && requestedPort > 0 && requestedPort <= 65535
+    ? requestedPort
+    : config.report_port
+
+  const updated = upsertProject(config, root, {
+    name: options.name ?? basename(root),
+    development_path: root,
+    memory_path: options.worktree ? resolve(options.worktree) : defaultProjectWorktreePath(root),
+    heartbeat_interval: heartbeatInterval,
+    refresh_interval: refreshInterval,
+    auto_push: autoPush,
+    generate_report: generateReport,
+    report_port: reportPort,
+  })
+
+  const project = findProjectForPath(updated, root)
+  if (!project) {
+    process.stderr.write(`Failed to register project: ${root}\n`)
+    return 1
+  }
+
+  const worktree = ensureProjectWorktree(project)
+  saveConfig(updated)
+
+  process.stdout.write(`Registered project: ${project.name}\n`)
+  process.stdout.write(`Development path: ${project.development_path}\n`)
+  process.stdout.write(`Memory path: ${project.memory_path}\n`)
+  process.stdout.write(`Heartbeat interval: ${project.heartbeat_interval}\n`)
+  process.stdout.write(`Refresh interval: ${project.refresh_interval}\n`)
+  process.stdout.write(`Auto-push: ${project.auto_push}\n`)
+  process.stdout.write(`Generate report: ${project.generate_report}\n`)
+  process.stdout.write(`Worktree branch: ${worktree.branch}\n`)
+  process.stdout.write(`Worktree created: ${worktree.created ? 'yes' : 'no'}\n`)
   return 0
 }
 
@@ -336,4 +408,11 @@ export function heartbeatScriptPath(): string {
   // Fallback: resolve relative to import.meta.url
   const urlPath = new URL(import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1')
   return resolve(dirname(urlPath), '..', '..', 'dist', 'cli.js')
+}
+
+function parseOptionalBoolean(value: string | undefined): boolean | undefined {
+  if (value === undefined) return undefined
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return undefined
 }

@@ -4,6 +4,7 @@
  */
 
 import { Command } from 'commander'
+import { resolve } from 'node:path'
 
 const program = new Command()
 
@@ -207,16 +208,18 @@ report
   )
   .option('--port <n>', 'Port to listen on (default: ~/.memorytree/config.toml report_port or 10010)')
   .action(async (opts) => {
-    const [{ cmdReportServe }, { loadConfig }] = await Promise.all([
+    const [{ cmdReportServe }, { loadConfig, resolveReportPort }] = await Promise.all([
       import('./cmd-report.js'),
       import('../heartbeat/config.js'),
     ])
     const requestedPort = typeof opts.port === 'string' ? parseInt(opts.port, 10) : NaN
+    const resolvedDir = resolve(opts.dir as string)
+    const config = loadConfig()
     process.exitCode = cmdReportServe({
       dir: opts.dir as string,
       port: Number.isInteger(requestedPort) && requestedPort > 0 && requestedPort <= 65535
         ? requestedPort
-        : loadConfig().report_port,
+        : resolveReportPort(config, resolvedDir),
     })
   })
 
@@ -250,9 +253,14 @@ daemon
 daemon
   .command('run-once')
   .description('Execute a single heartbeat cycle now')
-  .action(async () => {
+  .option('--root <path>', 'Run only the project that matches this path')
+  .option('--force', 'Run even when the project is not yet due')
+  .action(async (opts) => {
     const { cmdRunOnce } = await import('./cmd-daemon.js')
-    process.exitCode = await cmdRunOnce()
+    process.exitCode = await cmdRunOnce({
+      root: opts.root,
+      force: opts.force ?? false,
+    })
   })
 
 daemon
@@ -270,6 +278,33 @@ daemon
   .action(async () => {
     const { cmdStatus } = await import('./cmd-daemon.js')
     process.exitCode = cmdStatus()
+  })
+
+daemon
+  .command('register')
+  .description('Register or update a repository with a dedicated heartbeat worktree')
+  .option('--root <path>', 'Development directory to register', '.')
+  .option('--name <name>', 'Project display name')
+  .option('--worktree <path>', 'Override the dedicated MemoryTree worktree path')
+  .option('--quick-start', 'Use the recommended defaults: 5m heartbeat, 30m refresh, auto_push=true, generate_report=true')
+  .option('--heartbeat-interval <interval>', 'Per-project heartbeat interval (e.g. 5m)')
+  .option('--refresh-interval <interval>', 'Per-project refresh interval for copying outputs back')
+  .option('--auto-push <bool>', 'Per-project auto_push value (true/false)')
+  .option('--generate-report <bool>', 'Per-project generate_report value (true/false)')
+  .option('--report-port <n>', 'Per-project local report port')
+  .action(async (opts) => {
+    const { cmdRegisterProject } = await import('./cmd-daemon.js')
+    process.exitCode = cmdRegisterProject({
+      root: opts.root,
+      name: opts.name,
+      worktree: opts.worktree,
+      quickStart: opts.quickStart ?? false,
+      heartbeatInterval: opts.heartbeatInterval,
+      refreshInterval: opts.refreshInterval,
+      autoPush: opts.autoPush,
+      generateReport: opts.generateReport,
+      reportPort: opts.reportPort,
+    })
   })
 
 program.parse()

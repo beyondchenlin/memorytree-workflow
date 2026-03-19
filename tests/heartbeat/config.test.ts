@@ -23,8 +23,15 @@ import {
   saveConfig,
   intervalToSeconds,
   registerProject,
+  upsertProject,
   configPath,
   memorytreeRoot,
+  findProjectForPath,
+  noteProjectHeartbeatRun,
+  noteProjectRefreshRun,
+  projectIsDue,
+  projectRefreshIsDue,
+  resolveReportPort,
 } from '../../src/heartbeat/config.js'
 
 // ---------------------------------------------------------------------------
@@ -125,6 +132,45 @@ describe('loadConfig', () => {
     expect(cfg.report_port).toBe(10010)
     expect(cfg.watch_dirs).toEqual([])
     expect(cfg.projects).toEqual([])
+  })
+
+  it('hydrates project-level overrides from TOML while keeping global defaults', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(
+      path,
+      [
+        'heartbeat_interval = "5m"',
+        'auto_push = true',
+        'generate_report = false',
+        'report_port = 10010',
+        '',
+        '[[projects]]',
+        'path = "/home/user/project-a"',
+        'memory_path = "/home/user/.memorytree/worktrees/project-a"',
+        'development_path = "/home/user/project-a"',
+        'name = "project-a"',
+        'heartbeat_interval = "15m"',
+        'refresh_interval = "45m"',
+        'auto_push = false',
+        'generate_report = true',
+        'report_port = 18080',
+        'last_heartbeat_at = "2026-03-19T10:00:00Z"',
+        'last_refresh_at = "2026-03-19T10:15:00Z"',
+        '',
+      ].join('\n'),
+    )
+
+    const cfg = loadConfig()
+    expect(cfg.heartbeat_interval).toBe('5m')
+    expect(cfg.projects).toHaveLength(1)
+    expect(cfg.projects[0]!.heartbeat_interval).toBe('15m')
+    expect(cfg.projects[0]!.refresh_interval).toBe('45m')
+    expect(cfg.projects[0]!.auto_push).toBe(false)
+    expect(cfg.projects[0]!.generate_report).toBe(true)
+    expect(cfg.projects[0]!.report_port).toBe(18080)
+    expect(cfg.projects[0]!.last_heartbeat_at).toBe('2026-03-19T10:00:00Z')
+    expect(cfg.projects[0]!.last_refresh_at).toBe('2026-03-19T10:15:00Z')
   })
 })
 
@@ -271,6 +317,52 @@ describe('registerProject', () => {
     const updated = registerProject(cfg, tmpDir)
     expect(cfg.projects).toHaveLength(0)
     expect(updated.projects).toHaveLength(1)
+  })
+
+  it('copies global behavior defaults into a newly registered project', () => {
+    const cfg = {
+      heartbeat_interval: '9m',
+      auto_push: false,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: true,
+      ai_summary_model: 'claude-sonnet-4-6',
+      locale: 'zh-CN',
+      gh_pages_branch: 'gh-pages',
+      cname: '',
+      webhook_url: '',
+      report_base_url: 'https://example.com/memory',
+      report_port: 18181,
+    } as const
+
+    const updated = registerProject(cfg, tmpDir)
+    expect(updated.projects).toHaveLength(1)
+    expect(updated.projects[0]!.heartbeat_interval).toBe('9m')
+    expect(updated.projects[0]!.auto_push).toBe(false)
+    expect(updated.projects[0]!.generate_report).toBe(true)
+    expect(updated.projects[0]!.locale).toBe('zh-CN')
+    expect(updated.projects[0]!.gh_pages_branch).toBe('gh-pages')
+    expect(updated.projects[0]!.report_base_url).toBe('https://example.com/memory')
+    expect(updated.projects[0]!.report_port).toBe(18181)
+  })
+})
+
+describe('upsertProject', () => {
+  it('updates an existing project instead of appending a duplicate entry', () => {
+    const initial = registerProject(loadConfig(), tmpDir)
+    const updated = upsertProject(initial, tmpDir, {
+      heartbeat_interval: '15m',
+      refresh_interval: '45m',
+      auto_push: false,
+      generate_report: true,
+    })
+
+    expect(updated.projects).toHaveLength(1)
+    expect(updated.projects[0]!.heartbeat_interval).toBe('15m')
+    expect(updated.projects[0]!.refresh_interval).toBe('45m')
+    expect(updated.projects[0]!.auto_push).toBe(false)
+    expect(updated.projects[0]!.generate_report).toBe(true)
   })
 })
 
@@ -564,5 +656,108 @@ describe('report_port field', () => {
     saveConfig(original)
     const loaded = loadConfig()
     expect(loaded.report_port).toBe(18080)
+  })
+})
+
+describe('project path helpers', () => {
+  it('findProjectForPath matches nested report directories using the longest root', () => {
+    const cfg = registerProject(loadConfig(), '/workspace/app')
+    const project = findProjectForPath(cfg, '/workspace/app/Memory/07_reports')
+
+    expect(project).not.toBeNull()
+    expect(project!.development_path).toBe('/workspace/app')
+  })
+
+  it('resolveReportPort prefers the matching project port over the global default', () => {
+    const cfg = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [
+        {
+          id: 'project-a',
+          path: '/workspace/app',
+          name: 'project-a',
+          development_path: '/workspace/app',
+          memory_path: '/workspace/.memorytree/worktrees/app',
+          heartbeat_interval: '5m',
+          refresh_interval: '30m',
+          auto_push: true,
+          generate_report: false,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 19090,
+          last_heartbeat_at: '',
+          last_refresh_at: '',
+        },
+      ],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+    } as const
+
+    expect(resolveReportPort(cfg, '/workspace/app/Memory/07_reports')).toBe(19090)
+    expect(resolveReportPort(cfg, '/workspace/other')).toBe(10010)
+  })
+})
+
+describe('project scheduling helpers', () => {
+  it('projectIsDue returns false when the last run is still inside the interval', () => {
+    const project = registerProject(loadConfig(), '/workspace/app').projects[0]!
+    const updated = {
+      ...project,
+      last_heartbeat_at: '2026-03-19T10:00:00Z',
+    }
+    expect(projectIsDue(updated, new Date('2026-03-19T10:04:59Z'))).toBe(false)
+  })
+
+  it('projectIsDue returns true when the interval has elapsed', () => {
+    const project = registerProject(loadConfig(), '/workspace/app').projects[0]!
+    const updated = {
+      ...project,
+      last_heartbeat_at: '2026-03-19T10:00:00Z',
+    }
+    expect(projectIsDue(updated, new Date('2026-03-19T10:05:00Z'))).toBe(true)
+  })
+
+  it('noteProjectHeartbeatRun updates only the targeted project timestamp', () => {
+    const cfg1 = registerProject(loadConfig(), '/workspace/app-a')
+    const cfg2 = registerProject(cfg1, '/workspace/app-b')
+    const target = cfg2.projects[1]!
+
+    const updated = noteProjectHeartbeatRun(cfg2, target.id, '2026-03-19T10:30:00Z')
+
+    expect(updated.projects[0]!.last_heartbeat_at).toBe('')
+    expect(updated.projects[1]!.last_heartbeat_at).toBe('2026-03-19T10:30:00Z')
+  })
+
+  it('projectRefreshIsDue returns false when refresh interval has not elapsed yet', () => {
+    const project = registerProject(loadConfig(), '/workspace/app').projects[0]!
+    const updated = {
+      ...project,
+      last_refresh_at: '2026-03-19T10:00:00Z',
+    }
+    expect(projectRefreshIsDue(updated, new Date('2026-03-19T10:29:59Z'))).toBe(false)
+  })
+
+  it('noteProjectRefreshRun updates only the targeted project refresh timestamp', () => {
+    const cfg1 = registerProject(loadConfig(), '/workspace/app-a')
+    const cfg2 = registerProject(cfg1, '/workspace/app-b')
+    const target = cfg2.projects[0]!
+
+    const updated = noteProjectRefreshRun(cfg2, target.id, '2026-03-19T10:30:00Z')
+
+    expect(updated.projects[0]!.last_refresh_at).toBe('2026-03-19T10:30:00Z')
+    expect(updated.projects[1]!.last_refresh_at).toBe('')
   })
 })
