@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Graph — MemoryTree</title>
-<meta property="og:title" content="Knowledge Graph">
+<title>agent-a38d9e76c537170e8 — MemoryTree</title>
+<meta property="og:title" content="agent-a38d9e76c537170e8">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://beyondchenlin.github.io/memorytree-workflow/transcripts/claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__f6b2fe6d.html">
 <style>
 :root {
   --bg: #0d1117;
@@ -779,246 +780,7 @@ pre.mermaid {
 @keyframes vt-fade-out { to { opacity: 0; } }
 @keyframes vt-fade-in { from { opacity: 0; } }
 </style>
-<script>
-(function() {
-var GRAPH_DATA = {"nodes":[{"id":"019d0470-9904-7412-9175-57caf6e1277d","label":"rollout-2026-03-19T12-53-01-019d0470-9904-7412-9175-57caf6e1277d","type":"session","client":"codex","url":"transcripts/codex/019d0470-9904-7412-9175-57caf6e1277d__03f11e0d.html"},{"id":"89931ac3-292e-4e33-aead-47d1b8bb506a","label":"agent-a9211525ee6585197","type":"session","client":"claude","url":"transcripts/claude/89931ac3-292e-4e33-aead-47d1b8bb506a__985e5617.html"},{"id":"019cf8fc-0e0c-7311-817d-87cd1c95e2ac","label":"rollout-2026-03-17T07-29-54-019cf8fc-0e0c-7311-817d-87cd1c95e2ac","type":"session","client":"codex","url":"transcripts/codex/019cf8fc-0e0c-7311-817d-87cd1c95e2ac__eee6223b.html"},{"id":"5cb496af-a807-4d66-85f9-36b77c973cf4","label":"agent-a7eabaeb5720ce075","type":"session","client":"claude","url":"transcripts/claude/5cb496af-a807-4d66-85f9-36b77c973cf4__e6b94232.html"},{"id":"9e0eff8c-a777-4bd2-89e4-f5a9d7894a54","label":"agent-adf6bff7ccadf47f0","type":"session","client":"claude","url":"transcripts/claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__76c432fd.html"},{"id":"5004f9e7-85a4-49a9-bbb0-07f26d068121","label":"agent-a8243905a3958dcef","type":"session","client":"claude","url":"transcripts/claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__cb3dcc99.html"},{"id":"5ae44e4a-fafa-4a58-99cc-a2fa603ea563","label":"agent-a4b028f71bab82f16","type":"session","client":"claude","url":"transcripts/claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__29ee5e32.html"},{"id":"debdc508-fbec-4d45-9227-b3c8ab1fd5ef","label":"debdc508-fbec-4d45-9227-b3c8ab1fd5ef","type":"session","client":"claude","url":"transcripts/claude/debdc508-fbec-4d45-9227-b3c8ab1fd5ef__a94a0b7c.html"},{"id":"0e2f7eb2-8c85-4a49-bfad-33cf4240300f","label":"agent-ad7603ec07a916029","type":"session","client":"claude","url":"transcripts/claude/0e2f7eb2-8c85-4a49-bfad-33cf4240300f__0e298a0e.html"},{"id":"65f1f0a6-1b81-4d85-9202-3619bf5a5bd0","label":"agent-adfe65f735849ca11","type":"session","client":"claude","url":"transcripts/claude/65f1f0a6-1b81-4d85-9202-3619bf5a5bd0__09628969.html"},{"id":"f4705e61-6bb7-421d-b2e3-5e859067b658","label":"agent-a4628b8ebde0201be","type":"session","client":"claude","url":"transcripts/claude/f4705e61-6bb7-421d-b2e3-5e859067b658__d46d72e7.html"},{"id":"1dbd723e-98a4-45a1-bf09-8fc06fe75630","label":"agent-ad0a84c405e94abb7","type":"session","client":"claude","url":"transcripts/claude/1dbd723e-98a4-45a1-bf09-8fc06fe75630__18620d2d.html"},{"id":"a9b5a5cc-2f5f-47d6-8350-90df3422cbb7","label":"agent-a38d9e76c537170e8","type":"session","client":"claude","url":"transcripts/claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__f6b2fe6d.html"},{"id":"efe4d8d9-0131-41f8-b824-d89ac625ae42","label":"agent-adfd71f024945ad74","type":"session","client":"claude","url":"transcripts/claude/efe4d8d9-0131-41f8-b824-d89ac625ae42__fa6fa79b.html"}],"edges":[]};
 
-// Client color map
-var CLIENT_COLORS = { claude: '#bc8cff', codex: '#58a6ff', gemini: '#3fb950' };
-function nodeColor(n) {
-  if (n.type === 'knowledge') return '#f0c040';
-  return CLIENT_COLORS[n.client] || '#8b949e';
-}
-function nodeRadius(n) { return n.type === 'knowledge' ? 7 : 5; }
-
-var canvas = document.getElementById('graph-canvas');
-if (!canvas) return;
-var ctx = canvas.getContext('2d');
-
-// High-DPI
-function resize() {
-  var rect = canvas.getBoundingClientRect();
-  var dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-}
-resize();
-window.addEventListener('resize', function() { resize(); draw(); });
-
-var W = canvas.getBoundingClientRect().width;
-var H = canvas.getBoundingClientRect().height;
-
-// Init positions (random spread)
-var nodeMap = {};
-var simNodes = GRAPH_DATA.nodes.map(function(n) {
-  var sn = { id: n.id, label: n.label, type: n.type, client: n.client, url: n.url,
-    x: W/2 + (Math.random()-0.5)*W*0.7, y: H/2 + (Math.random()-0.5)*H*0.7, vx: 0, vy: 0 };
-  nodeMap[n.id] = sn;
-  return sn;
-});
-
-var simEdges = GRAPH_DATA.edges.map(function(e) {
-  return { source: nodeMap[e.source], target: nodeMap[e.target] };
-}).filter(function(e) { return e.source && e.target; });
-
-// Simulation params — tuned for ~50–200 node graphs on a 900px canvas
-var ALPHA = 1.0;        // initial energy; decays each tick
-var ALPHA_DECAY = 0.0228; // decay rate ≈ ln(0.001)/300 (settles in ~300 ticks)
-var ALPHA_MIN = 0.001;  // stop simulation below this threshold
-var CHARGE = -120;      // repulsion strength between nodes (negative = push apart)
-var LINK_DIST = 80;     // spring rest length in pixels
-var CENTER_FORCE = 0.05; // gravity toward canvas center (prevents drift)
-var DAMPING = 0.6;      // velocity damping per tick (higher = faster settling)
-
-// Pan/zoom state
-var panX = 0, panY = 0, scale = 1;
-var dragging = false, dragNode = null, dragOffX = 0, dragOffY = 0;
-var isPanning = false, panStartX = 0, panStartY = 0, panStartPanX = 0, panStartPanY = 0;
-
-function worldToScreen(wx, wy) {
-  return { x: (wx + panX) * scale + W/2, y: (wy + panY) * scale + H/2 };
-}
-function screenToWorld(sx, sy) {
-  return { x: (sx - W/2) / scale - panX, y: (sy - H/2) / scale - panY };
-}
-
-function tick() {
-  if (ALPHA < ALPHA_MIN) return;
-  ALPHA *= (1 - ALPHA_DECAY);
-
-  // Repulsion (n^2, capped)
-  var N = simNodes.length;
-  for (var i = 0; i < N; i++) {
-    for (var j = i+1; j < N; j++) {
-      var ni = simNodes[i], nj = simNodes[j];
-      var dx = nj.x - ni.x, dy = nj.y - ni.y;
-      var dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      var force = CHARGE / (dist * dist) * ALPHA;
-      var fx = dx / dist * force, fy = dy / dist * force;
-      ni.vx -= fx; ni.vy -= fy;
-      nj.vx += fx; nj.vy += fy;
-    }
-  }
-
-  // Link attraction
-  for (var k = 0; k < simEdges.length; k++) {
-    var e = simEdges[k];
-    var dx2 = e.target.x - e.source.x, dy2 = e.target.y - e.source.y;
-    var dist2 = Math.sqrt(dx2*dx2 + dy2*dy2) || 1;
-    var strength = (dist2 - LINK_DIST) / dist2 * 0.5 * ALPHA;
-    var fx2 = dx2 * strength, fy2 = dy2 * strength;
-    e.source.vx += fx2; e.source.vy += fy2;
-    e.target.vx -= fx2; e.target.vy -= fy2;
-  }
-
-  // Center gravity
-  for (var m = 0; m < N; m++) {
-    var node = simNodes[m];
-    node.vx += -node.x * CENTER_FORCE * ALPHA;
-    node.vy += -node.y * CENTER_FORCE * ALPHA;
-    if (node === dragNode) continue;
-    node.vx *= DAMPING;
-    node.vy *= DAMPING;
-    node.x += node.vx;
-    node.y += node.vy;
-  }
-}
-
-function draw() {
-  W = canvas.getBoundingClientRect().width;
-  H = canvas.getBoundingClientRect().height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.save();
-
-  // Draw edges
-  ctx.strokeStyle = 'rgba(139,148,158,0.3)';
-  ctx.lineWidth = 1;
-  for (var k = 0; k < simEdges.length; k++) {
-    var e = simEdges[k];
-    var s = worldToScreen(e.source.x, e.source.y);
-    var t2 = worldToScreen(e.target.x, e.target.y);
-    ctx.beginPath();
-    ctx.moveTo(s.x, s.y);
-    ctx.lineTo(t2.x, t2.y);
-    ctx.stroke();
-  }
-
-  // Draw nodes
-  for (var i = 0; i < simNodes.length; i++) {
-    var n = simNodes[i];
-    var pos = worldToScreen(n.x, n.y);
-    var r = nodeRadius(n) * scale;
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, Math.max(r, 3), 0, Math.PI*2);
-    ctx.fillStyle = nodeColor(n);
-    ctx.fill();
-    if (n === hoverNode) {
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
-  }
-
-  // Draw hover label
-  if (hoverNode) {
-    var hpos = worldToScreen(hoverNode.x, hoverNode.y);
-    ctx.font = '11px sans-serif';
-    ctx.fillStyle = '#e6edf3';
-    ctx.fillText(hoverNode.label.slice(0, 30), hpos.x + 8, hpos.y - 4);
-  }
-
-  ctx.restore();
-}
-
-var hoverNode = null;
-
-function findNode(sx, sy) {
-  var w = screenToWorld(sx, sy);
-  var best = null, bestDist = Infinity;
-  for (var i = 0; i < simNodes.length; i++) {
-    var n = simNodes[i];
-    var dx = n.x - w.x, dy = n.y - w.y;
-    var dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < 15 / scale && dist < bestDist) { best = n; bestDist = dist; }
-  }
-  return best;
-}
-
-function getCanvasPos(evt) {
-  var rect = canvas.getBoundingClientRect();
-  return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-}
-
-canvas.addEventListener('mousemove', function(e) {
-  var pos = getCanvasPos(e);
-  if (isPanning) {
-    panX = panStartPanX + (pos.x - panStartX) / scale;
-    panY = panStartPanY + (pos.y - panStartY) / scale;
-    return;
-  }
-  if (dragNode) {
-    var w = screenToWorld(pos.x, pos.y);
-    dragNode.x = w.x + dragOffX;
-    dragNode.y = w.y + dragOffY;
-    dragNode.vx = 0; dragNode.vy = 0;
-    return;
-  }
-  var node = findNode(pos.x, pos.y);
-  hoverNode = node;
-  canvas.style.cursor = node ? 'pointer' : 'grab';
-});
-
-canvas.addEventListener('mousedown', function(e) {
-  var pos = getCanvasPos(e);
-  var node = findNode(pos.x, pos.y);
-  if (node) {
-    dragNode = node;
-    var w = screenToWorld(pos.x, pos.y);
-    dragOffX = node.x - w.x;
-    dragOffY = node.y - w.y;
-    ALPHA = 0.3;
-  } else {
-    isPanning = true;
-    panStartX = pos.x; panStartY = pos.y;
-    panStartPanX = panX; panStartPanY = panY;
-  }
-});
-
-canvas.addEventListener('mouseup', function(e) {
-  if (dragNode) { dragNode = null; return; }
-  isPanning = false;
-});
-
-canvas.addEventListener('click', function(e) {
-  var pos = getCanvasPos(e);
-  var node = findNode(pos.x, pos.y);
-  if (node && node.url) { window.location.href = node.url; }
-});
-
-canvas.addEventListener('wheel', function(e) {
-  e.preventDefault();
-  var pos = getCanvasPos(e);
-  var factor = e.deltaY > 0 ? 0.9 : 1.1;
-  var wx = (pos.x - W/2) / scale - panX;
-  var wy = (pos.y - H/2) / scale - panY;
-  scale *= factor;
-  scale = Math.max(0.1, Math.min(10, scale));
-  panX = (pos.x - W/2) / scale - wx;
-  panY = (pos.y - H/2) / scale - wy;
-}, { passive: false });
-
-// Animation loop — stops automatically once simulation settles
-function loop() {
-  tick();
-  draw();
-  if (ALPHA >= ALPHA_MIN) {
-    requestAnimationFrame(loop);
-  }
-}
-loop();
-})();
-</script>
 
 <script>
 (function() {
@@ -1149,15 +911,15 @@ loop();
     <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
-      <a href="transcripts/index.html" class="nav-link" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
-      <a href="projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
-      <a href="graph.html" class="nav-link active" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
-      <a href="goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
-      <a href="todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
-      <a href="knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
-      <a href="archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
-      <a href="search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
   </nav>
   <div class="sidebar-footer">
     <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
@@ -1168,25 +930,76 @@ loop();
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
 <div class="page-header">
-  <h1>Knowledge Graph</h1>
-  <p class="subtitle">Connections between sessions and knowledge files · 14 nodes, 0 edges</p>
+  <h1>agent-a38d9e76c537170e8</h1>
 </div>
-<canvas id="graph-canvas"></canvas>
-<div class="graph-legend"><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#bc8cff"></span>
-  Claude
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#58a6ff"></span>
-  Codex
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#3fb950"></span>
-  Gemini
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#8b949e"></span>
-  Other
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#f0c040"></span>
-  Knowledge
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-15 04:17:53</td></tr>
+  <tr><td>Session ID</td><td><code>a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</code></td></tr>
+  <tr><td>Messages</td><td>4</td></tr>
+  <tr><td>Tool Events</td><td>16</td></tr>
+  <tr><td>Branch</td><td><code>master</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">f6b2fe6d0d7f9345…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">04:17:53</span>
+  </div>
+  <div class="message-body"><p>I need to understand the structure of <code>D:\demo1\memorytree-workflow\scripts\_transcript_utils.py</code> (926 lines) for a refactoring task. I need to split it into 4 modules:<br>1. <code>_transcript_parse.py</code> — client-specific parsing logic (Codex/Claude/Gemini)<br>2. <code>_transcript_import.py</code> — import, cleaning, manifest generation<br>3. <code>_transcript_index.py</code> — SQLite indexing operations<br>4. <code>_transcript_discover.py</code> — file discovery, project matching</p><p>Please do a &quot;very thorough&quot; analysis:</p><p>1. Read the entire <code>_transcript_utils.py</code> file<br>2. Map out every function/class/constant defined in it with line numbers<br>3. Group them by the 4 target modules above<br>4. Identify all cross-dependencies between functions (which functions call which)<br>5. Identify shared types/constants that multiple modules will need<br>6. Check all files that import from <code>_transcript_utils</code> to understand the public API:<br>   - <code>scripts/heartbeat.py</code><br>   - <code>scripts/recall-session.py</code><br>   - <code>scripts/discover-transcripts.py</code><br>   - <code>scripts/import-transcripts.py</code><br>   - Any other files that import from it</p><p>Return a detailed breakdown with function names, line ranges, dependency graph, and which target module each belongs to.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">04:17:56</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll perform a thorough analysis of the <code>_transcript_utils.py</code> file and map out the refactoring structure. Let me start by reading the entire file and then checking all the imports.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">04:18:01</span>
+  </div>
+  <div class="message-body"><p>Now let me examine the files that import from <code>_transcript_utils.py</code> to understand the public API:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">04:18:30</span>
+  </div>
+  <div class="message-body"><p>Perfect! Now I have all the information needed. Let me create a comprehensive analysis document.</p><p>## Detailed Refactoring Analysis: <code>_transcript_utils.py</code> Split into 4 Modules</p><p>Based on my thorough examination of the 926-line file and all importers, here&#39;s the complete breakdown:</p><p>---</p><p>### <strong>FILE STRUCTURE &amp; FUNCTION MAPPING</strong></p><p>#### <strong>CONSTANTS (Lines 14-18)</strong></p><pre><code>CLIENTS = {&quot;codex&quot;, &quot;claude&quot;, &quot;gemini&quot;}
+TEXT_BLOCK_TYPES = {&quot;input_text&quot;, &quot;output_text&quot;, &quot;text&quot;}
+SKIP_BLOCK_TYPES = {&quot;thinking&quot;, &quot;reasoning&quot;}
+TOOL_USE_TYPES = {&quot;tool_use&quot;}
+TOOL_RESULT_TYPES = {&quot;tool_result&quot;}
+</code></pre><p><strong>Module:</strong> Shared across all — move to <code>_transcript_index.py</code> or create a <code>_transcript_constants.py</code></p><p>#### <strong>DATACLASSES (Lines 21-44)</strong></p><pre><code>TranscriptMessage (lines 22-25)
+TranscriptToolEvent (lines 29-31)
+ParsedTranscript (lines 35-44)
+</code></pre><p><strong>Module:</strong> Shared across all — move to <code>_transcript_parse.py</code> (the foundation)</p><p>---</p><p>### <strong>MODULE 1: <code>_transcript_parse.py</code> — Client-Specific Parsing</strong></p><p><strong>Functions to include:</strong><br>| Function | Line Range | Purpose |<br>|----------|-----------|---------|<br>| <code>infer_client()</code> | 74-84 | Auto-detect client type from file path |<br>| <code>parse_transcript()</code> | 87-94 | Dispatcher for client-specific parsers |<br>| <code>parse_codex_transcript()</code> | 97-191 | Codex-specific JSONL parsing |<br>| <code>parse_claude_transcript()</code> | 194-272 | Claude-specific JSONL parsing |<br>| <code>parse_gemini_transcript()</code> | 275-350 | Gemini JSON/JSONL parsing (nested traversal) |<br>| <code>extract_text_blocks()</code> | 679-700 | Codex/Claude text extraction |<br>| <code>extract_simple_text()</code> | 703-713 | Fallback text extraction |<br>| <code>extract_gemini_text()</code> | 716-720 | Gemini-specific text extraction |<br>| <code>extract_gemini_parts()</code> | 723-744 | Recursive Gemini parts extraction |<br>| <code>find_first_mapping_with_keys()</code> | 747-761 | Gemini metadata discovery |</p><p><strong>Helper utilities needed:</strong><br>- <code>ensure_dict()</code> (662)<br>- <code>ensure_list()</code> (666)<br>- <code>get_nested()</code> (670)<br>- <code>normalize_timestamp()</code> (764)<br>- <code>earliest_timestamp()</code> (790)<br>- <code>parse_iso_timestamp()</code> (801)<br>- <code>load_jsonl()</code> (639)<br>- <code>summarize_value()</code> (828) — for tool event summaries</p><p><strong>Dataclasses:</strong> TranscriptMessage, TranscriptToolEvent, ParsedTranscript</p><p><strong>Constants:</strong> CLIENTS, TEXT_BLOCK_TYPES, SKIP_BLOCK_TYPES, TOOL_USE_TYPES, TOOL_RESULT_TYPES</p><p><strong>Public API (called by external scripts):</strong><br>- <code>infer_client()</code><br>- <code>parse_transcript()</code><br>- <code>parse_codex_transcript()</code> (tests only)<br>- <code>parse_claude_transcript()</code> (tests only)<br>- <code>parse_gemini_transcript()</code> (tests only)</p><p>---</p><p>### <strong>MODULE 2: <code>_transcript_import.py</code> — Import, Cleaning, Manifest Generation</strong></p><p><strong>Functions to include:</strong><br>| Function | Line Range | Purpose |<br>|----------|-----------|---------|<br>| <code>import_transcript()</code> | 353-435 | Main import orchestrator |<br>| <code>write_clean_markdown()</code> | 438-498 | Generate clean .md files |<br>| <code>preserve_existing_import_timestamp()</code> | 618-627 | Idempotency helper |<br>| <code>manifest_signature()</code> | 630-631 | Compare manifest versions |<br>| <code>write_json()</code> | 604-605 | JSON file writer |<br>| <code>append_jsonl()</code> | 634-636 | Event log appender |<br>| <code>transcript_has_content()</code> | 600-601 | Validation |<br>| <code>copy_file()</code> | 594-597 | File copying utility |<br>| <code>yaml_escape()</code> | 846-848 | Markdown YAML escaping |</p><p><strong>Helper utilities needed:</strong><br>- <code>sha256_file()</code> (66)<br>- <code>slugify()</code> (60)<br>- <code>timestamp_partition()</code> (814) — path generation<br>- <code>normalize_timestamp()</code> (764) — for imported_at<br>- <code>load_json()</code> (653) — load existing manifests<br>- <code>join_paragraphs()</code> (823) — format text</p><p><strong>Dataclasses:</strong> ParsedTranscript</p><p><strong>Public API (called by external scripts):</strong><br>- <code>import_transcript()</code><br>- <code>transcript_has_content()</code></p><p>---</p><p>### <strong>MODULE 3: <code>_transcript_index.py</code> — SQLite Indexing Operations</strong></p><p><strong>Functions to include:</strong><br>| Function | Line Range | Purpose |<br>|----------|-----------|---------|<br>| <code>upsert_search_index()</code> | 501-591 | SQLite UPSERT into transcripts table |</p><p><strong>Dependencies:</strong><br>- <code>sqlite3</code> (standard library)<br>- Manifest dict structure from Module 2</p><p><strong>Constants:</strong> None specific, uses manifest keys as column names</p><p><strong>Public API (called by Module 2&#39;s <code>import_transcript()</code>):</strong><br>- <code>upsert_search_index()</code></p><p>---</p><p>### <strong>MODULE 4: <code>_transcript_discover.py</code> — File Discovery, Project Matching</strong></p><p><strong>Functions to include:</strong><br>| Function | Line Range | Purpose |<br>|----------|-----------|---------|<br>| <code>discover_source_files()</code> | 851-885 | Glob patterns across three clients |<br>| <code>infer_project_slug()</code> | 888-901 | Detect project from cwd/path |<br>| <code>transcript_matches_repo()</code> | 904-915 | Match transcript to repo |<br>| <code>project_slugs_match()</code> | 918-919 | Slug comparison |</p><p><strong>Helper utilities needed:</strong><br>- <code>default_client_roots()</code> (51) — client home directories<br>- <code>default_global_transcript_root()</code> (47) — global archive root<br>- <code>slugify()</code> (60) — normalize project names<br>- <code>safe_file_mtime()</code> (922) — file sorting<br>- <code>CLIENTS</code> constant</p><p><strong>Dataclasses:</strong> ParsedTranscript</p><p><strong>Public API (called by external scripts):</strong><br>- <code>discover_source_files()</code><br>- <code>infer_project_slug()</code><br>- <code>transcript_matches_repo()</code><br>- <code>default_global_transcript_root()</code> (used by recall-session.py)</p><p>---</p><p>### <strong>UTILITY FUNCTIONS — SHARED DEPENDENCIES</strong></p><p>Create a <code>_transcript_common.py</code> file (or embed in parse.py):</p><p>| Function | Line Range | Used By |<br>|----------|-----------|---------|<br>| <code>default_global_transcript_root()</code> | 47-48 | discover, import |<br>| <code>default_client_roots()</code> | 51-57 | discover |<br>| <code>slugify()</code> | 60-63 | All modules |<br>| <code>sha256_file()</code> | 66-71 | import |<br>| <code>normalize_timestamp()</code> | 764-787 | parse, import, discover |<br>| <code>earliest_timestamp()</code> | 790-798 | parse |<br>| <code>parse_iso_timestamp()</code> | 801-811 | parse |<br>| <code>timestamp_partition()</code> | 814-820 | import |<br>| <code>join_paragraphs()</code> | 823-825 | parse, import |<br>| <code>summarize_value()</code> | 828-839 | parse |<br>| <code>truncate()</code> | 842-843 | parse |<br>| <code>ensure_dict()</code> | 662-663 | parse |<br>| <code>ensure_list()</code> | 666-667 | parse |<br>| <code>get_nested()</code> | 670-676 | parse |<br>| <code>load_jsonl()</code> | 639-650 | parse |<br>| <code>load_json()</code> | 653-659 | import |<br>| <code>safe_file_mtime()</code> | 922-926 | discover |</p><p>---</p><p>### <strong>DEPENDENCY GRAPH</strong></p><pre><code>_transcript_discover.py
+├── needs: slugify, default_client_roots, default_global_transcript_root, 
+│           safe_file_mtime, CLIENTS, ParsedTranscript
+└── used by: heartbeat.py, recall-session.py, discover-transcripts.py, import-transcripts.py
+
+_transcript_parse.py
+├── needs: ensure_dict, ensure_list, get_nested, normalize_timestamp, 
+│           earliest_timestamp, parse_iso_timestamp, load_jsonl, summarize_value,
+│           truncate, find_first_mapping_with_keys, extract_*,
+│           CLIENTS, TEXT_BLOCK_TYPES, SKIP_BLOCK_TYPES, TOOL_USE_TYPES, TOOL_RESULT_TYPES
+├── defines: TranscriptMessage, TranscriptToolEvent, ParsedTranscript
+└── used by: heartbeat.py, recall-session.py, discover-transcripts.py, import-transcripts.py
+
+_transcript_import.py
+├── needs: ParsedTranscript, sha256_file, slugify, timestamp_partition,
+│           normalize_timestamp, load_json, join_paragraphs, yaml_escape,
+│           upsert_search_index (from _transcript_index.py)
+├── defines: import_transcript, transcript_has_content
+└── used by: heartbeat.py, recall-session.py, discover-transcripts.py, import-transcripts.py
+
+_transcript_index.py
+├── needs: sqlite3 (stdlib), manifest dict structure
+├── defines: upsert_search_index
+└── called by: _transcript_import.py (exclusive, internal-only)
+</code></pre><p>---</p><p>### <strong>PUBLIC API SUMMARY</strong></p><p><strong>Exported from each module:</strong></p><p><strong><code>_transcript_parse.py</code>:</strong><br>- DataClasses: <code>TranscriptMessage</code>, <code>TranscriptToolEvent</code>, <code>ParsedTranscript</code><br>- Functions: <code>infer_client()</code>, <code>parse_transcript()</code>, <code>parse_codex_transcript()</code>, <code>parse_claude_transcript()</code>, <code>parse_gemini_transcript()</code><br>- Constants: <code>CLIENTS</code></p><p><strong><code>_transcript_import.py</code>:</strong><br>- Functions: <code>import_transcript()</code>, <code>transcript_has_content()</code></p><p><strong><code>_transcript_discover.py</code>:</strong><br>- Functions: <code>discover_source_files()</code>, <code>infer_project_slug()</code>, <code>transcript_matches_repo()</code>, <code>default_global_transcript_root()</code><br>- Constants: <code>CLIENTS</code></p><p><strong><code>_transcript_index.py</code>:</strong><br>- Functions: <code>upsert_search_index()</code> (internal-only, called by import_transcript)</p><p>---</p><p>### <strong>EXTERNAL IMPORTERS &amp; THEIR NEEDS</strong></p><p>| Script | Imports | Module Source |<br>|--------|---------|----------------|<br>| <strong>heartbeat.py</strong> | <code>ParsedTranscript</code>, <code>discover_source_files</code>, <code>import_transcript</code>, <code>infer_project_slug</code>, <code>parse_transcript</code>, <code>slugify</code>, <code>transcript_has_content</code>, <code>transcript_matches_repo</code> | parse, import, discover (+ common) |<br>| <strong>recall-session.py</strong> | <code>default_global_transcript_root</code>, <code>discover_source_files</code>, <code>import_transcript</code>, <code>infer_project_slug</code>, <code>parse_transcript</code>, <code>slugify</code>, <code>transcript_has_content</code>, <code>transcript_matches_repo</code> | parse, import, discover (+ common) |<br>| <strong>discover-transcripts.py</strong> | <code>CLIENTS</code>, <code>default_global_transcript_root</code>, <code>discover_source_files</code>, <code>import_transcript</code>, <code>infer_project_slug</code>, <code>parse_transcript</code>, <code>slugify</code>, <code>transcript_has_content</code>, <code>transcript_matches_repo</code> | parse, import, discover |<br>| <strong>import-transcripts.py</strong> | <code>CLIENTS</code>, <code>default_global_transcript_root</code>, <code>infer_client</code>, <code>infer_project_slug</code>, <code>import_transcript</code>, <code>parse_transcript</code>, <code>slugify</code>, <code>transcript_has_content</code>, <code>transcript_matches_repo</code> | parse, import, discover (+ common) |<br>| <strong>test_transcript_utils.py</strong> | 33 functions including all parsers, helpers, and data validators | All modules |</p><p>---</p><p>### <strong>REFACTORING CHECKLIST</strong></p><p>1. <strong>Extract shared utilities</strong> → <code>_transcript_common.py</code> (optional, consolidate in parse.py for minimal imports)<br>2. <strong>Create <code>_transcript_parse.py</code></strong> — Move all parsing functions + their dependencies<br>3. <strong>Create <code>_transcript_import.py</code></strong> — Move import orchestration + manifest generation<br>4. <strong>Create <code>_transcript_index.py</code></strong> — Minimal module, SQLite upsert only<br>5. <strong>Create <code>_transcript_discover.py</code></strong> — File discovery + project matching<br>6. <strong>Update imports in:</strong><br>   - <code>heartbeat.py</code><br>   - <code>recall-session.py</code><br>   - <code>discover-transcripts.py</code><br>   - <code>import-transcripts.py</code><br>   - <code>tests/test_transcript_utils.py</code></p><p>---</p><p>### <strong>CROSS-DEPENDENCIES REQUIRING CAREFUL ORDERING</strong></p><p>1. <strong><code>_transcript_parse.py</code> has no external dependencies</strong> (only stdlib + constants)<br>2. <strong><code>_transcript_discover.py</code> depends on:</strong> <code>ParsedTranscript</code> from parse.py<br>3. <strong><code>_transcript_import.py</code> depends on:</strong> <code>ParsedTranscript</code> from parse.py + <code>upsert_search_index</code> from index.py<br>4. <strong><code>_transcript_index.py</code> has no external dependencies</strong> (only stdlib)</p><p><strong>Suggested module import order:</strong><br>1. <code>_transcript_parse.py</code> (foundation)<br>2. <code>_transcript_index.py</code> (pure SQLite)<br>3. <code>_transcript_discover.py</code> (depends on ParsedTranscript)<br>4. <code>_transcript_import.py</code> (depends on both parse and index)</p><p>---</p><p>This analysis preserves all functionality, maintains clear boundaries, and keeps the external API intact while reducing file complexity from 926 to approximately 200-250 lines per module.</p></div>
 </div></div>
   </div>
 </div>

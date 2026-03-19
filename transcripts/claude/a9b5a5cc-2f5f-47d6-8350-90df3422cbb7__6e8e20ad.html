@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Graph — MemoryTree</title>
-<meta property="og:title" content="Knowledge Graph">
+<title>agent-ac3555d3365779848 — MemoryTree</title>
+<meta property="og:title" content="agent-ac3555d3365779848">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://beyondchenlin.github.io/memorytree-workflow/transcripts/claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__6e8e20ad.html">
 <style>
 :root {
   --bg: #0d1117;
@@ -779,246 +780,7 @@ pre.mermaid {
 @keyframes vt-fade-out { to { opacity: 0; } }
 @keyframes vt-fade-in { from { opacity: 0; } }
 </style>
-<script>
-(function() {
-var GRAPH_DATA = {"nodes":[{"id":"019d0470-9904-7412-9175-57caf6e1277d","label":"rollout-2026-03-19T12-53-01-019d0470-9904-7412-9175-57caf6e1277d","type":"session","client":"codex","url":"transcripts/codex/019d0470-9904-7412-9175-57caf6e1277d__03f11e0d.html"},{"id":"89931ac3-292e-4e33-aead-47d1b8bb506a","label":"agent-a9211525ee6585197","type":"session","client":"claude","url":"transcripts/claude/89931ac3-292e-4e33-aead-47d1b8bb506a__985e5617.html"},{"id":"019cf8fc-0e0c-7311-817d-87cd1c95e2ac","label":"rollout-2026-03-17T07-29-54-019cf8fc-0e0c-7311-817d-87cd1c95e2ac","type":"session","client":"codex","url":"transcripts/codex/019cf8fc-0e0c-7311-817d-87cd1c95e2ac__eee6223b.html"},{"id":"5cb496af-a807-4d66-85f9-36b77c973cf4","label":"agent-a7eabaeb5720ce075","type":"session","client":"claude","url":"transcripts/claude/5cb496af-a807-4d66-85f9-36b77c973cf4__e6b94232.html"},{"id":"9e0eff8c-a777-4bd2-89e4-f5a9d7894a54","label":"agent-adf6bff7ccadf47f0","type":"session","client":"claude","url":"transcripts/claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__76c432fd.html"},{"id":"5004f9e7-85a4-49a9-bbb0-07f26d068121","label":"agent-a8243905a3958dcef","type":"session","client":"claude","url":"transcripts/claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__cb3dcc99.html"},{"id":"5ae44e4a-fafa-4a58-99cc-a2fa603ea563","label":"agent-a4b028f71bab82f16","type":"session","client":"claude","url":"transcripts/claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__29ee5e32.html"},{"id":"debdc508-fbec-4d45-9227-b3c8ab1fd5ef","label":"debdc508-fbec-4d45-9227-b3c8ab1fd5ef","type":"session","client":"claude","url":"transcripts/claude/debdc508-fbec-4d45-9227-b3c8ab1fd5ef__a94a0b7c.html"},{"id":"0e2f7eb2-8c85-4a49-bfad-33cf4240300f","label":"agent-ad7603ec07a916029","type":"session","client":"claude","url":"transcripts/claude/0e2f7eb2-8c85-4a49-bfad-33cf4240300f__0e298a0e.html"},{"id":"65f1f0a6-1b81-4d85-9202-3619bf5a5bd0","label":"agent-adfe65f735849ca11","type":"session","client":"claude","url":"transcripts/claude/65f1f0a6-1b81-4d85-9202-3619bf5a5bd0__09628969.html"},{"id":"f4705e61-6bb7-421d-b2e3-5e859067b658","label":"agent-a4628b8ebde0201be","type":"session","client":"claude","url":"transcripts/claude/f4705e61-6bb7-421d-b2e3-5e859067b658__d46d72e7.html"},{"id":"1dbd723e-98a4-45a1-bf09-8fc06fe75630","label":"agent-ad0a84c405e94abb7","type":"session","client":"claude","url":"transcripts/claude/1dbd723e-98a4-45a1-bf09-8fc06fe75630__18620d2d.html"},{"id":"a9b5a5cc-2f5f-47d6-8350-90df3422cbb7","label":"agent-a38d9e76c537170e8","type":"session","client":"claude","url":"transcripts/claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__f6b2fe6d.html"},{"id":"efe4d8d9-0131-41f8-b824-d89ac625ae42","label":"agent-adfd71f024945ad74","type":"session","client":"claude","url":"transcripts/claude/efe4d8d9-0131-41f8-b824-d89ac625ae42__fa6fa79b.html"}],"edges":[]};
 
-// Client color map
-var CLIENT_COLORS = { claude: '#bc8cff', codex: '#58a6ff', gemini: '#3fb950' };
-function nodeColor(n) {
-  if (n.type === 'knowledge') return '#f0c040';
-  return CLIENT_COLORS[n.client] || '#8b949e';
-}
-function nodeRadius(n) { return n.type === 'knowledge' ? 7 : 5; }
-
-var canvas = document.getElementById('graph-canvas');
-if (!canvas) return;
-var ctx = canvas.getContext('2d');
-
-// High-DPI
-function resize() {
-  var rect = canvas.getBoundingClientRect();
-  var dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-}
-resize();
-window.addEventListener('resize', function() { resize(); draw(); });
-
-var W = canvas.getBoundingClientRect().width;
-var H = canvas.getBoundingClientRect().height;
-
-// Init positions (random spread)
-var nodeMap = {};
-var simNodes = GRAPH_DATA.nodes.map(function(n) {
-  var sn = { id: n.id, label: n.label, type: n.type, client: n.client, url: n.url,
-    x: W/2 + (Math.random()-0.5)*W*0.7, y: H/2 + (Math.random()-0.5)*H*0.7, vx: 0, vy: 0 };
-  nodeMap[n.id] = sn;
-  return sn;
-});
-
-var simEdges = GRAPH_DATA.edges.map(function(e) {
-  return { source: nodeMap[e.source], target: nodeMap[e.target] };
-}).filter(function(e) { return e.source && e.target; });
-
-// Simulation params — tuned for ~50–200 node graphs on a 900px canvas
-var ALPHA = 1.0;        // initial energy; decays each tick
-var ALPHA_DECAY = 0.0228; // decay rate ≈ ln(0.001)/300 (settles in ~300 ticks)
-var ALPHA_MIN = 0.001;  // stop simulation below this threshold
-var CHARGE = -120;      // repulsion strength between nodes (negative = push apart)
-var LINK_DIST = 80;     // spring rest length in pixels
-var CENTER_FORCE = 0.05; // gravity toward canvas center (prevents drift)
-var DAMPING = 0.6;      // velocity damping per tick (higher = faster settling)
-
-// Pan/zoom state
-var panX = 0, panY = 0, scale = 1;
-var dragging = false, dragNode = null, dragOffX = 0, dragOffY = 0;
-var isPanning = false, panStartX = 0, panStartY = 0, panStartPanX = 0, panStartPanY = 0;
-
-function worldToScreen(wx, wy) {
-  return { x: (wx + panX) * scale + W/2, y: (wy + panY) * scale + H/2 };
-}
-function screenToWorld(sx, sy) {
-  return { x: (sx - W/2) / scale - panX, y: (sy - H/2) / scale - panY };
-}
-
-function tick() {
-  if (ALPHA < ALPHA_MIN) return;
-  ALPHA *= (1 - ALPHA_DECAY);
-
-  // Repulsion (n^2, capped)
-  var N = simNodes.length;
-  for (var i = 0; i < N; i++) {
-    for (var j = i+1; j < N; j++) {
-      var ni = simNodes[i], nj = simNodes[j];
-      var dx = nj.x - ni.x, dy = nj.y - ni.y;
-      var dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      var force = CHARGE / (dist * dist) * ALPHA;
-      var fx = dx / dist * force, fy = dy / dist * force;
-      ni.vx -= fx; ni.vy -= fy;
-      nj.vx += fx; nj.vy += fy;
-    }
-  }
-
-  // Link attraction
-  for (var k = 0; k < simEdges.length; k++) {
-    var e = simEdges[k];
-    var dx2 = e.target.x - e.source.x, dy2 = e.target.y - e.source.y;
-    var dist2 = Math.sqrt(dx2*dx2 + dy2*dy2) || 1;
-    var strength = (dist2 - LINK_DIST) / dist2 * 0.5 * ALPHA;
-    var fx2 = dx2 * strength, fy2 = dy2 * strength;
-    e.source.vx += fx2; e.source.vy += fy2;
-    e.target.vx -= fx2; e.target.vy -= fy2;
-  }
-
-  // Center gravity
-  for (var m = 0; m < N; m++) {
-    var node = simNodes[m];
-    node.vx += -node.x * CENTER_FORCE * ALPHA;
-    node.vy += -node.y * CENTER_FORCE * ALPHA;
-    if (node === dragNode) continue;
-    node.vx *= DAMPING;
-    node.vy *= DAMPING;
-    node.x += node.vx;
-    node.y += node.vy;
-  }
-}
-
-function draw() {
-  W = canvas.getBoundingClientRect().width;
-  H = canvas.getBoundingClientRect().height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.save();
-
-  // Draw edges
-  ctx.strokeStyle = 'rgba(139,148,158,0.3)';
-  ctx.lineWidth = 1;
-  for (var k = 0; k < simEdges.length; k++) {
-    var e = simEdges[k];
-    var s = worldToScreen(e.source.x, e.source.y);
-    var t2 = worldToScreen(e.target.x, e.target.y);
-    ctx.beginPath();
-    ctx.moveTo(s.x, s.y);
-    ctx.lineTo(t2.x, t2.y);
-    ctx.stroke();
-  }
-
-  // Draw nodes
-  for (var i = 0; i < simNodes.length; i++) {
-    var n = simNodes[i];
-    var pos = worldToScreen(n.x, n.y);
-    var r = nodeRadius(n) * scale;
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, Math.max(r, 3), 0, Math.PI*2);
-    ctx.fillStyle = nodeColor(n);
-    ctx.fill();
-    if (n === hoverNode) {
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
-  }
-
-  // Draw hover label
-  if (hoverNode) {
-    var hpos = worldToScreen(hoverNode.x, hoverNode.y);
-    ctx.font = '11px sans-serif';
-    ctx.fillStyle = '#e6edf3';
-    ctx.fillText(hoverNode.label.slice(0, 30), hpos.x + 8, hpos.y - 4);
-  }
-
-  ctx.restore();
-}
-
-var hoverNode = null;
-
-function findNode(sx, sy) {
-  var w = screenToWorld(sx, sy);
-  var best = null, bestDist = Infinity;
-  for (var i = 0; i < simNodes.length; i++) {
-    var n = simNodes[i];
-    var dx = n.x - w.x, dy = n.y - w.y;
-    var dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < 15 / scale && dist < bestDist) { best = n; bestDist = dist; }
-  }
-  return best;
-}
-
-function getCanvasPos(evt) {
-  var rect = canvas.getBoundingClientRect();
-  return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-}
-
-canvas.addEventListener('mousemove', function(e) {
-  var pos = getCanvasPos(e);
-  if (isPanning) {
-    panX = panStartPanX + (pos.x - panStartX) / scale;
-    panY = panStartPanY + (pos.y - panStartY) / scale;
-    return;
-  }
-  if (dragNode) {
-    var w = screenToWorld(pos.x, pos.y);
-    dragNode.x = w.x + dragOffX;
-    dragNode.y = w.y + dragOffY;
-    dragNode.vx = 0; dragNode.vy = 0;
-    return;
-  }
-  var node = findNode(pos.x, pos.y);
-  hoverNode = node;
-  canvas.style.cursor = node ? 'pointer' : 'grab';
-});
-
-canvas.addEventListener('mousedown', function(e) {
-  var pos = getCanvasPos(e);
-  var node = findNode(pos.x, pos.y);
-  if (node) {
-    dragNode = node;
-    var w = screenToWorld(pos.x, pos.y);
-    dragOffX = node.x - w.x;
-    dragOffY = node.y - w.y;
-    ALPHA = 0.3;
-  } else {
-    isPanning = true;
-    panStartX = pos.x; panStartY = pos.y;
-    panStartPanX = panX; panStartPanY = panY;
-  }
-});
-
-canvas.addEventListener('mouseup', function(e) {
-  if (dragNode) { dragNode = null; return; }
-  isPanning = false;
-});
-
-canvas.addEventListener('click', function(e) {
-  var pos = getCanvasPos(e);
-  var node = findNode(pos.x, pos.y);
-  if (node && node.url) { window.location.href = node.url; }
-});
-
-canvas.addEventListener('wheel', function(e) {
-  e.preventDefault();
-  var pos = getCanvasPos(e);
-  var factor = e.deltaY > 0 ? 0.9 : 1.1;
-  var wx = (pos.x - W/2) / scale - panX;
-  var wy = (pos.y - H/2) / scale - panY;
-  scale *= factor;
-  scale = Math.max(0.1, Math.min(10, scale));
-  panX = (pos.x - W/2) / scale - wx;
-  panY = (pos.y - H/2) / scale - wy;
-}, { passive: false });
-
-// Animation loop — stops automatically once simulation settles
-function loop() {
-  tick();
-  draw();
-  if (ALPHA >= ALPHA_MIN) {
-    requestAnimationFrame(loop);
-  }
-}
-loop();
-})();
-</script>
 
 <script>
 (function() {
@@ -1149,15 +911,15 @@ loop();
     <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
-      <a href="transcripts/index.html" class="nav-link" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
-      <a href="projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
-      <a href="graph.html" class="nav-link active" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
-      <a href="goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
-      <a href="todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
-      <a href="knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
-      <a href="archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
-      <a href="search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
   </nav>
   <div class="sidebar-footer">
     <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
@@ -1168,25 +930,86 @@ loop();
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
 <div class="page-header">
-  <h1>Knowledge Graph</h1>
-  <p class="subtitle">Connections between sessions and knowledge files · 14 nodes, 0 edges</p>
+  <h1>agent-ac3555d3365779848</h1>
 </div>
-<canvas id="graph-canvas"></canvas>
-<div class="graph-legend"><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#bc8cff"></span>
-  Claude
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#58a6ff"></span>
-  Codex
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#3fb950"></span>
-  Gemini
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#8b949e"></span>
-  Other
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#f0c040"></span>
-  Knowledge
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-14 16:23:24</td></tr>
+  <tr><td>Session ID</td><td><code>a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</code></td></tr>
+  <tr><td>Messages</td><td>4</td></tr>
+  <tr><td>Tool Events</td><td>18</td></tr>
+  <tr><td>Branch</td><td><code>master</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">6e8e20adf15d1f5c…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">16:23:24</span>
+  </div>
+  <div class="message-body"><p>You are a redundancy and completeness checker reviewing documentation changes in D:\demo1\memorytree-workflow.</p><p>The project just implemented a plan to document heartbeat scheduling, global configuration, auto_push, alerts, and daemon CLI across 8 markdown files. Your job is to find <strong>gaps, missing pieces, and structural problems</strong>.</p><p>## Files to review</p><p><strong>New files:</strong><br>1. <code>references/heartbeat-scheduling.md</code><br>2. <code>references/global-configuration.md</code></p><p><strong>Updated files:</strong><br>3. <code>SKILL.md</code><br>4. <code>references/git-policy.md</code><br>5. <code>references/transcript-archive.md</code><br>6. <code>assets/templates/en/agents.md</code><br>7. <code>assets/templates/zh-cn/agents.md</code><br>8. <code>README.md</code></p><p>## Review checklist</p><p>1. <strong>en/zh-cn parity</strong>: Read both <code>assets/templates/en/agents.md</code> and <code>assets/templates/zh-cn/agents.md</code>. Verify they have the same number of sections (## headings), the same number of bullet points in each section, and that the zh-cn content is a faithful translation (not just copied English). Flag any structural mismatch.</p><p>2. <strong>SKILL.md completeness</strong>: The plan specified:<br>   - On Activation: 6 steps (was 4) — including alert check at step 1.5 and daemon check at end of step 5<br>   - Core Behavior: 13 rules (was 11)<br>   - Git And Safety: 10 rules (was 8)<br>   - Resources: 4 new entries<br>   Verify all additions are present. Count the actual items.</p><p>3. <strong>git-policy.md completeness</strong>: Should have:<br>   - New &quot;Auto Push&quot; section between &quot;Default MemoryTree Flow&quot; and &quot;Commit Guidance&quot;<br>   - 5 rules for auto_push=true, 2 rules for auto_push=false, a rationale line<br>   - Stop And Ask item #8 about protected branches<br>   Verify all present.</p><p>4. <strong>transcript-archive.md completeness</strong>: Should have:<br>   - Search Rules expanded to exactly 5 items (was 3)<br>   - Cross-reference to global-configuration.md at end of Global Archive Layout / Project Mirror Layout section<br>   Verify present.</p><p>5. <strong>README.md completeness</strong>: Should have:<br>   - &quot;Background Heartbeat&quot; section after Features, before Update<br>   - Install command, CLI table (5 commands), config.toml table (3 settings)<br>   - Reference links to both new reference docs<br>   - Contract disclaimer note<br>   Verify all present.</p><p>6. <strong>Missing concepts</strong>: Check if any of these terms appear in TODO.md but are NOT documented in the new/updated files: heartbeat, auto_push, alerts.json, config.toml, memorytree-daemon, sensitive info scanning, git remote pre-check.</p><p>Read ALL 8 files listed above. Also read TODO.md if it exists. Report findings as:<br>- CRITICAL: Must fix before commit<br>- HIGH: Should fix<br>- MEDIUM: Nice to fix<br>- LOW: Nitpick</p><p>Do NOT make any edits. Research only.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">16:23:29</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll systematically review all 8 files plus TODO.md. Let me start by reading them all in parallel.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">16:23:37</span>
+  </div>
+  <div class="message-body"><p>Now let me read the TODO.md file.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">16:24:56</span>
+  </div>
+  <div class="message-body"><p>Now I have all 9 files read. Let me perform the detailed review according to the checklist.</p><p>---</p><p>## Redundancy and Completeness Review Report</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">EN</span>
+  </div>
+  <div class="message-body"><p><strong>English <code>assets/templates/en/agents.md</code></strong> has 5 <code>##</code> sections:<br>1. Read Order (6 bullets)<br>2. Memory Rules (5 bullets)<br>3. Transcript Rules (6 bullets)<br>4. Git Rules (5 bullets)<br>5. Heartbeat Rules (4 bullets)</p><p><strong>Chinese <code>assets/templates/zh-cn/agents.md</code></strong> has 5 <code>##</code> sections:<br>1. 读取顺序 (6 bullets)<br>2. 记忆规则 (5 bullets)<br>3. Transcript 规则 (6 bullets)<br>4. Git 规则 (5 bullets)<br>5. 心跳规则 (4 bullets)</p><p>Section count matches. Bullet count matches in every section. The Chinese content is a faithful translation, not copied English. Terms like &quot;memorytree-daemon&quot;, &quot;auto_push&quot;, &quot;alerts.json&quot;, and file paths are kept in English where appropriate, which is correct for a technical translation.</p><p><strong>Finding: No issues.</strong> Parity is complete.</p><p>---</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">SKILL</span>
+  </div>
+  <div class="message-body"><p><strong>On Activation</strong> -- The plan specified 6 steps (was 4), including alert check at step 1.5 and daemon check at end of step 5.</p><p>Actual steps found:<br>1. Detect repo state (line 14)<br>2. Check <code>~/.memorytree/alerts.json</code> (line 15) -- this is the &quot;step 1.5&quot; alert check<br>3. If not-installed: run init (line 16)<br>4. If partial: run upgrade (line 17)<br>5. If installed: read active state, report, AND suggest <code>memorytree-daemon install</code> if not registered (line 18)</p><p>Count: 5 steps. The plan said &quot;6 steps (was 4)&quot;. Let me recount: The original had steps 1-4 (detect, not-installed, partial, installed). The plan added alert check (new step) and daemon check (appended to installed step). That gives 5 explicit steps, not 6. The daemon check is embedded inside step 5 rather than being a separate step 6.</p><p><strong>Finding: MEDIUM</strong> -- The daemon check is folded into step 5 rather than being a standalone step 6. Functionally complete, but the plan&#39;s stated count of &quot;6 steps&quot; does not match the actual 5. This is acceptable if the plan allowed combining.</p><p><strong>Core Behavior</strong> -- The plan specified 13 rules (was 11). Actual count: 13 rules (lines 24-36, numbered 1-13). Rules 12 and 13 are the two new entries referencing heartbeat-scheduling.md and global-configuration.md respectively.</p><p><strong>Finding: No issues.</strong> 13 rules present.</p><p><strong>Git And Safety</strong> -- The plan specified 10 rules (was 8). Actual count: 10 rules (lines 87-96, numbered 1-10). Rules 9 and 10 are the two new entries covering auto_push behavior and sensitive info scanning.</p><p><strong>Finding: No issues.</strong> 10 rules present.</p><p><strong>Resources</strong> -- The plan specified 4 new entries. Checking new resource lines:<br>1. <code>references/heartbeat-scheduling.md</code> (line 109)<br>2. <code>references/global-configuration.md</code> (line 110)<br>3. <code>scripts/heartbeat.py</code> (line 112)<br>4. <code>memorytree-daemon</code> CLI (line 113)</p><p><strong>Finding: No issues.</strong> 4 new resource entries present.</p><p>---</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">GIT</span>
+  </div>
+  <div class="message-body"><p><strong>Auto Push section location</strong>: Present at lines 44-59, between &quot;Default MemoryTree Flow&quot; (ends line 43) and &quot;Commit Guidance&quot; (starts line 61). Correct placement.</p><p><strong>auto_push=true rules</strong>: 5 rules (lines 48-52, numbered 1-5). Correct count.</p><p><strong>auto_push=false rules</strong>: 2 rules (lines 56-57, numbered 1-2). Correct count.</p><p><strong>Rationale line</strong>: Present at line 59. Correct.</p><p><strong>Stop And Ask item #8</strong>: Line 114 reads <code>auto_push</code> is enabled but the target branch is a protected branch that refuses direct pushes. This is item 8 in the Stop And Ask list (lines 107-114). Correct.</p><p><strong>Finding: No issues.</strong> All specified additions are present.</p><p>---</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">TRANSCRIPT</span>
+  </div>
+  <div class="message-body"><p><strong>Search Rules</strong>: The plan specified exactly 5 items (was 3). Actual count at lines 132-138:<br>1. Search <code>search.sqlite</code> first (line 134)<br>2. Use <code>sessions.jsonl</code> for metadata filtering (line 135)<br>3. Load matching cleaned Markdown; confirm against raw when exact wording matters (line 136)<br>4. Combine transcript results with active repo&#39;s <code>Memory/</code> files (line 137)<br>5. If search index does not exist, fall back to scanning <code>clean/</code> directory (line 138)</p><p>Count: 5 items. Correct.</p><p><strong>Cross-reference to global-configuration.md</strong>: Line 87 reads <code>For the complete ~/.memorytree/ directory structure, see references/global-configuration.md.</code> This appears at the end of the &quot;Project Mirror Layout&quot; section, which is the section after &quot;Global Archive Layout&quot;. The plan said the cross-reference should be &quot;at end of Global Archive Layout / Project Mirror Layout section.&quot; It is at the end of the Project Mirror Layout section.</p><p><strong>Finding: MEDIUM</strong> -- The cross-reference to <code>references/global-configuration.md</code> is placed at the end of &quot;Project Mirror Layout&quot; (line 87) rather than at the end of &quot;Global Archive Layout&quot; (line 67). Arguably, either placement is valid since the reference pertains to the <code>~/.memorytree/</code> directory which is shown in the Global Archive Layout. The current placement at the end of Project Mirror Layout is reasonable since it closes out the layout topic, but the plan may have intended it after the Global Archive Layout tree diagram where the <code>~/.memorytree/</code> path is actually shown.</p><p>---</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">README</span>
+  </div>
+  <div class="message-body"><p><strong>Background Heartbeat section location</strong>: Present at lines 68-98, after &quot;Features&quot; (ends line 66) and before &quot;Update&quot; (starts line 100). Correct placement.</p><p><strong>Install command</strong>: Line 75 shows <code>memorytree-daemon install</code>. Present.</p><p><strong>CLI table</strong>: Lines 80-86, 5 commands (install, uninstall, run-once, watch, status). Correct count.</p><p><strong>config.toml table</strong>: Lines 90-94, 3 settings (auto_push, heartbeat_interval, log_level). Correct count.</p><p><strong>Reference links to both new reference docs</strong>: Line 98 links to both <code>references/heartbeat-scheduling.md</code> and <code>references/global-configuration.md</code>. Present.</p><p><strong>Contract disclaimer note</strong>: Line 96 reads <code>&gt; <strong>Note</strong>: heartbeat.py and memorytree-daemon are contract specifications -- code is not yet implemented.</code> Present.</p><p><strong>Finding: No issues.</strong> All specified additions are present.</p><p>---</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">MISSING</span>
+  </div>
+  <div class="message-body"><p>Checking that key terms from TODO.md are covered in the documentation:</p><p>| Term | TODO.md | Documented? | Where |<br>|------|---------|-------------|-------|<br>| heartbeat | Yes (P0 core) | Yes | heartbeat-scheduling.md, SKILL.md rules 12, global-configuration.md, README.md, agents.md templates |<br>| auto_push | Yes (default true) | Yes | git-policy.md Auto Push section, global-configuration.md config.toml schema, SKILL.md rule 9, agents.md templates Git Rules, README.md config table |<br>| alerts.json | Yes (error notifications) | Yes | global-configuration.md alerts.json section, heartbeat-scheduling.md, SKILL.md On Activation step 2, agents.md templates Heartbeat Rules |<br>| config.toml | Yes (global config) | Yes | global-configuration.md config.toml Schema, README.md config table, heartbeat-scheduling.md step 2 |<br>| memorytree-daemon | Yes (CLI) | Yes | heartbeat-scheduling.md Daemon CLI, README.md CLI table, SKILL.md Resources |<br>| sensitive info scanning | Yes (P0 item) | Yes | heartbeat-scheduling.md Sensitive Info Scanning section, SKILL.md Git And Safety rule 10 |<br>| git remote pre-check | Yes (P0 item) | Yes | heartbeat-scheduling.md Git Remote Pre-Check section, git-policy.md Auto Push rule 2 |</p><p><strong>Finding: No issues.</strong> All TODO.md concepts are documented.</p><p>---</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">ADDITIONAL</span>
+  </div>
+  <div class="message-body"><p><strong>CRITICAL: None found.</strong></p><p><strong>HIGH:</strong></p><p>1. <strong>Heartbeat interval inconsistency between TODO.md and config.toml schema.</strong> TODO.md says the default heartbeat interval is &quot;5 minutes&quot; (<code>默认 300s</code>, line 19 and 57). The <code>global-configuration.md</code> config.toml schema says <code>heartbeat_interval</code> defaults to <code>&quot;15m&quot;</code> (line 35). The README.md config table also says <code>&quot;15m&quot;</code> (line 93). This is a factual disagreement. TODO.md (the original design document) says 5 minutes; the implemented docs say 15 minutes. While 15 minutes may be a deliberate revision, this should be explicitly reconciled. If 15m is the intended value, the TODO.md is stale. If 5m was intended, the docs are wrong.</p><p><strong>MEDIUM:</strong></p><p>2. <strong>On Activation step count</strong>: As noted above, the plan stated &quot;6 steps (was 4)&quot; but the actual implementation has 5 numbered steps, with the daemon check folded into step 5 rather than being step 6. Functionally complete but the count does not match the plan&#39;s stated target.</p><p>3. <strong>Cross-reference placement in transcript-archive.md</strong>: The <code>references/global-configuration.md</code> cross-reference sits after &quot;Project Mirror Layout&quot; (line 87). The plan&#39;s wording (&quot;at end of Global Archive Layout / Project Mirror Layout section&quot;) is ambiguous. Current placement is defensible.</p><p>4. <strong>alerts.json alert types -- partial coverage of TODO.md scenarios.</strong> The <code>global-configuration.md</code> alert types table lists 4 types: <code>no_remote</code>, <code>sensitive_match</code>, <code>push_failed</code>, <code>lock_held</code>. TODO.md line 66 mentions &quot;连续失败 N 次后&quot; (after N consecutive failures), implying a threshold-based alerting mechanism. The documented alert types do not capture a &quot;consecutive failure threshold&quot; concept -- they trigger on individual events. This may be intentional simplification, but it is a gap versus the original design intent.</p><p>5. <strong><code>memorytree-daemon status</code> command -- missing from SKILL.md On Activation.</strong> When the skill activates and the daemon is not registered, SKILL.md step 5 suggests <code>memorytree-daemon install</code>. However, the check mechanism (&quot;how does the skill detect whether the daemon is registered?&quot;) is not specified. <code>memorytree-daemon status</code> exists in the CLI table but is not referenced in the activation flow as the detection method.</p><p><strong>LOW:</strong></p><p>6. <strong>TODO.md uses <code>%APPDATA%</code> / <code>%LOCALAPPDATA%</code> (P3 section, line 110) while the documentation standardizes on <code>%USERPROFILE%</code> (global-configuration.md line 28).</strong> These are different Windows paths. The documentation is internally consistent (both global-configuration.md and transcript-archive.md use <code>%USERPROFILE%</code> / <code>$HOME</code>), but if P3 packaging work proceeds, the path convention in TODO.md would conflict.</p><p>7. <strong>Minor: heartbeat-scheduling.md says &quot;scan all three supported client directories&quot; (line 14) but does not name them.</strong> The names appear elsewhere (transcript-archive.md Client Sources section), so this is not a gap, but a direct reference or parenthetical &quot;(Codex, Claude Code, Gemini CLI)&quot; would improve standalone readability. Actually, looking again at line 14, it does say &quot;(Codex, Claude Code, Gemini CLI)&quot;. No issue.</p><p>8. <strong>README.md config.toml table shows 3 settings but global-configuration.md defines 5 fields.</strong> The README intentionally shows &quot;key settings&quot; (a subset), which is fine for a top-level overview. <code>watch_dirs</code> and <code>projects</code> are omitted from the README table. This is acceptable but worth noting.</p><p>---</p><p>## Summary</p><p>| Severity | Count | Items |<br>|----------|-------|-------|<br>| CRITICAL | 0 | -- |<br>| HIGH | 1 | Heartbeat interval mismatch: TODO.md says 5min default, docs say 15min |<br>| MEDIUM | 4 | On Activation step count (5 vs plan&#39;s 6); cross-reference placement; missing consecutive-failure threshold concept; daemon detection mechanism unspecified |<br>| LOW | 2 | Windows path convention divergence in TODO.md vs docs; README config table is a subset of full schema |</p><p>The documentation is structurally sound. EN/ZH-CN parity is exact. All planned additions (SKILL.md rule counts, git-policy Auto Push section, transcript-archive Search Rules expansion, README heartbeat section, new reference files) are present and complete. The single HIGH item -- the heartbeat interval default disagreement between TODO.md (5 minutes) and the implemented documentation (15 minutes) -- should be reconciled before committing.</p></div>
 </div></div>
   </div>
 </div>

@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Graph — MemoryTree</title>
-<meta property="og:title" content="Knowledge Graph">
+<title>agent-a7716a62fc373f754 — MemoryTree</title>
+<meta property="og:title" content="agent-a7716a62fc373f754">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://beyondchenlin.github.io/memorytree-workflow/transcripts/claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__0d41aa90.html">
 <style>
 :root {
   --bg: #0d1117;
@@ -779,246 +780,7 @@ pre.mermaid {
 @keyframes vt-fade-out { to { opacity: 0; } }
 @keyframes vt-fade-in { from { opacity: 0; } }
 </style>
-<script>
-(function() {
-var GRAPH_DATA = {"nodes":[{"id":"019d0470-9904-7412-9175-57caf6e1277d","label":"rollout-2026-03-19T12-53-01-019d0470-9904-7412-9175-57caf6e1277d","type":"session","client":"codex","url":"transcripts/codex/019d0470-9904-7412-9175-57caf6e1277d__03f11e0d.html"},{"id":"89931ac3-292e-4e33-aead-47d1b8bb506a","label":"agent-a9211525ee6585197","type":"session","client":"claude","url":"transcripts/claude/89931ac3-292e-4e33-aead-47d1b8bb506a__985e5617.html"},{"id":"019cf8fc-0e0c-7311-817d-87cd1c95e2ac","label":"rollout-2026-03-17T07-29-54-019cf8fc-0e0c-7311-817d-87cd1c95e2ac","type":"session","client":"codex","url":"transcripts/codex/019cf8fc-0e0c-7311-817d-87cd1c95e2ac__eee6223b.html"},{"id":"5cb496af-a807-4d66-85f9-36b77c973cf4","label":"agent-a7eabaeb5720ce075","type":"session","client":"claude","url":"transcripts/claude/5cb496af-a807-4d66-85f9-36b77c973cf4__e6b94232.html"},{"id":"9e0eff8c-a777-4bd2-89e4-f5a9d7894a54","label":"agent-adf6bff7ccadf47f0","type":"session","client":"claude","url":"transcripts/claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__76c432fd.html"},{"id":"5004f9e7-85a4-49a9-bbb0-07f26d068121","label":"agent-a8243905a3958dcef","type":"session","client":"claude","url":"transcripts/claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__cb3dcc99.html"},{"id":"5ae44e4a-fafa-4a58-99cc-a2fa603ea563","label":"agent-a4b028f71bab82f16","type":"session","client":"claude","url":"transcripts/claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__29ee5e32.html"},{"id":"debdc508-fbec-4d45-9227-b3c8ab1fd5ef","label":"debdc508-fbec-4d45-9227-b3c8ab1fd5ef","type":"session","client":"claude","url":"transcripts/claude/debdc508-fbec-4d45-9227-b3c8ab1fd5ef__a94a0b7c.html"},{"id":"0e2f7eb2-8c85-4a49-bfad-33cf4240300f","label":"agent-ad7603ec07a916029","type":"session","client":"claude","url":"transcripts/claude/0e2f7eb2-8c85-4a49-bfad-33cf4240300f__0e298a0e.html"},{"id":"65f1f0a6-1b81-4d85-9202-3619bf5a5bd0","label":"agent-adfe65f735849ca11","type":"session","client":"claude","url":"transcripts/claude/65f1f0a6-1b81-4d85-9202-3619bf5a5bd0__09628969.html"},{"id":"f4705e61-6bb7-421d-b2e3-5e859067b658","label":"agent-a4628b8ebde0201be","type":"session","client":"claude","url":"transcripts/claude/f4705e61-6bb7-421d-b2e3-5e859067b658__d46d72e7.html"},{"id":"1dbd723e-98a4-45a1-bf09-8fc06fe75630","label":"agent-ad0a84c405e94abb7","type":"session","client":"claude","url":"transcripts/claude/1dbd723e-98a4-45a1-bf09-8fc06fe75630__18620d2d.html"},{"id":"a9b5a5cc-2f5f-47d6-8350-90df3422cbb7","label":"agent-a38d9e76c537170e8","type":"session","client":"claude","url":"transcripts/claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__f6b2fe6d.html"},{"id":"efe4d8d9-0131-41f8-b824-d89ac625ae42","label":"agent-adfd71f024945ad74","type":"session","client":"claude","url":"transcripts/claude/efe4d8d9-0131-41f8-b824-d89ac625ae42__fa6fa79b.html"}],"edges":[]};
 
-// Client color map
-var CLIENT_COLORS = { claude: '#bc8cff', codex: '#58a6ff', gemini: '#3fb950' };
-function nodeColor(n) {
-  if (n.type === 'knowledge') return '#f0c040';
-  return CLIENT_COLORS[n.client] || '#8b949e';
-}
-function nodeRadius(n) { return n.type === 'knowledge' ? 7 : 5; }
-
-var canvas = document.getElementById('graph-canvas');
-if (!canvas) return;
-var ctx = canvas.getContext('2d');
-
-// High-DPI
-function resize() {
-  var rect = canvas.getBoundingClientRect();
-  var dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-}
-resize();
-window.addEventListener('resize', function() { resize(); draw(); });
-
-var W = canvas.getBoundingClientRect().width;
-var H = canvas.getBoundingClientRect().height;
-
-// Init positions (random spread)
-var nodeMap = {};
-var simNodes = GRAPH_DATA.nodes.map(function(n) {
-  var sn = { id: n.id, label: n.label, type: n.type, client: n.client, url: n.url,
-    x: W/2 + (Math.random()-0.5)*W*0.7, y: H/2 + (Math.random()-0.5)*H*0.7, vx: 0, vy: 0 };
-  nodeMap[n.id] = sn;
-  return sn;
-});
-
-var simEdges = GRAPH_DATA.edges.map(function(e) {
-  return { source: nodeMap[e.source], target: nodeMap[e.target] };
-}).filter(function(e) { return e.source && e.target; });
-
-// Simulation params — tuned for ~50–200 node graphs on a 900px canvas
-var ALPHA = 1.0;        // initial energy; decays each tick
-var ALPHA_DECAY = 0.0228; // decay rate ≈ ln(0.001)/300 (settles in ~300 ticks)
-var ALPHA_MIN = 0.001;  // stop simulation below this threshold
-var CHARGE = -120;      // repulsion strength between nodes (negative = push apart)
-var LINK_DIST = 80;     // spring rest length in pixels
-var CENTER_FORCE = 0.05; // gravity toward canvas center (prevents drift)
-var DAMPING = 0.6;      // velocity damping per tick (higher = faster settling)
-
-// Pan/zoom state
-var panX = 0, panY = 0, scale = 1;
-var dragging = false, dragNode = null, dragOffX = 0, dragOffY = 0;
-var isPanning = false, panStartX = 0, panStartY = 0, panStartPanX = 0, panStartPanY = 0;
-
-function worldToScreen(wx, wy) {
-  return { x: (wx + panX) * scale + W/2, y: (wy + panY) * scale + H/2 };
-}
-function screenToWorld(sx, sy) {
-  return { x: (sx - W/2) / scale - panX, y: (sy - H/2) / scale - panY };
-}
-
-function tick() {
-  if (ALPHA < ALPHA_MIN) return;
-  ALPHA *= (1 - ALPHA_DECAY);
-
-  // Repulsion (n^2, capped)
-  var N = simNodes.length;
-  for (var i = 0; i < N; i++) {
-    for (var j = i+1; j < N; j++) {
-      var ni = simNodes[i], nj = simNodes[j];
-      var dx = nj.x - ni.x, dy = nj.y - ni.y;
-      var dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      var force = CHARGE / (dist * dist) * ALPHA;
-      var fx = dx / dist * force, fy = dy / dist * force;
-      ni.vx -= fx; ni.vy -= fy;
-      nj.vx += fx; nj.vy += fy;
-    }
-  }
-
-  // Link attraction
-  for (var k = 0; k < simEdges.length; k++) {
-    var e = simEdges[k];
-    var dx2 = e.target.x - e.source.x, dy2 = e.target.y - e.source.y;
-    var dist2 = Math.sqrt(dx2*dx2 + dy2*dy2) || 1;
-    var strength = (dist2 - LINK_DIST) / dist2 * 0.5 * ALPHA;
-    var fx2 = dx2 * strength, fy2 = dy2 * strength;
-    e.source.vx += fx2; e.source.vy += fy2;
-    e.target.vx -= fx2; e.target.vy -= fy2;
-  }
-
-  // Center gravity
-  for (var m = 0; m < N; m++) {
-    var node = simNodes[m];
-    node.vx += -node.x * CENTER_FORCE * ALPHA;
-    node.vy += -node.y * CENTER_FORCE * ALPHA;
-    if (node === dragNode) continue;
-    node.vx *= DAMPING;
-    node.vy *= DAMPING;
-    node.x += node.vx;
-    node.y += node.vy;
-  }
-}
-
-function draw() {
-  W = canvas.getBoundingClientRect().width;
-  H = canvas.getBoundingClientRect().height;
-  ctx.clearRect(0, 0, W, H);
-  ctx.save();
-
-  // Draw edges
-  ctx.strokeStyle = 'rgba(139,148,158,0.3)';
-  ctx.lineWidth = 1;
-  for (var k = 0; k < simEdges.length; k++) {
-    var e = simEdges[k];
-    var s = worldToScreen(e.source.x, e.source.y);
-    var t2 = worldToScreen(e.target.x, e.target.y);
-    ctx.beginPath();
-    ctx.moveTo(s.x, s.y);
-    ctx.lineTo(t2.x, t2.y);
-    ctx.stroke();
-  }
-
-  // Draw nodes
-  for (var i = 0; i < simNodes.length; i++) {
-    var n = simNodes[i];
-    var pos = worldToScreen(n.x, n.y);
-    var r = nodeRadius(n) * scale;
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, Math.max(r, 3), 0, Math.PI*2);
-    ctx.fillStyle = nodeColor(n);
-    ctx.fill();
-    if (n === hoverNode) {
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
-  }
-
-  // Draw hover label
-  if (hoverNode) {
-    var hpos = worldToScreen(hoverNode.x, hoverNode.y);
-    ctx.font = '11px sans-serif';
-    ctx.fillStyle = '#e6edf3';
-    ctx.fillText(hoverNode.label.slice(0, 30), hpos.x + 8, hpos.y - 4);
-  }
-
-  ctx.restore();
-}
-
-var hoverNode = null;
-
-function findNode(sx, sy) {
-  var w = screenToWorld(sx, sy);
-  var best = null, bestDist = Infinity;
-  for (var i = 0; i < simNodes.length; i++) {
-    var n = simNodes[i];
-    var dx = n.x - w.x, dy = n.y - w.y;
-    var dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < 15 / scale && dist < bestDist) { best = n; bestDist = dist; }
-  }
-  return best;
-}
-
-function getCanvasPos(evt) {
-  var rect = canvas.getBoundingClientRect();
-  return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-}
-
-canvas.addEventListener('mousemove', function(e) {
-  var pos = getCanvasPos(e);
-  if (isPanning) {
-    panX = panStartPanX + (pos.x - panStartX) / scale;
-    panY = panStartPanY + (pos.y - panStartY) / scale;
-    return;
-  }
-  if (dragNode) {
-    var w = screenToWorld(pos.x, pos.y);
-    dragNode.x = w.x + dragOffX;
-    dragNode.y = w.y + dragOffY;
-    dragNode.vx = 0; dragNode.vy = 0;
-    return;
-  }
-  var node = findNode(pos.x, pos.y);
-  hoverNode = node;
-  canvas.style.cursor = node ? 'pointer' : 'grab';
-});
-
-canvas.addEventListener('mousedown', function(e) {
-  var pos = getCanvasPos(e);
-  var node = findNode(pos.x, pos.y);
-  if (node) {
-    dragNode = node;
-    var w = screenToWorld(pos.x, pos.y);
-    dragOffX = node.x - w.x;
-    dragOffY = node.y - w.y;
-    ALPHA = 0.3;
-  } else {
-    isPanning = true;
-    panStartX = pos.x; panStartY = pos.y;
-    panStartPanX = panX; panStartPanY = panY;
-  }
-});
-
-canvas.addEventListener('mouseup', function(e) {
-  if (dragNode) { dragNode = null; return; }
-  isPanning = false;
-});
-
-canvas.addEventListener('click', function(e) {
-  var pos = getCanvasPos(e);
-  var node = findNode(pos.x, pos.y);
-  if (node && node.url) { window.location.href = node.url; }
-});
-
-canvas.addEventListener('wheel', function(e) {
-  e.preventDefault();
-  var pos = getCanvasPos(e);
-  var factor = e.deltaY > 0 ? 0.9 : 1.1;
-  var wx = (pos.x - W/2) / scale - panX;
-  var wy = (pos.y - H/2) / scale - panY;
-  scale *= factor;
-  scale = Math.max(0.1, Math.min(10, scale));
-  panX = (pos.x - W/2) / scale - wx;
-  panY = (pos.y - H/2) / scale - wy;
-}, { passive: false });
-
-// Animation loop — stops automatically once simulation settles
-function loop() {
-  tick();
-  draw();
-  if (ALPHA >= ALPHA_MIN) {
-    requestAnimationFrame(loop);
-  }
-}
-loop();
-})();
-</script>
 
 <script>
 (function() {
@@ -1149,15 +911,15 @@ loop();
     <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
-      <a href="transcripts/index.html" class="nav-link" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
-      <a href="projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
-      <a href="graph.html" class="nav-link active" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
-      <a href="goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
-      <a href="todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
-      <a href="knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
-      <a href="archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
-      <a href="search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
   </nav>
   <div class="sidebar-footer">
     <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
@@ -1168,25 +930,56 @@ loop();
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
 <div class="page-header">
-  <h1>Knowledge Graph</h1>
-  <p class="subtitle">Connections between sessions and knowledge files · 14 nodes, 0 edges</p>
+  <h1>agent-a7716a62fc373f754</h1>
 </div>
-<canvas id="graph-canvas"></canvas>
-<div class="graph-legend"><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#bc8cff"></span>
-  Claude
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#58a6ff"></span>
-  Codex
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#3fb950"></span>
-  Gemini
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#8b949e"></span>
-  Other
-</div><div class="graph-legend-item">
-  <span class="graph-legend-dot" style="background:#f0c040"></span>
-  Knowledge
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-15 08:22:22</td></tr>
+  <tr><td>Session ID</td><td><code>5ae44e4a-fafa-4a58-99cc-a2fa603ea563</code></td></tr>
+  <tr><td>Messages</td><td>6</td></tr>
+  <tr><td>Tool Events</td><td>50</td></tr>
+  <tr><td>Branch</td><td><code>ts</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">0d41aa90d1240e7e…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">08:22:22</span>
+  </div>
+  <div class="message-body"><p>你是一名专注于项目管理和技术一致性的审查员，请审查 TypeScript 迁移计划文档，重点关注以下方面：</p><p>1. <strong>与现有代码的一致性</strong>: 对比 Python 源码，检查迁移文档是否完整覆盖了所有功能点。逐个 Python 模块检查：<br>   - 每个函数是否都有对应的 TS 迁移项？<br>   - 行数估算是否准确？<br>   - 有没有遗漏的边界情况或功能？</p><p>2. <strong>与原 TODO.md 的一致性</strong>: P0/P0.5/P1/P2/P3 的功能是否在迁移计划中得到保留？特别是：<br>   - P0.5 跨会话上下文恢复（recall-session.py）在迁移文档中是否有对应？<br>   - P2 大模型职责最小化是否被考虑？<br>   - P3 分发打包方案是否因为 TS 而改变？</p><p>3. <strong>遗漏的迁移项</strong>: 检查这些容易被遗忘的点：<br>   - Python 的 <code>recall-session.py</code> (296L) 是否被覆盖？<br>   - <code>init-memorytree.py</code> (95L) 的模板文件生成逻辑？<br>   - SKILL.md 中引用 Python 脚本的地方是否需要更新？<br>   - <code>execution-environment.md</code> 的处理？<br>   - agents/ 目录下的内容？</p><p>4. <strong>任务粒度</strong>: 每个 checkbox 是否可在 1-2 小时内完成？太大的任务需要拆分，太小的可以合并。</p><p>请读取所有相关文件后给出具体的审查意见。</p><p>文档路径: D:\demo1\memorytree-workflow\TODO-TS-MIGRATION.md<br>Python 源码: D:\demo1\memorytree-workflow\scripts/<br>测试: D:\demo1\memorytree-workflow\tests/<br>原始 TODO: D:\demo1\memorytree-workflow\TODO.md<br>Skill 定义: D:\demo1\memorytree-workflow\SKILL.md</p><p>只做研究和分析，不要修改任何文件。</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:22:29</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll systematically review the TypeScript migration plan by reading all relevant files in parallel.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:22:34</span>
+  </div>
+  <div class="message-body"><p>Now let me read all the Python source files to check coverage:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:23:05</span>
+  </div>
+  <div class="message-body"><p>Now let me read the remaining Python modules and the references directory:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:23:25</span>
+  </div>
+  <div class="message-body"><p>Now I have enough information for a thorough review. Let me also check a few more critical details:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:25:00</span>
+  </div>
+  <div class="message-body"><p>I now have a comprehensive understanding of all the files. Let me compile the complete review.</p><p>---</p><p>## 迁移计划审查报告</p><p>以下是对 <code>TODO-TS-MIGRATION.md</code> 的系统性审查，分四个维度逐项列出问题。</p><p>---</p><p>### 1. 与现有 Python 源码的一致性</p><p>#### 1.1 行数估算错误</p><p>迁移文档中的行数与实际不符：</p><p>| 模块 | 文档标注行数 | 实际行数 | 偏差 |<br>|---|---|---|---|<br>| <code>_transcript_common.py</code> | 293L | 293L | 准确 |<br>| <code>_transcript_parse.py</code> | 360L | 360L | 准确 |<br>| <code>_transcript_import.py</code> | 213L | 213L | 准确 |<br>| <code>_transcript_index.py</code> | 100L | 100L | 准确 |<br>| <code>_transcript_discover.py</code> | 100L | 100L | 准确 |<br>| <code>_scaffold_utils.py</code> | 319L | 319L | 准确 |<br>| <code>upgrade-memorytree.py</code> | 306L | 306L | 准确 |<br>| <code>_locale_utils.py</code> | 123L | 123L | 准确 |<br>| <code>recall-session.py</code> | <strong>未标注</strong> | <strong>296L</strong> | 完全缺失 |<br>| <code>discover-transcripts.py</code> | <strong>未标注</strong> | <strong>194L</strong> | 完全缺失 |<br>| <code>import-transcripts.py</code> | <strong>未标注</strong> | <strong>117L</strong> | 完全缺失 |<br>| <code>detect-memorytree-locale.py</code> | <strong>未标注</strong> | <strong>42L</strong> | 完全缺失 |</p><p>#### 1.2 <code>_transcript_import.py</code> 中缺失的功能</p><p>Phase 1.4 (<code>import.ts</code>) 的 checkbox 中声称覆盖了清洗逻辑，但漏掉了以下几个具体细节：</p><p>- <code>write_clean_markdown()</code> 的 YAML frontmatter 格式（<code>title</code>, <code>cwd</code>, <code>branch</code>, <code>raw_upload_permission</code> 等字段的 <code>yaml_escape</code> 处理）<br>- <code>preserve_existing_import_timestamp()</code> 逻辑——当 manifest 内容未变时保留原始 <code>imported_at</code>，这是幂等性的关键实现，而文档只写了&quot;幂等性：已导入的 session_id 跳过&quot;，实际 Python 代码是基于 sha256 比对实现的，不是基于 session_id<br>- <code>manifest_changed()</code> 辅助函数<br>- <code>append_to_event_log</code> 条件判断（仅当 manifest 实际变化时才追加 <code>sessions.jsonl</code>，防止重复写入）</p><p>#### 1.3 <code>_transcript_common.py</code> 中缺失的函数</p><p>Phase 1.2 的 checkbox 没有列出这些具体函数：<br>- <code>earliest_timestamp()</code> / <code>parse_iso_timestamp()</code>（时间戳比较逻辑）<br>- <code>timestamp_partition()</code>（生成 <code>year_token/month_token</code> 目录结构）<br>- <code>yaml_escape()</code>（写 markdown frontmatter 用）<br>- <code>summarize_value()</code> / <code>truncate()</code>（工具事件摘要）<br>- <code>join_paragraphs()</code> / <code>ensure_dict()</code> / <code>ensure_list()</code> / <code>get_nested()</code><br>- <code>extract_text_blocks()</code> / <code>extract_simple_text()</code> / <code>extract_gemini_text()</code> / <code>extract_gemini_parts()</code>（文本提取是最复杂的逻辑）<br>- <code>find_first_mapping_with_keys()</code><br>- <code>load_jsonl()</code> / <code>load_json()</code><br>- <code>sha256_file()</code>（注意：这是对整个文件的 sha256，与内容 hash 的 <code>_content_hash()</code> 不同）</p><p>这两个 sha256 函数具有不同语义，文档中把它们笼统写成一条会导致实现时混淆。</p><p>#### 1.4 <code>_transcript_discover.py</code> 中缺失的函数</p><p>Phase 1.6 只列了 <code>discoverTranscripts()</code> 和 <code>matchProject()</code>，漏掉：<br>- <code>infer_project_slug()</code> — 从 <code>parsed.cwd</code> 或 <code>parsed.source_path</code> 推断项目名，<code>claude</code> 的 <code>re.sub(r&quot;^[a-z]--&quot;, ...)</code> 处理逻辑是独特的<br>- <code>project_slugs_match()</code> — 防止 <code>&quot;unknown-project&quot;</code> 相互匹配的保护逻辑<br>- <code>safe_file_mtime()</code> — 文件排序用</p><p>#### 1.5 <code>_transcript_index.py</code> 的 SQLite schema 细节</p><p>Phase 1.5 只写了&quot;SQLite 索引 + FTS5&quot;，但实际 Python 代码用的是普通表 + <code>ON CONFLICT DO UPDATE</code>（UPSERT），没有用 FTS5。主键是 <code>(client, project, session_id, raw_sha256)</code> 四元组。这是重要的 schema 设计决策，迁移文档应明确。</p><p>#### 1.6 <code>_transcript_parse.py</code> 中的 <code>infer_client()</code> 函数</p><p>Phase 1.3 没有提到 <code>infer_client()</code> 函数（从文件路径自动推断客户端类型），这个函数被 <code>import-transcripts.py</code> 直接使用，在统一 CLI 中会需要。</p><p>#### 1.7 <code>ParsedTranscript</code> dataclass 字段不完整</p><p>Phase 1.1 的类型定义中写了 <code>ParsedTranscript { session_id, client, project, messages, tool_events, started_at, ended_at, raw_path }</code>，但实际 Python 实现的字段是：<code>client, session_id, title, started_at, cwd, branch, messages, tool_events, source_path</code>。</p><p>差异：<br>- 文档中有 <code>project</code> 字段，实际代码中没有（项目信息由 <code>_transcript_discover.infer_project_slug()</code> 在导入时推断）<br>- 文档中有 <code>ended_at</code> 字段，实际代码中没有<br>- 实际代码有 <code>title</code>, <code>cwd</code>, <code>branch</code> 字段，文档中漏掉<br>- 文档中叫 <code>raw_path</code>，实际叫 <code>source_path</code>（类型是 <code>Path</code>，不是 <code>str</code>）</p><p>---</p><p>### 2. 与原 TODO.md 的一致性</p><p>#### 2.1 P0.5 跨会话上下文恢复——覆盖严重不足</p><p>这是最严重的遗漏。<code>recall-session.py</code> 是 P0.5 功能的<strong>核心实现脚本</strong>（296L），在迁移文档的 Phase 3.4 仅用一行 <code>memorytree recall (← recall-session.py)</code> 带过，完全没有展开迁移细节。</p><p>该脚本包含以下需要独立迁移的逻辑：<br>- <code>_sync_current_project()</code> — 按当前 repo 过滤的增量同步（与全量 discover 不同）<br>- <code>_find_latest_session()</code> — SQLite 查询（包含 <code>cwd</code> 路径匹配 + 项目 slug 匹配的双重 fallback 逻辑）<br>- <code>_find_latest_from_jsonl()</code> — SQLite 不存在时的 JSONL fallback<br>- <code>_cwd_matches()</code> — 路径精确匹配或子目录匹配<br>- <code>--activation-time</code> 参数——排除当前会话的时间戳过滤逻辑<br>- 输出格式：JSON 和文本两种格式，以及 <code>clean_content</code> 的内联读取</p><p>建议在 Phase 2 或 Phase 3 中独立出一个 <code>2.7 recall.ts</code> 或 <code>3.5 recall.ts</code> 模块，至少有 5-6 个 checkbox。</p><p>#### 2.2 P2 大模型职责最小化——迁移计划完全未覆盖</p><p>TODO.md 的 P2 要求：<br>1. 更新 SKILL.md 的 On Activation 段，明确 heartbeat 职责<br>2. On Activation 时检测定时任务是否已注册，读取 <code>alerts.json</code> 并展示</p><p>这两件事均未在迁移文档中出现。P2 是 AI 指令层面的工作（修改 SKILL.md 等参考文档），不涉及代码迁移，但在 Phase 3.5 清理项里也应该显式标注&quot;更新 SKILL.md 引用的脚本路径&quot;。</p><p>#### 2.3 P3 分发方案需要更新</p><p>原 TODO.md 的 P3 方案是 <code>pip install</code> / <code>pyproject.toml</code>。迁移到 TypeScript 后应改为 <code>npm publish</code> / <code>npx</code>，但迁移文档只在 Phase 3.5 清理里一笔带过&quot;更新 README.md&quot;，没有对应的具体 P3 分发方案 checkbox。</p><p>缺失的工作：<br>- <code>package.json</code> 的 <code>bin</code> 字段（已在 Phase 3.4 提到，但 <code>npm publish</code> 流程未提）<br>- 是否需要 <code>npx memorytree-daemon install</code> 可以零安装运行（这对分发很重要）<br>- 安装文档需要从 <code>pip install</code> 全面改写</p><p>---</p><p>### 3. 遗漏的迁移项</p><p>#### 3.1 <code>recall-session.py</code> (296L) — 无专属迁移章节</p><p>如前所述，这是最大的单点遗漏，建议新增 <code>Phase 2.7</code> 或 <code>Phase 3.0</code>（因为它依赖 Phase 1 的所有 transcript 模块和 Phase 2 不依赖 heartbeat）。</p><p>#### 3.2 <code>discover-transcripts.py</code> (194L) 和 <code>import-transcripts.py</code> (117L) — CLI 层逻辑未覆盖</p><p>Phase 3.4 只列了 <code>memorytree import</code> 和 <code>memorytree discover</code> 两行，但这两个 Python 脚本包含大量 CLI-层的业务逻辑（非 library 层），包括：<br>- <code>--scope current-project|all-projects</code> 过滤逻辑<br>- <code>--raw-upload-permission</code> 三态处理<br>- <code>--limit</code> 限流<br>- <code>--client</code> 过滤<br>- 结构化 JSON 输出格式（<code>imports</code> + <code>skipped</code> 数组）<br>- <code>summarize_exception()</code> 辅助函数<br>- <code>mirror_to_repo</code> 条件逻辑</p><p>这些逻辑在 1-2 小时内不可能完成，需要拆分。</p><p>#### 3.3 <code>detect-memorytree-locale.py</code> (42L) 的 <code>--format json</code> 输出</p><p>Phase 3.2 的 <code>locale.ts</code> 只提到&quot;语言检测&quot;，没有提到 CLI wrapper 的 JSON 输出格式（<code>requested</code>, <code>repo_locale</code>, <code>system_locale</code>, <code>effective_locale</code> 四字段），这是外部调用的 API 合同。</p><p>#### 3.4 SKILL.md 中的 Python 脚本引用</p><p>SKILL.md 的 Resources 段直接列出了这些脚本路径：<br>- <code>scripts/heartbeat.py</code><br>- <code>scripts/memorytree_daemon.py</code><br>- <code>scripts/recall-session.py</code><br>- <code>scripts/detect-memorytree-locale.py</code><br>- <code>scripts/discover-transcripts.py</code><br>- <code>scripts/import-transcripts.py</code><br>- <code>scripts/upgrade-memorytree.py</code><br>- <code>scripts/init-memorytree.py</code></p><p>迁移文档 Phase 3.5 只写了&quot;更新 SKILL.md: 移除 <code>execution-environment.md</code> 相关内容&quot;，但实际上所有 <code>scripts/*.py</code> 的路径都需要更新为 TS 的等效路径（或者改为命令名）。<code>execution-environment.md</code> 本身也需要完整重写（从&quot;如何找 uv/python 运行时&quot;变成&quot;如何找 Node.js 运行时&quot;）。</p><p>#### 3.5 <code>references/execution-environment.md</code> 需要完整重写，不是&quot;移除&quot;</p><p>该文件当前内容是关于如何运行 Python 脚本的完整策略文档（4 个场景，3 种 fallback）。迁移到 TypeScript 后，它的核心逻辑变为&quot;检查 <code>node</code> 是否可用 → 直接运行 <code>dist/cli.js</code>&quot;，但 fallback 逻辑也需要重新设计（Node.js 通常比 Python 更普遍，但 WASM 版本的处理方式不同）。Phase 3.5 用一行&quot;移除 <code>execution-environment.md</code> 相关内容&quot;带过是不够的。</p><p>#### 3.6 <code>agents/openai.yaml</code> 未被提及</p><p><code>agents/</code> 目录下有一个 <code>openai.yaml</code> 文件，迁移文档完全没有提到。虽然这不是 Python 代码，但如果它包含对 Python 脚本的引用，需要同步更新。</p><p>#### 3.7 <code>assets/templates/</code> 目录未被提及</p><p><code>_scaffold_utils.py</code> 和 <code>init-memorytree.py</code> 都依赖 <code>assets/templates/&lt;locale&gt;/</code> 目录中的模板文件（<code>goal.md</code>, <code>todo.md</code>, <code>chat-log.md</code>, <code>agents.md</code>）。Phase 3.1 的 <code>scaffold.ts</code> 只提到了&quot;创建 Memory/ 目录结构，生成模板文件&quot;，但没有提到模板文件是从 <code>assets/templates/</code> 读取的，TS 版本需要以同样方式处理这些静态资产（可能需要打包策略）。</p><p>---</p><p>### 4. 任务粒度评估</p><p>#### 过大的任务（需拆分）</p><p><strong>Phase 1.3 解析器</strong> — 5 个 checkbox，但 Codex 解析器本身有 7 种 <code>record_type</code>/<code>payload_type</code> 分支（<code>session_meta</code>, <code>response_item</code>/<code>event_msg</code> + <code>message</code>/<code>user_message</code>/<code>agent_message</code>/<code>function_call</code>/<code>custom_tool_call</code>），每个解析器的实现工作量远超 1-2 小时。建议拆成：<br>- 1.3a Codex 解析器 + 测试<br>- 1.3b Claude 解析器 + 测试<br>- 1.3c Gemini 解析器 + 测试</p><p><strong>Phase 2.5 心跳主逻辑</strong> — &quot;主函数: runHeartbeat(config)&quot;包含扫描 → 导入 → 检测 → git commit + push 全流程，估计 4-6 小时。建议拆成：<br>- 2.5a 主流程编排（不含 git）<br>- 2.5b git 操作（<code>gitCommitAndPush</code>, <code>_try_push</code>, <code>_git</code>）</p><p><strong>Phase 3.4 统一 CLI</strong> — 7 个子命令 + <code>bin</code> 入口合并为 2 个 checkbox，实际工作量是各命令的 CLI 层 logic（discover/import 的参数透传逻辑、recall 的参数透传）。建议每个子命令一个 checkbox，或按命令族分组。</p><p>#### 可以合并的任务</p><p><strong>Phase 1.1 类型定义</strong> — 3 个 checkbox 可以合并为 1 个（<code>transcript.ts</code> 类型文件是纯声明，含枚举和接口，估计 30 分钟完成）。</p><p><strong>Phase 2.4 日志</strong> — 3 个 checkbox 对于一个仅 64L 的模块过细，合并为 1 个即可。</p><p><strong>Phase 0 验证构建流程</strong> — &quot;写一个 smoke test&quot;和&quot;验证构建流程&quot;可以合并为一条。</p><p>---</p><p>### 汇总：关键缺失项一览</p><p>| 优先级 | 缺失项 | 影响 |<br>|---|---|---|<br>| P0（阻塞） | <code>recall-session.py</code> 无专属迁移章节 | P0.5 跨会话恢复功能将遗漏 |<br>| P0（阻塞） | <code>ParsedTranscript</code> 类型字段定义错误 | Phase 1 所有模块的类型基础不准确 |<br>| P1（高） | <code>_transcript_import.py</code> 幂等性实现细节（基于 sha256，非 session_id） | 重复导入保护机制实现错误 |<br>| P1（高） | <code>_transcript_index.py</code> 实际用 UPSERT 非 FTS5 | 索引 schema 设计错误 |<br>| P1（高） | SKILL.md 所有 <code>scripts/*.py</code> 路径需更新 | 迁移后 skill 无法找到正确脚本 |<br>| P1（高） | <code>execution-environment.md</code> 需要完整重写，不是&quot;移除&quot; | TS 运行时查找策略缺失 |<br>| P2（中） | <code>discover-transcripts.py</code> / <code>import-transcripts.py</code> CLI 层逻辑无专属章节 | Phase 3.4 的两行 checkbox 不足以追踪工作量 |<br>| P2（中） | P3 分发方案未从 pip 切换为 npm 的计划 | TODO.md P3 任务悬空 |<br>| P3（低） | <code>agents/openai.yaml</code> 中潜在的 Python 引用 | 小概率遗漏 |<br>| P3（低） | <code>assets/templates/</code> 的打包策略 | scaffold 功能无法找到模板文件 |</p></div>
 </div></div>
   </div>
 </div>
