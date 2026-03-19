@@ -52,18 +52,12 @@ beforeEach(() => {
   mkdirSync(homeDir, { recursive: true })
 })
 
-afterEach(() => {
+afterEach(async () => {
   for (const child of liveProcesses) {
-    if (child.exitCode === null && !child.killed) {
-      try {
-        child.kill()
-      } catch {
-        // Ignore cleanup errors from already-closed processes.
-      }
-    }
+    await stopProcess(child)
   }
 
-  rmSync(sandboxRoot, { recursive: true, force: true })
+  await removeTreeWithRetry(sandboxRoot)
 })
 
 describe('CLI E2E', () => {
@@ -299,6 +293,62 @@ describe('CLI E2E', () => {
 
     const searchResponse = await fetch(`http://127.0.0.1:${port}/search.html`)
     expect(searchResponse.status).toBe(200)
+    expect(server.stdout()).toContain(`http://localhost:${port}/`)
+  })
+
+  it('uses report_port from global config when report serve omits --port', async () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const transcriptPath = writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'serve-report-config-port',
+    })
+
+    const importResult = runCli([
+      'import',
+      '--root', repoRoot,
+      '--source', transcriptPath,
+      '--client', 'codex',
+      '--project-name', 'repo',
+      '--global-root', globalRoot,
+      '--raw-upload-permission', 'approved',
+      '--format', 'json',
+    ], { env: isolatedEnv(homeDir) })
+    assertSuccess(importResult, 'memorytree import for configured serve port')
+
+    const buildResult = runCli([
+      'report',
+      'build',
+      '--root', repoRoot,
+      '--no-ai',
+      '--locale', 'en',
+      '--report-base-url', 'https://memory.example.com',
+    ], { env: isolatedEnv(homeDir) })
+    assertSuccess(buildResult, 'memorytree report build for configured serve port')
+
+    const port = await getAvailablePort()
+    writeConfig(homeDir, {
+      projectPath: repoRoot,
+      autoPush: false,
+      generateReport: false,
+      reportPort: port,
+    })
+
+    const server = await startCli([
+      'report',
+      'serve',
+      '--dir', join(repoRoot, 'Memory', '07_reports'),
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+      waitForUrl: `http://127.0.0.1:${port}/`,
+    })
+
+    const rootResponse = await fetch(`http://127.0.0.1:${port}/`)
+    expect(rootResponse.status).toBe(200)
     expect(server.stdout()).toContain(`http://localhost:${port}/`)
   })
 
@@ -625,6 +675,7 @@ function writeConfig(
     cname?: string
     webhookUrl?: string
     reportBaseUrl?: string
+    reportPort?: number
   },
 ): void {
   const configDir = join(homePath, '.memorytree')
@@ -641,6 +692,7 @@ function writeConfig(
     `cname = "${escapeToml(options.cname ?? '')}"`,
     `webhook_url = "${escapeToml(options.webhookUrl ?? '')}"`,
     `report_base_url = "${escapeToml(options.reportBaseUrl ?? '')}"`,
+    `report_port = ${String(options.reportPort ?? 10010)}`,
     'watch_dirs = []',
     '',
     '[[projects]]',
@@ -773,6 +825,53 @@ async function getAvailablePort(): Promise<number> {
       })
     })
   })
+}
+
+async function stopProcess(child: ChildProcessWithoutNullStreams): Promise<void> {
+  if (child.exitCode !== null) {
+    return
+  }
+
+  try {
+    child.kill()
+  } catch {
+    return
+  }
+
+  await new Promise<void>(resolve => {
+    const timeout = setTimeout(resolve, 2_000)
+    const done = () => {
+      clearTimeout(timeout)
+      resolve()
+    }
+    child.once('exit', done)
+    child.once('close', done)
+  })
+}
+
+async function removeTreeWithRetry(root: string): Promise<void> {
+  const deadline = Date.now() + 5_000
+
+  // Windows can keep directory handles alive briefly after child.exit.
+  let removed = false
+  while (!removed) {
+    try {
+      rmSync(root, { recursive: true, force: true })
+      removed = true
+    } catch (error: unknown) {
+      const err = error as NodeJS.ErrnoException
+      if (!err.code || Date.now() >= deadline) {
+        throw error
+      }
+
+      const code = String(err.code)
+      if (code !== 'EBUSY' && code !== 'ENOTEMPTY' && code !== 'EPERM') {
+        throw error
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+  }
 }
 
 async function waitFor(

@@ -80,6 +80,7 @@ describe('loadConfig', () => {
         'heartbeat_interval = "10m"',
         'auto_push = false',
         'log_level = "debug"',
+        'report_port = 12345',
         'watch_dirs = ["/home/user/repos"]',
         '',
         '[[projects]]',
@@ -93,6 +94,7 @@ describe('loadConfig', () => {
     expect(cfg.heartbeat_interval).toBe('10m')
     expect(cfg.auto_push).toBe(false)
     expect(cfg.log_level).toBe('debug')
+    expect(cfg.report_port).toBe(12345)
     expect(cfg.watch_dirs).toEqual(['/home/user/repos'])
     expect(cfg.projects).toHaveLength(1)
     expect(cfg.projects[0]!.path).toBe('/home/user/project-a')
@@ -107,6 +109,7 @@ describe('loadConfig', () => {
     const cfg = loadConfig()
     expect(cfg.heartbeat_interval).toBe('5m')
     expect(cfg.auto_push).toBe(true)
+    expect(cfg.report_port).toBe(10010)
   })
 
   it('uses defaults for missing or invalid fields', () => {
@@ -119,6 +122,7 @@ describe('loadConfig', () => {
     expect(cfg.heartbeat_interval).toBe('1h')
     expect(cfg.auto_push).toBe(true)
     expect(cfg.log_level).toBe('info')
+    expect(cfg.report_port).toBe(10010)
     expect(cfg.watch_dirs).toEqual([])
     expect(cfg.projects).toEqual([])
   })
@@ -141,6 +145,7 @@ describe('saveConfig', () => {
       ],
       generate_report: true,
       ai_summary_model: 'claude-opus-4-6',
+      report_port: 10010,
     } as const
 
     saveConfig(original)
@@ -155,6 +160,7 @@ describe('saveConfig', () => {
     expect(loaded.projects[1]!.name).toBe(original.projects[1]!.name)
     expect(loaded.generate_report).toBe(original.generate_report)
     expect(loaded.ai_summary_model).toBe(original.ai_summary_model)
+    expect(loaded.report_port).toBe(original.report_port)
   })
 
   it('serializes empty projects list', () => {
@@ -173,6 +179,7 @@ describe('saveConfig', () => {
     const text = readFileSync(configPath(), 'utf-8')
     expect(text).toContain('heartbeat_interval = "5m"')
     expect(text).toContain('auto_push = true')
+    expect(text).toContain('report_port = 10010')
     expect(text).not.toContain('[[projects]]')
   })
 })
@@ -476,5 +483,86 @@ describe('report_base_url field', () => {
     saveConfig(original)
     const loaded = loadConfig()
     expect(loaded.report_base_url).toBe('https://memory.example.com')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// New field: report_port
+// ---------------------------------------------------------------------------
+
+describe('report_port field', () => {
+  it('defaults to 10010', () => {
+    const cfg = loadConfig()
+    expect(cfg.report_port).toBe(10010)
+  })
+
+  it('parses report_port from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_port = 18080\n')
+    const cfg = loadConfig()
+    expect(cfg.report_port).toBe(18080)
+  })
+
+  it('defaults on missing field', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'heartbeat_interval = "5m"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_port).toBe(10010)
+  })
+
+  it('defaults on non-number value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_port = "bad"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_port).toBe(10010)
+  })
+
+  it('defaults on non-positive value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_port = 0\n')
+    const cfg = loadConfig()
+    expect(cfg.report_port).toBe(10010)
+  })
+
+  it('defaults on non-integer value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_port = 10010.5\n')
+    const cfg = loadConfig()
+    expect(cfg.report_port).toBe(10010)
+  })
+
+  it('defaults on out-of-range value', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_port = 70000\n')
+    const cfg = loadConfig()
+    expect(cfg.report_port).toBe(10010)
+  })
+
+  it('round-trips via saveConfig/loadConfig', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: false,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 18080,
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.report_port).toBe(18080)
   })
 })
