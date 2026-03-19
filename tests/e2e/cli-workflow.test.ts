@@ -355,6 +355,9 @@ describe('CLI E2E', () => {
   it('registers a repository with a dedicated heartbeat worktree through the CLI', () => {
     expect(existsSync(cliPath)).toBe(true)
     initGitRepo(repoRoot, 'main')
+    const bareRemote = join(sandboxRoot, 'register-remote.git')
+    initBareRemote(bareRemote)
+    assertSuccess(runGit(['remote', 'add', 'origin', bareRemote], repoRoot), 'git remote add origin for register')
 
     const result = runCli([
       'daemon',
@@ -371,10 +374,37 @@ describe('CLI E2E', () => {
     const configText = readFileSync(join(homeDir, '.memorytree', 'config.toml'), 'utf-8')
     expect(configText).toContain(`development_path = "${escapeToml(toPosix(repoRoot))}"`)
     expect(configText).toContain(`memory_path = "${escapeToml(toPosix(worktreePath))}"`)
+    expect(configText).toContain('memory_branch = "memorytree"')
     expect(configText).toContain('heartbeat_interval = "5m"')
     expect(configText).toContain('refresh_interval = "30m"')
     expect(configText).toContain('generate_report = true')
-    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree/repo')
+    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree')
+    expect(runGitDir(['rev-parse', 'memorytree'], bareRemote).status).toBe(0)
+  })
+
+  it('allows overriding the memory branch name in detailed register settings', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const result = runCli([
+      'daemon',
+      'register',
+      '--root', repoRoot,
+      '--branch', 'memorytree-custom',
+      '--heartbeat-interval', '15m',
+      '--refresh-interval', '45m',
+      '--auto-push', 'false',
+      '--generate-report', 'true',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon register detailed settings')
+
+    const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
+    const configText = readFileSync(join(homeDir, '.memorytree', 'config.toml'), 'utf-8')
+    expect(configText).toContain('memory_branch = "memorytree-custom"')
+    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree-custom')
   })
 
   it('runs heartbeat through a registered worktree and syncs outputs back to the development directory', () => {
@@ -423,7 +453,7 @@ describe('CLI E2E', () => {
     assertSuccess(result, 'memorytree daemon run-once via worktree')
 
     const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
-    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree/repo')
+    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree')
     expect(runGit(['log', '-1', '--pretty=%s'], worktreePath).stdout.trim()).toBe(
       'memorytree(transcripts): import 1 transcript(s)',
     )

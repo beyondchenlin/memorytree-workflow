@@ -17,6 +17,9 @@ const mocks = vi.hoisted(() => ({
   writeAlertWithThreshold: vi.fn(),
   getLogger: vi.fn(),
   setupLogging: vi.fn(),
+  ensureBranchUpstream: vi.fn(),
+  hasTrackingUpstream: vi.fn(),
+  isProjectMemoryBranch: vi.fn(),
   git: vi.fn(),
   toPosixPath: vi.fn(),
 }))
@@ -60,6 +63,13 @@ vi.mock('../../src/heartbeat/log.js', () => ({
   setupLogging: mocks.setupLogging,
 }))
 
+vi.mock('../../src/heartbeat/worktree.js', () => ({
+  ensureBranchUpstream: mocks.ensureBranchUpstream,
+  ensureProjectWorktree: vi.fn(),
+  hasTrackingUpstream: mocks.hasTrackingUpstream,
+  isProjectMemoryBranch: mocks.isProjectMemoryBranch,
+}))
+
 vi.mock('../../src/utils/exec.js', () => ({
   git: mocks.git,
 }))
@@ -101,6 +111,11 @@ beforeEach(() => {
   mocks.loadConfig.mockReturnValue({})
   mocks.acquireLock.mockReturnValue(true)
   mocks.toPosixPath.mockImplementation((value: string) => value)
+  mocks.ensureBranchUpstream.mockReturnValue({ remote: 'origin', created: true })
+  mocks.hasTrackingUpstream.mockReturnValue(true)
+  mocks.isProjectMemoryBranch.mockImplementation((branch: string) => (
+    branch === 'memorytree' || branch.startsWith('memorytree/')
+  ))
 
   mocks.getLogger.mockReturnValue({
     info: vi.fn(),
@@ -112,7 +127,8 @@ beforeEach(() => {
 })
 
 describe('isDedicatedMemorytreeBranch', () => {
-  it('matches memorytree/* branches only', () => {
+  it('matches memorytree and legacy memorytree/* branches', () => {
+    expect(isDedicatedMemorytreeBranch('memorytree')).toBe(true)
     expect(isDedicatedMemorytreeBranch('memorytree/transcripts')).toBe(true)
     expect(isDedicatedMemorytreeBranch('memorytree/openmnemo')).toBe(true)
     expect(isDedicatedMemorytreeBranch('main')).toBe(false)

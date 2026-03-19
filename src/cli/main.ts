@@ -287,6 +287,7 @@ daemon
   .option('--name <name>', 'Project display name')
   .option('--worktree <path>', 'Override the dedicated MemoryTree worktree path')
   .option('--quick-start', 'Use the recommended defaults: 5m heartbeat, 30m refresh, auto_push=true, generate_report=true')
+  .option('--branch <name>', 'Detailed setup only: override the dedicated MemoryTree branch name (default: memorytree)')
   .option('--heartbeat-interval <interval>', 'Per-project heartbeat interval (e.g. 5m)')
   .option('--refresh-interval <interval>', 'Per-project refresh interval for copying outputs back')
   .option('--auto-push <bool>', 'Per-project auto_push value (true/false)')
@@ -298,6 +299,7 @@ daemon
       root: opts.root,
       name: opts.name,
       worktree: opts.worktree,
+      branch: opts.branch,
       quickStart: opts.quickStart ?? false,
       heartbeatInterval: opts.heartbeatInterval,
       refreshInterval: opts.refreshInterval,

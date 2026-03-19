@@ -26,7 +26,12 @@ import { resetFailureCount, writeAlert, writeAlertWithThreshold } from './alert.
 import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
 import { syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
-import { ensureProjectWorktree } from './worktree.js'
+import {
+  ensureBranchUpstream,
+  ensureProjectWorktree,
+  hasTrackingUpstream,
+  isProjectMemoryBranch,
+} from './worktree.js'
 import { git } from '../utils/exec.js'
 import { toPosixPath } from '../utils/path.js'
 import { basename, join, resolve } from 'node:path'
@@ -178,7 +183,7 @@ export async function processProject(
   const repoSlug = slugify(projectName, 'project')
   const globalRoot = defaultGlobalTranscriptRoot()
   const branch = currentBranch(projectPath)
-  const mirrorToRepo = isDedicatedMemorytreeBranch(branch)
+  const mirrorToRepo = isDedicatedMemorytreeBranch(branch, project)
   const autoPush = project?.auto_push ?? config.auto_push ?? true
   const generateReport = project?.generate_report ?? config.generate_report ?? false
   const aiSummaryModel = project?.ai_summary_model ?? config.ai_summary_model ?? 'claude-haiku-4-5-20251001'
@@ -190,7 +195,7 @@ export async function processProject(
 
   if (!mirrorToRepo) {
     logger.warn(
-      `[${projectName}] Current branch '${branch}' is not a dedicated memorytree/* branch. ` +
+      `[${projectName}] Current branch '${branch}' is not a dedicated MemoryTree branch. ` +
       'Importing to the global archive only.',
     )
   }
@@ -331,7 +336,16 @@ export function gitCommitAndPush(
 
 export function tryPush(projectPath: string, projectName: string): boolean {
   try {
-    git(projectPath, 'push')
+    const branch = currentBranch(projectPath)
+    if (hasTrackingUpstream(projectPath)) {
+      git(projectPath, 'push')
+    } else {
+      const upstream = ensureBranchUpstream(projectPath, branch)
+      if (upstream.remote === null) {
+        return false
+      }
+      getLogger().info(`[${projectName}] Configured upstream ${upstream.remote}/${branch}.`)
+    }
     getLogger().info(`[${projectName}] Pushed successfully.`)
     return true
   } catch {
@@ -343,8 +357,11 @@ export function currentBranch(projectPath: string): string {
   return git(projectPath, 'rev-parse', '--abbrev-ref', 'HEAD').trim()
 }
 
-export function isDedicatedMemorytreeBranch(branch: string): boolean {
-  return branch.trim().startsWith('memorytree/')
+export function isDedicatedMemorytreeBranch(
+  branch: string,
+  project?: Pick<ProjectEntry, 'memory_branch'>,
+): boolean {
+  return isProjectMemoryBranch(branch, project)
 }
 
 export function changedMemoryPaths(projectPath: string): string[] {

@@ -9,6 +9,7 @@ import { basename, dirname, resolve } from 'node:path'
 import { platform } from 'node:process'
 
 import {
+  DEFAULT_MEMORY_BRANCH,
   configPath,
   findProjectForPath,
   intervalToSeconds,
@@ -17,7 +18,13 @@ import {
   upsertProject,
 } from '../heartbeat/config.js'
 import { readLockPid } from '../heartbeat/lock.js'
-import { defaultProjectWorktreePath, ensureProjectWorktree } from '../heartbeat/worktree.js'
+import {
+  defaultProjectWorktreePath,
+  defaultProjectWorktreeBranch,
+  ensureBranchUpstream,
+  ensureProjectWorktree,
+  isValidWorktreeBranchName,
+} from '../heartbeat/worktree.js'
 import { execCommand } from '../utils/exec.js'
 
 // ---------------------------------------------------------------------------
@@ -123,6 +130,7 @@ export function cmdRegisterProject(options: {
   root: string
   name?: string
   worktree?: string
+  branch?: string
   quickStart?: boolean
   heartbeatInterval?: string
   refreshInterval?: string
@@ -132,6 +140,19 @@ export function cmdRegisterProject(options: {
 }): number {
   const root = resolve(options.root)
   const config = loadConfig()
+
+  if (options.quickStart && options.branch !== undefined) {
+    process.stderr.write('Quick Start uses the default memorytree branch. Omit --branch to customize it.\n')
+    return 1
+  }
+
+  const requestedBranch = options.quickStart
+    ? defaultProjectWorktreeBranch()
+    : options.branch ?? DEFAULT_MEMORY_BRANCH
+  if (!isValidWorktreeBranchName(requestedBranch)) {
+    process.stderr.write(`Invalid MemoryTree branch name: ${requestedBranch}\n`)
+    return 1
+  }
 
   const heartbeatInterval = options.quickStart
     ? '5m'
@@ -155,6 +176,7 @@ export function cmdRegisterProject(options: {
     name: options.name ?? basename(root),
     development_path: root,
     memory_path: options.worktree ? resolve(options.worktree) : defaultProjectWorktreePath(root),
+    memory_branch: requestedBranch,
     heartbeat_interval: heartbeatInterval,
     refresh_interval: refreshInterval,
     auto_push: autoPush,
@@ -170,17 +192,36 @@ export function cmdRegisterProject(options: {
 
   const worktree = ensureProjectWorktree(project)
   saveConfig(updated)
+  let upstream: ReturnType<typeof ensureBranchUpstream> | null = null
+  let upstreamError = ''
+  if (project.auto_push) {
+    try {
+      upstream = ensureBranchUpstream(project.memory_path, worktree.branch)
+    } catch (error: unknown) {
+      upstreamError = error instanceof Error ? error.message : String(error)
+    }
+  }
 
   process.stdout.write(`Registered project: ${project.name}\n`)
   process.stdout.write(`Development path: ${project.development_path}\n`)
   process.stdout.write(`Memory path: ${project.memory_path}\n`)
+  process.stdout.write(`Memory branch: ${project.memory_branch}\n`)
   process.stdout.write(`Heartbeat interval: ${project.heartbeat_interval}\n`)
   process.stdout.write(`Refresh interval: ${project.refresh_interval}\n`)
   process.stdout.write(`Auto-push: ${project.auto_push}\n`)
   process.stdout.write(`Generate report: ${project.generate_report}\n`)
   process.stdout.write(`Worktree branch: ${worktree.branch}\n`)
   process.stdout.write(`Worktree created: ${worktree.created ? 'yes' : 'no'}\n`)
-  return 0
+  if (upstreamError) {
+    process.stderr.write(`Upstream configured: failed (${upstreamError})\n`)
+  } else if (upstream === null) {
+    process.stdout.write('Upstream configured: skipped (auto_push disabled)\n')
+  } else if (upstream.remote === null) {
+    process.stdout.write('Upstream configured: no remote available\n')
+  } else {
+    process.stdout.write(`Upstream configured: ${upstream.created ? 'yes' : 'already'} (${upstream.remote}/${worktree.branch})\n`)
+  }
+  return upstreamError ? 1 : 0
 }
 
 // ---------------------------------------------------------------------------

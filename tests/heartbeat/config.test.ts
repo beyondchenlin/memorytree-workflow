@@ -19,6 +19,7 @@ vi.mock('node:os', async () => {
 
 // Import after mock setup so configPath() / memorytreeRoot() use the mock
 import {
+  DEFAULT_MEMORY_BRANCH,
   loadConfig,
   saveConfig,
   intervalToSeconds,
@@ -149,6 +150,7 @@ describe('loadConfig', () => {
         'path = "/home/user/project-a"',
         'memory_path = "/home/user/.memorytree/worktrees/project-a"',
         'development_path = "/home/user/project-a"',
+        'memory_branch = "memorytree-custom"',
         'name = "project-a"',
         'heartbeat_interval = "15m"',
         'refresh_interval = "45m"',
@@ -166,6 +168,7 @@ describe('loadConfig', () => {
     expect(cfg.projects).toHaveLength(1)
     expect(cfg.projects[0]!.heartbeat_interval).toBe('15m')
     expect(cfg.projects[0]!.refresh_interval).toBe('45m')
+    expect(cfg.projects[0]!.memory_branch).toBe('memorytree-custom')
     expect(cfg.projects[0]!.auto_push).toBe(false)
     expect(cfg.projects[0]!.generate_report).toBe(true)
     expect(cfg.projects[0]!.report_port).toBe(18080)
@@ -285,6 +288,7 @@ describe('registerProject', () => {
     expect(updated.projects[0]!.path).toBeTruthy()
     // Name derived from last path segment
     expect(updated.projects[0]!.name).toBeTruthy()
+    expect(updated.projects[0]!.memory_branch).toBe(DEFAULT_MEMORY_BRANCH)
   })
 
   it('skips duplicate project (by resolved path)', () => {
@@ -345,6 +349,7 @@ describe('registerProject', () => {
     expect(updated.projects[0]!.gh_pages_branch).toBe('gh-pages')
     expect(updated.projects[0]!.report_base_url).toBe('https://example.com/memory')
     expect(updated.projects[0]!.report_port).toBe(18181)
+    expect(updated.projects[0]!.memory_branch).toBe(DEFAULT_MEMORY_BRANCH)
   })
 })
 
@@ -363,6 +368,15 @@ describe('upsertProject', () => {
     expect(updated.projects[0]!.refresh_interval).toBe('45m')
     expect(updated.projects[0]!.auto_push).toBe(false)
     expect(updated.projects[0]!.generate_report).toBe(true)
+  })
+
+  it('updates the dedicated memory branch when overridden', () => {
+    const initial = registerProject(loadConfig(), tmpDir)
+    const updated = upsertProject(initial, tmpDir, {
+      memory_branch: 'memorytree-alt',
+    })
+
+    expect(updated.projects[0]!.memory_branch).toBe('memorytree-alt')
   })
 })
 
@@ -681,6 +695,7 @@ describe('project path helpers', () => {
           name: 'project-a',
           development_path: '/workspace/app',
           memory_path: '/workspace/.memorytree/worktrees/app',
+          memory_branch: DEFAULT_MEMORY_BRANCH,
           heartbeat_interval: '5m',
           refresh_interval: '30m',
           auto_push: true,

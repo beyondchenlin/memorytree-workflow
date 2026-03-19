@@ -17,6 +17,7 @@ import { toPosixPath } from '../utils/path.js'
 
 const DEFAULT_HEARTBEAT_INTERVAL = '5m'
 const DEFAULT_REFRESH_INTERVAL = '30m'
+export const DEFAULT_MEMORY_BRANCH = 'memorytree'
 const DEFAULT_AUTO_PUSH = true
 const DEFAULT_LOG_LEVEL = 'info'
 const DEFAULT_GENERATE_REPORT = false
@@ -39,6 +40,7 @@ export interface ProjectEntry {
   readonly name: string
   readonly development_path: string
   readonly memory_path: string
+  readonly memory_branch: string
   readonly heartbeat_interval: string
   readonly refresh_interval: string
   readonly auto_push: boolean
@@ -146,6 +148,7 @@ export function saveConfig(cfg: Config): void {
     lines.push(`name = ${tomlString(project.name)}`)
     lines.push(`development_path = ${tomlString(project.development_path)}`)
     lines.push(`memory_path = ${tomlString(project.memory_path)}`)
+    lines.push(`memory_branch = ${tomlString(project.memory_branch)}`)
     lines.push(`heartbeat_interval = ${tomlString(project.heartbeat_interval)}`)
     lines.push(`refresh_interval = ${tomlString(project.refresh_interval)}`)
     lines.push(`auto_push = ${project.auto_push ? 'true' : 'false'}`)
@@ -213,6 +216,7 @@ export function registerProject(
   if (overrides.id !== undefined) projectInput.id = overrides.id
   if (overrides.heartbeat_interval !== undefined) projectInput.heartbeat_interval = overrides.heartbeat_interval
   if (overrides.refresh_interval !== undefined) projectInput.refresh_interval = overrides.refresh_interval
+  if (overrides.memory_branch !== undefined) projectInput.memory_branch = overrides.memory_branch
   if (overrides.auto_push !== undefined) projectInput.auto_push = overrides.auto_push
   if (overrides.generate_report !== undefined) projectInput.generate_report = overrides.generate_report
   if (overrides.ai_summary_model !== undefined) projectInput.ai_summary_model = overrides.ai_summary_model
@@ -249,6 +253,7 @@ export function upsertProject(
     ...overrides,
     development_path: overrides.development_path ?? existing.development_path,
     memory_path: overrides.memory_path ?? existing.memory_path,
+    memory_branch: overrides.memory_branch ?? existing.memory_branch,
     path: overrides.path ?? existing.path,
   }, normalized)
 
@@ -498,6 +503,7 @@ function normalizeProjectEntry(project: ProjectLike, cfg: Config): ProjectEntry 
     name,
     development_path: resolvedDevelopmentPath,
     memory_path: resolvedMemoryPath,
+    memory_branch: nonEmptyString(project.memory_branch, DEFAULT_MEMORY_BRANCH),
     heartbeat_interval: isValidInterval(project.heartbeat_interval ?? '') ? project.heartbeat_interval! : cfg.heartbeat_interval,
     refresh_interval: isValidInterval(project.refresh_interval ?? '') ? project.refresh_interval! : DEFAULT_REFRESH_INTERVAL,
     auto_push: typeof project.auto_push === 'boolean' ? project.auto_push : cfg.auto_push,

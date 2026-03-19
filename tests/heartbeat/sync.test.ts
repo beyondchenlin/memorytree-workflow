@@ -81,6 +81,7 @@ function makeProject(devPath: string, memPath: string): ProjectEntry {
     name: 'demo',
     development_path: devPath,
     memory_path: memPath,
+    memory_branch: 'memorytree',
     heartbeat_interval: '5m',
     refresh_interval: '30m',
     auto_push: true,

@@ -3,7 +3,7 @@ import { basename, dirname, isAbsolute, resolve } from 'node:path'
 import { platform } from 'node:process'
 
 import type { ProjectEntry } from './config.js'
-import { memorytreeRoot } from './config.js'
+import { DEFAULT_MEMORY_BRANCH, memorytreeRoot } from './config.js'
 import { execCommand, git } from '../utils/exec.js'
 
 export interface WorktreeStatus {
@@ -11,13 +11,24 @@ export interface WorktreeStatus {
   readonly created: boolean
 }
 
+export interface BranchUpstreamStatus {
+  readonly remote: string | null
+  readonly created: boolean
+}
+
 export function defaultProjectWorktreePath(developmentPath: string): string {
   return resolve(memorytreeRoot(), 'worktrees', slugifySegment(basename(resolve(developmentPath))))
 }
 
-export function defaultProjectWorktreeBranch(project: Pick<ProjectEntry, 'id' | 'name' | 'development_path'>): string {
-  const source = project.name || basename(project.development_path) || project.id
-  return `memorytree/${slugifySegment(source)}`
+export function defaultProjectWorktreeBranch(): string {
+  return DEFAULT_MEMORY_BRANCH
+}
+
+export function resolveProjectWorktreeBranch(project: Pick<ProjectEntry, 'memory_branch'>): string {
+  const requested = project.memory_branch.trim()
+  return isValidWorktreeBranchName(requested)
+    ? requested
+    : DEFAULT_MEMORY_BRANCH
 }
 
 export function ensureProjectWorktree(project: ProjectEntry): WorktreeStatus {
@@ -32,7 +43,7 @@ export function ensureProjectWorktree(project: ProjectEntry): WorktreeStatus {
 
   const repoRoot = git(developmentPath, 'rev-parse', '--show-toplevel').trim()
   const repoCommonDir = gitCommonDir(developmentPath)
-  const branch = defaultProjectWorktreeBranch(project)
+  const branch = resolveProjectWorktreeBranch(project)
 
   if (existsSync(memoryPath)) {
     const existingRoot = execCommand('git', ['rev-parse', '--show-toplevel'], {
@@ -67,6 +78,65 @@ export function ensureProjectWorktree(project: ProjectEntry): WorktreeStatus {
   }
 
   return { branch, created: true }
+}
+
+export function ensureBranchUpstream(projectPath: string, branch: string): BranchUpstreamStatus {
+  const remote = resolvePushRemote(projectPath)
+  if (remote === null) {
+    return { remote: null, created: false }
+  }
+  if (hasTrackingUpstream(projectPath)) {
+    return { remote, created: false }
+  }
+
+  git(projectPath, 'push', '-u', remote, branch)
+  return { remote, created: true }
+}
+
+export function resolvePushRemote(projectPath: string): string | null {
+  const remotes = git(projectPath, 'remote')
+    .split(/\r?\n/)
+    .map(remote => remote.trim())
+    .filter(Boolean)
+
+  if (remotes.length === 0) {
+    return null
+  }
+  if (remotes.includes('origin')) {
+    return 'origin'
+  }
+  return remotes[0] ?? null
+}
+
+export function hasTrackingUpstream(projectPath: string): boolean {
+  const output = execCommand(
+    'git',
+    ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'],
+    { cwd: projectPath, allowFailure: true },
+  )
+  return output.trim().length > 0
+}
+
+export function isValidWorktreeBranchName(branch: string): boolean {
+  if (!branch || branch.trim() !== branch) {
+    return false
+  }
+
+  const output = execCommand('git', ['check-ref-format', '--branch', branch], { allowFailure: true })
+  return output.trim() === branch
+}
+
+export function isProjectMemoryBranch(
+  branch: string,
+  project?: Pick<ProjectEntry, 'memory_branch'>,
+): boolean {
+  const normalized = branch.trim()
+  if (!normalized) return false
+
+  const expected = project ? resolveProjectWorktreeBranch(project) : DEFAULT_MEMORY_BRANCH
+  return normalized === expected
+    || normalized === DEFAULT_MEMORY_BRANCH
+    || normalized.startsWith(`${DEFAULT_MEMORY_BRANCH}/`)
 }
 
 function gitCommonDir(cwd: string): string {

@@ -37,6 +37,7 @@ describe('cmdRunOnce', () => {
       main,
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '5m',
@@ -55,7 +56,10 @@ describe('cmdRunOnce', () => {
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
-      ensureProjectWorktree: () => ({ branch: 'memorytree/repo', created: true }),
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -71,18 +75,26 @@ describe('cmdRunOnce', () => {
 
 describe('cmdRegisterProject', () => {
   let stdoutChunks: string[]
+  let stderrChunks: string[]
   const originalWrite = process.stdout.write
+  const originalStderrWrite = process.stderr.write
 
   beforeEach(() => {
     stdoutChunks = []
+    stderrChunks = []
     process.stdout.write = ((chunk: string) => {
       stdoutChunks.push(chunk)
       return true
     }) as typeof process.stdout.write
+    process.stderr.write = ((chunk: string) => {
+      stderrChunks.push(chunk)
+      return true
+    }) as typeof process.stderr.write
   })
 
   afterEach(() => {
     process.stdout.write = originalWrite
+    process.stderr.write = originalStderrWrite
     vi.restoreAllMocks()
     vi.resetModules()
   })
@@ -109,6 +121,7 @@ describe('cmdRegisterProject', () => {
           name: 'repo',
           development_path: '/repo',
           memory_path: '/memorytree/worktrees/repo',
+          memory_branch: 'memorytree',
           heartbeat_interval: '5m',
           refresh_interval: '30m',
           auto_push: true,
@@ -127,6 +140,7 @@ describe('cmdRegisterProject', () => {
     }
 
     vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '9m',
@@ -153,7 +167,10 @@ describe('cmdRegisterProject', () => {
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
-      ensureProjectWorktree: () => ({ branch: 'memorytree/repo', created: true }),
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -167,7 +184,146 @@ describe('cmdRegisterProject', () => {
 
     expect(result).toBe(0)
     expect(savedConfigs).toHaveLength(1)
-    expect(stdoutChunks.join('')).toContain('Worktree branch: memorytree/repo')
+    expect(stdoutChunks.join('')).toContain('Worktree branch: memorytree')
+    expect(stdoutChunks.join('')).toContain('Upstream configured: yes (origin/memorytree)')
+  })
+
+  it('rejects branch override in quick start mode', async () => {
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: false,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: () => {},
+      intervalToSeconds: () => 300,
+      findProjectForPath: () => null,
+      upsertProject: (cfg: unknown) => cfg,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdRegisterProject({
+      root: '/repo',
+      quickStart: true,
+      branch: 'custom-memorytree',
+    })
+
+    expect(result).toBe(1)
+    expect(stderrChunks.join('')).toContain('Quick Start uses the default memorytree branch')
+  })
+
+  it('returns a clean failure when first upstream binding throws', async () => {
+    const savedConfigs: unknown[] = []
+    const upserted = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      projects: [
+        {
+          id: 'repo',
+          path: '/memorytree/worktrees/repo',
+          name: 'repo',
+          development_path: '/repo',
+          memory_path: '/memorytree/worktrees/repo',
+          memory_branch: 'memorytree',
+          heartbeat_interval: '5m',
+          refresh_interval: '30m',
+          auto_push: true,
+          generate_report: true,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 10010,
+          last_heartbeat_at: '',
+          last_refresh_at: '',
+        },
+      ],
+    }
+
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: false,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: () => 300,
+      findProjectForPath: () => upserted.projects[0],
+      upsertProject: () => upserted,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => { throw new Error('push rejected') },
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdRegisterProject({
+      root: '/repo',
+      quickStart: true,
+    })
+
+    expect(result).toBe(1)
+    expect(savedConfigs).toHaveLength(1)
+    expect(stdoutChunks.join('')).toContain('Registered project: repo')
+    expect(stderrChunks.join('')).toContain('Upstream configured: failed (push rejected)')
   })
 })
 
@@ -198,6 +354,7 @@ describe('cmdStatus', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '5m',
@@ -225,6 +382,7 @@ describe('cmdStatus', () => {
       readLockPid: () => 12345,
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '5m',
@@ -261,6 +419,7 @@ describe('isCronRegistered', () => {
       execCommand: () => '',
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({ heartbeat_interval: '5m', auto_push: true, projects: [], watch_dirs: [], log_level: 'info' }),
       intervalToSeconds: () => 300,
@@ -294,6 +453,7 @@ describe('isSchtasksRegistered', () => {
       execCommand: () => { throw new Error('not found') },
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({ heartbeat_interval: '5m', auto_push: true, projects: [], watch_dirs: [], log_level: 'info' }),
       intervalToSeconds: () => 300,
@@ -321,6 +481,7 @@ describe('cmdInstall', () => {
   it('calls saveConfig with overridden interval and auto-push', async () => {
     const savedConfigs: unknown[] = []
     vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
       loadConfig: () => ({
         heartbeat_interval: '5m',
         auto_push: true,

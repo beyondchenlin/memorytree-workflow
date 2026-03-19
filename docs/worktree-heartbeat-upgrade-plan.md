@@ -13,7 +13,7 @@ The current behavior couples heartbeat too closely to the repository path that i
 That creates two practical issues:
 
 1. If heartbeat runs in the main development directory, its automatic transcript imports and report outputs can interfere with the user's normal branch and commit flow.
-2. If heartbeat does not run on a dedicated `memorytree/*` branch, repo-local transcript mirroring is skipped, which can leave the in-repo report looking empty even though data exists in the global archive.
+2. If heartbeat does not run on a dedicated MemoryTree branch, repo-local transcript mirroring is skipped, which can leave the in-repo report looking empty even though data exists in the global archive.
 
 ## Target Outcome
 
@@ -101,7 +101,8 @@ The memory worktree is a separate local folder created with `git worktree`.
 
 Recommended characteristics:
 
-- checked out on a dedicated branch such as `memorytree/<repo-name>`
+- checked out on a dedicated branch, defaulting to `memorytree`
+- optionally allowed to use a custom branch name in detailed settings
 - registered as the project path used by heartbeat
 - allowed to run automatic MemoryTree writes, transcript imports, and report builds
 
@@ -208,7 +209,7 @@ The memory worktree may:
 - auto-import transcripts
 - auto-build reports
 - auto-commit MemoryTree-owned changes
-- auto-push its dedicated `memorytree/*` branch if enabled
+- auto-push its dedicated MemoryTree branch if enabled
 
 ### Development Directory
 
@@ -230,10 +231,10 @@ The intended activation flow should be:
 2. System detects that the repository is not yet backed by a dedicated memory worktree.
 3. System offers:
    - `Quick Start`
-   - `Custom Start`
+   - `Detailed Settings`
 4. On confirmation, the system:
    - creates or reuses a dedicated Git worktree
-   - checks out a dedicated `memorytree/*` branch inside that worktree
+   - checks out a dedicated MemoryTree branch inside that worktree
    - registers the worktree path in `~/.memorytree/config.toml`
    - preserves the user's development directory as the non-heartbeat working copy
 
@@ -246,9 +247,10 @@ Recommended defaults:
 - project development-directory refresh interval: `30m`
 - project `auto_push = true`
 - project `generate_report = true`
+- project memory branch: `memorytree`
 - worktree-backed heartbeat enabled
 
-### Custom Start
+### Detailed Settings
 
 The user may customize:
 
@@ -257,6 +259,7 @@ The user may customize:
 - project auto-push behavior
 - project report generation
 - project report publishing settings
+- dedicated memory branch name
 - raw transcript upload permission
 
 ## Implementation Phases
@@ -284,6 +287,7 @@ heartbeat_tick = "1m"
 id = "memorytree-workflow"
 development_path = "D:/demo1/memorytree-workflow"
 memory_path = "C:/Users/ai/.memorytree/worktrees/memorytree-workflow"
+memory_branch = "memorytree"
 heartbeat_interval = "5m"
 refresh_interval = "30m"
 auto_push = true
@@ -299,7 +303,7 @@ Add a bootstrap step that:
 
 - verifies the repository is Git-backed
 - creates or reuses a dedicated worktree
-- ensures the worktree is on a `memorytree/*` branch
+- ensures the worktree is on the project's configured MemoryTree branch, defaulting to `memorytree`
 
 ### Phase 3: Directional Sync Engine
 
@@ -325,14 +329,17 @@ Add a scheduled refresh path that copies worktree outputs back into the developm
 The current implementation now exposes two concrete entry points for this design:
 
 1. `memorytree daemon register --root <repo> --quick-start`
-2. `memorytree daemon register --root <repo> --heartbeat-interval <x> --refresh-interval <y> --auto-push <true|false> --generate-report <true|false>`
+2. `memorytree daemon register --root <repo> --heartbeat-interval <x> --refresh-interval <y> --auto-push <true|false> --generate-report <true|false> --branch <name>`
 
 What `daemon register` now does:
 
 - registers or updates the project in `~/.memorytree/config.toml`
 - writes both `development_path` and `memory_path`
 - creates or reuses the dedicated Git worktree
-- ensures the worktree is on a `memorytree/<repo>` branch
+- stores `memory_branch` per project
+- ensures the worktree is on the configured branch
+- uses `memorytree` for Quick Start by default, while detailed settings may override the branch name
+- auto-configures the first upstream binding when `auto_push` is enabled and a remote exists
 
 The current implementation also extends manual execution:
 
