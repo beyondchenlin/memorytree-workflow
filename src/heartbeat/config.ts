@@ -25,6 +25,7 @@ const DEFAULT_GH_PAGES_BRANCH = ''
 const DEFAULT_CNAME = ''
 const DEFAULT_WEBHOOK_URL = ''
 const DEFAULT_REPORT_BASE_URL = ''
+const DEFAULT_REPORT_PORT = 10010
 const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(['debug', 'info', 'warn', 'error'])
 
 // ---------------------------------------------------------------------------
@@ -50,6 +51,8 @@ export interface Config {
   readonly webhook_url: string
   /** Base URL for RSS/OG meta (e.g. 'https://memory.example.com'). Empty = skip. */
   readonly report_base_url: string
+  /** Port for the report HTTP server. Default: 10010. */
+  readonly report_port: number
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +101,7 @@ export function saveConfig(cfg: Config): void {
     `cname = ${tomlString(cfg.cname ?? DEFAULT_CNAME)}`,
     `webhook_url = ${tomlString(cfg.webhook_url ?? DEFAULT_WEBHOOK_URL)}`,
     `report_base_url = ${tomlString(cfg.report_base_url ?? DEFAULT_REPORT_BASE_URL)}`,
+    `report_port = ${cfg.report_port ?? DEFAULT_REPORT_PORT}`,
   ]
 
   if (cfg.watch_dirs.length > 0) {
@@ -174,6 +178,7 @@ function defaultConfig(): Config {
     cname: DEFAULT_CNAME,
     webhook_url: DEFAULT_WEBHOOK_URL,
     report_base_url: DEFAULT_REPORT_BASE_URL,
+    report_port: DEFAULT_REPORT_PORT,
   }
 }
 
@@ -253,6 +258,11 @@ function parseRaw(raw: Record<string, unknown>): Config {
     reportBaseUrl = DEFAULT_REPORT_BASE_URL
   }
 
+  let reportPort = raw['report_port']
+  if (!isValidPort(reportPort)) {
+    reportPort = DEFAULT_REPORT_PORT
+  }
+
   return {
     heartbeat_interval: interval as string,
     watch_dirs: watchDirs,
@@ -266,6 +276,7 @@ function parseRaw(raw: Record<string, unknown>): Config {
     cname: cname as string,
     webhook_url: webhookUrl as string,
     report_base_url: reportBaseUrl as string,
+    report_port: reportPort as number,
   }
 }
 
@@ -273,6 +284,13 @@ function isValidInterval(value: string): boolean {
   const match = value.trim().toLowerCase().match(/^(\d+)\s*(s|m|h)$/)
   if (!match) return false
   return parseInt(match[1]!, 10) > 0
+}
+
+function isValidPort(value: unknown): value is number {
+  return typeof value === 'number'
+    && Number.isInteger(value)
+    && value > 0
+    && value <= 65535
 }
 
 function tomlString(value: string): string {

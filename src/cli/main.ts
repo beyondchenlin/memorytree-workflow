@@ -205,12 +205,18 @@ report
     'Report directory to serve (default: ./Memory/07_reports)',
     './Memory/07_reports',
   )
-  .option('--port <n>', 'Port to listen on', '4321')
+  .option('--port <n>', 'Port to listen on (default: ~/.memorytree/config.toml report_port or 10010)')
   .action(async (opts) => {
-    const { cmdReportServe } = await import('./cmd-report.js')
+    const [{ cmdReportServe }, { loadConfig }] = await Promise.all([
+      import('./cmd-report.js'),
+      import('../heartbeat/config.js'),
+    ])
+    const requestedPort = typeof opts.port === 'string' ? parseInt(opts.port, 10) : NaN
     process.exitCode = cmdReportServe({
       dir: opts.dir as string,
-      port: parseInt(opts.port as string, 10) || 4321,
+      port: Number.isInteger(requestedPort) && requestedPort > 0 && requestedPort <= 65535
+        ? requestedPort
+        : loadConfig().report_port,
     })
   })
 

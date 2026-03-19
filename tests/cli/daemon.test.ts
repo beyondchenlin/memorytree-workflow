@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
-import { tmpdir, homedir } from 'node:os'
+import { readFileSync, existsSync, rmSync } from 'node:fs'
 
 import {
   heartbeatScriptPath,

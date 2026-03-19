@@ -105,7 +105,7 @@ node dist/cli.js upgrade --root . --format json
 node dist/cli.js discover --root . --client all --scope current-project --format json
 node dist/cli.js recall --root . --format text
 node dist/cli.js report build --root . --no-ai --locale en
-node dist/cli.js report serve --dir ./Memory/07_reports --port 4321
+node dist/cli.js report serve --dir ./Memory/07_reports --port 10010
 ```
 
 ## What You Get
@@ -208,7 +208,7 @@ Current report coverage includes:
 Serve the generated site locally:
 
 ```bash
-node dist/cli.js report serve --dir ./Memory/07_reports --port 4321
+node dist/cli.js report serve --dir ./Memory/07_reports --port 10010
 ```
 
 Build it manually:
@@ -258,6 +258,7 @@ gh_pages_branch = "gh-pages"
 cname = "memory.example.com"
 webhook_url = ""
 report_base_url = "https://memory.example.com"
+report_port = 10010
 
 [[projects]]
 path = "/path/to/repo"
@@ -274,6 +275,7 @@ Config fields that matter most for report publishing:
 | `cname` | `""` | Write a `CNAME` file into the published report output |
 | `webhook_url` | `""` | Send a report update notification after report generation |
 | `report_base_url` | `""` | Base URL for RSS and OG metadata |
+| `report_port` | `10010` | Default port used by `memorytree report serve` when `--port` is omitted |
 
 ## Git Safety
 
