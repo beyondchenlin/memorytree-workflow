@@ -961,14 +961,13 @@ pre.mermaid {
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">14:56:53</span>
   </div>
-  <div class="message-body"><p>我已经全面了解了项目结构和现有代码。以下是对 TODO.md 的完善建议：<br><br>---<br><br>## 现有 TODO 的问题<br><br>### 1. 缺少验收标准<br>每个任务只有&quot;做什么&quot;，没有&quot;做到什么程度算完成&quot;。比如 P0 心跳 daemon 的 6 个子任务都是实现描述，缺少可衡量的 Done 定义。<br><br>### 2. 缺少任务间依赖关系<br>P2（大模型职责最小化）依赖 P0（心跳 daemon 就绪后才能把职责交出去），但 TODO 中没有标注。<br><br>### 3. 遗漏了多个重要待办<br><br>根据代码现状，我发现以下缺失：<br><br>| 缺失项 | 说明 |<br>|---------|------|<br>| <strong><code>_transcript_utils.py</code> 拆分</strong> | 927 行，远超 800 行上限，职责混杂（解析/导入/索引/发现） |<br>| <strong>集成测试</strong> | 现有测试全是单元测试，缺少 init → upgrade → import 的端到端流程测试 |<br>| <strong>CI/CD 流水线</strong> | 没有 GitHub Actions，每次提交无自动测试 |<br>| <strong>PII/敏感信息处理</strong> | transcript 可能包含 API key、密码等，清洗时缺少脱敏策略 |<br>| <strong>daemon 运维能力</strong> | 日志、健康检查、优雅关闭、多实例互斥 |<br>| <strong>包分发策略</strong> | 消费端如何安装？git submodule？pip install？当前无方案 |<br>| <strong>跨平台验证</strong> | 脚本在 Windows/macOS/Linux 上的路径差异（<code>~/.claude/</code> vs <code>%APPDATA%</code>）未系统测试 |<br>| <strong>版本管理</strong> | 项目本身缺少 <code>pyproject.toml</code> 或语义化版本号 |</p></div>
+  <div class="message-body"><p>我已经全面了解了项目结构和现有代码。以下是对 TODO.md 的完善建议：</p><p>---</p><p>## 现有 TODO 的问题</p><p>### 1. 缺少验收标准<br>每个任务只有&quot;做什么&quot;，没有&quot;做到什么程度算完成&quot;。比如 P0 心跳 daemon 的 6 个子任务都是实现描述，缺少可衡量的 Done 定义。</p><p>### 2. 缺少任务间依赖关系<br>P2（大模型职责最小化）依赖 P0（心跳 daemon 就绪后才能把职责交出去），但 TODO 中没有标注。</p><p>### 3. 遗漏了多个重要待办</p><p>根据代码现状，我发现以下缺失：</p><p>| 缺失项 | 说明 |<br>|---------|------|<br>| <strong><code>_transcript_utils.py</code> 拆分</strong> | 927 行，远超 800 行上限，职责混杂（解析/导入/索引/发现） |<br>| <strong>集成测试</strong> | 现有测试全是单元测试，缺少 init → upgrade → import 的端到端流程测试 |<br>| <strong>CI/CD 流水线</strong> | 没有 GitHub Actions，每次提交无自动测试 |<br>| <strong>PII/敏感信息处理</strong> | transcript 可能包含 API key、密码等，清洗时缺少脱敏策略 |<br>| <strong>daemon 运维能力</strong> | 日志、健康检查、优雅关闭、多实例互斥 |<br>| <strong>包分发策略</strong> | 消费端如何安装？git submodule？pip install？当前无方案 |<br>| <strong>跨平台验证</strong> | 脚本在 Windows/macOS/Linux 上的路径差异（<code>~/.claude/</code> vs <code>%APPDATA%</code>）未系统测试 |<br>| <strong>版本管理</strong> | 项目本身缺少 <code>pyproject.toml</code> 或语义化版本号 |</p></div>
 </div>
 <div class="message message-assistant">
   <div class="message-header">
     <span class="message-role">P3</span>
   </div>
-  <div class="message-body"><p>OpenMnemo 是独立产品愿景，混在 Skill 的 TODO 里会模糊焦点。建议拆到单独文档。<br><br>---<br><br>## 建议的改进方案<br><br>要我直接帮你重写 TODO.md 吗？大致结构如下：</p><pre><code>
-P0: 心跳 daemon（核心阻塞项）
+  <div class="message-body"><p>OpenMnemo 是独立产品愿景，混在 Skill 的 TODO 里会模糊焦点。建议拆到单独文档。</p><p>---</p><p>## 建议的改进方案</p><p>要我直接帮你重写 TODO.md 吗？大致结构如下：</p><pre><code>P0: 心跳 daemon（核心阻塞项）
   - 方案选型 + 原型 → 验收: 能自动发现并导入新 transcript
   - 配置/日志/互斥/优雅关闭
   - 测试覆盖
@@ -1000,14 +999,13 @@ P3: 分发与兼容（降低使用门槛）
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">14:59:16</span>
   </div>
-  <div class="message-body"><p>你说的应该是 <strong>tmux</strong>（Terminal Multiplexer）——终端复用器，关掉窗口后会话仍在后台运行，重新 attach 就能看到输出。非常适合这种场景。<br><br>我先把 TODO.md 写好，然后我们来聊心跳 + tmux 的方案。</p></div>
+  <div class="message-body"><p>你说的应该是 <strong>tmux</strong>（Terminal Multiplexer）——终端复用器，关掉窗口后会话仍在后台运行，重新 attach 就能看到输出。非常适合这种场景。</p><p>我先把 TODO.md 写好，然后我们来聊心跳 + tmux 的方案。</p></div>
 </div>
 <div class="message message-assistant">
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:00:19</span>
   </div>
-  <div class="message-body"><p>TODO.md 已重写完成。主要改进：<br><br><strong>结构性改进：</strong><br>- 每个 P 级别都加了<strong>验收标准</strong>（Done Definition）<br>- 新增<strong>任务依赖关系图</strong>和建议执行顺序<br>- P0 从 6 项扩展到 8 项（加入 tmux 集成、运维能力、配置文件细节）<br><br><strong>新增遗漏任务：</strong><br>- <strong>P1 代码质量</strong> — <code>_transcript_utils.py</code> 拆分（927 行→4 个模块）、CI 流水线、集成测试<br>- <strong>P3 分发与兼容</strong> — pyproject.toml 包化、跨平台路径、安装文档<br>- P2 增加了 daemon 状态检测和敏感信息扫描<br><br><strong>OpenMnemo 处理：</strong><br>- 从主任务列表移出，降级为&quot;远期愿景&quot;独立段落，避免分散焦点<br><br>---<br><br>现在来聊心跳机制。你说的就是 <strong>tmux</strong>：<br><br>&gt; <strong>tmux</strong> (Terminal Multiplexer) — 终端复用器。在 tmux session 中启动的进程，即使关闭终端窗口，进程仍在后台运行。随时可以 <code>tmux attach</code> 回来查看。<br><br>它非常适合心跳 daemon，原因：<br><br>| 优势 | 说明 |<br>|------|------|<br>| <strong>零配置常驻</strong> | 不需要写 systemd service 文件或注册 Windows 服务 |<br>| <strong>可观测</strong> | 随时 <code>tmux attach</code> 看实时日志输出 |<br>| <strong>跨平台</strong> | Linux/macOS 原生支持，Windows 通过 WSL/Git Bash 可用 |<br>| <strong>轻量</strong> | 不引入额外依赖，Python 脚本直接在 tmux 里跑 |<br>| <strong>易于管理</strong> | 命名 session（如 <code>memorytree-daemon</code>），start/stop/status 一条命令搞定 |<br><br>设想中的用法：</p><pre><code>
-# 启动
+  <div class="message-body"><p>TODO.md 已重写完成。主要改进：</p><p><strong>结构性改进：</strong><br>- 每个 P 级别都加了<strong>验收标准</strong>（Done Definition）<br>- 新增<strong>任务依赖关系图</strong>和建议执行顺序<br>- P0 从 6 项扩展到 8 项（加入 tmux 集成、运维能力、配置文件细节）</p><p><strong>新增遗漏任务：</strong><br>- <strong>P1 代码质量</strong> — <code>_transcript_utils.py</code> 拆分（927 行→4 个模块）、CI 流水线、集成测试<br>- <strong>P3 分发与兼容</strong> — pyproject.toml 包化、跨平台路径、安装文档<br>- P2 增加了 daemon 状态检测和敏感信息扫描</p><p><strong>OpenMnemo 处理：</strong><br>- 从主任务列表移出，降级为&quot;远期愿景&quot;独立段落，避免分散焦点</p><p>---</p><p>现在来聊心跳机制。你说的就是 <strong>tmux</strong>：</p><p>&gt; <strong>tmux</strong> (Terminal Multiplexer) — 终端复用器。在 tmux session 中启动的进程，即使关闭终端窗口，进程仍在后台运行。随时可以 <code>tmux attach</code> 回来查看。</p><p>它非常适合心跳 daemon，原因：</p><p>| 优势 | 说明 |<br>|------|------|<br>| <strong>零配置常驻</strong> | 不需要写 systemd service 文件或注册 Windows 服务 |<br>| <strong>可观测</strong> | 随时 <code>tmux attach</code> 看实时日志输出 |<br>| <strong>跨平台</strong> | Linux/macOS 原生支持，Windows 通过 WSL/Git Bash 可用 |<br>| <strong>轻量</strong> | 不引入额外依赖，Python 脚本直接在 tmux 里跑 |<br>| <strong>易于管理</strong> | 命名 session（如 <code>memorytree-daemon</code>），start/stop/status 一条命令搞定 |</p><p>设想中的用法：</p><pre><code># 启动
 memorytree-daemon start
 # 内部执行: tmux new-session -d -s memorytree-daemon &quot;python heartbeat.py&quot;
 
@@ -1029,8 +1027,7 @@ memorytree-daemon stop
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:03:11</span>
   </div>
-  <div class="message-body"><p>好问题。让我从工程最佳实践的角度系统评估所有方案。<br><br>## 关键洞察：你的需求是&quot;每 5 分钟扫一次&quot;，不是&quot;实时监听&quot;<br><br>这意味着它本质上是 <strong>周期任务</strong>，不是 <strong>长驻服务</strong>。这两类的最佳实践完全不同。<br><br>---<br><br>## 方案对比<br><br>| 方案 | 可靠性 | 重启恢复 | 跨平台 | 可观测性 | 复杂度 |<br>|------|--------|---------|--------|---------|--------|<br>| <strong>cron / launchd / Task Scheduler</strong> | 极高 | 开机自启 | 各平台原生 | 看日志 | 低 |<br>| <strong>tmux + sleep 循环</strong> | 中 | 重启后丢失 | 需装 tmux | attach 看 | 低 |<br>| <strong>systemd user service</strong> | 极高 | 开机自启 | 仅 Linux | journalctl | 中 |<br>| <strong>Python daemon (长驻进程)</strong> | 中 | 需额外处理 | Unix only | 看日志 | 高 |<br>| <strong>supervisord / PM2</strong> | 高 | 可配置 | 需装软件 | 自带面板 | 中 |<br><br>## 推荐方案：分层架构<br><br>最佳实践不是选一个，而是<strong>把核心逻辑和运行方式解耦</strong>：</p><pre><code>
-┌─────────────────────────────────────────────┐
+  <div class="message-body"><p>好问题。让我从工程最佳实践的角度系统评估所有方案。</p><p>## 关键洞察：你的需求是&quot;每 5 分钟扫一次&quot;，不是&quot;实时监听&quot;</p><p>这意味着它本质上是 <strong>周期任务</strong>，不是 <strong>长驻服务</strong>。这两类的最佳实践完全不同。</p><p>---</p><p>## 方案对比</p><p>| 方案 | 可靠性 | 重启恢复 | 跨平台 | 可观测性 | 复杂度 |<br>|------|--------|---------|--------|---------|--------|<br>| <strong>cron / launchd / Task Scheduler</strong> | 极高 | 开机自启 | 各平台原生 | 看日志 | 低 |<br>| <strong>tmux + sleep 循环</strong> | 中 | 重启后丢失 | 需装 tmux | attach 看 | 低 |<br>| <strong>systemd user service</strong> | 极高 | 开机自启 | 仅 Linux | journalctl | 中 |<br>| <strong>Python daemon (长驻进程)</strong> | 中 | 需额外处理 | Unix only | 看日志 | 高 |<br>| <strong>supervisord / PM2</strong> | 高 | 可配置 | 需装软件 | 自带面板 | 中 |</p><p>## 推荐方案：分层架构</p><p>最佳实践不是选一个，而是<strong>把核心逻辑和运行方式解耦</strong>：</p><pre><code>┌─────────────────────────────────────────────┐
 │  heartbeat.py  (核心：跑一次就退出)          │
 │  扫描 → 发现新文件 → 导入 → commit → exit 0 │
 └──────────────┬──────────────────────────────┘
@@ -1040,8 +1037,7 @@ memorytree-daemon stop
     cron    launchd  Task         tmux
    (Linux)  (macOS)  Scheduler   (开发调试)
                      (Windows)
-</code></pre><p><strong>核心脚本 <code>heartbeat.py</code> 设计为无状态、幂等、单次执行：</strong><br>- 每次运行：扫描 → 对比 manifest/SHA256 → 只导入新增的 → commit → 退出<br>- 不需要 sleep 循环，不需要 PID 文件，不需要信号处理<br>- 你现有的 <code>discover-transcripts.py</code> + <code>import-transcripts.py</code> 已经天然支持这种模式<br><br><strong>为什么这比 tmux 长驻进程更好：</strong><br><br>| | tmux 长驻进程 | 单次执行 + OS 调度 |<br>|---|---|---|<br>| 崩溃恢复 | 崩了就没了，要手动重启 | OS 下次照常调度 |<br>| 内存泄漏 | 长驻进程会累积 | 每次新进程，天然隔离 |<br>| 重启后 | 丢失，需手动启 tmux | cron/launchd 开机自动 |<br>| 状态一致性 | 进程内状态可能脏 | 无状态，每次从磁盘读 |<br>| 调试 | 需 attach 看 | 看日志文件即可 |<br><br><strong>tmux 不是废弃，而是降级为&quot;开发调试模式&quot;</strong> — 当你想看实时输出时手动跑。<br><br>## 具体落地<br><br>启动命令设计：</p><pre><code>
-# 生产用法：注册到 OS 调度器（一次性操作）
+</code></pre><p><strong>核心脚本 <code>heartbeat.py</code> 设计为无状态、幂等、单次执行：</strong><br>- 每次运行：扫描 → 对比 manifest/SHA256 → 只导入新增的 → commit → 退出<br>- 不需要 sleep 循环，不需要 PID 文件，不需要信号处理<br>- 你现有的 <code>discover-transcripts.py</code> + <code>import-transcripts.py</code> 已经天然支持这种模式</p><p><strong>为什么这比 tmux 长驻进程更好：</strong></p><p>| | tmux 长驻进程 | 单次执行 + OS 调度 |<br>|---|---|---|<br>| 崩溃恢复 | 崩了就没了，要手动重启 | OS 下次照常调度 |<br>| 内存泄漏 | 长驻进程会累积 | 每次新进程，天然隔离 |<br>| 重启后 | 丢失，需手动启 tmux | cron/launchd 开机自动 |<br>| 状态一致性 | 进程内状态可能脏 | 无状态，每次从磁盘读 |<br>| 调试 | 需 attach 看 | 看日志文件即可 |</p><p><strong>tmux 不是废弃，而是降级为&quot;开发调试模式&quot;</strong> — 当你想看实时输出时手动跑。</p><p>## 具体落地</p><p>启动命令设计：</p><pre><code># 生产用法：注册到 OS 调度器（一次性操作）
 memorytree-daemon install    # 自动检测 OS，写 crontab / launchd plist / schtasks
 
 # 开发调试：前台运行一次
@@ -1049,11 +1045,10 @@ memorytree-daemon run-once
 
 # 开发调试：tmux 里循环跑（看实时输出）
 memorytree-daemon watch      # tmux + 5min loop，方便调试
-</code></pre><p><code>install</code> 子命令内部逻辑：</p><pre><code>
-if Linux:   写入 crontab → */5 * * * * python heartbeat.py
+</code></pre><p><code>install</code> 子命令内部逻辑：</p><pre><code>if Linux:   写入 crontab → */5 * * * * python heartbeat.py
 if macOS:   生成 ~/Library/LaunchAgents/com.memorytree.daemon.plist
 if Windows: schtasks /create /sc minute /mo 5 /tn MemoryTree ...
-</code></pre><p>---<br><br>你觉得这个&quot;单次执行 + OS 原生调度&quot;的方向如何？要不要我把这个方案更新到 TODO.md 的 P0 里？</p></div>
+</code></pre><p>---</p><p>你觉得这个&quot;单次执行 + OS 原生调度&quot;的方向如何？要不要我把这个方案更新到 TODO.md 的 P0 里？</p></div>
 </div>
 <div class="message message-user">
   <div class="message-header">
@@ -1065,20 +1060,16 @@ if Windows: schtasks /create /sc minute /mo 5 /tn MemoryTree ...
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:12:16</span>
   </div>
-  <div class="message-body"><p>好，我用最通俗的方式讲。<br><br>## 先理解两种&quot;定时做事&quot;的方式<br><br><strong>方式一：你自己盯着（tmux 长驻进程）</strong><br><br>想象你雇了一个人，让他 24 小时坐在办公室里：</p><pre><code>
-他坐在那 → 等 5 分钟 → 扫描一次 → 等 5 分钟 → 扫描一次 → ...
-</code></pre><p>- 他一直在，一直占着一把椅子（内存）<br>- 你把办公室门关了（关终端），他还在（tmux 的作用）<br>- 但如果停电了（电脑重启），他就走了，你得再叫他来<br><br><strong>方式二：设个闹钟让系统叫他（OS 调度）</strong><br><br>你不雇人坐着，而是设个闹钟：</p><pre><code>
-闹钟响 → 叫个人来 → 他扫描一次 → 做完走人 → 5分钟后闹钟再响 → 再叫人来 → ...
-</code></pre><p>- 没人一直坐着，做完就走（不占内存）<br>- 闹钟是操作系统管的，停电重启后闹钟还在<br>- 每次来的是&quot;新的一个人&quot;，不会因为上一次出了问题而影响下一次<br><br>## &quot;闹钟&quot;是什么？<br><br>每个操作系统都自带定时任务工具，不需要安装任何东西：<br><br>| 你的系统 | 自带的&quot;闹钟&quot; | 你用过的类似东西 |<br>|---------|-------------|----------------|<br>| Linux | <strong>cron</strong> | 像手机定时闹钟，写一行就行 |<br>| macOS | <strong>launchd</strong> | 系统偏好设置里的&quot;启动项&quot; |<br>| Windows | <strong>任务计划程序</strong> | 控制面板里的&quot;计划任务&quot;，你可能见过 |<br><br>你用的是 Windows，所以就是<strong>任务计划程序</strong>——右键&quot;我的电脑&quot;→ 管理 → 就能看到它。Windows Update 就是靠它定时检查更新的。<br><br>## Python 脚本怎么运行？<br><br>你担心的问题：Python 是不是要一直在后台跑？<br><br><strong>不是。</strong> 就像你双击一个 <code>.py</code> 文件：</p><pre><code>
-系统闹钟响了
+  <div class="message-body"><p>好，我用最通俗的方式讲。</p><p>## 先理解两种&quot;定时做事&quot;的方式</p><p><strong>方式一：你自己盯着（tmux 长驻进程）</strong></p><p>想象你雇了一个人，让他 24 小时坐在办公室里：</p><pre><code>他坐在那 → 等 5 分钟 → 扫描一次 → 等 5 分钟 → 扫描一次 → ...
+</code></pre><p>- 他一直在，一直占着一把椅子（内存）<br>- 你把办公室门关了（关终端），他还在（tmux 的作用）<br>- 但如果停电了（电脑重启），他就走了，你得再叫他来</p><p><strong>方式二：设个闹钟让系统叫他（OS 调度）</strong></p><p>你不雇人坐着，而是设个闹钟：</p><pre><code>闹钟响 → 叫个人来 → 他扫描一次 → 做完走人 → 5分钟后闹钟再响 → 再叫人来 → ...
+</code></pre><p>- 没人一直坐着，做完就走（不占内存）<br>- 闹钟是操作系统管的，停电重启后闹钟还在<br>- 每次来的是&quot;新的一个人&quot;，不会因为上一次出了问题而影响下一次</p><p>## &quot;闹钟&quot;是什么？</p><p>每个操作系统都自带定时任务工具，不需要安装任何东西：</p><p>| 你的系统 | 自带的&quot;闹钟&quot; | 你用过的类似东西 |<br>|---------|-------------|----------------|<br>| Linux | <strong>cron</strong> | 像手机定时闹钟，写一行就行 |<br>| macOS | <strong>launchd</strong> | 系统偏好设置里的&quot;启动项&quot; |<br>| Windows | <strong>任务计划程序</strong> | 控制面板里的&quot;计划任务&quot;，你可能见过 |</p><p>你用的是 Windows，所以就是<strong>任务计划程序</strong>——右键&quot;我的电脑&quot;→ 管理 → 就能看到它。Windows Update 就是靠它定时检查更新的。</p><p>## Python 脚本怎么运行？</p><p>你担心的问题：Python 是不是要一直在后台跑？</p><p><strong>不是。</strong> 就像你双击一个 <code>.py</code> 文件：</p><pre><code>系统闹钟响了
   → Windows 启动 python.exe
   → 跑 heartbeat.py（大约 2-3 秒）
   → 扫描、导入、commit
   → python.exe 自动退出（释放所有资源）
   → 什么都不占了
   → 5 分钟后闹钟再响，重复上面的过程
-</code></pre><p>Python 只在那 2-3 秒内存在，其余时间完全不占任何资源。<br><br>## 对比一下</p><pre><code>
-tmux 方案（雇人坐着）:
+</code></pre><p>Python 只在那 2-3 秒内存在，其余时间完全不占任何资源。</p><p>## 对比一下</p><pre><code>tmux 方案（雇人坐着）:
   python.exe 一直在后台 ──────────────────────→ 永远运行
   内存占用: 持续 ~30MB
   电脑重启: 丢失，要手动重启
@@ -1090,7 +1081,7 @@ OS 调度方案（设闹钟）:
    闹钟响          闹钟响          闹钟响
   内存占用: 99.9% 时间是 0
   电脑重启: 闹钟还在，自动继续
-</code></pre><p>## 一句话总结<br><br><strong>不需要后台常驻任何东西。</strong> 让 Windows 自带的任务计划程序每 5 分钟调用一次你的 Python 脚本，跑完就退出。就像设了个闹钟，闹钟响了干活，干完回去睡觉。<br><br>---<br><br>这样理解下来，你觉得这个方案可以吗？如果没问题我就把 TODO.md 里的 P0 按这个方向更新。</p></div>
+</code></pre><p>## 一句话总结</p><p><strong>不需要后台常驻任何东西。</strong> 让 Windows 自带的任务计划程序每 5 分钟调用一次你的 Python 脚本，跑完就退出。就像设了个闹钟，闹钟响了干活，干完回去睡觉。</p><p>---</p><p>这样理解下来，你觉得这个方案可以吗？如果没问题我就把 TODO.md 里的 P0 按这个方向更新。</p></div>
 </div>
 <div class="message message-user">
   <div class="message-header">
@@ -1102,14 +1093,12 @@ OS 调度方案（设闹钟）:
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:28:25</span>
   </div>
-  <div class="message-body"><p>你这个问题问得非常好，这是架构设计的关键点。<br><br>## 答案：只需要 1 个闹钟，管所有项目<br><br>不是每个项目一个闹钟，而是 <strong>整台电脑只有 1 个闹钟</strong>。<br><br>## 为什么？看你现有代码的设计<br><br>你的 <code>discover-transcripts.py</code> 已经是这么工作的：</p><pre><code>
-它扫描的不是项目目录，而是 3 个客户端的全局目录：
+  <div class="message-body"><p>你这个问题问得非常好，这是架构设计的关键点。</p><p>## 答案：只需要 1 个闹钟，管所有项目</p><p>不是每个项目一个闹钟，而是 <strong>整台电脑只有 1 个闹钟</strong>。</p><p>## 为什么？看你现有代码的设计</p><p>你的 <code>discover-transcripts.py</code> 已经是这么工作的：</p><pre><code>它扫描的不是项目目录，而是 3 个客户端的全局目录：
 
 ~/.claude/projects/    ← Claude 所有项目的对话都在这
 ~/.codex/sessions/     ← Codex 所有项目的对话都在这
 ~/.gemini/             ← Gemini 所有项目的对话都在这
-</code></pre><p>这 3 个目录是固定的，不管你有 5 个项目还是 500 个项目，入口永远是这 3 个地方。<br><br>## 工作流程</p><pre><code>
-闹钟响了（每 5 分钟一次）
+</code></pre><p>这 3 个目录是固定的，不管你有 5 个项目还是 500 个项目，入口永远是这 3 个地方。</p><p>## 工作流程</p><pre><code>闹钟响了（每 5 分钟一次）
   │
   ├→ 扫描 ~/.claude/projects/
   ├→ 扫描 ~/.codex/sessions/
@@ -1123,13 +1112,11 @@ OS 调度方案（设闹钟）:
   ├→ 项目D ~ 项目Z：没有新对话      → 跳过（0 开销）
   │
   └→ 退出，耗时 2 秒
-</code></pre><p><strong>50 个项目中只有 3 个活跃的？</strong> 那每次扫描只处理这 3 个，其余 47 个自动跳过，因为没有新文件。<br><br>## 打个比方<br><br>不是给 50 个房间各装一个闹钟，而是：</p><pre><code>
-一个保安，每 5 分钟巡逻一圈
+</code></pre><p><strong>50 个项目中只有 3 个活跃的？</strong> 那每次扫描只处理这 3 个，其余 47 个自动跳过，因为没有新文件。</p><p>## 打个比方</p><p>不是给 50 个房间各装一个闹钟，而是：</p><pre><code>一个保安，每 5 分钟巡逻一圈
   → 经过 50 个房间的门口
   → 只推开亮着灯的门进去看看（活跃项目）
   → 没亮灯的直接走过（不活跃项目，几乎零开销）
-</code></pre><p>## 所以最终架构是</p><pre><code>
-整台电脑只注册 1 个定时任务
+</code></pre><p>## 所以最终架构是</p><pre><code>整台电脑只注册 1 个定时任务
           │
           ▼
     heartbeat.py（全局唯一）
@@ -1139,7 +1126,7 @@ OS 调度方案（设闹钟）:
           ├→ 有新内容的项目 → 导入
           ├→ 没新内容的项目 → 跳过
           └→ 退出
-</code></pre><p>不会有 50 个闹钟的问题。1 台电脑 = 1 个闹钟 = 1 个 <code>heartbeat.py</code>。<br><br>要我把这个&quot;全局单实例&quot;的设计更新到 TODO.md 里吗？</p></div>
+</code></pre><p>不会有 50 个闹钟的问题。1 台电脑 = 1 个闹钟 = 1 个 <code>heartbeat.py</code>。</p><p>要我把这个&quot;全局单实例&quot;的设计更新到 TODO.md 里吗？</p></div>
 </div>
 <div class="message message-user">
   <div class="message-header">
@@ -1151,20 +1138,16 @@ OS 调度方案（设闹钟）:
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:34:25</span>
   </div>
-  <div class="message-body"><p>对，就是这个逻辑。Git 本身天然支持&quot;有变动才提交&quot;。<br><br>## 核心原理<br><br>Git 有一个命令能告诉你&quot;有没有变动&quot;：</p><pre><code>
-git status --porcelain Memory/
-</code></pre><pre><code>
-有变动时输出:                    没变动时输出:
+  <div class="message-body"><p>对，就是这个逻辑。Git 本身天然支持&quot;有变动才提交&quot;。</p><p>## 核心原理</p><p>Git 有一个命令能告诉你&quot;有没有变动&quot;：</p><pre><code>git status --porcelain Memory/
+</code></pre><pre><code>有变动时输出:                    没变动时输出:
 M  Memory/06_transcripts/...    （空，什么都没有）
 A  Memory/06_transcripts/...
-</code></pre><p>所以逻辑非常简单：</p><pre><code>
-检查 git status
+</code></pre><p>所以逻辑非常简单：</p><pre><code>检查 git status
   │
   ├→ 空（没变动）→ 什么都不做，跳过
   │
   └→ 有内容（有变动）→ git add → git commit → 可选 git push
-</code></pre><p>## 多项目怎么办？<br><br>你有 50 个项目，每个项目是独立的 Git 仓库。heartbeat 的流程是：</p><pre><code>
-heartbeat.py 启动
+</code></pre><p>## 多项目怎么办？</p><p>你有 50 个项目，每个项目是独立的 Git 仓库。heartbeat 的流程是：</p><pre><code>heartbeat.py 启动
   │
   ├→ 扫描发现 3 条新 transcript
   │
@@ -1187,15 +1170,12 @@ heartbeat.py 启动
   │   └→ 根本不会碰这些仓库（不 cd、不 status、不 commit）
   │
   └→ 退出
-</code></pre><p>## 关于 push<br><br>这里有个关键决策：</p><pre><code>
-commit = 保存到本地（安全，随时可做）
+</code></pre><p>## 关于 push</p><p>这里有个关键决策：</p><pre><code>commit = 保存到本地（安全，随时可做）
 push   = 上传到远程（GitHub/Gitea）
-</code></pre><p>| 策略 | 说明 | 建议 |<br>|------|------|------|<br>| <strong>只 commit，不 push</strong> | 变动存在本地，你下次手动 push | 最安全，适合默认行为 |<br>| <strong>自动 push</strong> | commit 后立即推到远程 | 方便，但要确保网络通、权限对 |<br>| <strong>攒批 push</strong> | 攒够 N 次 commit 或到整点才 push | 折中方案，减少网络请求 |<br><br>建议默认 <strong>只 commit</strong>，push 由用户手动或配置开启：</p><pre><code>
-# memorytree-daemon.toml
+</code></pre><p>| 策略 | 说明 | 建议 |<br>|------|------|------|<br>| <strong>只 commit，不 push</strong> | 变动存在本地，你下次手动 push | 最安全，适合默认行为 |<br>| <strong>自动 push</strong> | commit 后立即推到远程 | 方便，但要确保网络通、权限对 |<br>| <strong>攒批 push</strong> | 攒够 N 次 commit 或到整点才 push | 折中方案，减少网络请求 |</p><p>建议默认 <strong>只 commit</strong>，push 由用户手动或配置开启：</p><pre><code># memorytree-daemon.toml
 auto_push = false          # 默认不自动 push
 # auto_push = true         # 用户想自动就改成 true
-</code></pre><p>## 安全保障<br><br>你可能担心：<strong>会不会把不该提交的东西提交了？</strong><br><br>不会，因为：<br><br>1. <strong>只动 Memory/ 目录</strong> — <code>git add Memory/</code> 只暂存记忆文件，不碰代码<br>2. <strong>遵守 .gitignore</strong> — 如果 Memory/ 下有 .gitignore 规则，Git 自动跳过<br>3. <strong>独立分支（可选）</strong> — 你现有的 <code>git-policy.md</code> 已经设计了专用分支策略<br>4. <strong>commit message 有标识</strong> — 前缀 <code>chore(memorytree):</code> 一眼就能认出是自动提交<br><br>## 伪代码总结</p><pre><code>
-def auto_commit(project_path):
+</code></pre><p>## 安全保障</p><p>你可能担心：<strong>会不会把不该提交的东西提交了？</strong></p><p>不会，因为：</p><p>1. <strong>只动 Memory/ 目录</strong> — <code>git add Memory/</code> 只暂存记忆文件，不碰代码<br>2. <strong>遵守 .gitignore</strong> — 如果 Memory/ 下有 .gitignore 规则，Git 自动跳过<br>3. <strong>独立分支（可选）</strong> — 你现有的 <code>git-policy.md</code> 已经设计了专用分支策略<br>4. <strong>commit message 有标识</strong> — 前缀 <code>chore(memorytree):</code> 一眼就能认出是自动提交</p><p>## 伪代码总结</p><pre><code>def auto_commit(project_path):
     os.chdir(project_path)
     
     # 检查有没有变动
@@ -1210,7 +1190,7 @@ def auto_commit(project_path):
     # 可选：自动 push
     if config.auto_push:
         run(&quot;git push&quot;)
-</code></pre><p>就这么简单——<strong>有变动就提，没变动就跳</strong>。Git 本身的机制保证了这一点。<br><br>要我继续聊清洗逻辑，还是先把这些讨论的结论更新到 TODO.md？</p></div>
+</code></pre><p>就这么简单——<strong>有变动就提，没变动就跳</strong>。Git 本身的机制保证了这一点。</p><p>要我继续聊清洗逻辑，还是先把这些讨论的结论更新到 TODO.md？</p></div>
 </div>
 <div class="message message-user">
   <div class="message-header">
@@ -1222,7 +1202,7 @@ def auto_commit(project_path):
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:38:24</span>
   </div>
-  <div class="message-body"><p>完全同意你的逻辑。记忆数据的安全性比代码提交的谨慎性更重要——记忆丢了就真的没了。<br><br>更新 TODO.md 里的策略：</p></div>
+  <div class="message-body"><p>完全同意你的逻辑。记忆数据的安全性比代码提交的谨慎性更重要——记忆丢了就真的没了。</p><p>更新 TODO.md 里的策略：</p></div>
 </div>
 <div class="message message-assistant">
   <div class="message-header">
@@ -1234,7 +1214,7 @@ def auto_commit(project_path):
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:39:15</span>
   </div>
-  <div class="message-body"><p>已更新完成。核心改动总结：<br><br><strong>Git 策略反转：默认 push</strong><br>- <code>auto_push = true</code>（记忆是用户资产，本地丢失不可恢复）<br>- 首次安装时提示用户确认，之后静默执行<br>- push 失败不会丢数据——commit 已在本地，下次重试即可<br><br><strong>架构也一并同步了我们前面讨论的结论：</strong><br>- 全局单实例（1 台电脑 1 个定时任务）<br>- 单次执行 + OS 原生调度（不是 tmux 长驻）<br>- tmux 降级为开发调试模式<br><br>你的理念是对的——<strong>记忆系统的默认姿态应该是&quot;保护数据&quot;，而不是&quot;谨慎不动&quot;</strong>。用户可以随时关掉 auto_push，但默认应该是开着的。<br><br>还要继续聊清洗逻辑，还是先看看更新后的完整 TODO？</p></div>
+  <div class="message-body"><p>已更新完成。核心改动总结：</p><p><strong>Git 策略反转：默认 push</strong><br>- <code>auto_push = true</code>（记忆是用户资产，本地丢失不可恢复）<br>- 首次安装时提示用户确认，之后静默执行<br>- push 失败不会丢数据——commit 已在本地，下次重试即可</p><p><strong>架构也一并同步了我们前面讨论的结论：</strong><br>- 全局单实例（1 台电脑 1 个定时任务）<br>- 单次执行 + OS 原生调度（不是 tmux 长驻）<br>- tmux 降级为开发调试模式</p><p>你的理念是对的——<strong>记忆系统的默认姿态应该是&quot;保护数据&quot;，而不是&quot;谨慎不动&quot;</strong>。用户可以随时关掉 auto_push，但默认应该是开着的。</p><p>还要继续聊清洗逻辑，还是先看看更新后的完整 TODO？</p></div>
 </div>
 <div class="message message-user">
   <div class="message-header">
@@ -1252,13 +1232,13 @@ def auto_commit(project_path):
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:42:41</span>
   </div>
-  <div class="message-body"><p>好，两轮 review 完成。以下是发现的所有问题：<br><br>---<br><br>## 第一轮 Review：事实错误 &amp; 不一致<br><br>| # | 位置 | 问题 | 严重度 |<br>|---|------|------|--------|<br>| 1 | 行 55-56 | <code>log_level（默认 info）</code> <strong>重复了两行</strong> | BUG |<br>| 2 | 行 62 vs 59 | 测试写的&quot;PID 互斥&quot;，但运维已改成&quot;锁文件互斥&quot;——术语不一致 | 矛盾 |<br>| 3 | 行 104 vs 39-42 | P3 CLI 写的 <code>start\|stop\|status</code>，但 P0 定义的是 <code>install\|run-once\|watch\|uninstall</code>——两套命令 | 矛盾 |<br>| 4 | 行 32 | 标题还叫&quot;心跳 daemon&quot;，但架构已改为&quot;单次执行 + OS 调度&quot;，不再是 daemon | 过时 |<br>| 5 | 行 92 | &quot;检测 daemon 是否运行&quot;——OS 定时任务没有&quot;运行中&quot;的进程可检测，应该是检测定时任务是否已注册 | 逻辑错 |<br>| 6 | 行 111 | P3 里写&quot;tmux 依赖说明&quot;——tmux 已降级为开发调试用，不应出现在用户安装文档里 | 过时 |<br>| 7 | 行 144 | 链接 <code>references/openmnemo-vision.md</code>——该文件不存在 | 死链 |<br><br>## 第二轮 Review：遗漏 &amp; 逻辑缺陷<br><br>| # | 问题 | 说明 |<br>|---|------|------|<br>| 8 | <strong>缺少 git remote 前置检查</strong> | auto_push=true 前提是项目有 remote。如果没有 remote，push 会失败。heartbeat 需要处理这种情况 |<br>| 9 | <strong>缺少分支策略</strong> | git-policy.md 规定 memorytree 用专用分支，但 P0 的 auto-commit 没写提交到哪个分支 |<br>| 10 | <strong>缺少错误通知机制</strong> | push 连续失败只写日志，用户可能永远不知道。应在下次 Skill 激活时提醒 |<br>| 11 | <strong>缺少首次安装触发点</strong> | <code>memorytree-daemon install</code> 谁来调用？init-memorytree.py 结束后自动？还是用户手动？ |<br>| 12 | <strong>敏感信息扫描放错位置</strong> | P2 里写&quot;清洗时扫描敏感模式&quot;，但清洗在 P0 heartbeat 里就发生了。应归入 P0 或 P1 |<br>| 13 | <strong>依赖关系箭头方向不清</strong> | <code>P1 ──→ P0</code> 表示 P1 阻塞 P0？还是 P0 依赖 P1？读者会困惑 |<br><br>---<br><br>一次性修复所有 13 个问题：</p></div>
+  <div class="message-body"><p>好，两轮 review 完成。以下是发现的所有问题：</p><p>---</p><p>## 第一轮 Review：事实错误 &amp; 不一致</p><p>| # | 位置 | 问题 | 严重度 |<br>|---|------|------|--------|<br>| 1 | 行 55-56 | <code>log_level（默认 info）</code> <strong>重复了两行</strong> | BUG |<br>| 2 | 行 62 vs 59 | 测试写的&quot;PID 互斥&quot;，但运维已改成&quot;锁文件互斥&quot;——术语不一致 | 矛盾 |<br>| 3 | 行 104 vs 39-42 | P3 CLI 写的 <code>start\|stop\|status</code>，但 P0 定义的是 <code>install\|run-once\|watch\|uninstall</code>——两套命令 | 矛盾 |<br>| 4 | 行 32 | 标题还叫&quot;心跳 daemon&quot;，但架构已改为&quot;单次执行 + OS 调度&quot;，不再是 daemon | 过时 |<br>| 5 | 行 92 | &quot;检测 daemon 是否运行&quot;——OS 定时任务没有&quot;运行中&quot;的进程可检测，应该是检测定时任务是否已注册 | 逻辑错 |<br>| 6 | 行 111 | P3 里写&quot;tmux 依赖说明&quot;——tmux 已降级为开发调试用，不应出现在用户安装文档里 | 过时 |<br>| 7 | 行 144 | 链接 <code>references/openmnemo-vision.md</code>——该文件不存在 | 死链 |</p><p>## 第二轮 Review：遗漏 &amp; 逻辑缺陷</p><p>| # | 问题 | 说明 |<br>|---|------|------|<br>| 8 | <strong>缺少 git remote 前置检查</strong> | auto_push=true 前提是项目有 remote。如果没有 remote，push 会失败。heartbeat 需要处理这种情况 |<br>| 9 | <strong>缺少分支策略</strong> | git-policy.md 规定 memorytree 用专用分支，但 P0 的 auto-commit 没写提交到哪个分支 |<br>| 10 | <strong>缺少错误通知机制</strong> | push 连续失败只写日志，用户可能永远不知道。应在下次 Skill 激活时提醒 |<br>| 11 | <strong>缺少首次安装触发点</strong> | <code>memorytree-daemon install</code> 谁来调用？init-memorytree.py 结束后自动？还是用户手动？ |<br>| 12 | <strong>敏感信息扫描放错位置</strong> | P2 里写&quot;清洗时扫描敏感模式&quot;，但清洗在 P0 heartbeat 里就发生了。应归入 P0 或 P1 |<br>| 13 | <strong>依赖关系箭头方向不清</strong> | <code>P1 ──→ P0</code> 表示 P1 阻塞 P0？还是 P0 依赖 P1？读者会困惑 |</p><p>---</p><p>一次性修复所有 13 个问题：</p></div>
 </div>
 <div class="message message-assistant">
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:43:32</span>
   </div>
-  <div class="message-body"><p>13 个问题全部修复，对照表：<br><br>| # | 问题 | 修复 |<br>|---|------|------|<br>| 1 | <code>log_level</code> 重复 | 删除重复行 |<br>| 2 | &quot;PID 互斥&quot; vs &quot;锁文件互斥&quot; | 统一为&quot;锁文件互斥&quot; |<br>| 3 | P0 和 P3 命令不一致 | P3 对齐 P0: <code>install\|uninstall\|run-once\|watch\|status</code> |<br>| 4 | 标题还叫 &quot;daemon&quot; | 改为&quot;定时心跳&quot; |<br>| 5 | &quot;检测 daemon 是否运行&quot; | 改为&quot;检测定时任务是否已注册&quot; |<br>| 6 | P3 写 tmux 依赖说明 | 改为&quot;各平台定时任务注册说明&quot; |<br>| 7 | 死链 openmnemo-vision.md | 移除链接，标注&quot;待独立为单独文档&quot; |<br>| 8 | 缺 git remote 检查 | P0 新增&quot;git remote 前置检查&quot;子项 |<br>| 9 | 缺分支策略 | 补充&quot;提交到当前分支，遵循项目已有分支策略&quot; |<br>| 10 | 缺错误通知 | 新增 <code>alerts.json</code> + Skill 激活时展示 |<br>| 11 | 缺首次安装触发点 | 新增&quot;init 完成后提示用户运行 install&quot; |<br>| 12 | 敏感信息扫描放错位置 | 从 P2 移到 P0&quot;敏感信息预检&quot; |<br>| 13 | 依赖箭头方向不清 | 改用&quot;─先做→&quot;中文标注 |</p></div>
+  <div class="message-body"><p>13 个问题全部修复，对照表：</p><p>| # | 问题 | 修复 |<br>|---|------|------|<br>| 1 | <code>log_level</code> 重复 | 删除重复行 |<br>| 2 | &quot;PID 互斥&quot; vs &quot;锁文件互斥&quot; | 统一为&quot;锁文件互斥&quot; |<br>| 3 | P0 和 P3 命令不一致 | P3 对齐 P0: <code>install\|uninstall\|run-once\|watch\|status</code> |<br>| 4 | 标题还叫 &quot;daemon&quot; | 改为&quot;定时心跳&quot; |<br>| 5 | &quot;检测 daemon 是否运行&quot; | 改为&quot;检测定时任务是否已注册&quot; |<br>| 6 | P3 写 tmux 依赖说明 | 改为&quot;各平台定时任务注册说明&quot; |<br>| 7 | 死链 openmnemo-vision.md | 移除链接，标注&quot;待独立为单独文档&quot; |<br>| 8 | 缺 git remote 检查 | P0 新增&quot;git remote 前置检查&quot;子项 |<br>| 9 | 缺分支策略 | 补充&quot;提交到当前分支，遵循项目已有分支策略&quot; |<br>| 10 | 缺错误通知 | 新增 <code>alerts.json</code> + Skill 激活时展示 |<br>| 11 | 缺首次安装触发点 | 新增&quot;init 完成后提示用户运行 install&quot; |<br>| 12 | 敏感信息扫描放错位置 | 从 P2 移到 P0&quot;敏感信息预检&quot; |<br>| 13 | 依赖箭头方向不清 | 改用&quot;─先做→&quot;中文标注 |</p></div>
 </div>
 <div class="message message-user">
   <div class="message-header">
@@ -1300,7 +1280,7 @@ def auto_commit(project_path):
   <div class="message-header">
     <span class="message-role">assistant</span><span style="margin-left:auto">15:59:39</span>
   </div>
-  <div class="message-body"><p>计划已写好。核心内容：<br><br>- <strong>2 个新建文件</strong>: <code>heartbeat-scheduling.md</code>（心跳架构规范）、<code>global-configuration.md</code>（~/.memorytree/ 目录规范）<br>- <strong>6 个更新文件</strong>: SKILL.md、git-policy.md（加 Auto Push 段）、transcript-archive.md（细化搜索）、两个 agents.md 模板（加心跳规则）、README.md（加 Heartbeat 段）<br>- 纯文档变更，不写 Python 代码<br>- 所有 TODO 里讨论的决策（心跳调度、auto_push=true、全局配置、alerts、敏感信息扫描、remote 前置检查）全部落地</p></div>
+  <div class="message-body"><p>计划已写好。核心内容：</p><p>- <strong>2 个新建文件</strong>: <code>heartbeat-scheduling.md</code>（心跳架构规范）、<code>global-configuration.md</code>（~/.memorytree/ 目录规范）<br>- <strong>6 个更新文件</strong>: SKILL.md、git-policy.md（加 Auto Push 段）、transcript-archive.md（细化搜索）、两个 agents.md 模板（加心跳规则）、README.md（加 Heartbeat 段）<br>- 纯文档变更，不写 Python 代码<br>- 所有 TODO 里讨论的决策（心跳调度、auto_push=true、全局配置、alerts、敏感信息扫描、remote 前置检查）全部落地</p></div>
 </div></div>
   </div>
 </div>
