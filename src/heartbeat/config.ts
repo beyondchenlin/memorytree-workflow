@@ -28,11 +28,14 @@ const DEFAULT_CNAME = ''
 const DEFAULT_WEBHOOK_URL = ''
 const DEFAULT_REPORT_BASE_URL = ''
 const DEFAULT_REPORT_PORT = 10010
+const DEFAULT_REPORT_EXPOSURE = 'local'
 const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(['debug', 'info', 'warn', 'error'])
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+export type ReportExposure = 'local' | 'lan'
 
 export interface ProjectEntry {
   readonly id: string
@@ -52,6 +55,7 @@ export interface ProjectEntry {
   readonly webhook_url: string
   readonly report_base_url: string
   readonly report_port: number
+  readonly report_exposure: ReportExposure
   readonly last_heartbeat_at: string
   readonly last_refresh_at: string
 }
@@ -72,6 +76,8 @@ export interface Config {
   readonly report_base_url: string
   /** Port for the report HTTP server. Default: 10010. */
   readonly report_port: number
+  /** Exposure for local report hosting. Default: local. */
+  readonly report_exposure: ReportExposure
 }
 
 type ProjectLike = Partial<ProjectEntry> & {
@@ -131,6 +137,7 @@ export function saveConfig(cfg: Config): void {
     `webhook_url = ${tomlString(normalized.webhook_url)}`,
     `report_base_url = ${tomlString(normalized.report_base_url)}`,
     `report_port = ${normalized.report_port}`,
+    `report_exposure = ${tomlString(normalized.report_exposure)}`,
   ]
 
   if (normalized.watch_dirs.length > 0) {
@@ -160,6 +167,7 @@ export function saveConfig(cfg: Config): void {
     lines.push(`webhook_url = ${tomlString(project.webhook_url)}`)
     lines.push(`report_base_url = ${tomlString(project.report_base_url)}`)
     lines.push(`report_port = ${project.report_port}`)
+    lines.push(`report_exposure = ${tomlString(project.report_exposure)}`)
     if (project.last_heartbeat_at) {
       lines.push(`last_heartbeat_at = ${tomlString(project.last_heartbeat_at)}`)
     }
@@ -226,6 +234,7 @@ export function registerProject(
   if (overrides.webhook_url !== undefined) projectInput.webhook_url = overrides.webhook_url
   if (overrides.report_base_url !== undefined) projectInput.report_base_url = overrides.report_base_url
   if (overrides.report_port !== undefined) projectInput.report_port = overrides.report_port
+  if (overrides.report_exposure !== undefined) projectInput.report_exposure = overrides.report_exposure
   if (overrides.last_heartbeat_at !== undefined) projectInput.last_heartbeat_at = overrides.last_heartbeat_at
 
   const project = normalizeProjectEntry(projectInput as ProjectLike, normalized)
@@ -286,6 +295,11 @@ export function findProjectForPath(config: Config, candidatePath: string): Proje
 export function resolveReportPort(config: Config, candidatePath: string): number {
   const project = findProjectForPath(config, candidatePath)
   return project?.report_port ?? config.report_port
+}
+
+export function resolveReportExposure(config: Config, candidatePath: string): ReportExposure {
+  const project = findProjectForPath(config, candidatePath)
+  return project?.report_exposure ?? config.report_exposure
 }
 
 export function projectExecutionPath(project: ProjectEntry): string {
@@ -359,6 +373,7 @@ function defaultConfig(): Config {
     webhook_url: DEFAULT_WEBHOOK_URL,
     report_base_url: DEFAULT_REPORT_BASE_URL,
     report_port: DEFAULT_REPORT_PORT,
+    report_exposure: DEFAULT_REPORT_EXPOSURE,
   }
 }
 
@@ -417,6 +432,7 @@ function parseRaw(raw: Record<string, unknown>): Config {
   const reportPort = isValidPort(raw['report_port'])
     ? raw['report_port']
     : DEFAULT_REPORT_PORT
+  const reportExposure = normalizeReportExposure(raw['report_exposure'], DEFAULT_REPORT_EXPOSURE)
 
   const cfg: Config = {
     heartbeat_interval: interval,
@@ -432,6 +448,7 @@ function parseRaw(raw: Record<string, unknown>): Config {
     webhook_url: webhookUrl,
     report_base_url: reportBaseUrl,
     report_port: reportPort,
+    report_exposure: reportExposure,
   }
 
   const projects: ProjectEntry[] = []
@@ -469,6 +486,7 @@ function normalizeConfig(cfg: Config): Config {
     webhook_url: stringOrDefault(cfg.webhook_url, DEFAULT_WEBHOOK_URL),
     report_base_url: stringOrDefault(cfg.report_base_url, DEFAULT_REPORT_BASE_URL),
     report_port: isValidPort(cfg.report_port) ? cfg.report_port : DEFAULT_REPORT_PORT,
+    report_exposure: normalizeReportExposure(cfg.report_exposure, DEFAULT_REPORT_EXPOSURE),
   }
 
   const projects = cfg.projects.map(project => normalizeProjectEntry(project, normalizedBase))
@@ -515,6 +533,7 @@ function normalizeProjectEntry(project: ProjectLike, cfg: Config): ProjectEntry 
     webhook_url: stringOrDefault(project.webhook_url, cfg.webhook_url),
     report_base_url: stringOrDefault(project.report_base_url, cfg.report_base_url),
     report_port: isValidPort(project.report_port) ? project.report_port : cfg.report_port,
+    report_exposure: normalizeReportExposure(project.report_exposure, cfg.report_exposure),
     last_heartbeat_at: isValidIsoTimestamp(project.last_heartbeat_at) ? project.last_heartbeat_at : '',
     last_refresh_at: isValidIsoTimestamp(project.last_refresh_at) ? project.last_refresh_at : '',
   }
@@ -531,6 +550,12 @@ function isValidPort(value: unknown): value is number {
     && Number.isInteger(value)
     && value > 0
     && value <= 65535
+}
+
+function normalizeReportExposure(value: unknown, fallback: ReportExposure): ReportExposure {
+  if (typeof value !== 'string') return fallback
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'lan' ? 'lan' : normalized === 'local' ? 'local' : fallback
 }
 
 function isValidIsoTimestamp(value: unknown): value is string {

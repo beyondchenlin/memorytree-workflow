@@ -384,6 +384,21 @@ describe('CLI E2E', () => {
     expect(buildHelp.stdout).toContain('After building, keep Caddy pointed at the output directory')
   })
 
+  it('shows project-managed Caddy help and subcommands through the built CLI', () => {
+    expect(existsSync(cliPath)).toBe(true)
+
+    const caddyHelp = runCli(['caddy', '--help'])
+    assertSuccess(caddyHelp, 'memorytree caddy --help')
+    expect(caddyHelp.stdout).toContain('Manage MemoryTree-owned Caddy config')
+    expect(caddyHelp.stdout).toContain('memorytree caddy enable --root .')
+    expect(caddyHelp.stdout).toContain('memorytree caddy status --root .')
+    expect(caddyHelp.stdout).toContain('memorytree caddy disable --root .')
+
+    const enableHelp = runCli(['caddy', 'enable', '--help'])
+    assertSuccess(enableHelp, 'memorytree caddy enable --help')
+    expect(enableHelp.stdout).toContain('Write/update the current project Caddy fragment and reload Caddy')
+  })
+
   it('shows quick-start and register help examples through the built CLI', () => {
     expect(existsSync(cliPath)).toBe(true)
 

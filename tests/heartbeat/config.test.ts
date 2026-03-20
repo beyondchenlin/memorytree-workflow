@@ -33,6 +33,7 @@ import {
   projectIsDue,
   projectRefreshIsDue,
   resolveReportPort,
+  resolveReportExposure,
 } from '../../src/heartbeat/config.js'
 
 // ---------------------------------------------------------------------------
@@ -89,6 +90,7 @@ describe('loadConfig', () => {
         'auto_push = false',
         'log_level = "debug"',
         'report_port = 12345',
+        'report_exposure = "lan"',
         'watch_dirs = ["/home/user/repos"]',
         '',
         '[[projects]]',
@@ -103,6 +105,7 @@ describe('loadConfig', () => {
     expect(cfg.auto_push).toBe(false)
     expect(cfg.log_level).toBe('debug')
     expect(cfg.report_port).toBe(12345)
+    expect(cfg.report_exposure).toBe('lan')
     expect(cfg.watch_dirs).toEqual(['/home/user/repos'])
     expect(cfg.projects).toHaveLength(1)
     expect(cfg.projects[0]!.path).toBe('/home/user/project-a')
@@ -145,6 +148,7 @@ describe('loadConfig', () => {
         'auto_push = true',
         'generate_report = false',
         'report_port = 10010',
+        'report_exposure = "local"',
         '',
         '[[projects]]',
         'path = "/home/user/project-a"',
@@ -157,6 +161,7 @@ describe('loadConfig', () => {
         'auto_push = false',
         'generate_report = true',
         'report_port = 18080',
+        'report_exposure = "lan"',
         'last_heartbeat_at = "2026-03-19T10:00:00Z"',
         'last_refresh_at = "2026-03-19T10:15:00Z"',
         '',
@@ -172,6 +177,7 @@ describe('loadConfig', () => {
     expect(cfg.projects[0]!.auto_push).toBe(false)
     expect(cfg.projects[0]!.generate_report).toBe(true)
     expect(cfg.projects[0]!.report_port).toBe(18080)
+    expect(cfg.projects[0]!.report_exposure).toBe('lan')
     expect(cfg.projects[0]!.last_heartbeat_at).toBe('2026-03-19T10:00:00Z')
     expect(cfg.projects[0]!.last_refresh_at).toBe('2026-03-19T10:15:00Z')
   })
@@ -349,6 +355,7 @@ describe('registerProject', () => {
     expect(updated.projects[0]!.gh_pages_branch).toBe('gh-pages')
     expect(updated.projects[0]!.report_base_url).toBe('https://example.com/memory')
     expect(updated.projects[0]!.report_port).toBe(18181)
+    expect(updated.projects[0]!.report_exposure).toBe('local')
     expect(updated.projects[0]!.memory_branch).toBe(DEFAULT_MEMORY_BRANCH)
   })
 })
@@ -673,6 +680,52 @@ describe('report_port field', () => {
   })
 })
 
+describe('report_exposure field', () => {
+  it('defaults to local', () => {
+    const cfg = loadConfig()
+    expect(cfg.report_exposure).toBe('local')
+  })
+
+  it('parses report_exposure from TOML', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_exposure = "lan"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_exposure).toBe('lan')
+  })
+
+  it('defaults on invalid report_exposure', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(path, 'report_exposure = "public"\n')
+    const cfg = loadConfig()
+    expect(cfg.report_exposure).toBe('local')
+  })
+
+  it('round-trips via saveConfig/loadConfig', () => {
+    const original = {
+      heartbeat_interval: '5m',
+      auto_push: false,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 18080,
+      report_exposure: 'lan',
+    } as const
+
+    saveConfig(original)
+    const loaded = loadConfig()
+    expect(loaded.report_exposure).toBe('lan')
+  })
+})
+
 describe('project path helpers', () => {
   it('findProjectForPath matches nested report directories using the longest root', () => {
     const cfg = registerProject(loadConfig(), '/workspace/app')
@@ -723,6 +776,51 @@ describe('project path helpers', () => {
 
     expect(resolveReportPort(cfg, '/workspace/app/Memory/07_reports')).toBe(19090)
     expect(resolveReportPort(cfg, '/workspace/other')).toBe(10010)
+  })
+
+  it('resolveReportExposure prefers the matching project exposure over the global default', () => {
+    const cfg = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [
+        {
+          id: 'project-a',
+          path: '/workspace/app',
+          name: 'project-a',
+          development_path: '/workspace/app',
+          memory_path: '/workspace/.memorytree/worktrees/app',
+          memory_branch: DEFAULT_MEMORY_BRANCH,
+          heartbeat_interval: '5m',
+          refresh_interval: '30m',
+          auto_push: true,
+          generate_report: false,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 19090,
+          report_exposure: 'lan',
+          last_heartbeat_at: '',
+          last_refresh_at: '',
+        },
+      ],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      report_exposure: 'local',
+    } as const
+
+    expect(resolveReportExposure(cfg, '/workspace/app/Memory/07_reports')).toBe('lan')
+    expect(resolveReportExposure(cfg, '/workspace/other')).toBe('local')
   })
 })
 

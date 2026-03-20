@@ -244,6 +244,53 @@ report
 
 // ── daemon ────────────────────────────────────────────────────────────────
 
+const caddy = program
+  .command('caddy')
+  .description('Manage MemoryTree-owned Caddy config for long-running local report hosting')
+  .addHelpText('after', [
+    '',
+    'Scenario examples:',
+    '  Connect the current repository to Caddy:',
+    '    memorytree caddy enable --root .',
+    '  Check the current repository Caddy status:',
+    '    memorytree caddy status --root .',
+    '  Remove the current repository from MemoryTree-managed Caddy:',
+    '    memorytree caddy disable --root .',
+  ].join('\n'))
+
+caddy
+  .command('enable')
+  .description('Write/update the current project Caddy fragment and reload Caddy')
+  .option('--root <path>', 'Project root that is already registered with MemoryTree', '.')
+  .action(async (opts) => {
+    const { cmdCaddyEnable } = await import('./cmd-caddy.js')
+    process.exitCode = await cmdCaddyEnable({
+      root: opts.root,
+    })
+  })
+
+caddy
+  .command('disable')
+  .description('Remove the current project Caddy fragment and reload Caddy')
+  .option('--root <path>', 'Project root that is already registered with MemoryTree', '.')
+  .action(async (opts) => {
+    const { cmdCaddyDisable } = await import('./cmd-caddy.js')
+    process.exitCode = await cmdCaddyDisable({
+      root: opts.root,
+    })
+  })
+
+caddy
+  .command('status')
+  .description('Show whether the current project is connected to MemoryTree-managed Caddy')
+  .option('--root <path>', 'Project root that is already registered with MemoryTree', '.')
+  .action(async (opts) => {
+    const { cmdCaddyStatus } = await import('./cmd-caddy.js')
+    process.exitCode = await cmdCaddyStatus({
+      root: opts.root,
+    })
+  })
+
 const daemonHelpExamples = [
   '',
   'Scenario examples:',
