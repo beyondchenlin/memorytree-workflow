@@ -161,7 +161,15 @@ program
 
 const report = program
   .command('report')
-  .description('Generate or serve the MemoryTree HTML report website')
+  .description('Build the MemoryTree HTML report site and preview it locally when needed')
+  .addHelpText('after', [
+    '',
+    'Local hosting guidance:',
+    '  Recommended for long-running local access:',
+    '    Use Caddy to host ./Memory/07_reports on your chosen port (for example 10010).',
+    '  Temporary fallback preview:',
+    '    memorytree report serve --dir ./Memory/07_reports --port 10010',
+  ].join('\n'))
 
 report
   .command('build')
@@ -180,6 +188,10 @@ report
   )
   .option('--locale <locale>', 'Report locale: en or zh-CN', '')
   .option('--report-base-url <url>', 'Absolute base URL for RSS and OG meta (e.g. https://memory.example.com)', '')
+  .addHelpText('after', [
+    '',
+    'After building, keep Caddy pointed at the output directory for long-running local access.',
+  ].join('\n'))
   .action(async (opts) => {
     const { cmdReportBuild } = await import('./cmd-report.js')
     const root = opts.root as string
@@ -200,13 +212,20 @@ report
 
 report
   .command('serve')
-  .description('Serve the generated report website on a local HTTP server')
+  .description('Temporarily serve the generated report locally (fallback when Caddy is not used)')
   .option(
     '--dir <path>',
     'Report directory to serve (default: ./Memory/07_reports)',
     './Memory/07_reports',
   )
   .option('--port <n>', 'Port to listen on (default: ~/.memorytree/config.toml report_port or 10010)')
+  .addHelpText('after', [
+    '',
+    'Example:',
+    '  memorytree report serve --dir ./Memory/07_reports --port 10010',
+    '',
+    'Use this for temporary preview or as a fallback. For long-running local access, prefer Caddy.',
+  ].join('\n'))
   .action(async (opts) => {
     const [{ cmdReportServe }, { loadConfig, resolveReportPort }] = await Promise.all([
       import('./cmd-report.js'),
@@ -225,15 +244,36 @@ report
 
 // ── daemon ────────────────────────────────────────────────────────────────
 
+const daemonHelpExamples = [
+  '',
+  'Scenario examples:',
+  '  First time on this machine:',
+  '    memorytree daemon install --interval 5m --auto-push true',
+  '  First time for the current repository:',
+  '    memorytree daemon register --root . --quick-start',
+  '  Run now without waiting:',
+  '    memorytree daemon run-once --root . --force',
+  '  One-command setup for the current repository:',
+  '    memorytree daemon quick-start --root .',
+].join('\n')
+
 const daemon = program
   .command('daemon')
   .description('Manage the MemoryTree heartbeat lifecycle')
+  .addHelpText('after', daemonHelpExamples)
 
 daemon
   .command('install')
   .description('Register heartbeat with the OS scheduler')
   .option('--interval <interval>', 'Override heartbeat interval (e.g., "5m")')
   .option('--auto-push <bool>', 'Override auto_push setting (true/false)')
+  .addHelpText('after', [
+    '',
+    'Example:',
+    '  memorytree daemon install --interval 5m --auto-push true',
+    '',
+    'Use this once per machine to enable the background scheduler.',
+  ].join('\n'))
   .action(async (opts) => {
     const { cmdInstall } = await import('./cmd-daemon.js')
     process.exitCode = cmdInstall({
@@ -255,6 +295,13 @@ daemon
   .description('Execute a single heartbeat cycle now')
   .option('--root <path>', 'Run only the project that matches this path')
   .option('--force', 'Run even when the project is not yet due')
+  .addHelpText('after', [
+    '',
+    'Example:',
+    '  memorytree daemon run-once --root . --force',
+    '',
+    'Use this when you want to sync immediately instead of waiting for the scheduler.',
+  ].join('\n'))
   .action(async (opts) => {
     const { cmdRunOnce } = await import('./cmd-daemon.js')
     process.exitCode = await cmdRunOnce({
@@ -281,6 +328,26 @@ daemon
   })
 
 daemon
+  .command('quick-start')
+  .description('Install the scheduler if needed, register this repository, and run one heartbeat sync now')
+  .option('--root <path>', 'Development directory to quick-start', '.')
+  .option('--name <name>', 'Project display name')
+  .addHelpText('after', [
+    '',
+    'Example:',
+    '  memorytree daemon quick-start --root .',
+    '',
+    'This is the shortest first-time setup path for the current repository.',
+  ].join('\n'))
+  .action(async (opts) => {
+    const { cmdQuickStart } = await import('./cmd-daemon.js')
+    process.exitCode = await cmdQuickStart({
+      root: opts.root,
+      name: opts.name,
+    })
+  })
+
+daemon
   .command('register')
   .description('Register or update a repository with a dedicated heartbeat worktree')
   .option('--root <path>', 'Development directory to register', '.')
@@ -293,6 +360,14 @@ daemon
   .option('--auto-push <bool>', 'Per-project auto_push value (true/false)')
   .option('--generate-report <bool>', 'Per-project generate_report value (true/false)')
   .option('--report-port <n>', 'Per-project local report port')
+  .addHelpText('after', [
+    '',
+    'Examples:',
+    '  Recommended defaults for the current repository:',
+    '    memorytree daemon register --root . --quick-start',
+    '  Detailed setup with custom values:',
+    '    memorytree daemon register --root . --heartbeat-interval 10m --refresh-interval 30m --auto-push true --generate-report true',
+  ].join('\n'))
   .action(async (opts) => {
     const { cmdRegisterProject } = await import('./cmd-daemon.js')
     process.exitCode = cmdRegisterProject({

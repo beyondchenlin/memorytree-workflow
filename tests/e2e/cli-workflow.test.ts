@@ -352,6 +352,52 @@ describe('CLI E2E', () => {
     expect(server.stdout()).toContain(`http://localhost:${port}/`)
   })
 
+  it('shows scenario-based daemon help with the quick-start command', () => {
+    expect(existsSync(cliPath)).toBe(true)
+
+    const result = runCli(['daemon', '--help'])
+    assertSuccess(result, 'memorytree daemon --help')
+
+    expect(result.stdout).toContain('Scenario examples:')
+    expect(result.stdout).toContain('memorytree daemon quick-start --root .')
+    expect(result.stdout).toContain('memorytree daemon install --interval 5m --auto-push true')
+    expect(result.stdout).toContain('memorytree daemon register --root . --quick-start')
+    expect(result.stdout).toContain('memorytree daemon run-once --root . --force')
+  })
+
+  it('shows caddy-first report help and keeps report serve as fallback', () => {
+    expect(existsSync(cliPath)).toBe(true)
+
+    const reportHelp = runCli(['report', '--help'])
+    assertSuccess(reportHelp, 'memorytree report --help')
+    expect(reportHelp.stdout).toContain('Local hosting guidance:')
+    expect(reportHelp.stdout).toContain('Use Caddy to host ./Memory/07_reports')
+    expect(reportHelp.stdout).toContain('memorytree report serve --dir ./Memory/07_reports --port 10010')
+
+    const serveHelp = runCli(['report', 'serve', '--help'])
+    assertSuccess(serveHelp, 'memorytree report serve --help')
+    expect(serveHelp.stdout).toContain('fallback when Caddy is not used')
+    expect(serveHelp.stdout).toContain('For long-running local access, prefer Caddy.')
+
+    const buildHelp = runCli(['report', 'build', '--help'])
+    assertSuccess(buildHelp, 'memorytree report build --help')
+    expect(buildHelp.stdout).toContain('After building, keep Caddy pointed at the output directory')
+  })
+
+  it('shows quick-start and register help examples through the built CLI', () => {
+    expect(existsSync(cliPath)).toBe(true)
+
+    const quickStartHelp = runCli(['daemon', 'quick-start', '--help'])
+    assertSuccess(quickStartHelp, 'memorytree daemon quick-start --help')
+    expect(quickStartHelp.stdout).toContain('memorytree daemon quick-start --root .')
+    expect(quickStartHelp.stdout).toContain('shortest first-time setup path')
+
+    const registerHelp = runCli(['daemon', 'register', '--help'])
+    assertSuccess(registerHelp, 'memorytree daemon register --help')
+    expect(registerHelp.stdout).toContain('Recommended defaults for the current repository:')
+    expect(registerHelp.stdout).toContain('memorytree daemon register --root . --quick-start')
+  })
+
   it('registers a repository with a dedicated heartbeat worktree through the CLI', () => {
     expect(existsSync(cliPath)).toBe(true)
     initGitRepo(repoRoot, 'main')
@@ -404,6 +450,48 @@ describe('CLI E2E', () => {
     const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
     const configText = readFileSync(join(homeDir, '.memorytree', 'config.toml'), 'utf-8')
     expect(configText).toContain('memory_branch = "memorytree-custom"')
+    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree-custom')
+  })
+
+  it('keeps existing register settings when quick-start is rerun for the same repository', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const detailedResult = runCli([
+      'daemon',
+      'register',
+      '--root', repoRoot,
+      '--branch', 'memorytree-custom',
+      '--heartbeat-interval', '15m',
+      '--refresh-interval', '45m',
+      '--auto-push', 'false',
+      '--generate-report', 'false',
+      '--report-port', '12000',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(detailedResult, 'memorytree daemon register detailed settings before quick-start rerun')
+
+    const quickStartResult = runCli([
+      'daemon',
+      'register',
+      '--root', repoRoot,
+      '--quick-start',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(quickStartResult, 'memorytree daemon register --quick-start rerun')
+
+    const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
+    const configText = readFileSync(join(homeDir, '.memorytree', 'config.toml'), 'utf-8')
+    expect(configText).toContain('memory_branch = "memorytree-custom"')
+    expect(configText).toContain('heartbeat_interval = "15m"')
+    expect(configText).toContain('refresh_interval = "45m"')
+    expect(configText).toContain('auto_push = false')
+    expect(configText).toContain('generate_report = false')
+    expect(configText).toContain('report_port = 12000')
     expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree-custom')
   })
 

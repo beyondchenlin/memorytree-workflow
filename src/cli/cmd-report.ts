@@ -111,6 +111,8 @@ export function cmdReportServe(opts: CmdReportServeOptions): number {
   })
 
   server.listen(port, () => {
+    console.log('Temporary local preview server started.')
+    console.log('For long-running local access, prefer Caddy hosting this directory.')
     console.log(`Serving ${root}`)
     console.log(`Open: http://localhost:${port}/`)
     console.log('Press Ctrl+C to stop.')

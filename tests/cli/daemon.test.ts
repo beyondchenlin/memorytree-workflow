@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { readFileSync, existsSync, rmSync } from 'node:fs'
+import { readFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 
 import {
   heartbeatScriptPath,
@@ -324,6 +326,466 @@ describe('cmdRegisterProject', () => {
     expect(savedConfigs).toHaveLength(1)
     expect(stdoutChunks.join('')).toContain('Registered project: repo')
     expect(stderrChunks.join('')).toContain('Upstream configured: failed (push rejected)')
+  })
+
+  it('keeps existing project settings when quick start is rerun for the same repository', async () => {
+    const savedConfigs: unknown[] = []
+    const existingProject = {
+      id: 'repo',
+      path: '/memorytree/custom-worktree',
+      name: 'repo',
+      development_path: '/repo',
+      memory_path: '/memorytree/custom-worktree',
+      memory_branch: 'custom-memorytree',
+      heartbeat_interval: '15m',
+      refresh_interval: '45m',
+      auto_push: false,
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 12000,
+      last_heartbeat_at: '',
+      last_refresh_at: '',
+    }
+    const currentConfig = {
+      heartbeat_interval: '9m',
+      auto_push: true,
+      projects: [existingProject],
+      watch_dirs: [],
+      log_level: 'info',
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+    }
+
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => currentConfig,
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: () => 300,
+      findProjectForPath: (cfg: typeof currentConfig) => cfg.projects[0] ?? null,
+      upsertProject: (cfg: typeof currentConfig, _root: string, overrides: Record<string, unknown>) => ({
+        ...cfg,
+        projects: [
+          {
+            ...existingProject,
+            ...overrides,
+          },
+        ],
+      }),
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'custom-memorytree', created: false }),
+      isValidWorktreeBranchName: () => true,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdRegisterProject({
+      root: '/repo',
+      quickStart: true,
+    })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).toHaveLength(1)
+    expect(savedConfigs[0]).toMatchObject({
+      projects: [
+        expect.objectContaining({
+          memory_path: '/memorytree/custom-worktree',
+          memory_branch: 'custom-memorytree',
+          heartbeat_interval: '15m',
+          refresh_interval: '45m',
+          auto_push: false,
+          generate_report: false,
+          report_port: 12000,
+        }),
+      ],
+    })
+    expect(stdoutChunks.join('')).toContain('Memory branch: custom-memorytree')
+    expect(stdoutChunks.join('')).toContain('Heartbeat interval: 15m')
+    expect(stdoutChunks.join('')).toContain('Refresh interval: 45m')
+    expect(stdoutChunks.join('')).toContain('Auto-push: false')
+    expect(stdoutChunks.join('')).toContain('Generate report: false')
+    expect(stdoutChunks.join('')).toContain('Upstream configured: skipped (auto_push disabled)')
+  })
+})
+
+describe('cmdQuickStart', () => {
+  let stdoutChunks: string[]
+  let stderrChunks: string[]
+  const originalWrite = process.stdout.write
+  const originalStderrWrite = process.stderr.write
+
+  beforeEach(() => {
+    stdoutChunks = []
+    stderrChunks = []
+    process.stdout.write = ((chunk: string) => {
+      stdoutChunks.push(chunk)
+      return true
+    }) as typeof process.stdout.write
+    process.stderr.write = ((chunk: string) => {
+      stderrChunks.push(chunk)
+      return true
+    }) as typeof process.stderr.write
+  })
+
+  afterEach(() => {
+    process.stdout.write = originalWrite
+    process.stderr.write = originalStderrWrite
+    vi.restoreAllMocks()
+    vi.resetModules()
+  })
+
+  it('registers and runs immediately when the scheduler is already installed', async () => {
+    const main = vi.fn(async () => 0)
+    const savedConfigs: unknown[] = []
+    const upserted = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      projects: [
+        {
+          id: 'repo',
+          path: '/memorytree/worktrees/repo',
+          name: 'repo',
+          development_path: '/repo',
+          memory_path: '/memorytree/worktrees/repo',
+          memory_branch: 'memorytree',
+          heartbeat_interval: '5m',
+          refresh_interval: '30m',
+          auto_push: true,
+          generate_report: true,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 10010,
+          last_heartbeat_at: '',
+          last_refresh_at: '',
+        },
+      ],
+    }
+
+    vi.doMock('node:process', () => ({
+      platform: 'linux',
+    }))
+    vi.doMock('../../src/heartbeat/heartbeat.js', () => ({
+      main,
+    }))
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: true,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: (value: string) => {
+        if (value === '9m') return 540
+        if (value === '5m') return 300
+        return 300
+      },
+      findProjectForPath: () => upserted.projects[0],
+      upsertProject: () => upserted,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: (command: string, args: string[]) => {
+        if (command === 'crontab' && args[0] === '-l') {
+          return '*/5 * * * * node "/tmp/cli.js" daemon run-once # memorytree\n'
+        }
+        return ''
+      },
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = await mod.cmdQuickStart({ root: '/repo' })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).toHaveLength(1)
+    expect(main).toHaveBeenCalledWith(expect.objectContaining({
+      root: expect.stringMatching(/[\\/]repo$/),
+      force: true,
+    }))
+    expect(stdoutChunks.join('')).toContain('scheduler already registered at 5m')
+    expect(stdoutChunks.join('')).toContain('Step 2/3: registering the current repository')
+    expect(stdoutChunks.join('')).toContain('Step 3/3: running one immediate heartbeat sync')
+    expect(stderrChunks.join('')).toBe('')
+  })
+
+  it('reinstalls a too-slow scheduler before quick start continues', async () => {
+    const tempHome = mkdtempSync(join(tmpdir(), 'memorytree-quick-start-reinstall-'))
+    const main = vi.fn(async () => 0)
+    const savedConfigs: unknown[] = []
+    let installedCron = '*/10 * * * * node "/tmp/cli.js" daemon run-once # memorytree\n'
+    let currentConfig = {
+      heartbeat_interval: '5m',
+      auto_push: false,
+      projects: [],
+      watch_dirs: [],
+      log_level: 'info',
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+    }
+
+    vi.doMock('node:process', () => ({
+      platform: 'linux',
+    }))
+    vi.doMock('node:os', () => ({
+      homedir: () => tempHome,
+    }))
+    vi.doMock('../../src/heartbeat/heartbeat.js', () => ({
+      main,
+    }))
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => currentConfig,
+      saveConfig: (cfg: typeof currentConfig) => {
+        savedConfigs.push(cfg)
+        currentConfig = cfg
+      },
+      intervalToSeconds: (value: string) => {
+        if (value === '10m') return 600
+        if (value === '5m') return 300
+        return 300
+      },
+      findProjectForPath: (cfg: typeof currentConfig) => cfg.projects[0] ?? null,
+      upsertProject: (cfg: typeof currentConfig) => ({
+        ...cfg,
+        projects: [
+          {
+            id: 'repo',
+            path: '/memorytree/worktrees/repo',
+            name: 'repo',
+            development_path: '/repo',
+            memory_path: '/memorytree/worktrees/repo',
+            memory_branch: 'memorytree',
+            heartbeat_interval: '5m',
+            refresh_interval: '30m',
+            auto_push: true,
+            generate_report: true,
+            ai_summary_model: 'claude-haiku-4-5-20251001',
+            locale: 'en',
+            gh_pages_branch: '',
+            cname: '',
+            webhook_url: '',
+            report_base_url: '',
+            report_port: 10010,
+            last_heartbeat_at: '',
+            last_refresh_at: '',
+          },
+        ],
+      }),
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: (command: string, args: string[]) => {
+        if (command === 'crontab' && args[0] === '-l') {
+          return installedCron
+        }
+        if (command === 'crontab' && args[0]) {
+          installedCron = readFileSync(args[0], 'utf-8')
+          return ''
+        }
+        return ''
+      },
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = await mod.cmdQuickStart({ root: '/repo' })
+
+    expect(result).toBe(0)
+    expect(savedConfigs[0]).toMatchObject({
+      heartbeat_interval: '5m',
+      auto_push: false,
+    })
+    expect(installedCron).toContain('*/5 * * * *')
+    expect(stdoutChunks.join('')).toContain('registered at 10m; reinstalling it to 5m')
+    expect(stdoutChunks.join('')).toContain('Heartbeat removed from cron.')
+    expect(stdoutChunks.join('')).toContain('Heartbeat registered in cron (every 5m).')
+    expect(main).toHaveBeenCalledWith(expect.objectContaining({
+      root: expect.stringMatching(/[\\/]repo$/),
+      force: true,
+    }))
+
+    rmSync(tempHome, { recursive: true, force: true })
+  })
+
+  it('installs the scheduler with defaults before registering when missing', async () => {
+    const tempHome = mkdtempSync(join(tmpdir(), 'memorytree-quick-start-'))
+    const main = vi.fn(async () => 0)
+    const savedConfigs: unknown[] = []
+    const upserted = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      projects: [
+        {
+          id: 'repo',
+          path: '/memorytree/worktrees/repo',
+          name: 'repo',
+          development_path: '/repo',
+          memory_path: '/memorytree/worktrees/repo',
+          memory_branch: 'memorytree',
+          heartbeat_interval: '5m',
+          refresh_interval: '30m',
+          auto_push: true,
+          generate_report: true,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 10010,
+          last_heartbeat_at: '',
+          last_refresh_at: '',
+        },
+      ],
+    }
+
+    vi.doMock('node:process', () => ({
+      platform: 'linux',
+    }))
+    vi.doMock('node:os', () => ({
+      homedir: () => tempHome,
+    }))
+    vi.doMock('../../src/heartbeat/heartbeat.js', () => ({
+      main,
+    }))
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: false,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: () => 300,
+      findProjectForPath: () => upserted.projects[0],
+      upsertProject: () => upserted,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: (command: string, args: string[]) => {
+        if (command === 'crontab' && args[0] === '-l') {
+          return ''
+        }
+        return ''
+      },
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = await mod.cmdQuickStart({ root: '/repo' })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).toHaveLength(2)
+    expect(savedConfigs[0]).toMatchObject({
+      heartbeat_interval: '5m',
+      auto_push: true,
+    })
+    expect(main).toHaveBeenCalledWith(expect.objectContaining({
+      root: expect.stringMatching(/[\\/]repo$/),
+      force: true,
+    }))
+    expect(stdoutChunks.join('')).toContain('installing heartbeat scheduler with recommended defaults')
+    expect(stdoutChunks.join('')).toContain('Heartbeat registered in cron (every 5m).')
+
+    rmSync(tempHome, { recursive: true, force: true })
   })
 })
 

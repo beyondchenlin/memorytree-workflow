@@ -105,8 +105,10 @@ node dist/cli.js upgrade --root . --format json
 node dist/cli.js discover --root . --client all --scope current-project --format json
 node dist/cli.js recall --root . --format text
 node dist/cli.js report build --root . --no-ai --locale en
-node dist/cli.js report serve --dir ./Memory/07_reports --port 10010
 ```
+
+For long-running local access, point Caddy at `./Memory/07_reports` on your preferred port such as `10010`.
+Keep `node dist/cli.js report serve --dir ./Memory/07_reports --port 10010` as a temporary fallback preview path.
 
 ## What You Get
 
@@ -205,7 +207,13 @@ Current report coverage includes:
 - OG metadata when `report_base_url` is configured
 - English and Simplified Chinese locales
 
-Serve the generated site locally:
+Recommended local hosting for long-running use:
+
+- Build or refresh `Memory/07_reports/`.
+- Keep Caddy pointed at that directory on your preferred local port such as `10010`.
+- Open `http://127.0.0.1:10010/`, `http://localhost:10010/`, or your LAN IP plus port.
+
+Temporary fallback preview:
 
 ```bash
 node dist/cli.js report serve --dir ./Memory/07_reports --port 10010
@@ -236,6 +244,12 @@ Install the heartbeat:
 
 ```bash
 node dist/cli.js daemon install
+```
+
+Fastest first-time setup for the current repository:
+
+```bash
+node dist/cli.js daemon quick-start --root .
 ```
 
 Run it once right now:
@@ -275,7 +289,7 @@ Config fields that matter most for report publishing:
 | `cname` | `""` | Write a `CNAME` file into the published report output |
 | `webhook_url` | `""` | Send a report update notification after report generation |
 | `report_base_url` | `""` | Base URL for RSS and OG metadata |
-| `report_port` | `10010` | Default port used by `memorytree report serve` when `--port` is omitted |
+| `report_port` | `10010` | Default local report port; `memorytree report serve` uses it when `--port` is omitted, and you can reuse it for your Caddy binding |
 
 ## Git Safety
 
@@ -303,8 +317,9 @@ All commands are available through `node dist/cli.js <subcommand> ...`, or `memo
 | `memorytree locale` | Detect the effective repository locale |
 | `memorytree recall` | Run on-demand sync and return the latest prior session |
 | `memorytree report build` | Build the static HTML report site |
-| `memorytree report serve` | Serve the generated report locally over HTTP |
+| `memorytree report serve` | Temporarily preview the generated report locally over HTTP; keep it as a fallback when Caddy is not used |
 | `memorytree daemon install` | Register the heartbeat with the OS scheduler |
+| `memorytree daemon quick-start` | Install the scheduler if needed, register the current repository, and run one immediate heartbeat sync |
 | `memorytree daemon uninstall` | Remove the scheduled heartbeat task |
 | `memorytree daemon run-once` | Execute one heartbeat cycle immediately |
 | `memorytree daemon watch` | Development-only continuous heartbeat loop |

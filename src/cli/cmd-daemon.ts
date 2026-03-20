@@ -3,7 +3,7 @@
  * Port of scripts/memorytree_daemon.py
  */
 
-import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, dirname, resolve } from 'node:path'
 import { platform } from 'node:process'
@@ -33,6 +33,8 @@ import { execCommand } from '../utils/exec.js'
 
 const TASK_NAME = 'MemoryTree Heartbeat'
 const LAUNCHD_LABEL = 'com.memorytree.heartbeat'
+const QUICK_START_HEARTBEAT_INTERVAL = '5m'
+const QUICK_START_REFRESH_INTERVAL = '30m'
 
 // ---------------------------------------------------------------------------
 // Subcommands
@@ -96,13 +98,9 @@ export async function cmdWatch(options: { interval?: string }): Promise<number> 
 }
 
 export function cmdStatus(): number {
+  const registered = isHeartbeatRegistered()
+
   const sys = platform
-
-  let registered = false
-  if (sys === 'linux') registered = isCronRegistered()
-  else if (sys === 'darwin') registered = isLaunchdRegistered()
-  else if (sys === 'win32') registered = isSchtasksRegistered()
-
   const platformName = sys === 'darwin' ? 'Darwin' : sys === 'win32' ? 'Windows' : 'Linux'
   process.stdout.write(`Platform:   ${platformName}\n`)
   process.stdout.write(`Registered: ${registered ? 'yes' : 'no'}\n`)
@@ -126,6 +124,14 @@ export function cmdStatus(): number {
   return 0
 }
 
+export function isHeartbeatRegistered(): boolean {
+  const sys = platform
+  if (sys === 'linux') return isCronRegistered()
+  if (sys === 'darwin') return isLaunchdRegistered()
+  if (sys === 'win32') return isSchtasksRegistered()
+  return false
+}
+
 export function cmdRegisterProject(options: {
   root: string
   name?: string
@@ -140,6 +146,7 @@ export function cmdRegisterProject(options: {
 }): number {
   const root = resolve(options.root)
   const config = loadConfig()
+  const existingProject = findProjectForPath(config, root)
 
   if (options.quickStart && options.branch !== undefined) {
     process.stderr.write('Quick Start uses the default memorytree branch. Omit --branch to customize it.\n')
@@ -147,35 +154,37 @@ export function cmdRegisterProject(options: {
   }
 
   const requestedBranch = options.quickStart
-    ? defaultProjectWorktreeBranch()
-    : options.branch ?? DEFAULT_MEMORY_BRANCH
+    ? existingProject?.memory_branch ?? defaultProjectWorktreeBranch()
+    : options.branch ?? existingProject?.memory_branch ?? DEFAULT_MEMORY_BRANCH
   if (!isValidWorktreeBranchName(requestedBranch)) {
     process.stderr.write(`Invalid MemoryTree branch name: ${requestedBranch}\n`)
     return 1
   }
 
   const heartbeatInterval = options.quickStart
-    ? '5m'
-    : options.heartbeatInterval ?? config.heartbeat_interval
+    ? existingProject?.heartbeat_interval ?? QUICK_START_HEARTBEAT_INTERVAL
+    : options.heartbeatInterval ?? existingProject?.heartbeat_interval ?? config.heartbeat_interval
   const refreshInterval = options.quickStart
-    ? '30m'
-    : options.refreshInterval ?? '30m'
+    ? existingProject?.refresh_interval ?? QUICK_START_REFRESH_INTERVAL
+    : options.refreshInterval ?? existingProject?.refresh_interval ?? QUICK_START_REFRESH_INTERVAL
   const autoPush = options.quickStart
-    ? true
-    : parseOptionalBoolean(options.autoPush) ?? config.auto_push
+    ? existingProject?.auto_push ?? true
+    : parseOptionalBoolean(options.autoPush) ?? existingProject?.auto_push ?? config.auto_push
   const generateReport = options.quickStart
-    ? true
-    : parseOptionalBoolean(options.generateReport) ?? config.generate_report
+    ? existingProject?.generate_report ?? true
+    : parseOptionalBoolean(options.generateReport) ?? existingProject?.generate_report ?? config.generate_report
 
   const requestedPort = options.reportPort ? parseInt(options.reportPort, 10) : NaN
   const reportPort = Number.isInteger(requestedPort) && requestedPort > 0 && requestedPort <= 65535
     ? requestedPort
-    : config.report_port
+    : existingProject?.report_port ?? config.report_port
 
   const updated = upsertProject(config, root, {
-    name: options.name ?? basename(root),
+    name: options.name ?? existingProject?.name ?? basename(root),
     development_path: root,
-    memory_path: options.worktree ? resolve(options.worktree) : defaultProjectWorktreePath(root),
+    memory_path: options.worktree
+      ? resolve(options.worktree)
+      : existingProject?.memory_path ?? defaultProjectWorktreePath(root),
     memory_branch: requestedBranch,
     heartbeat_interval: heartbeatInterval,
     refresh_interval: refreshInterval,
@@ -222,6 +231,79 @@ export function cmdRegisterProject(options: {
     process.stdout.write(`Upstream configured: ${upstream.created ? 'yes' : 'already'} (${upstream.remote}/${worktree.branch})\n`)
   }
   return upstreamError ? 1 : 0
+}
+
+export async function cmdQuickStart(options: {
+  root: string
+  name?: string
+}): Promise<number> {
+  const root = resolve(options.root)
+  const config = loadConfig()
+  const quickStartSeconds = intervalToSeconds(QUICK_START_HEARTBEAT_INTERVAL)
+  const schedulerIntervalSeconds = registeredHeartbeatIntervalSeconds()
+  const effectiveSchedulerSeconds = schedulerIntervalSeconds ?? intervalToSeconds(config.heartbeat_interval)
+  const effectiveSchedulerLabel = schedulerIntervalSeconds === null
+    ? config.heartbeat_interval
+    : formatIntervalSeconds(schedulerIntervalSeconds)
+
+  process.stdout.write('Quick Start: prepare scheduler, register this repository, and run one sync now.\n')
+
+  if (!isHeartbeatRegistered()) {
+    process.stdout.write('Step 1/3: installing heartbeat scheduler with recommended defaults.\n')
+    const installResult = cmdInstall({ interval: QUICK_START_HEARTBEAT_INTERVAL, autoPush: 'true' })
+    if (installResult !== 0) {
+      return installResult
+    }
+  } else if (effectiveSchedulerSeconds > quickStartSeconds) {
+    process.stdout.write(
+      `Step 1/3: heartbeat scheduler is registered at ${effectiveSchedulerLabel}; ` +
+      `reinstalling it to ${QUICK_START_HEARTBEAT_INTERVAL} so Quick Start can run on time.\n`,
+    )
+    const uninstallResult = cmdUninstall()
+    if (uninstallResult !== 0) {
+      return uninstallResult
+    }
+
+    const installResult = cmdInstall({
+      interval: QUICK_START_HEARTBEAT_INTERVAL,
+      autoPush: config.auto_push ? 'true' : 'false',
+    })
+    if (installResult !== 0) {
+      return installResult
+    }
+  } else {
+    process.stdout.write(
+      `Step 1/3: heartbeat scheduler already registered at ${effectiveSchedulerLabel}; keeping the existing install.\n`,
+    )
+  }
+
+  process.stdout.write('Step 2/3: registering the current repository with Quick Start settings.\n')
+  const registerOptions: Parameters<typeof cmdRegisterProject>[0] = {
+    root,
+    quickStart: true,
+  }
+  if (options.name !== undefined) {
+    registerOptions.name = options.name
+  }
+
+  const registerResult = cmdRegisterProject(registerOptions)
+  if (registerResult !== 0) {
+    return registerResult
+  }
+
+  process.stdout.write('Step 3/3: running one immediate heartbeat sync.\n')
+  return await cmdRunOnce({
+    root,
+    force: true,
+  })
+}
+
+export function registeredHeartbeatIntervalSeconds(): number | null {
+  const sys = platform
+  if (sys === 'linux') return cronRegisteredIntervalSeconds()
+  if (sys === 'darwin') return launchdRegisteredIntervalSeconds()
+  if (sys === 'win32') return schtasksRegisteredIntervalSeconds()
+  return null
 }
 
 // ---------------------------------------------------------------------------
@@ -284,6 +366,19 @@ function getCrontab(): string {
   } catch {
     return ''
   }
+}
+
+function cronRegisteredIntervalSeconds(): number | null {
+  const line = getCrontab()
+    .split(/\r?\n/)
+    .find(candidate => candidate.includes('memorytree'))
+  if (!line) return null
+
+  const match = line.match(/^\*\/(\d+)\s+\*\s+\*\s+\*\s+\*.*#\s*memorytree\s*$/)
+  if (!match) return null
+
+  const minutes = parseInt(match[1]!, 10)
+  return Number.isInteger(minutes) && minutes > 0 ? minutes * 60 : null
 }
 
 // ---------------------------------------------------------------------------
@@ -352,6 +447,22 @@ function uninstallLaunchd(): number {
 
 export function isLaunchdRegistered(): boolean {
   return existsSync(launchdPlistPath())
+}
+
+function launchdRegisteredIntervalSeconds(): number | null {
+  const plistPath = launchdPlistPath()
+  if (!existsSync(plistPath)) return null
+
+  try {
+    const text = readFileSync(plistPath, 'utf-8')
+    const match = text.match(/<key>StartInterval<\/key>\s*<integer>(\d+)<\/integer>/i)
+    if (!match) return null
+
+    const seconds = parseInt(match[1]!, 10)
+    return Number.isInteger(seconds) && seconds > 0 ? seconds : null
+  } catch {
+    return null
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -435,6 +546,20 @@ export function isSchtasksRegistered(): boolean {
   }
 }
 
+function schtasksRegisteredIntervalSeconds(): number | null {
+  try {
+    const xml = execCommand('schtasks', ['/query', '/tn', TASK_NAME, '/xml'], { allowFailure: true })
+    if (!xml.trim()) return null
+
+    const match = xml.match(/<Interval>([^<]+)<\/Interval>/i)
+    if (!match) return null
+
+    return parseIsoDurationToSeconds(match[1]!)
+  } catch {
+    return null
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -456,4 +581,22 @@ function parseOptionalBoolean(value: string | undefined): boolean | undefined {
   if (value === 'true') return true
   if (value === 'false') return false
   return undefined
+}
+
+function parseIsoDurationToSeconds(value: string): number | null {
+  const match = value.trim().match(/^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/i)
+  if (!match) return null
+
+  const days = parseInt(match[1] ?? '0', 10)
+  const hours = parseInt(match[2] ?? '0', 10)
+  const minutes = parseInt(match[3] ?? '0', 10)
+  const seconds = parseInt(match[4] ?? '0', 10)
+  const total = (days * 86400) + (hours * 3600) + (minutes * 60) + seconds
+  return total > 0 ? total : null
+}
+
+function formatIntervalSeconds(seconds: number): string {
+  if (seconds % 3600 === 0) return `${String(seconds / 3600)}h`
+  if (seconds % 60 === 0) return `${String(seconds / 60)}m`
+  return `${String(seconds)}s`
 }
