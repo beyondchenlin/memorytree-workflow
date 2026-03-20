@@ -15,6 +15,8 @@ import {
   scaffoldContentFiles,
   writeTemplate,
 } from '../project/scaffold.js'
+import { loadConfig, registerProject, saveConfig } from '../heartbeat/config.js'
+import { normalizeLocale } from '../project/locale.js'
 import { resolveSkillRoot } from '../utils/path.js'
 
 export interface InitOptions {
@@ -69,6 +71,14 @@ export function cmdInit(options: InitOptions): number {
   const paths = resolveScaffoldPaths(root, dt)
   scaffoldContentFiles(paths, templates, options.goalSummary, options.projectName, options.force)
   writeTemplate(join(templates, 'agents.md'), agentsPath, options.force, {})
+
+  const effectiveLocale = normalizeLocale(options.locale, root)
+  const cfg = loadConfig()
+  const updated = registerProject(cfg, root, {
+    name: options.projectName,
+    locale: effectiveLocale,
+  })
+  saveConfig(updated)
 
   return 0
 }

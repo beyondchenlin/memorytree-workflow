@@ -9,6 +9,7 @@ import { resolve } from 'node:path'
 import { normalizeLocale } from '../project/locale.js'
 import { buildDatetime, resolveTemplateDir } from '../project/scaffold.js'
 import { upgrade, formatResultText } from '../project/upgrade.js'
+import { loadConfig, registerProject, saveConfig } from '../heartbeat/config.js'
 import { resolveSkillRoot } from '../utils/path.js'
 
 export interface UpgradeOptions {
@@ -43,6 +44,13 @@ export function cmdUpgrade(options: UpgradeOptions): number {
     options.projectName,
     dt,
   )
+
+  const cfg = loadConfig()
+  const updated = registerProject(cfg, root, {
+    name: options.projectName,
+    locale: effectiveLocale,
+  })
+  saveConfig(updated)
 
   if (options.format === 'json') {
     process.stdout.write(JSON.stringify(result) + '\n')
