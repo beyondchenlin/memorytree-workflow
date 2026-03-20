@@ -459,7 +459,7 @@ Current validation shape:
 - Node.js 20+ is required locally
 - CI runs on Node.js 20, 22, and 24 across Linux, macOS, and Windows
 - The repository includes focused unit coverage for transcript parsing/import, project upgrade, report rendering, heartbeat orchestration, and Caddy management
-- The E2E workflow runs the CLI end-to-end on Node.js 20
+- The E2E workflow runs the CLI end-to-end on Node.js 20 across Linux, macOS, and Windows
 
 ## Reference Docs
 
