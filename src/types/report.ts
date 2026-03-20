@@ -57,4 +57,6 @@ export interface BuildReportOptions {
   newSessionIds?: string[]
   /** Absolute base URL for RSS/OG links (e.g. 'https://memory.example.com'). Empty = skip. */
   reportBaseUrl?: string
+  /** Absolute paths to Memory/06_transcripts/manifests dirs from other registered projects. */
+  extraManifestDirs?: string[]
 }

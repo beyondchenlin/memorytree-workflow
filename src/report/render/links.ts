@@ -87,7 +87,8 @@ export function extractLinks(content: string): string[] {
 
 export function resolveCleanPath(m: ManifestEntry, root: string): string | null {
   if (m.repo_clean_path) {
-    return join(root, m.repo_clean_path)
+    const repoPath = join(root, m.repo_clean_path)
+    if (existsSync(repoPath)) return repoPath
   }
   if (m.global_clean_path) {
     return m.global_clean_path

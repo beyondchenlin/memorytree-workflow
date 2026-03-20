@@ -135,7 +135,12 @@ export async function runHeartbeat(config: Config, options: HeartbeatRunOptions 
           )
         }
 
-        await processProject(config, projectPath, projectName, entry)
+        // Collect manifest dirs from all other registered projects for global report
+        const extraManifestDirs = config.projects
+          .filter(p => p.id !== entry.id)
+          .map(p => join(resolve(projectExecutionPath(p)), 'Memory', '06_transcripts', 'manifests'))
+
+        await processProject(config, projectPath, projectName, entry, extraManifestDirs)
         nextConfig = noteProjectHeartbeatRun(nextConfig, entry.id, runTimestamp)
         configChanged = true
       }
@@ -178,6 +183,7 @@ export async function processProject(
   projectPath: string,
   projectName: string,
   project?: ProjectEntry,
+  extraManifestDirs?: string[],
 ): Promise<void> {
   const logger = getLogger()
   const repoSlug = slugify(projectName, 'project')
@@ -250,6 +256,7 @@ export async function processProject(
         cname,
         webhookUrl,
         reportBaseUrl,
+        extraManifestDirs,
       })
       logger.info(`[${projectName}] Report generated.`)
     } catch (err: unknown) {

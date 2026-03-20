@@ -53,6 +53,7 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   const webhookUrl = options.webhookUrl ?? ''
   const newSessionIds = options.newSessionIds ?? []
   const reportBaseUrl = options.reportBaseUrl ?? ''
+  const extraManifestDirs = options.extraManifestDirs ?? []
 
   // Cache lives outside the gitignored output dir so it survives rm -rf
   const cacheDir = join(root, 'Memory', '.report-cache')
@@ -75,8 +76,11 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   // Ensure Memory/07_reports is gitignored
   ensureGitignore(root, 'Memory/07_reports/')
 
-  // Load all manifests
-  const manifests = loadManifests(root)
+  // Load all manifests (own project + extra registered projects)
+  const manifests = [
+    ...loadManifests(root),
+    ...extraManifestDirs.flatMap(dir => loadManifestsFromDir(dir)),
+  ]
 
   // Build link graph from clean markdown
   const linkGraph = buildLinkGraph(manifests, root)
@@ -251,8 +255,11 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
 
 function loadManifests(root: string): ManifestEntry[] {
   const manifestsDir = join(root, 'Memory', '06_transcripts', 'manifests')
-  if (!existsSync(manifestsDir)) return []
+  return loadManifestsFromDir(manifestsDir)
+}
 
+function loadManifestsFromDir(manifestsDir: string): ManifestEntry[] {
+  if (!existsSync(manifestsDir)) return []
   const manifests: ManifestEntry[] = []
   loadManifestsRecursive(manifestsDir, manifests)
   return manifests
@@ -296,9 +303,8 @@ function loadManifestsRecursive(dir: string, out: ManifestEntry[]): void {
 
 /** Parse messages from a clean markdown file. */
 export function parseCleanMarkdownMessages(m: ManifestEntry, root: string): RenderedMessage[] {
-  const cleanPath = m.repo_clean_path
-    ? join(root, m.repo_clean_path)
-    : m.global_clean_path
+  const repoPath = m.repo_clean_path ? join(root, m.repo_clean_path) : null
+  const cleanPath = (repoPath && existsSync(repoPath)) ? repoPath : m.global_clean_path
   if (!cleanPath || !existsSync(cleanPath)) return []
 
   let content: string
@@ -429,7 +435,8 @@ function transcriptOutputPath(output: string, m: ManifestEntry): string {
 
 function resolveRawPath(m: ManifestEntry, root: string): string | null {
   if (m.repo_raw_path) {
-    return join(root, m.repo_raw_path)
+    const repoPath = join(root, m.repo_raw_path)
+    if (existsSync(repoPath)) return repoPath
   }
   if (m.global_raw_path) {
     return m.global_raw_path
