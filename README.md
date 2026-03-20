@@ -4,7 +4,14 @@
 
 # MemoryTree Workflow
 
-**Persistent, Git-tracked project memory and transcript workflows for Claude Code, Codex, and Gemini CLI.**
+**Git-tracked project memory, transcript indexing, worktree-safe heartbeat automation, and report publishing for Claude Code, Codex, and Gemini CLI.**
+
+<p>
+  <code>Worktree-Backed Heartbeat</code> &nbsp;&bull;&nbsp;
+  <code>Cross-Client Recall</code> &nbsp;&bull;&nbsp;
+  <code>Managed Caddy Hosting</code> &nbsp;&bull;&nbsp;
+  <code>Static Report Publishing</code>
+</p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -12,9 +19,10 @@
 
 <p>
   <a href="#quick-start">Quick Start</a> &nbsp;&bull;&nbsp;
-  <a href="#what-you-get">What You Get</a> &nbsp;&bull;&nbsp;
-  <a href="#report-site">Report Site</a> &nbsp;&bull;&nbsp;
+  <a href="#architecture">Architecture</a> &nbsp;&bull;&nbsp;
+  <a href="#capabilities">Capabilities</a> &nbsp;&bull;&nbsp;
   <a href="#heartbeat">Heartbeat</a> &nbsp;&bull;&nbsp;
+  <a href="#caddy">Caddy</a> &nbsp;&bull;&nbsp;
   <a href="#cli">CLI</a> &nbsp;&bull;&nbsp;
   <a href="#reference-docs">Docs</a>
 </p>
@@ -25,25 +33,20 @@
 
 ## Overview
 
-MemoryTree gives AI-assisted projects a durable memory layer that survives across sessions, branches, and clients.
+MemoryTree gives AI-assisted repositories a durable memory layer that survives across sessions, clients, branches, and machines.
 
 This repository ships two things:
 
 1. A reusable skill defined by [SKILL.md](SKILL.md)
-2. A Node.js CLI for initialization, transcript import, session recall, reporting, and heartbeat automation
+2. A Node.js CLI for workspace setup, transcript import, session recall, report generation, heartbeat automation, and managed local hosting
 
-The workflow is designed around two storage scopes:
+The current implementation is built around three storage scopes:
 
-- Per-repository memory in `Memory/`
-- Cross-project transcript archives in `~/.memorytree/`
+- The development repository you actively edit
+- A dedicated MemoryTree worktree that the heartbeat can update safely
+- A global archive under `~/.memorytree/` for cross-project transcript storage and indexing
 
-The result is a Git-native memory system that can:
-
-- scaffold and maintain project memory files
-- archive raw AI transcripts plus cleaned Markdown indexes
-- recall the latest prior session for the current project
-- generate a static HTML report site
-- publish reports to GitHub Pages through the heartbeat pipeline
+That model lets MemoryTree keep your main development flow clean while still importing transcripts, generating reports, and optionally publishing Memory-only updates from an isolated branch.
 
 ## Quick Start
 
@@ -80,6 +83,12 @@ npm run build
 
 If your installer expects a skill path, use the repository root. `SKILL.md` lives at the top level.
 
+Optional: expose the CLI as `memorytree` in your shell:
+
+```bash
+npm link
+```
+
 ### Use the skill
 
 In Claude Code, run:
@@ -88,29 +97,58 @@ In Claude Code, run:
 /memorytree-workflow
 ```
 
-The skill will detect whether the current repository is `not-installed`, `partial`, or `installed`, then immediately take the appropriate next step.
+The skill detects whether the current repository is `not-installed`, `partial`, or `installed`, then takes the next appropriate step immediately.
 
-If you prefer to work directly through the CLI, build the project and run commands with `node dist/cli.js ...`.
+### Use the CLI directly
 
-Optional: make the CLI available as `memorytree` from your shell:
-
-```bash
-npm link
-```
-
-### First CLI examples
+Recommended first-time setup for a repository:
 
 ```bash
-node dist/cli.js upgrade --root . --format json
-node dist/cli.js discover --root . --client all --scope current-project --format json
-node dist/cli.js recall --root . --format text
-node dist/cli.js report build --root . --no-ai --locale en
+memorytree upgrade --root . --format json
+memorytree daemon quick-start --root .
+memorytree caddy enable --root .
 ```
 
-For long-running local access, point Caddy at `./Memory/07_reports` on your preferred port such as `10010`.
-Keep `node dist/cli.js report serve --dir ./Memory/07_reports --port 10010` as a temporary fallback preview path.
+Useful day-to-day commands:
 
-## What You Get
+```bash
+memorytree recall --root .
+memorytree discover --root . --client all --scope current-project --format json
+memorytree report build --root . --no-ai --locale en
+memorytree caddy status --root .
+memorytree daemon run-once --root . --force
+```
+
+## Architecture
+
+MemoryTree now runs as a worktree-aware system, not just a single-folder transcript importer:
+
+```text
+Development repository
+  AGENTS.md
+  Memory/01_goals ... Memory/05_archive
+        |
+        | sync active context into
+        v
+Dedicated MemoryTree worktree
+  isolated memorytree branch
+  Memory/06_transcripts
+  Memory/07_reports
+        |
+        | mirror matching transcripts, commit/push Memory-only changes,
+        | build report output
+        v
+Global archive ~/.memorytree/
+  config.toml
+  alerts.json
+  worktrees/
+  transcripts/raw
+  transcripts/clean
+  transcripts/index
+  caddy/
+```
+
+The heartbeat copies active project context from the development directory into the dedicated worktree, processes transcript imports there, and then syncs transcript/report outputs back into the development directory.
 
 ### Per-repository layout
 
@@ -131,7 +169,7 @@ Memory/
   07_reports/
 ```
 
-### Global archive layout
+### Global layout
 
 Shared state lives under `~/.memorytree/`:
 
@@ -141,28 +179,34 @@ Shared state lives under `~/.memorytree/`:
   alerts.json
   heartbeat.lock
   logs/
+  worktrees/
+  caddy/
+    Caddyfile
+    sites/
   transcripts/
     raw/
     clean/
     index/
+      manifests/
       sessions.jsonl
       search.sqlite
 ```
 
-### Core capabilities
+## Capabilities
 
-| Capability | What it does |
+| Capability | Current behavior |
 |---|---|
-| Workspace scaffolding | Creates or upgrades `AGENTS.md` and the `Memory/` workspace without overwriting stronger existing repo policy |
-| Transcript archive | Imports raw transcripts from supported clients and generates cleaned Markdown plus manifests |
-| Session recall | Finds the latest prior session for the current project across clients |
-| Static report site | Builds a multi-page HTML site from the repository memory and transcript archive |
-| Heartbeat automation | Runs discovery, import, report generation, commit, and optional push on a schedule |
-| Git-safe behavior | Keeps automatic repo writes on dedicated `memorytree/*` branches and avoids polluting normal product branches |
+| Workspace scaffolding | `init` and `upgrade` create `Memory/` plus `AGENTS.md` without overwriting stronger existing repo policy |
+| Transcript archive | `discover` scans default client stores, while `import` handles explicit transcript files and mirrors matching sessions into the repo |
+| Session recall | `recall` runs an on-demand sync and returns the latest prior session for the current repository across clients |
+| Worktree-backed heartbeat | `daemon register` and `daemon quick-start` create an isolated MemoryTree worktree, schedule runs, and keep context/output in sync |
+| Report generation | `report build` creates a multi-page static site with transcripts, goals, todos, knowledge, archive, projects, graph, search, tags, and RSS |
+| Managed local hosting | `caddy enable|disable|status` writes project-scoped Caddy fragments for long-running local report hosting |
+| Git safety | Automatic repo-local commits stay confined to MemoryTree branches and skip raw transcript mirrors until raw uploads are approved |
 
 ## Transcript Sources
 
-MemoryTree currently discovers transcripts from these default client stores:
+Default discovery currently scans these client stores:
 
 | Client | Source patterns |
 |---|---|
@@ -170,17 +214,23 @@ MemoryTree currently discovers transcripts from these default client stores:
 | Claude Code | `~/.claude/projects/**/*.jsonl` |
 | Gemini CLI | `~/.gemini/tmp/*/checkpoints/**/*.json`, `~/.gemini/tmp/*/checkpoints/**/*.jsonl`, `~/.gemini/history/**/*.json`, `~/.gemini/history/**/*.jsonl`, `~/.gemini/chats/**/*.json`, `~/.gemini/chats/**/*.jsonl` |
 
+Explicit one-off import also supports transcript files that are not part of default discovery, including `doubao` exports:
+
+```bash
+memorytree import --source /path/to/doubao_export.txt --client doubao --root . --force-repo
+```
+
 Import rules:
 
 - Raw transcripts stay unchanged as evidence.
 - Clean transcripts are generated deterministically by code.
-- Repo-local mirrors are limited to transcripts that belong to the current repository.
+- Repo-local mirrors are limited to transcripts that belong to the current repository unless `--force-repo` is used deliberately.
 - Unrelated transcripts are archived in the global archive only.
 - Raw transcript mirrors are excluded from automatic staging until the user approves raw uploads for that repository.
 
 ## Session Continuity
 
-When you ask for your latest prior conversation, MemoryTree can:
+When you ask for the most recent prior conversation, MemoryTree can:
 
 1. scan the supported local transcript stores immediately
 2. import any new matching transcripts
@@ -188,7 +238,7 @@ When you ask for your latest prior conversation, MemoryTree can:
 4. exclude the current session by activation time
 5. return the latest prior clean transcript content and metadata
 
-This works across clients, so a project session recorded in one client can be recalled from another.
+This works across clients, so a project session recorded in one assistant can be recalled from another.
 
 ## Report Site
 
@@ -199,68 +249,100 @@ Current report coverage includes:
 - dashboard
 - transcript list and per-session pages
 - goals, todos, knowledge, archive, and projects pages
-- client and project filters in search
-- graph view
-- tags and AI summaries
+- search, filters, and snippets
+- graph view and backlink navigation
+- tags and cached AI summaries
 - breadcrumbs and table of contents
 - RSS feed
-- OG metadata when `report_base_url` is configured
+- optional GitHub Pages deployment
+- optional webhook notification
 - English and Simplified Chinese locales
-
-Recommended local hosting for long-running use:
-
-- Build or refresh `Memory/07_reports/`.
-- Keep Caddy pointed at that directory on your preferred local port such as `10010`.
-- Open `http://127.0.0.1:10010/`, `http://localhost:10010/`, or your LAN IP plus port.
-
-Temporary fallback preview:
-
-```bash
-node dist/cli.js report serve --dir ./Memory/07_reports --port 10010
-```
 
 Build it manually:
 
 ```bash
-node dist/cli.js report build --root . --no-ai --locale en --report-base-url https://memory.example.com
+memorytree report build --root . --no-ai --locale en --report-base-url https://memory.example.com
 ```
+
+Temporary fallback preview:
+
+```bash
+memorytree report serve --dir ./Memory/07_reports --port 10010
+```
+
+`report serve` is intended for temporary preview. For long-running local access, keep Caddy pointed at `Memory/07_reports/`.
 
 ## Heartbeat
 
-The heartbeat is the background automation layer. It can discover transcripts, import them, generate reports, commit repo-local memory updates, and optionally push.
+The heartbeat is the background automation layer. It is now project-aware and worktree-aware.
 
-Execution flow:
+Recommended setup:
+
+```bash
+memorytree daemon quick-start --root .
+```
+
+If you want more control, register the machine scheduler once and then register repositories individually:
+
+```bash
+memorytree daemon install --interval 5m --auto-push true
+memorytree daemon register --root . --quick-start
+memorytree daemon run-once --root . --force
+```
+
+Current execution flow:
 
 ```text
-Acquire lock -> load config -> iterate projects -> discover -> import -> build report -> commit -> push -> release lock
+Acquire lock
+  -> load config
+  -> select due projects
+  -> ensure dedicated MemoryTree worktree
+  -> sync AGENTS.md + active Memory context into the worktree
+  -> discover and import matching transcripts
+  -> commit/push Memory-only changes on the MemoryTree branch when allowed
+  -> build Memory/07_reports when report generation is enabled and the run imported new transcripts
+  -> sync transcripts and reports back to the development directory
+  -> release lock
 ```
 
-Important branch-safety rule:
+Important branch-safety rules:
 
-- On `memorytree/*` branches, the heartbeat can mirror transcripts into the repository and commit MemoryTree changes.
-- On non-`memorytree/*` branches, the heartbeat still imports into the global archive, but keeps the repository clean.
+- Repo-local transcript mirroring and automatic commits only happen on a dedicated MemoryTree branch.
+- On non-MemoryTree branches, the heartbeat still imports into the global archive but keeps the repository clean.
+- If no Git remote exists, push is skipped and an alert is written.
+- Push failures alert and retry once.
+- Sensitive transcript patterns are logged as warnings only; they are not auto-deleted or auto-redacted.
 
-Install the heartbeat:
+## Caddy
+
+MemoryTree includes first-stage project-managed Caddy support for local report hosting.
+
+Recommended commands:
 
 ```bash
-node dist/cli.js daemon install
+memorytree caddy enable --root .
+memorytree caddy status --root .
+memorytree caddy disable --root .
 ```
 
-Fastest first-time setup for the current repository:
+What it manages:
 
-```bash
-node dist/cli.js daemon quick-start --root .
-```
+- `~/.memorytree/caddy/Caddyfile`
+- `~/.memorytree/caddy/sites/<project-id>.caddy`
+- per-project port and exposure settings taken from `~/.memorytree/config.toml`
 
-Run it once right now:
+Exposure modes:
 
-```bash
-node dist/cli.js daemon run-once
-```
+- `local`: bind to `127.0.0.1` and `localhost` only
+- `lan`: bind on the configured port and expose LAN URLs for the machine's IPv4 interfaces
 
-### Example config
+For long-running local access, `caddy enable` is the primary path. `report serve` remains the lightweight fallback.
 
-`~/.memorytree/config.toml`
+## Configuration
+
+Global settings live in `~/.memorytree/config.toml`.
+
+Example:
 
 ```toml
 heartbeat_interval = "5m"
@@ -273,35 +355,55 @@ cname = "memory.example.com"
 webhook_url = ""
 report_base_url = "https://memory.example.com"
 report_port = 10010
+report_exposure = "local"
 
 [[projects]]
+id = "my-repo"
 path = "/path/to/repo"
-name = "repo"
+name = "my-repo"
+development_path = "/path/to/repo"
+memory_path = "/path/to/.memorytree/worktrees/my-repo"
+memory_branch = "memorytree"
+heartbeat_interval = "5m"
+refresh_interval = "30m"
+auto_push = true
+generate_report = true
+locale = "en"
+gh_pages_branch = "gh-pages"
+report_base_url = "https://memory.example.com"
+report_port = 10010
+report_exposure = "local"
 ```
 
-Config fields that matter most for report publishing:
+Fields that matter most:
 
-| Field | Default | Meaning |
-|---|---|---|
-| `generate_report` | `false` | Generate `Memory/07_reports/` during heartbeat runs |
-| `locale` | `"en"` | Report locale |
-| `gh_pages_branch` | `""` | Publish the generated report to a dedicated branch when set |
-| `cname` | `""` | Write a `CNAME` file into the published report output |
-| `webhook_url` | `""` | Send a report update notification after report generation |
-| `report_base_url` | `""` | Base URL for RSS and OG metadata |
-| `report_port` | `10010` | Default local report port; `memorytree report serve` uses it when `--port` is omitted, and you can reuse it for your Caddy binding |
+| Field | Meaning |
+|---|---|
+| `development_path` | The directory you actively work in |
+| `memory_path` | The dedicated MemoryTree worktree used by the heartbeat |
+| `memory_branch` | The branch reserved for MemoryTree automation |
+| `heartbeat_interval` | Per-project heartbeat cadence |
+| `refresh_interval` | How often transcript/report outputs sync back to the development directory |
+| `generate_report` | Whether heartbeat should build `Memory/07_reports` after transcript imports |
+| `gh_pages_branch` | Branch used for report publishing when configured |
+| `report_base_url` | Base URL for RSS and OG metadata |
+| `report_port` | Default local report port for this project |
+| `report_exposure` | `local` or `lan` exposure for managed Caddy hosting |
+
+`path` is still preserved for compatibility, but the worktree-aware flow is driven by `development_path` and `memory_path`.
 
 ## Git Safety
 
-MemoryTree is strict about not taking over your main development flow.
+MemoryTree is strict about not taking over your normal development flow.
 
 | Rule | Behavior |
 |---|---|
-| Branch isolation | Automatic repo-local transcript commits happen only on dedicated `memorytree/*` branches |
-| Scope isolation | Repo mirrors include only the current project's transcripts |
+| Branch isolation | Automatic repo-local transcript commits happen only on dedicated MemoryTree branches |
+| Worktree isolation | Heartbeat automation can run from a dedicated worktree instead of your main working directory |
+| Scope isolation | Repo mirrors include only the current project's transcripts unless you force a repo-local import |
 | Raw upload control | Raw transcript files are not auto-staged until explicitly approved |
 | Push safety | If no remote exists, push is skipped and an alert is written |
-| Failure handling | Push failures alert and retry once; report deploy failures never abort the heartbeat |
+| Failure handling | Push failures alert and retry once; report and webhook failures do not abort the heartbeat cycle |
 | Secret scanning | Transcript imports log potential secrets but do not auto-delete or auto-redact them |
 
 ## CLI
@@ -317,9 +419,13 @@ All commands are available through `node dist/cli.js <subcommand> ...`, or `memo
 | `memorytree locale` | Detect the effective repository locale |
 | `memorytree recall` | Run on-demand sync and return the latest prior session |
 | `memorytree report build` | Build the static HTML report site |
-| `memorytree report serve` | Temporarily preview the generated report locally over HTTP; keep it as a fallback when Caddy is not used |
-| `memorytree daemon install` | Register the heartbeat with the OS scheduler |
-| `memorytree daemon quick-start` | Install the scheduler if needed, register the current repository, and run one immediate heartbeat sync |
+| `memorytree report serve` | Temporarily preview the generated report over HTTP |
+| `memorytree caddy enable` | Write/update the current project's managed Caddy fragment and reload Caddy |
+| `memorytree caddy disable` | Remove the current project's managed Caddy fragment and reload Caddy |
+| `memorytree caddy status` | Show whether the current project is connected to MemoryTree-managed Caddy |
+| `memorytree daemon install` | Register the machine-level heartbeat scheduler |
+| `memorytree daemon quick-start` | Install the scheduler if needed, register the repository, and run one immediate sync |
+| `memorytree daemon register` | Register or update a repository with a dedicated MemoryTree worktree |
 | `memorytree daemon uninstall` | Remove the scheduled heartbeat task |
 | `memorytree daemon run-once` | Execute one heartbeat cycle immediately |
 | `memorytree daemon watch` | Development-only continuous heartbeat loop |
@@ -348,16 +454,21 @@ npm test
 npm run test:e2e
 ```
 
-Current validation expectations:
+Current validation shape:
 
-- Node.js 20+ is required
-- CI is verified on Node.js 20, 22, and 24
-- Black-box E2E covers upgrade, import, discover, recall, report serve, heartbeat branch safety, GitHub Pages publish, and webhook resilience
+- Node.js 20+ is required locally
+- CI runs on Node.js 20, 22, and 24 across Linux, macOS, and Windows
+- The repository includes focused unit coverage for transcript parsing/import, project upgrade, report rendering, heartbeat orchestration, and Caddy management
+- The E2E workflow runs the CLI end-to-end on Node.js 20
 
 ## Reference Docs
 
 | File | Purpose |
 |---|---|
+| [SKILL.md](SKILL.md) | Skill entry point and behavioral contract |
+| [docs/memorytree-skill-features-and-startup.md](docs/memorytree-skill-features-and-startup.md) | Chinese walkthrough of the skill layers and startup flow |
+| [docs/worktree-heartbeat-upgrade-plan.md](docs/worktree-heartbeat-upgrade-plan.md) | Worktree-based heartbeat design and rollout notes |
+| [docs/caddy-auto-management-design.md](docs/caddy-auto-management-design.md) | Design notes for managed Caddy support |
 | [references/project-detection.md](references/project-detection.md) | Install-state detection |
 | [references/memory-layout.md](references/memory-layout.md) | Memory folder layout |
 | [references/update-rules.md](references/update-rules.md) | Goal, todo, and chat-log update rules |
