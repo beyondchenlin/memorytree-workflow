@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, realpathSync } from 'node:fs'
 import { basename, dirname, isAbsolute, resolve } from 'node:path'
 import { platform } from 'node:process'
 
@@ -164,7 +164,18 @@ function samePath(left: string, right: string): boolean {
 }
 
 function normalizePath(value: string): string {
-  const normalized = resolve(value).replace(/\\/g, '/').replace(/\/+$/, '')
+  let normalizedPath = resolve(value)
+  if (existsSync(normalizedPath)) {
+    try {
+      normalizedPath = realpathSync.native
+        ? realpathSync.native(normalizedPath)
+        : realpathSync(normalizedPath)
+    } catch {
+      // Fall back to the resolved path when realpath fails.
+    }
+  }
+
+  const normalized = normalizedPath.replace(/\\/g, '/').replace(/\/+$/, '')
   return platform === 'win32' ? normalized.toLowerCase() : normalized
 }
 

@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 
 let tmpHome: string
@@ -20,6 +20,7 @@ import {
   renderManagedMainCaddyfile,
   renderManagedProjectFragment,
 } from '../../src/caddy/manager.js'
+import { toPosixPath } from '../../src/utils/path.js'
 
 beforeEach(() => {
   tmpHome = mkdtempSync(join(tmpdir(), 'memorytree-caddy-test-'))
@@ -51,19 +52,20 @@ describe('renderManagedMainCaddyfile', () => {
 
 describe('renderManagedProjectFragment', () => {
   it('renders a local-only site block with loopback bind', () => {
+    const reportDir = resolve('Memory', '07_reports')
     const text = renderManagedProjectFragment({
       id: 'demo-project',
       name: 'Demo Project',
       report_port: 10010,
       report_exposure: 'local',
-    }, 'D:/demo1/memorytree-workflow/Memory/07_reports')
+    }, reportDir)
 
     expect(text).toContain('# project_id: demo-project')
     expect(text).toContain('# report_port: 10010')
     expect(text).toContain('# report_exposure: local')
     expect(text).toContain('http://127.0.0.1:10010, http://localhost:10010')
     expect(text).toContain('bind 127.0.0.1 [::1]')
-    expect(text).toContain('root * "D:/demo1/memorytree-workflow/Memory/07_reports"')
+    expect(text).toContain(`root * "${toPosixPath(reportDir)}"`)
     expect(text).toContain('file_server')
   })
 
