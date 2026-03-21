@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a52115d1a3cb189d8 — MemoryTree</title>
+<meta property="og:title" content="agent-a52115d1a3cb189d8">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="page-header">
+  <h1>agent-a52115d1a3cb189d8</h1>
+</div>
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-17 08:57:00</td></tr>
+  <tr><td>Session ID</td><td><code>6dd44a8a-71b3-484d-912c-45d0b51e38d2</code></td></tr>
+  <tr><td>Messages</td><td>9</td></tr>
+  <tr><td>Tool Events</td><td>18</td></tr>
+  <tr><td>Branch</td><td><code>main</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">385b9060e7d00a6e…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">08:57:00</span>
+  </div>
+  <div class="message-body"><p>你是资深 VC 分析师和产品顾问，做两轮独立评审。</p><p><strong>第一轮：事实准确性和逻辑一致性</strong><br><strong>第二轮：投资者视角的战略质量</strong></p><p>---</p><p>## 文档内容（商业计划书）</p><pre><code>一、核心痛点 — 全球 AI 对话工具月活超过 5 亿用户、每人每天 3-10 次、找回一月前对话概率 &lt; 5%
+
+二、解法 — OpenMnemo，以 Gitea 为底座，一切皆仓库
+
+Gitea 可见性：
+| private  | 仅自己可见          | 个人隐私记忆（默认） |
+| internal | 同一实例所有登录用户 | 家庭/团队共享       |
+| public   | 全网可见            | 公开分享            |
+
+五、商业模式
+收费逻辑：
+- 个人专业版：$9.9/月
+- 团队版：$29/月（5人起）
+- 企业私有化：按需定制
+
+六、市场规模
+| AI 编程工具用户（TAM） | 全球 2,000 万开发者 |
+| 泛 AI 重度用户（SAM）  | 全球 1 亿用户       |
+| 5 年后所有 AI 用户（SOM） | 全球 10 亿用户  |
+
+八、当前状态
+- 支持客户端：Claude Code / Codex / Gemini CLI（浏览器插件开发中）
+- 技术栈：TypeScript / Node.js / SQLite / Gitea
+
+七、竞争优势：中立性、数据主权、Gitea 生态完整性、开源社区、先发优势
+（无具体竞品对比）
+</code></pre><p>请逐条列出所有 bug 和硬伤，每条注明严重级别（CRITICAL/HIGH/MEDIUM/LOW）。<br>输出格式：<br>Round 1 — 事实/逻辑问题<br>Round 2 — 战略/投资者视角问题</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:57:04</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll conduct a thorough two-round analysis of this business plan. Let me start by examining the document systematically.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:57:07</span>
+  </div>
+  <div class="message-body"><p>Now let me search for business plan or strategy documents in the project:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:57:12</span>
+  </div>
+  <div class="message-body"><p>Let me look at the current working directory and find relevant documents:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:57:16</span>
+  </div>
+  <div class="message-body"><p>Perfect! Let me read the actual business plan document:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:57:19</span>
+  </div>
+  <div class="message-body"><p>Now let me check the technical documentation to verify claims:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:57:23</span>
+  </div>
+  <div class="message-body"><p>Now let me verify some market size claims and check for any additional competitive context:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:57:28</span>
+  </div>
+  <div class="message-body"><p>Now let me check the current product status and verify technological claims:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">08:58:30</span>
+  </div>
+  <div class="message-body"><p>Perfect. Now I have sufficient information to conduct a comprehensive analysis. Let me prepare my findings.</p><p>---</p><p># 两轮独立评审：OpenMnemo 商业计划书</p><p>## Round 1：事实准确性 &amp; 逻辑一致性</p><p>### 问题清单</p><p>#### <strong>CRITICAL</strong></p><p>1. <strong>「5 亿月活」数据来源不明</strong><br>   - 文件第28行声称「全球 AI 对话工具月活：超过 5 亿用户」<br>   - 问题：这是包含所有 AI 工具（ChatGPT/Claude/Gemini/Copilot）的聚合数据吗？还是单一产品？<br>   - ChatGPT 月活 ~2 亿（2024年数据），Claude 不公开，合理估计聚合为 5 亿可能偏高<br>   - <strong>实际硬伤</strong>：缺乏数据来源引用，投资人会质疑这个基数</p><p>2. <strong>「&lt; 5% 找回率」与商业价值悖论</strong><br>   - 文件声称用户「找回一月前对话概率 &lt; 5%」，暗示痛点极大<br>   - <strong>逻辑漏洞</strong>：如果这个比例这么低，说明大多数用户（95%）根本不在乎找回旧对话<br>   - 这与「刚需」定位矛盾——真正的刚需（如支付安全、聊天可靠性）用户会主动解决<br>   - <strong>反问</strong>：为什么用户 95% 的时间不找回旧对话？是产品缺陷还是用户根本不需要这个功能？</p><p>3. <strong>TAM/SAM/SOM 数据严重不合理</strong><br>   - 文件第215-219行：<br>     - TAM（AI编程用户）= 2000万开发者 ✓ 合理<br>     - SAM（泛AI重度用户）= 1亿用户 ⚠️ 问题开始<br>     - <strong>SOM（5年后所有AI用户）= 10亿用户</strong> ❌ <strong>荒谬</strong><br>   - 推理：Gartner 预测 2030 年 GenAI 用户或许达 5-10 亿，但「所有 AI 用户」的定义是什么？（包括自动化系统用户？IoT？）<br>   - <strong>具体错误</strong>：如果 SOM 是「5年后所有AI用户」，那就不是 OpenMnemo 可以抓住的 SAM——必须是「主动使用对话型AI的用户」，应该是 5-10 亿中的 20-30%，即 1-3 亿，而非 10 亿<br>   - 这个数据会被任何精明的VC直接否决</p><p>4. <strong>「team 版 $29/月（5人起）」模糊</strong><br>   - 价格策略缺少关键信息：是否是按增量用户计费？（如第6-10人 $29还是分摊到每人？）<br>   - SAM（1亿用户）× 转化率假设 → 不清楚付费转化率预期（SaaS 通常 0.5-2%）<br>   - <strong>财务失理</strong>：没有计算出 Year 1-5 的收入预测，无法评估融资需求的合理性</p><p>5. <strong>「浏览器插件开发中」状态含糊</strong><br>   - 技术路线图（第453行）标记浏览器插件为「下一个重点」（Phase 2）<br>   - <strong>矛盾点</strong>：商业计划书说「浏览器插件开发中」（第249行），但技术文档说「未来优先级」（第608行）<br>   - 这意味着要突破 1 亿 SAM 用户的瓶颈（Chrome 扩展）还没开始开发<br>   - <strong>投资风险</strong>：核心增长路径（Phase 2）未启动</p><p>6. <strong>Gitea 「完全自主」论过度承诺</strong><br>   - 文案说「用户自部署 Gitea，数据完全不经过任何第三方」（第231行）<br>   - <strong>现实问题</strong>：<br>     - 自部署 Gitea 的企业用户需要 24/7 运维、备份、安全补丁<br>     - OpenMnemo CLI 仍然需要向用户机器上安装、收集本地数据、访问 Gitea API<br>     - 自部署成本远高于描述的「完全透明」（涉及基础设施、运维、安全审计）<br>     - 企业版 SaaS 仍然需要后续产品功能、客服、合规性工作</p><p>7. <strong>「中立性」护城河有根本问题</strong><br>   - 文件声称「大厂永远无法做到中立」（第228行）<br>   - <strong>反驳</strong>：<br>     - 微软已在做 GitHub Copilot Chat 的跨工具支持<br>     - Google 可以轻易在 Gemini 里加「导出到 GitHub」功能<br>     - OpenAI 已在 Plus 版推出 Chat Sharing（跨平台）<br>     - 真正的中立性，大厂们只需 1-2 个月 PM 时间就能做出来<br>   - <strong>护城河虚弱</strong>：技术门槛低，差异化快速可复制</p><p>#### <strong>HIGH</strong></p><p>8. <strong>缺少竞品对比</strong><br>   - 文件标题说「和现有产品的本质区别」（第116行），但没有具体命名任何竞品<br>   - <strong>数据不完整</strong>：<br>     - Folder 类产品？（如 Recall.ai、Otter.ai）<br>     - ChatGPT 的 Share Link 功能？<br>     - 能否量化对比？（功能、用户体验、成本）<br>   - 缺乏竞品分析会被VC视为「市场认知不足」</p><p>9. <strong>「每人每天 3-10 次对话」的转化假设隐含</strong><br>   - 这只是说明市场规模大，不能直接推导出产品适配度<br>   - <strong>缺失</strong>：需要明确「这 3-10 次对话中，有多少比例用户会主动保存？」<br>   - 数据问题同上条（＜5% 找回率）</p><p>10. <strong>报告生成功能尚未集成到主产品</strong><br>    - 技术路线图第434-437行：「report 功能尚未从 memorytree-workflow 移植」<br>    - <strong>商业计划书</strong>却将「可视化记忆看板」作为核心产品特性（第248行）<br>    - <strong>现状矛盾</strong>：产品公开宣传的功能实际上还没完成移植到主 monorepo</p><p>11. <strong>Gitea vs GitHub 的隐藏成本未分析</strong><br>    - 自部署 Gitea 用户体验 vs GitHub 开箱即用的对比没有<br>    - Gitea Actions 是否支持度和 GitHub Actions 一致？<br>    - 迁移成本、学习曲线未评估</p><p>#### <strong>MEDIUM</strong></p><p>12. <strong>「开源社区」的网络效应缺乏数据</strong><br>    - 第237行说「每个开发者都是种子用户」，但开源项目转化为 SaaS 付费用户的概率一般 &lt; 5%<br>    - 需要对标 Supabase / Hashicorp 等开源 SaaS 的实际转化率数据</p><p>13. <strong>对话归档的「自动化分类」逻辑过于乐观</strong><br>    - 技术文档第242-246行描述的 AI 分类置信度阈值（0.5-0.8）是概念，没有实现验证<br>    - <strong>没有用户测试数据</strong>支持这些阈值的有效性<br>    - 假如实际准确率只有 60%，用户体验会很糟</p><p>14. <strong>「先发优势」论不够坚实</strong><br>    - 第239-240行说「第一个被用户信任的记忆平台将长期保持领先」<br>    - <strong>反驳</strong>：如果用户数据在 GitHub/自部署 Gitea，迁移成本并不如说的那么高（可以导出 Markdown + JSON）<br>    - 「粘性」主要取决于产品本身，而非存储位置</p><p>15. <strong>「当前状态」与融资需求的gap</strong><br>    - 产品「已上线 npm」、「完整实现」看板（第246-250行）<br>    - <strong>但融资需求（第256-259行）是：浏览器插件、团队扩充、增长运营</strong><br>    - <strong>矛盾</strong>：如果产品这么完整，为什么没有一个用户的具体案例或留存数据？<br>    - 种子轮融资通常需要 Traction（0.1% DAU 或 $1000+ MRR），文件没有提及</p><p>---</p><p>## Round 2：战略 &amp; 投资者视角问题</p><p>#### <strong>CRITICAL</strong></p><p>16. <strong>收费模型与市场定位冲突</strong><br>    - <strong>模型A（开源免费）</strong>：GitHub + Markdown 存储，无锁定，用户可能永不付费<br>    - <strong>模型B（SaaS付费）</strong>：$9.9/月个人版，$29/月团队版（5人）<br>    - <strong>核心问题</strong>：模型A已经满足 80% 用户需求（「我只要记住对话就行」），SaaS 版本的增值点是什么？<br>      - 「云同步」？ → 用户本地存在 Git 仓库，他们已经可以用 iCloud/OneDrive/Dropbox 同步<br>      - 「向量检索」？ → SQLite FTS5 加上简单 UI 就够用<br>      - 「私有化」？ → 开源用户已经可以自部署 Gitea<br>    - <strong>财务硬伤</strong>：预计付费转化率会极低（&lt;1%），难以支撑团队<br>    - <strong>对标失败</strong>：Obsidian（$10/月，文本编辑生态）能成功，但 OpenMnemo 的增值点更薄弱</p><p>17. <strong>产品-市场匹配（PMF）未验证</strong><br>    - 没有提及用户反馈、用户采访、或任何 PMF 指标<br>    - <strong>风险信号</strong>：开源项目通常需要 6-12 个月的社区验证才能启动融资<br>    - 如果项目仅有 GitHub Stars 和 NPM 下载，但无实际活跃用户案例，VC 会认为「这是个很好的开源工具，但未必是好的商业模式」</p><p>18. <strong>竞争护城河快速崩解的时间表</strong><br>    - 假如 OpenAI/Google/Anthropic 看到 OpenMnemo 的成功，最快多久能复制？<br>    - <strong>答：1-3个月</strong>（在主产品里加「导出到 GitHub」按钮）<br>    - <strong>护城河排序</strong>（从强到弱）：<br>      1. 产品体验 → OpenMnemo CLI + 看板<br>      2. 社区 → 很容易被大厂的品牌压制<br>      3. 数据所有权 → 大厂也能声称支持用户所有权<br>      4. 开源 → 不是防御手段，反而加速被大厂吸收<br>    - <strong>存活概率低</strong>：这种模式最终被收购的概率 &gt; 独立上市的概率</p><p>19. <strong>融资倍数不合理</strong><br>    - 种子轮融资需求「浏览器插件开发 + 核心团队扩充」（第258行）<br>    - 假设：<br>      - 浏览器插件 1 工程师 × 6 个月 = $60k<br>      - 团队扩充：2-3 人 × 12 个月 = $300k<br>      - 增长运营 = $100k<br>      - <strong>总计：$460k</strong><br>    - <strong>合理种子轮融资 = $500k-$1.5M</strong><br>    - <strong>但这里假设：</strong><br>      - 用 1.5M 融资，估值多少？($10M?）<br>      - 18 个月后烧完，需要 Series A，此时没有 Traction 怎么融？<br>      - <strong>融资陷阱</strong>：开源项目融资常见的路：Seed → 失败或微增长 → 被迫收购 / 闭源</p><p>20. <strong>地域与市场适应性不足</strong><br>    - 商业计划书完全针对「全球市场」（英文、支持 GitHub）<br>    - <strong>但实际情况</strong>：<br>      - 中国市场（豆包、Kimi、文心一言）需要 Gitea 实例或专有部署<br>      - GitHub 在中国访问受限<br>      - 飞书/WeChat 推送通知需要独立开发<br>    - <strong>缺失</strong>：针对中国市场的本地化融资计划、BD 策略</p><p>#### <strong>HIGH</strong></p><p>21. <strong>用户获取成本（CAC）与生命周期价值（LTV）未建模</strong><br>    - $9.9/月 × 12 = $119/年（个人版）<br>    - <strong>如果 CAC 只有 $50</strong>，LTV 就是 $119，ROI = 2.4x（不可行）<br>    - 通常 SaaS 需要 LTV:CAC = 3:1，所以 LTV 需要 $150+/年（即 $12.5/月）<br>    - <strong>但市场调研显示</strong>：AI 工具用户对记忆功能付费意愿极低<br>    - 文件完全没有 CAC/LTV 建模</p><p>22. <strong>团队与执行力缺失</strong><br>    - 计划书没有提及创始人背景、技术团队、顾问、融资历史<br>    - OpenMnemo 看起来是 1-2 人项目（从 GitHub 提交者推断）<br>    - <strong>融资风险</strong>：「我们有好想法」&lt; 「我们有执行能力」<br>    - 对比 Supabase / Hashicorp，这些融资成功的开源 SaaS 都有 strong founder + experienced team</p><p>23. <strong>国际运营成本未考虑</strong><br>    - 支持 多国付费（税务合规）<br>    - 多语言客服（中英文以上）<br>    - 法律合规（GDPR / 数据隐私）<br>    - <strong>预算</strong>：通常 SaaS 用户获取成本的 30% 用于 legal/compliance<br>    - 文件没有提及</p><p>24. <strong>变现路径过于依赖付费版</strong><br>    - 只有两条路：SaaS 订阅 + 企业私有化<br>    - <strong>替代思路</strong>：<br>      - API 付费？（给 App 开发者用）<br>      - Marketplace？（记忆模板、AI Agent 市场）<br>      - 咨询服务？（企业部署 OpenMnemo Stack）<br>    - 太单一的收入结构 = 风险高</p><p>#### <strong>MEDIUM</strong></p><p>25. <strong>&quot;零锁定&quot; 的悖论</strong><br>    - 产品主张「用户的记忆存在自己的 Gitea/GitHub」<br>    - <strong>潜在问题</strong>：如果迁移成本为零（数据就是 Git），用户凭什么付费给 OpenMnemo？<br>    - 答案应该是「OpenMnemo 提供的 CLI + 看板 + 搜索」，但这些都可以开源免费<br>    - <strong>陷阱</strong>：「完全自主」和「高粘性商业模式」本身矛盾</p><p>26. <strong>GitHub Pages vs Gitea Pages 的稳定性</strong><br>    - 依赖 GitHub/Gitea 继续存在并保持 API 兼容<br>    - 历史上：Google Reader（关闭）、Twitter API（收费）、Heroku（收费方案调整）<br>    - <strong>如果 GitHub Pages 改政策</strong>，OpenMnemo 用户突然无法访问看板<br>    - <strong>缺乏备选方案</strong></p><p>27. <strong>编程工具市场 vs 泛 AI 市场的需求差异</strong><br>    - Phase 1 目标：500 万 AI 编程用户（明确、高粘性）<br>    - Phase 2 目标：1 亿泛 AI 用户（模糊、低粘性）<br>    - <strong>心理学事实</strong>：开发者（Phase 1）远高于非开发者（Phase 2）对「版本控制」和「历史回溯」的需求<br>    - 浏览器插件（Phase 2）的价值主张会削弱 50%+</p><p>28. <strong>AI 摘要 + 标签提取的成本</strong><br>    - 使用 Claude Haiku（$0.80/1M tokens）<br>    - 假设每条对话平均 5k tokens，成本 = $0.004/对话<br>    - 如果 1 个付费用户月 30 个对话，成本 = $0.12/月<br>    - <strong>看起来便宜</strong>，但 1 万付费用户 = $1200/月摘要成本<br>    - <strong>缺失</strong>：是否应该让用户 opt-out AI 功能来降低成本？</p><p>29. <strong>「先发优势」与市场教育成本</strong><br>    - OpenMnemo 是第一个吗？不是<br>    - 类似产品：Cursor（IDE 记忆）、Replit（项目记忆）、Vercel（部署记忆）<br>    - <strong>问题</strong>：如果市场还没认识到「AI 对话记忆」的价值，OpenMnemo 需要自己做市场教育<br>    - 市场教育成本 &gt;&gt; 产品开发成本</p><p>30. <strong>SaaS 运营的隐形成本</strong><br>    - 支付处理（Stripe 收费 2.9% + 手续费）<br>    - 虚拟主机（$50-500/月，取决于规模）<br>    - 监控 / 告警 / 日志<br>    - 客户支持（Email / Slack）<br>    - <strong>即使零 MRR，这些基础成本也需要 $5k-10k/月</strong></p><p>---</p><p>## 总结表</p><p>| 类别 | 级别 | 数量 | 是否致命 |<br>|------|------|------|---------|<br>| CRITICAL 事实错误 | CRITICAL | 7 条 | 是 |<br>| HIGH 逻辑缺陷 | HIGH | 4 条 | 是 |<br>| CRITICAL 投资战略问题 | CRITICAL | 5 条 | 是 |<br>| HIGH 商业模式问题 | HIGH | 8 条 | 是（组合） |<br>| MEDIUM 执行风险 | MEDIUM | 10 条 | 否（可优化） |</p><p>---</p><p>## VC 融资决策</p><p>### 如果我是种子轮投资人，决定是：<strong>PASS</strong></p><p><strong>主要原因：</strong></p><p>1. <strong>市场定位不清</strong>（5亿月活、1亿 SAM、10亿 SOM，数据失真）<br>2. <strong>竞争护城河虚弱</strong>（大厂3个月能抄）<br>3. <strong>商业模式有问题</strong>（免费开源版已满足需求，SaaS付费难）<br>4. <strong>PMF 未验证</strong>（无用户案例、留存数据）<br>5. <strong>融资需求与产品现状矛盾</strong>（宣称「看板完整」，实际「还没移植」）</p><p>### 翻转局面，需要提供给 VC 的：</p><p>1. <strong>真实用户数据</strong>：NPM 下载、GitHub Stars、活跃用户数、留存率（周留存 &gt; 30%）<br>2. <strong>付费 Traction</strong>：即使很少（1-5 付费用户），也远胜于「0」<br>3. <strong>竞品对比表</strong>（功能、定价、用户体验）<br>4. <strong>团队介绍</strong>（创始人为什么适合做这个？）<br>5. <strong>修正的 TAM/SAM/SOM</strong>（基于行业报告引证，而非猜测）<br>6. <strong>18 个月财务预测</strong>（用户增长、收入、烧钱速度）</p></div>
+</div></div>
+  </div>
+</div>
+</body>
+</html>

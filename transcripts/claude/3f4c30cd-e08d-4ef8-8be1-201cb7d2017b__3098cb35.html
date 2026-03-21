@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-af4a3da6741427cec — MemoryTree</title>
+<meta property="og:title" content="agent-af4a3da6741427cec">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="page-header">
+  <h1>agent-af4a3da6741427cec</h1>
+</div>
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-16 09:25:14</td></tr>
+  <tr><td>Session ID</td><td><code>3f4c30cd-e08d-4ef8-8be1-201cb7d2017b</code></td></tr>
+  <tr><td>Messages</td><td>9</td></tr>
+  <tr><td>Tool Events</td><td>46</td></tr>
+  <tr><td>Branch</td><td><code>main</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">3098cb35102b30ee…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">09:25:14</span>
+  </div>
+  <div class="message-body"><p>Explore the codebase at C:/Users/ai/.codex/skills/memorytree-workflow. I need to understand:</p><p>1. Full directory structure (src/, tests/, dist/)<br>2. src/cli/ - how commands are registered (main.ts, all subcommand files)<br>3. src/transcript/ - import.ts, parse.ts, common.ts key exports<br>4. src/types/ - all type definitions<br>5. src/heartbeat/ - how the heartbeat daemon works, especially how it calls import<br>6. package.json - dependencies (especially if @anthropic-ai/sdk is present), scripts, tsup config<br>7. tsup.config.ts or tsup config in package.json - how the build works, entry points<br>8. Any existing template or rendering utilities in src/</p><p>Please provide: file tree, key type definitions, how CLI commands are structured, heartbeat flow, and build entry points. Be thorough.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:25:16</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll explore the codebase thoroughly to provide you with a comprehensive understanding of its structure and how the different components work together.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:25:19</span>
+  </div>
+  <div class="message-body"><p>Let me get the directory structure and then explore the source files:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:25:26</span>
+  </div>
+  <div class="message-body"><p>Now let me read the key configuration and type files:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:25:35</span>
+  </div>
+  <div class="message-body"><p>Now let me read the heartbeat and transcript files:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:25:40</span>
+  </div>
+  <div class="message-body"><p>Now let me read more files to get a complete picture:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:25:44</span>
+  </div>
+  <div class="message-body"><p>Let me read a few more essential files:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:25:49</span>
+  </div>
+  <div class="message-body"><p>Perfect! Let me now get a comprehensive view with one final check of the directory structure and additional source files:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:26:52</span>
+  </div>
+  <div class="message-body"><p>Excellent! Now I have a comprehensive understanding of the codebase. Let me create a detailed report for the user:</p><p>---</p><p>## MemoryTree Workflow Codebase Exploration Report</p><p>I&#39;ve thoroughly explored the codebase at <code>C:/Users/ai/.codex/skills/memorytree-workflow</code>. Here&#39;s a comprehensive breakdown:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">DIRECTORY</span>
+  </div>
+  <div class="message-body"><pre><code>memorytree-workflow/
+├── src/
+│   ├── cli/                      # Command entry points
+│   │   ├── main.ts               # Commander.js CLI registration
+│   │   ├── cmd-init.ts           # Initialize MemoryTree workspace
+│   │   ├── cmd-upgrade.ts        # Upgrade existing repo
+│   │   ├── cmd-import.ts         # Import single transcript
+│   │   ├── cmd-discover.ts       # Discover &amp; bulk import
+│   │   ├── cmd-locale.ts         # Detect effective locale
+│   │   ├── cmd-recall.ts         # On-demand transcript sync
+│   │   └── cmd-daemon.ts         # Heartbeat daemon management
+│   ├── heartbeat/                # Background job orchestration
+│   │   ├── heartbeat.ts          # Main heartbeat loop
+│   │   ├── config.ts             # Load ~/.memorytree/config.toml
+│   │   ├── lock.ts               # PID-based single-instance lock
+│   │   ├── log.ts                # Structured file+stderr logging
+│   │   └── alert.ts              # Alert system (threshold-based)
+│   ├── transcript/               # Core import &amp; parsing logic
+│   │   ├── import.ts             # Manifest creation &amp; file ops
+│   │   ├── parse.ts              # Client-specific parsers
+│   │   ├── discover.ts           # Source file scanning
+│   │   ├── db.ts                 # SQLite search index (sql.js)
+│   │   ├── common.ts             # Utilities &amp; constants
+│   │   └── index.ts              # (aggregation/re-exports)
+│   ├── types/
+│   │   └── transcript.ts         # Type definitions
+│   ├── project/                  # Project scaffolding
+│   │   ├── scaffold.ts           # Workspace initialization
+│   │   ├── locale.ts             # Locale resolution
+│   │   └── upgrade.ts            # Repo upgrade logic
+│   ├── recall/                   # Session recall
+│   │   └── recall.ts             # On-demand sync
+│   └── utils/
+│       ├── path.ts               # Path normalization
+│       └── exec.ts               # Shell execution helpers
+├── tests/
+│   ├── cli/
+│   │   └── daemon.test.ts
+│   ├── heartbeat/
+│   │   ├── alert.test.ts
+│   │   ├── config.test.ts
+│   │   ├── heartbeat.test.ts
+│   │   ├── lock.test.ts
+│   │   └── log.test.ts
+│   ├── project/
+│   │   ├── locale.test.ts
+│   │   ├── scaffold.test.ts
+│   │   └── upgrade.test.ts
+│   ├── recall/
+│   │   └── recall.test.ts
+│   ├── transcript/
+│   │   ├── common.test.ts
+│   │   ├── db.test.ts
+│   │   ├── discover.test.ts
+│   │   ├── import.test.ts
+│   │   ├── integration.test.ts
+│   │   └── parse.test.ts
+│   └── smoke.test.ts
+├── dist/                         # Compiled output
+│   ├── cli.js                    # Entry point
+│   ├── cmd-*.js                  # Chunked commands
+│   └── chunk-*.js                # tsup-generated chunks
+├── assets/                       # Template files (Markdown, TOML)
+├── agents/                       # Agent configs for CI/workflow
+├── package.json                  # Dependencies &amp; build config
+├── tsconfig.json                 # TypeScript configuration
+├── tsup.config.ts                # Build configuration
+└── vitest.config.ts              # Test runner config
+</code></pre></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">KEY</span>
+  </div>
+  <div class="message-body"><pre><code>// Client enum
+type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39;
+
+// Individual message in transcript
+interface TranscriptMessage {
+  role: string                    // &#39;user&#39; or &#39;assistant&#39;
+  text: string
+  timestamp: string | null        // ISO 8601 or null
+}
+
+// Tool invocation/completion summary
+interface TranscriptToolEvent {
+  summary: string                 // &quot;tool_name input=...&quot; or &quot;output=...&quot;
+  timestamp: string | null
+}
+
+// Result of parsing a raw transcript file
+interface ParsedTranscript {
+  client: Client
+  session_id: string
+  title: string
+  started_at: string              // ISO 8601
+  cwd: string                     // Working directory at session start
+  branch: string                  // Git branch
+  messages: TranscriptMessage[]
+  tool_events: TranscriptToolEvent[]
+  source_path: string             // Path to raw file
+}
+
+// Manifest entry: metadata &amp; storage locations after import
+interface ManifestEntry {
+  client: string
+  project: string                 // Slug of project
+  session_id: string
+  raw_sha256: string
+  title: string
+  started_at: string
+  imported_at: string
+  cwd: string
+  branch: string
+  raw_source_path: string
+  raw_upload_permission: string
+  repo_raw_path: string          // Path relative to repo root
+  repo_clean_path: string        // Markdown version
+  repo_manifest_path: string     // JSON metadata
+  global_raw_path: string        // Absolute path in ~/.memorytree
+  global_clean_path: string
+  global_manifest_path: string
+  message_count: number
+  tool_event_count: number
+  cleaning_mode: string
+  repo_mirror_enabled: boolean
+}
+</code></pre></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">CLI</span>
+  </div>
+  <div class="message-body"><p>All commands are registered via <strong>Commander.js</strong> v13.1.0 in a single file with lazy dynamic imports:</p><p><strong>Top-level Commands:</strong></p><p>| Command | Description | Key Options |<br>|---------|-------------|------------|<br>| <code>init</code> | Initialize MemoryTree workspace | <code>--root</code>, <code>--project-name</code>, <code>--locale</code>, <code>--force</code> |<br>| <code>upgrade</code> | Upgrade existing repo (preserves policy) | <code>--root</code>, <code>--format text\|json</code> |<br>| <code>import</code> | Import single transcript | <code>--source</code> (required), <code>--client auto\|codex\|claude\|gemini</code>, <code>--format</code> |<br>| <code>discover</code> | Discover &amp; bulk import local transcripts | <code>--client all\|codex\|...</code>, <code>--scope all-projects\|current-project</code>, <code>--limit</code> |<br>| <code>locale</code> | Detect effective locale | <code>--locale auto\|en\|zh-cn</code>, <code>--format</code> |<br>| <code>recall</code> | On-demand transcript sync | <code>--activation-time</code> (ISO timestamp) |<br>| <code>daemon</code> | Heartbeat lifecycle management | Subcommands: <code>install</code>, <code>uninstall</code>, <code>run-once</code>, <code>watch</code>, <code>status</code> |</p><p><strong>Daemon Subcommands:</strong><br>- <code>install</code> – Register heartbeat with OS scheduler (cron/launchd/schtasks)<br>- <code>uninstall</code> – Remove scheduled task<br>- <code>run-once</code> – Execute single heartbeat cycle<br>- <code>watch</code> – Continuous loop (dev mode)<br>- <code>status</code> – Show registration &amp; lock state</p><p>All commands use async/await with dynamic ESM imports (<code>import(&#39;./cmd-*.js&#39;)</code>), and set <code>process.exitCode</code> to return status.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">HEARTBEAT</span>
+  </div>
+  <div class="message-body"><p><strong>Entry Point: <code>main()</code></strong></p><p>1. <strong>Lock Acquisition</strong> – Prevents concurrent heartbeat runs<br>   - Uses PID-based lock file at <code>~/.memorytree/heartbeat.lock</code><br>   - Checks if stored PID is alive; reclaims stale locks<br>   - Returns 0 if already running (not an error)</p><p>2. <strong>Load Configuration</strong> – From <code>~/.memorytree/config.toml</code><br>   - <code>heartbeat_interval</code> (e.g., &quot;5m&quot;, default)<br>   - <code>projects</code> – Array of <code>{path, name}</code><br>   - <code>auto_push</code> – Whether to push transcripts to Git<br>   - <code>log_level</code> – debug\|info\|warn\|error</p><p>3. <strong>Per-Project Processing</strong> – <code>processProject()</code><br>   - Discover source files from <code>~/.codex</code>, <code>~/.claude</code>, <code>~/.gemini</code><br>   - Parse each source into <code>ParsedTranscript</code><br>   - Skip if no content (no messages/tool_events)<br>   - <strong>Key: Check if transcript matches repo</strong> – via <code>transcriptMatchesRepo()</code><br>     - Compares <code>cwd</code> in transcript with repo root<br>     - Falls back to slug matching if cwd doesn&#39;t match<br>   - <strong>Sensitive pattern scanning</strong> – Regex patterns for API keys, passwords, tokens<br>   - <strong>Import transcript</strong> – Calls <code>importTranscript()</code> with:<br>     - <code>parsed</code> transcript<br>     - <code>projectPath</code> (repo root)<br>     - <code>globalRoot</code> (default: <code>~/.memorytree/transcripts</code>)<br>     - <code>projectSlug</code> (derived from project name)<br>     - <code>rawUploadPermission</code> (not-set\|approved\|denied)<br>     - <code>mirrorToRepo=true</code> – Also store in <code>Memory/06_transcripts/</code></p><p>4. <strong>Git Operations</strong> – After import<br>   - Check for changes in <code>Memory/</code> directory<br>   - Commit with message: <code>memorytree(transcripts): import N transcript(s)</code><br>   - If <code>auto_push</code> enabled: push to remote (with retry)<br>   - Write alerts on failure (threshold-based)</p><p>5. <strong>Lock Release</strong> – Always called in finally block</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">IMPORT</span>
+  </div>
+  <div class="message-body"><p><strong>Function: <code>importTranscript(parsed, root, globalRoot, projectSlug, rawUploadPermission, mirrorToRepo)</code></strong></p><p><strong>File Paths:</strong></p><pre><code># Session label from session_id or filename stem
+sessionLabel = slugify(session_id)
+artifactStem = &quot;${sessionLabel}__${rawSha256.slice(0, 8)}&quot;
+
+# Year/Month partition from started_at timestamp
+[yearToken, monthToken] = timestampPartition(started_at)
+sourceSuffix = file extension of original
+
+# Repo mirror (if mirrorToRepo=true)
+Memory/06_transcripts/
+├── raw/{client}/{year}/{month}/{artifactStem}{sourceSuffix}
+├── clean/{client}/{year}/{month}/{artifactStem}.md
+└── manifests/{client}/{year}/{month}/{artifactStem}.json
+
+# Global storage
+~/.memorytree/transcripts/
+├── raw/{client}/{project}/{year}/{month}/{artifactStem}{sourceSuffix}
+├── clean/{client}/{project}/{year}/{month}/{artifactStem}.md
+├── index/
+│   ├── manifests/{client}/{project}/{year}/{month}/{artifactStem}.json
+│   ├── sessions.jsonl  (append-only log of manifest entries)
+│   └── search.sqlite   (sql.js upsert)
+</code></pre><p><strong>Processing Steps:</strong></p><p>1. <strong>Compute paths</strong> – Create directories recursively<br>2. <strong>Copy raw source</strong> – To both repo and global locations<br>3. <strong>Build manifest</strong> – <code>ManifestEntry</code> object with all metadata<br>4. <strong>Preserve import timestamp</strong> – If existing manifest has same content signature, keep old <code>imported_at</code><br>5. <strong>Write clean markdown</strong> – YAML frontmatter + messages + metadata<br>6. <strong>Write manifest JSON</strong> – To both repo and global locations<br>7. <strong>Append event log</strong> – Only if manifest changed (content-wise)<br>8. <strong>Upsert search index</strong> – SQLite table via <code>sql.js</code></p><p><strong>Return: <code>ManifestEntry</code></strong> – Can be printed as JSON or formatted text</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">TRANSCRIPT</span>
+  </div>
+  <div class="message-body"><p><strong>Client Inference: <code>inferClient(client, sourcePath)</code></strong></p><p>Auto-detection based on path patterns:<br>- <code>/.codex/</code> or filename <code>rollout-*</code> → <code>codex</code><br>- <code>/.claude/</code> or <code>/projects/</code> → <code>claude</code><br>- <code>/.gemini/</code> or <code>checkpoint</code> → <code>gemini</code></p><p><strong>Three Client-Specific Parsers:</strong></p><p><strong>Codex Parser (<code>parseCodexTranscript</code>)</strong><br>- Format: JSONL records with <code>type</code> field<br>- Types: <code>session_meta</code>, <code>response_item</code>, <code>event_msg</code><br>- Messages: From <code>type=message</code> records (canonical), fallback to <code>type=user_message</code>/<code>agent_message</code><br>- Tool events: <code>function_call</code>, <code>custom_tool_call</code>, <code>*_output</code><br>- <strong>Deduplication:</strong> Uses streaming events only if no canonical records (avoids double-recording)<br>- <strong>System injection filter:</strong> Skips first message if contains <code>&lt;INSTRUCTIONS&gt;</code>, <code>&lt;environment_context&gt;</code>, etc.</p><p><strong>Claude Parser (<code>parseClaudeTranscript</code>)</strong><br>- Format: JSONL with <code>type</code> field (<code>user</code> or <code>assistant</code>)<br>- Message content: String or block array with <code>{type, text}</code> objects<br>- Block types: <code>input_text</code>, <code>output_text</code>, <code>text</code> (text), <code>tool_use</code>, <code>tool_result</code> (tools)<br>- Skip blocks: <code>thinking</code>, <code>reasoning</code><br>- Metadata: <code>sessionId</code>, <code>cwd</code>, <code>gitBranch</code> from any record</p><p><strong>Gemini Parser (<code>parseGeminiTranscript</code>)</strong><br>- Format: JSONL or JSON<br>- Recursive tree traversal to find:<br>  - Metadata: <code>sessionId</code>, <code>chatId</code>, <code>cwd</code>, <code>branch</code>, <code>timestamp</code><br>  - Messages: <code>role</code> in (user, model, assistant); extract text from <code>parts</code>, <code>content</code>, <code>text</code>, <code>message</code><br>  - Tool events: <code>toolName</code>, <code>functionName</code>, <code>tool</code><br>- Flexible structure to handle nested conversations</p><p><strong>Common Utilities (src/transcript/common.ts):</strong></p><p>- <strong>Slugify</strong>: Removes non-ASCII, converts to lowercase, replaces spaces/special chars with hyphens<br>- <strong>SHA256</strong>: File hash (raw), content hash (16-char prefix for dedup)<br>- <strong>Timestamp normalization</strong>: Unix seconds → ISO 8601, handle timezone offsets<br>- <strong>Timestamp partition</strong>: Extract year/month for directory structure<br>- <strong>Deduplication</strong>: Track signature (<code>timestamp\0role\0contentHash</code>) to skip duplicates<br>- <strong>Text extraction</strong>: From nested blocks, handles Gemini multi-part messages<br>- <strong>YAML escaping</strong>: For frontmatter values</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">DISCOVERY</span>
+  </div>
+  <div class="message-body"><p><strong>File Patterns per Client:</strong></p><pre><code>const CLIENT_PATTERNS = {
+  codex: [&#39;sessions/**/*.jsonl&#39;],
+  claude: [&#39;projects/**/*.jsonl&#39;],
+  gemini: [
+    &#39;tmp/*/checkpoints/**/*.json&#39;,
+    &#39;tmp/*/checkpoints/**/*.jsonl&#39;,
+    &#39;history/**/*.json&#39;,
+    &#39;history/**/*.jsonl&#39;,
+    &#39;chats/**/*.json&#39;,
+    &#39;chats/**/*.jsonl&#39;,
+  ],
+}
+</code></pre><p><strong>Function: <code>discoverSourceFiles(clients?, roots?)</code></strong></p><p>- Scans default roots: <code>~/.codex</code>, <code>~/.claude</code>, <code>~/.gemini</code><br>- Uses <code>fast-glob</code> for pattern matching<br>- <strong>Sorting</strong>: By modification time (newest first), then by path (reverse alphabetical)<br>- <strong>Deduplication</strong>: Tracks lowercase paths to avoid duplicates<br>- Returns: <code>Array&lt;[client, filePath]&gt;</code></p><p><strong>Project Slug Inference: <code>inferProjectSlug(parsed)</code></strong></p><p>1. Try <code>basename(cwd)</code> from transcript metadata<br>2. For Claude: Use parent directory name (strips <code>a--</code> prefix)<br>3. For Gemini: Use parent directory name<br>4. Fallback: <code>unknown-project</code></p><p><strong>Repo Matching: <code>transcriptMatchesRepo(parsed, repoRoot, repoSlug)</code></strong></p><p>- Exact match: <code>parsed.cwd === repoRoot</code><br>- Parent match: <code>cwd</code> is under <code>repoRoot</code><br>- Slug match: Project slugs match and not <code>unknown-project</code></p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">SEARCH</span>
+  </div>
+  <div class="message-body"><p><strong>Technology: <code>sql.js</code> (WebAssembly SQLite)</strong></p><p>Allows in-memory or persistent SQLite without native bindings.</p><p><strong>Schema:</strong></p><pre><code>CREATE TABLE transcripts (
+  client TEXT NOT NULL,
+  project TEXT NOT NULL,
+  session_id TEXT NOT NULL,
+  raw_sha256 TEXT NOT NULL,
+  title TEXT,
+  started_at TEXT,
+  imported_at TEXT,
+  cwd TEXT,
+  branch TEXT,
+  raw_source_path TEXT,
+  raw_upload_permission TEXT,
+  global_raw_path TEXT,
+  global_clean_path TEXT,
+  repo_raw_path TEXT,
+  repo_clean_path TEXT,
+  repo_manifest_path TEXT,
+  message_count INTEGER,
+  tool_event_count INTEGER,
+  PRIMARY KEY (client, project, session_id, raw_sha256)
+)
+</code></pre><p><strong>Function: <code>upsertSearchIndex(dbPath, manifest)</code></strong></p><p>- Loads existing database or creates new one<br>- Executes upsert: Insert on conflict updates data columns<br>- Exports WASM database to binary file<br>- Lazy initialization: <code>sql.js</code> WASM loaded once per process</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">HEARTBEAT</span>
+  </div>
+  <div class="message-body"><p><strong>Platform-Specific Scheduling:</strong></p><p>- <strong>Linux</strong>: <code>crontab</code> (via shell commands)<br>- <strong>macOS</strong>: <code>launchd</code> (via plist at <code>~/Library/LaunchAgents/</code>)<br>- <strong>Windows</strong>: <code>schtasks</code> (Windows Task Scheduler)</p><p><strong>Heartbeat Script Path</strong>: Resolves to installed <code>memorytree-daemon</code> binary</p><p><strong>Interval Format</strong>: <code>&lt;number&gt;&lt;s|m|h&gt;</code> (e.g., &quot;5m&quot; = 300 seconds)</p><p><strong>Subcommands:</strong></p><p>- <code>install</code> – Register heartbeat, save config, install task<br>- <code>uninstall</code> – Remove OS-level task<br>- <code>run-once</code> – Directly invoke <code>main()</code> from <code>heartbeat.ts</code><br>- <code>watch</code> – Loop: call <code>main()</code> every N seconds (dev mode)<br>- <code>status</code> – Show platform, registration, lock PID</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">CONFIGURATION</span>
+  </div>
+  <div class="message-body"><p><strong>File: <code>~/.memorytree/config.toml</code></strong></p><pre><code>heartbeat_interval = &quot;5m&quot;
+auto_push = true
+log_level = &quot;info&quot;
+watch_dirs = []
+
+[[projects]]
+path = &quot;/path/to/repo1&quot;
+name = &quot;repo1&quot;
+
+[[projects]]
+path = &quot;/path/to/repo2&quot;
+</code></pre><p><strong>Type: <code>Config</code></strong></p><p>- <code>heartbeat_interval</code>: String with unit (s/m/h)<br>- <code>projects</code>: Array of <code>{path, name}</code><br>- <code>auto_push</code>: Boolean<br>- <code>log_level</code>: debug\|info\|warn\|error<br>- <code>watch_dirs</code>: Array of paths (unused in current version)</p><p><strong>Functions:</strong></p><p>- <code>loadConfig()</code> – Parse TOML or return defaults<br>- <code>saveConfig(cfg)</code> – Write back to TOML<br>- <code>registerProject(cfg, repoPath)</code> – Add project, prevent duplicates<br>- <code>intervalToSeconds(interval)</code> – Parse &quot;5m&quot; → 300</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">LOCKING</span>
+  </div>
+  <div class="message-body"><p><strong>PID-Based Lock File: <code>~/.memorytree/heartbeat.lock</code></strong></p><p><strong>Function: <code>acquireLock()</code></strong></p><p>1. Check if lock file exists<br>2. If exists, read PID and check if process is alive:<br>   - Alive → Return false (another instance running)<br>   - Dead → Remove stale lock, continue<br>3. Use <code>O_CREAT | O_EXCL</code> for atomic creation (prevents TOCTOU race)<br>4. Write current process PID to file<br>5. Return true on success</p><p><strong>Cross-Platform Process Checking:</strong></p><p>- <strong>Unix</strong>: <code>process.kill(pid, 0)</code> – Signal 0 tests existence<br>- <strong>Windows</strong>: <code>tasklist /FI &quot;PID eq {pid}&quot;</code> – Search output for PID word boundary</p><p><strong>Functions:</strong></p><p>- <code>acquireLock()</code> – Acquire or reclaim stale lock<br>- <code>releaseLock()</code> – Delete lock file<br>- <code>readLockPid()</code> – Inspect current lock holder<br>- <code>isProcessAlive(pid)</code> – Check if process exists</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">LOGGING</span>
+  </div>
+  <div class="message-body"><p><strong>Singleton Logger (MemoryTreeLogger)</strong></p><p>- Output: Both stderr and daily log file<br>- Log file: <code>~/.memorytree/logs/heartbeat-YYYY-MM-DD.log</code><br>- Format: <code>YYYY-MM-DDTHH:MM:SS [LEVEL] message</code><br>- Levels: debug &lt; info &lt; warn &lt; error (configurable threshold)</p><p><strong>Functions:</strong></p><p>- <code>setupLogging(level)</code> – Create singleton logger<br>- <code>getLogger()</code> – Get existing or auto-create<br>- Logger methods: <code>debug()</code>, <code>info()</code>, <code>warn()</code>, <code>error()</code>, <code>exception(msg, err)</code></p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">BUILD</span>
+  </div>
+  <div class="message-body"><p><strong>tsup.config.ts:</strong></p><pre><code>{
+  entry: { cli: &#39;src/cli/main.ts&#39; },
+  format: [&#39;esm&#39;],
+  target: &#39;node20&#39;,
+  sourcemap: true,
+  clean: true,
+  dts: false,
+  banner: { js: &#39;#!/usr/bin/env node&#39; }  // Makes output executable
+}
+</code></pre><p><strong>Key Points:</strong></p><p>- Single entry: <code>src/cli/main.ts</code> outputs to <code>dist/cli.js</code><br>- ESM format only (uses <code>import.meta.url</code> in code)<br>- Node 20+ target<br>- <code>tsup</code> auto-chunks large modules into separate files<br>- Shebang added so binary works directly</p><p><strong>Output Structure:</strong></p><pre><code>dist/
+├── cli.js              # Main entry, registers all commands
+├── cmd-init-*.js       # Lazy-loaded init command
+├── cmd-import-*.js     # Lazy-loaded import command
+├── cmd-daemon-*.js     # Lazy-loaded daemon commands
+├── heartbeat-*.js      # Lazy-loaded heartbeat module
+└── chunk-*.js          # tsup-generated chunk files
+</code></pre><p><strong>package.json Scripts:</strong></p><pre><code>{
+  &quot;build&quot;: &quot;tsup&quot;,
+  &quot;dev&quot;: &quot;tsx src/cli/main.ts&quot;,
+  &quot;test&quot;: &quot;vitest run&quot;,
+  &quot;lint&quot;: &quot;eslint src tests --ext .ts&quot;,
+  &quot;typecheck&quot;: &quot;tsc --noEmit&quot;
+}
+</code></pre><p><strong>Bin Entry:</strong></p><pre><code>{
+  &quot;bin&quot;: {
+    &quot;memorytree&quot;: &quot;./dist/cli.js&quot;,
+    &quot;memorytree-daemon&quot;: &quot;./dist/cli.js&quot;
+  }
+}
+</code></pre><p>Both commands invoke the same CLI entry point (commands are selected by <code>process.argv[2]</code>).</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">DEPENDENCIES</span>
+  </div>
+  <div class="message-body"><p><strong>Production:</strong></p><p>- <strong>commander</strong> (13.1.0) – CLI argument parsing<br>- <strong>fast-glob</strong> (3.3.3) – File pattern matching (used in discovery)<br>- <strong>smol-toml</strong> (1.3.1) – TOML parsing (config.toml)<br>- <strong>sql.js</strong> (1.12.0) – WebAssembly SQLite (search index)</p><p><strong>DevDependencies:</strong></p><p>- <strong>typescript</strong> (5.7.3)<br>- <strong>tsup</strong> (8.4.0) – ESM bundler<br>- <strong>vitest</strong> (3.1.1) – Test runner<br>- <strong>tsx</strong> (4.19.3) – Node.js + TypeScript runner (for <code>npm run dev</code>)<br>- <strong>eslint</strong> + <strong>@typescript-eslint/</strong> – Linting<br>- <strong>memfs</strong> (4.17.0) – Virtual file system (testing)</p><p><strong>Notable Absence:</strong> No <code>@anthropic-ai/sdk</code> in this project (it&#39;s purely transcript processing, not API calls to Anthropic).</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">TEST</span>
+  </div>
+  <div class="message-body"><p>Test files exist for all major modules:<br>- <strong>Unit</strong>: <code>common.test.ts</code>, <code>config.test.ts</code>, <code>lock.test.ts</code>, <code>log.test.ts</code>, <code>alert.test.ts</code><br>- <strong>Integration</strong>: <code>import.test.ts</code>, <code>parse.test.ts</code>, <code>discover.test.ts</code>, <code>db.test.ts</code>, <code>heartbeat.test.ts</code><br>- <strong>E2E</strong>: <code>integration.test.ts</code> (full import workflow), <code>daemon.test.ts</code><br>- <strong>Smoke</strong>: General sanity checks</p><p>Uses <code>memfs</code> for isolated file system testing.</p><p>---</p><p>### SUMMARY</p><p><strong>MemoryTree Workflow</strong> is a comprehensive transcript management system for AI coding assistants. It:</p><p>1. <strong>Discovers</strong> transcripts from <code>~/.codex</code>, <code>~/.claude</code>, <code>~/.gemini</code><br>2. <strong>Parses</strong> client-specific formats into normalized <code>ParsedTranscript</code> objects<br>3. <strong>Imports</strong> transcripts into both repo-local (<code>Memory/06_transcripts/</code>) and global (<code>~/.memorytree/transcripts/</code>) storage<br>4. <strong>Indexes</strong> entries in an SQLite database for search<br>5. <strong>Runs continuously</strong> via heartbeat daemon (cron/launchd/schtasks) to auto-sync new transcripts<br>6. <strong>Commits &amp; pushes</strong> transcript archives to Git when changes are detected<br>7. <strong>Manages configuration</strong> via <code>~/.memorytree/config.toml</code> for project registration and heartbeat settings</p><p>All components are type-safe (strict TypeScript), well-tested, and cross-platform (Windows/macOS/Linux).</p></div>
+</div></div>
+  </div>
+</div>
+</body>
+</html>

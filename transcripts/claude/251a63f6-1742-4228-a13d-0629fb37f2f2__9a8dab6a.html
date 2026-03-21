@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-ab98df1f8deafd28a — MemoryTree</title>
+<meta property="og:title" content="agent-ab98df1f8deafd28a">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="page-header">
+  <h1>agent-ab98df1f8deafd28a</h1>
+</div>
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-16 13:15:06</td></tr>
+  <tr><td>Session ID</td><td><code>251a63f6-1742-4228-a13d-0629fb37f2f2</code></td></tr>
+  <tr><td>Messages</td><td>4</td></tr>
+  <tr><td>Tool Events</td><td>38</td></tr>
+  <tr><td>Branch</td><td><code>main</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">9a8dab6a313f2f58…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">13:15:06</span>
+  </div>
+  <div class="message-body"><p>你是一个资深 TypeScript 代码审查员，请对以下文件做<strong>深度代码审查</strong>，重点关注：逻辑正确性、边界处理、潜在 bug、数据类型安全。</p><p>需要审查的文件（全部读取）：<br>1. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/i18n/index.ts</code><br>2. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/i18n/en.ts</code><br>3. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/i18n/zh-CN.ts</code><br>4. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/layout.ts</code><br>5. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/css.ts</code> (只看新增的 sidebar/light theme 部分)<br>6. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/projects.ts</code><br>7. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/graph.ts</code><br>8. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/todos.ts</code><br>9. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/archive.ts</code><br>10. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/transcript-list.ts</code><br>11. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/github-pages.ts</code><br>12. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/webhook.ts</code><br>13. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/report/build.ts</code><br>14. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/config.ts</code><br>15. <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/types/report.ts</code></p><p>每个问题按以下格式输出：<br>- <strong>[严重度: CRITICAL/HIGH/MEDIUM/LOW]</strong> <code>文件:行号</code> — 问题描述 + 建议修复</p><p>审查维度：<br>- 逻辑 bug（特别是边界条件、null/undefined、数组越界）<br>- TypeScript 类型安全（any、非空断言滥用）<br>- 路径计算错误（相对路径、跨平台路径）<br>- 资源泄漏（文件句柄、HTTP 连接、Promise 未 await）<br>- 性能问题（O(n²) 循环、大量字符串拼接）<br>- 内联 JS 安全（XSS、脚本注入）</p><p>最后给出<strong>总体评级</strong>：🔴 CRITICAL / 🟠 HIGH / 🟡 MEDIUM / 🟢 LOW</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">13:15:10</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll read all 15 files in parallel for a comprehensive code review.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">13:15:37</span>
+  </div>
+  <div class="message-body"><p>Now let me check a few more related files to understand the full picture:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">13:18:19</span>
+  </div>
+  <div class="message-body"><p>Now I have a complete picture. Here is the full deep code review:</p><p>---</p><p>## 深度代码审查报告</p><p>### 文件：<code>i18n/index.ts</code></p><p>代码简洁，无问题。<code>loadLocale</code> 的 fallback 逻辑正确。</p><p>---</p><p>### 文件：<code>i18n/en.ts</code> / <code>i18n/zh-CN.ts</code></p><p>- <strong>[LOW]</strong> <code>en.ts:17</code> — <code>subtitle</code> 字段值为 <code>&#39;Activity from {from} to {to}&#39;</code>，包含占位符 <code>{from}</code> / <code>{to}</code>，但查遍 <code>build.ts</code>、<code>render/dashboard.ts</code> 的调用链，<strong>没有任何代码对这些占位符做替换</strong>。翻译字符串会原样输出给用户。建议在调用侧进行 <code>.replace(&#39;{from}&#39;, ...).replace(&#39;{to}&#39;, ...)</code> 替换，或改为模板函数。</p><p>- <strong>[LOW]</strong> <code>en.ts</code> / <code>zh-CN.ts</code> — <code>Translations</code> 类型中定义了 <code>goals</code>、<code>todos</code>、<code>archive</code> 等节点，但 <code>types.ts</code> 中的 <code>Translations</code> 接口<strong>没有</strong> <code>goals</code>/<code>todos</code>/<code>archive</code> 字段。这意味着 <code>render/goals.ts</code>、<code>todos.ts</code>、<code>archive.ts</code> 只能通过 <code>t?.nav.goals</code> 访问导航标签，无法有专属的 i18n 文字段（例如&quot;No goals found.&quot;），这些提示文字目前硬编码英文。若今后扩展，接口与实现会不一致。</p><p>---</p><p>### 文件：<code>render/layout.ts</code></p><p>- <strong>[HIGH]</strong> <code>layout.ts:87-88</code> — SIDEBAR_INLINE_JS 中的 popover <code>innerHTML</code> 赋值：</p><pre><code>  popover.innerHTML = (meta ? &#39;&lt;div class=&quot;popover-meta&quot;&gt;&#39; + meta + &#39;&lt;/div&gt;&#39; : &#39;&#39;) +
+    (summary ? &#39;&lt;div class=&quot;popover-summary&quot;&gt;&#39; + summary + &#39;&lt;/div&gt;&#39; : &#39;&#39;);
+  </code></pre><p><code>meta</code> 和 <code>summary</code> 来自 <code>el.getAttribute(&#39;data-summary&#39;)</code> 和 <code>el.getAttribute(&#39;data-meta&#39;)</code>。尽管在 <code>transcript-list.ts:49</code> 中这些属性通过 <code>escHtml()</code> 转义后写入 HTML 属性，但通过 <code>getAttribute()</code> 读回时会得到<strong>已解码的原始字符串</strong>（浏览器会将 <code>&amp;lt;</code> 解码为 <code>&lt;</code>），再通过 <code>innerHTML</code> 写入时就会造成 <strong>存储型 XSS</strong>。攻击者只需将 session 标题中包含 <code>&lt;img src=x onerror=alert(1)&gt;</code> 即可触发。<br>  <br>  修复：改为 <code>textContent</code> 赋值，或在 JS 中对 <code>meta</code>/<code>summary</code> 再次转义。</p><p>- <strong>[MEDIUM]</strong> <code>layout.ts:149</code> — <code>themeLabel</code> 初始值硬编码为 <code>&#39;☀ Light&#39;</code>（亮色模式标签），但 JS 初始化时会读取 <code>localStorage</code> 中保存的主题（默认 <code>&#39;dark&#39;</code>），并通过 <code>updateThemeBtn()</code> 更新按钮文字。<strong>问题</strong>：JS 在 <code>DOMContentLoaded</code> 之后才运行，在此之前按钮文字显示错误（<code>&#39;☀ Light&#39;</code> 而非 <code>&#39;☾ Dark&#39;</code>），会有短暂闪烁。可改为服务端渲染时不写入初始文字，依赖 JS 更新即可。</p><p>- <strong>[MEDIUM]</strong> <code>layout.ts:119-132</code> — <code>buildNavItems</code> 中 <code>rootLevel: boolean</code> 以 <code>&#39;&#39;</code> vs <code>&#39;../&#39;</code> 区分路径层级，但导航中存在两种不同深度的页面：根级页面（<code>graph.html</code>、<code>search.html</code>）和子目录中的 index（<code>transcripts/index.html</code>）。从 <code>transcripts/claude/xxxx.html</code>（两级子目录深的 transcript 页面）调用 <code>renderNav(&#39;transcripts&#39;, false, t)</code> 时，路径 <code>../transcripts/index.html</code> 会错误解析为 <code>transcripts/transcripts/index.html</code>，而非正确的 <code>../../transcripts/index.html</code>。<strong>路径计算未考虑三级以上嵌套。</strong> transcript 单页面需要 <code>rootLevel</code> 以外的第三个值（如 <code>&#39;transcript&#39;</code> 深度）。</p><p>- <strong>[LOW]</strong> <code>layout.ts:207</code> — <code>KNOWN_CLIENTS</code> 集合（<code>codex</code>/<code>claude</code>/<code>gemini</code>）硬编码，若日后增加新客户端（如 <code>cursor</code>），badge 样式会 fallback 为 <code>unknown</code>，但更重要的是 CSS 中没有对应 <code>.badge-cursor</code> 样式。需要保持 <code>layout.ts</code> 与 <code>css.ts</code> 两处同步更新。</p><p>---</p><p>### 文件：<code>render/css.ts</code>（新增 sidebar/light theme 部分）</p><p>- <strong>[MEDIUM]</strong> <code>css.ts:421-430</code> — <code>.summary-card</code> 使用硬编码颜色 <code>background: #161b22; border: 1px solid #30363d;</code> 而非 CSS 变量，<strong>在 light theme 下不会切换</strong>。亮色主题下这个卡片背景会保持深色，形成视觉错误。应改为 <code>var(--bg-secondary)</code> 和 <code>var(--border)</code>。</p><p>- <strong>[LOW]</strong> <code>css.ts:489</code> — <code>.search-result mark { background: #3d3000; color: var(--warning); }</code> 同样是硬编码暗色背景，在亮色主题下高亮标记将不可见（深棕色背景叠加亮色页面）。应改为带主题变量的实现。</p><p>- <strong>[LOW]</strong> <code>css.ts:413-414</code> — <code>.message-user .message-role { color: #58a6ff; }</code> 和 <code>.message-assistant .message-role { color: #8b949e; }</code> 均为硬编码颜色，在亮色主题下对比度不足（<code>#8b949e</code> 在白底上）。应使用 <code>var(--accent)</code> 和 <code>var(--text-muted)</code>。</p><p>---</p><p>### 文件：<code>render/projects.ts</code></p><p>- <strong>[MEDIUM]</strong> <code>projects.ts:53-57</code> — <code>lastActive</code> 计算：</p><pre><code>  const lastActive = sessions
+    .map(s =&gt; s.started_at)
+    .sort()
+    .at(-1)
+    ?.slice(0, 10) ?? &#39;—&#39;
+  </code></pre><p><code>.sort()</code> 是字符串字典序排序，对 ISO8601 时间戳有效，但若 <code>started_at</code> 格式不一致（如部分带时区 <code>+08:00</code>，部分不带），字典序排序结果不可靠。建议显式使用 <code>.localeCompare()</code> 或将其转换为 <code>Date</code> 后排序，与 <code>transcript-list.ts:16</code> 的做法保持一致。</p><p>- <strong>[LOW]</strong> <code>projects.ts:65</code> — <code>last active</code> 文字硬编码英文，未进行 i18n 处理。在 <code>zh-CN</code> locale 下会显示 <code>&quot;最近会话 · last active 2026-03-16&quot;</code>，语言不一致。</p><p>- <strong>[LOW]</strong> <code>projects.ts:73</code> — <code>${sorted.length} project(s)</code> 同样硬编码英文，未走 i18n。</p><p>---</p><p>### 文件：<code>render/graph.ts</code></p><p>- <strong>[CRITICAL]</strong> <code>graph.ts:117</code> — JSON 注入防御不完整：</p><pre><code>  const graphDataJson = JSON.stringify({ nodes, edges }).replace(/&lt;\//g, &#39;&lt;\\/&#39;)
+  </code></pre><p><code>JSON.stringify</code> 的输出被直接插入 <code>&lt;script&gt;</code> 块内。只替换了 <code>&lt;/</code> 来防止 <code>&lt;/script&gt;</code> 注入，但<strong>没有处理 <code>&lt;!--</code> 和 <code>]]&gt;</code></strong> 等其他可以破坏 script 块的序列。更严重的是，<strong>节点的 <code>label</code> 字段</strong>来自 <code>m.title || m.session_id.slice(0, 8)</code>，而 <code>m.title</code> 来自 manifest JSON，若 manifest 被攻击者控制（例如通过恶意仓库），可以注入任意 JavaScript 字符串到 <code>GRAPH_DATA</code>，导致 script 注入（因为 <code>JSON.stringify</code> 本身不转义 Unicode 注入攻击向量如 <code>\u2028</code>/<code>\u2029</code> 在老浏览器中可导致 script 段落截断）。<br>  <br>  修复：使用 <code>JSON.stringify</code> + 更完整的替换（<code>/&lt;/g</code> → <code>\u003c</code>），或通过 <code>&lt;script type=&quot;application/json&quot; id=&quot;graph-data&quot;&gt;</code> 嵌入数据后在 JS 中解析，彻底隔离数据与代码。</p><p>- <strong>[HIGH]</strong> <code>graph.ts:351-355</code> — 动画循环 <code>requestAnimationFrame(loop)</code> <strong>永不停止</strong>，即使 <code>ALPHA &lt; ALPHA_MIN</code>（模拟收敛后），<code>draw()</code> 仍每帧都执行。在有大量节点（接近 MAX_NODES=500）的情况下，这将持续消耗 GPU/CPU，可能导致笔记本发热或页面卡顿。应在 <code>ALPHA &lt; ALPHA_MIN</code> 且非交互状态时暂停动画循环，用户交互（拖拽/平移）时再重启。</p><p>- <strong>[HIGH]</strong> <code>graph.ts:183-223</code> — 力导向模拟的 O(n²) 排斥计算（两重 for 循环遍历所有节点对）在节点数量接近 MAX_NODES=500 时，每个 tick 需要 <code>500*499/2 ≈ 125000</code> 次浮点运算，加上 60fps 动画，将导致严重性能问题。代码注释已标注 <code>// Repulsion (n^2, capped)</code> 但 MAX_NODES=500 对于 O(n²) 仍然过大。建议将 MAX_NODES 降至 100-200，或实现空间分区（四叉树）优化。</p><p>- <strong>[MEDIUM]</strong> <code>graph.ts:132-133</code> / <code>graph.ts:228</code> — <code>resize()</code> 函数更新了 canvas 的物理像素尺寸并调用 <code>ctx.scale(dpr, dpr)</code>，但<strong>每次 resize 都累积 scale 变换</strong>（没有 <code>ctx.resetTransform()</code> 或 <code>ctx.setTransform(1,0,0,1,0,0)</code>），多次 resize 后 DPI 缩放会叠加失真。<code>draw()</code> 中的 <code>ctx.clearRect(0, 0, W, H)</code> 使用的是 CSS 像素尺寸，而 canvas 物理像素尺寸是 <code>W*dpr</code>，会导致只清除部分画布。</p><p>- <strong>[MEDIUM]</strong> <code>graph.ts:271</code> — <code>var tooltip = document.getElementById(&#39;graph-tooltip&#39;);</code> 引用了一个不存在于 HTML 中的元素（content 字符串中无 <code>id=&quot;graph-tooltip&quot;</code> 的元素），<code>tooltip</code> 永远为 <code>null</code>，该变量声明无意义，是死代码。</p><p>- <strong>[LOW]</strong> <code>graph.ts:76</code> — <code>linkGraph.forwardLinks</code> 的类型是 <code>Record&lt;string, string[]&gt;</code>，但 <code>forwardLinks</code> 值的元素可能是 knowledge 节点 ID（格式为 <code>knowledge:filename</code>），而 manifest session 节点的 ID 是纯 session UUID，两者格式不同。<code>nodeSet.has(targetId)</code> 需要 knowledge 节点已添加到 <code>nodeSet</code>，这依赖于 knowledge 节点在 manifest 节点之后处理，顺序正确，但整个逻辑缺乏显式注释，维护风险较高。</p><p>---</p><p>### 文件：<code>render/todos.ts</code> / <code>render/archive.ts</code></p><p>- <strong>[MEDIUM]</strong> <code>todos.ts:27</code> / <code>archive.ts:27</code> — <code>id=&quot;${escHtml(slugifyName(f.filename))}&quot;</code> 中 <code>slugifyName</code> 将文件名转为小写字母数字加连字符，如果两个文件名 slugify 后相同（如 <code>my-todo.md</code> 和 <code>MY TODO.md</code>），会产生重复 HTML id，导致锚点链接失效。应追加序号以保证唯一性。</p><p>- <strong>[LOW]</strong> <code>todos.ts:19</code> — <code>&quot;No todo files found in Memory/02_todos/.&quot;</code> 硬编码英文路径和提示，未 i18n 化，在 <code>zh-CN</code> locale 下语言不一致。<code>archive.ts:19</code> 同理。</p><p>---</p><p>### 文件：<code>render/transcript-list.ts</code></p><p>- <strong>[MEDIUM]</strong> <code>transcript-list.ts:48</code> — <code>const summary = &#39;&#39;</code>，<code>data-summary</code> 属性始终为空字符串。在 <code>SIDEBAR_INLINE_JS</code> 的 popover 代码中，只有 <code>summary</code> 非空才显示 popover 内容，因此 transcript 列表中的会话链接<strong>永远不会显示 popover</strong>，这与预期的悬浮摘要功能矛盾。summaries 应该在 <code>buildReport</code> 阶段收集后传入此渲染函数，但目前 <code>renderTranscriptList</code> 签名中没有 <code>summaries</code> 参数。</p><p>- <strong>[MEDIUM]</strong> <code>transcript-list.ts:115</code> — <code>renderTabBar</code> 中计算每个 client 的 count：</p><pre><code>  const count = manifests.filter(m =&gt; m.client === client).length
+  </code></pre><p>这是 O(clients × manifests) 的计算，在 manifests 量大时（如 1000+ 会话）会有轻微性能损耗。应改为在上方的 <code>for</code> 循环中同时统计计数。</p><p>- <strong>[LOW]</strong> <code>transcript-list.ts:92-100</code> — 表头 &quot;Title&quot; 列硬编码英文，未使用 i18n，在 <code>zh-CN</code> locale 下不一致。</p><p>- <strong>[LOW]</strong> <code>transcript-list.ts:86</code> — <code>${sorted.length} session(s) imported</code> 硬编码英文。</p><p>---</p><p>### 文件：<code>deploy/github-pages.ts</code></p><p>- <strong>[CRITICAL]</strong> <code>github-pages.ts:50-52</code> — Shell 注入漏洞：</p><pre><code>  execSafe(repoRoot, `git worktree add --orphan -b ${branch} &quot;${worktreePath}&quot;`)
+  execSafe(repoRoot, `git push origin ${branch}`)
+  execSafe(repoRoot, `git subtree push --prefix &quot;${relOutput}&quot; origin ${branch}`)
+  </code></pre><p><code>branch</code> 变量来自用户配置（<code>config.toml</code> 的 <code>gh_pages_branch</code> 字段），未经任何验证就插入 shell 命令字符串。若用户配置为 <code>main; rm -rf /</code>，将执行任意 shell 命令。<code>relOutput</code> 也通过 <code>makeRelative</code> 处理，但该函数本身也不验证内容。<br>  <br>  修复：用 <code>execSync(cmd, { cwd, stdio: &#39;pipe&#39; })</code> 的数组形式 <code>execFileSync(&#39;git&#39;, [&#39;worktree&#39;, &#39;add&#39;, ...])</code>，彻底避免 shell 解析；或至少对 <code>branch</code> 进行 <code>/^[a-zA-Z0-9/_.-]+$/</code> 白名单校验。</p><p>- <strong>[HIGH]</strong> <code>github-pages.ts:48</code> — <code>worktreePath</code> 使用 <code>.git/gh-pages-init-worktree</code> 作为路径：</p><pre><code>  const worktreePath = join(repoRoot, &#39;.git&#39;, &#39;gh-pages-init-worktree&#39;)
+  </code></pre><p><code>.git</code> 目录内部不是 git worktree 的合法位置（会干扰 git 内部结构）。标准做法是在 <code>.git/worktrees/</code> 之外的临时目录创建 worktree，例如 <code>os.tmpdir()</code>。另外，如果上次运行时 worktree remove 失败，此路径已存在，<code>git worktree add</code> 命令会报错。</p><p>- <strong>[HIGH]</strong> <code>github-pages.ts:62</code> — <code>git subtree push</code> 是一个<strong>极其缓慢</strong>的操作，它会遍历整个 git 历史来提取子树。对于大型仓库或长历史，这可能耗时数分钟甚至更长，并且无超时控制（<code>execSync</code> 默认无超时）。应设置合理的超时，或改用 <code>git worktree</code> + <code>git push --force</code> 的方案。</p><p>- <strong>[MEDIUM]</strong> <code>github-pages.ts:78-86</code> — <code>makeRelative</code> 函数：</p><pre><code>  function makeRelative(base: string, target: string): string {
+    const b = base.replace(/\\/g, &#39;/&#39;).replace(/\/$/, &#39;&#39;)
+    const t = target.replace(/\\/g, &#39;/&#39;).replace(/\/$/, &#39;&#39;)
+    if (t.startsWith(b + &#39;/&#39;)) {
+      return t.slice(b.length + 1)
+    }
+    return t  // fallback: 返回绝对路径
+  }
+  </code></pre><p>当 <code>target</code> 不以 <code>base + &#39;/&#39;</code> 开头时（例如 output 在仓库外部），fallback 返回<strong>绝对路径</strong>（可能包含 Windows 盘符如 <code>C:/...</code>），然后被传入 <code>git subtree push --prefix &quot;C:/...&quot;</code> 命令中，这必然失败，且错误信息难以调试。应明确检测此情况并提前抛出有意义的错误。</p><p>---</p><p>### 文件：<code>deploy/webhook.ts</code></p><p>- <strong>[MEDIUM]</strong> <code>webhook.ts:70-73</code> — Telegram payload 中的 <code>reportUrl</code> 被直接拼接进 Markdown 格式的消息字符串：</p><pre><code>  if (reportUrl) text += `\n[View Report](${reportUrl})`
+  return { text, parse_mode: &#39;Markdown&#39; }
+  </code></pre><p>若 <code>reportUrl</code> 包含 Markdown 特殊字符（如括号 <code>)</code>），会破坏消息格式或造成 Markdown 注入。应对 URL 进行 URL 编码，或改用 <code>parse_mode: &#39;MarkdownV2&#39;</code> 并转义。</p><p>- <strong>[LOW]</strong> <code>webhook.ts:134</code> — <code>port: url.port || (url.protocol === &#39;https:&#39; ? 443 : 80)</code> — <code>url.port</code> 是字符串类型，空字符串在 <code>||</code> 条件下为 falsy，逻辑正确；但类型上 <code>port</code> 选项期望 <code>number</code>，传入字符串 <code>url.port</code>（如 <code>&quot;8080&quot;</code>）在 Node.js <code>http.request</code> 选项中能被接受但不够严谨，建议 <code>Number(url.port) || ...</code>。</p><p>- <strong>[LOW]</strong> <code>webhook.ts:153</code> — <code>req.setTimeout(5000, ...)</code> 设置了超时后销毁请求，但 <code>reject(new Error(&#39;timeout&#39;))</code> 会触发 outer <code>catch</code> 记录 warn，这是正确的。但 5 秒超时对部分 webhook（如 Feishu 在中国大陆 → 境外服务器）可能过短，建议使其可配置。</p><p>---</p><p>### 文件：<code>report/build.ts</code></p><p>- <strong>[HIGH]</strong> <code>build.ts:194</code> — 闭包变量遮蔽（shadow）问题：</p><pre><code>  const searchIndex = buildSearchIndex(manifests, m =&gt; snippets[m.session_id] ?? &#39;&#39;)
+  </code></pre><p>这里的参数 <code>m</code> 遮蔽了外层 <code>for (const m of manifests)</code> 循环结束后残留的 <code>m</code>（实际上 <code>for...of</code> 结束后 <code>m</code> 不在作用域内，但在 <code>summaryPromises</code> 的 IIFE 中有 <code>const manifest = m; const msgs = messages</code>）。在循环中存储 <code>manifest</code> 引用是正确的，但<code>m</code> 的命名在不同作用域多次出现（build.ts:90 的 for 循环变量 <code>m</code>，以及 searchIndex 回调的 <code>m</code>），增加阅读混淆风险。</p><p>- <strong>[HIGH]</strong> <code>build.ts:90-127</code> — 所有 transcript 的解析（<code>parseCleanMarkdownMessages</code>）和 raw JSONL 的读取是<strong>串行</strong>的（在 <code>for</code> 循环中同步执行），只有 AI 摘要调用是并行的。对于大量 manifests（如 1000+ 个），同步 <code>readFileSync</code> 的 I/O 会成为瓶颈。但这是可接受的架构选择，不算 bug，仅标注。</p><p>- <strong>[MEDIUM]</strong> <code>build.ts:295</code> — <code>parseMessagesFromMarkdown</code> 中：</p><pre><code>  const msgSection = content.indexOf(&#39;\n## Messages&#39;)
+  if (msgSection === -1) return []
+  const body = content.slice(msgSection + 12) // after &quot;## Messages\n&quot;
+  </code></pre><p>硬编码偏移量 <code>+ 12</code> 是 <code>&#39;\n## Messages\n&#39;</code> 的长度（1 + 11 + 1 = 13，而非 12）。<code>&#39;\n## Messages&#39;</code> 是 12 个字符，<code>body</code> 的起始位置应是 <code>msgSection + 13</code>（跳过末尾换行符），或者 <code>msgSection + &#39;\n## Messages\n&#39;.length</code>。当前实现会将 <code>body</code> 起始于 <code>## Messages</code> 末尾字符（<code>s</code>）之后，而非换行符之后，如果 <code>## Messages</code> 后直接跟 <code>\n</code>，body 实际上以 <code>\n</code> 开头，对后续正则解析无影响，但若文件格式有变化（如无末尾换行），会导致偏移错误。这是一个隐藏的脆弱点（fragile magic number）。</p><p>- <strong>[MEDIUM]</strong> <code>build.ts:249-263</code> — <code>loadManifestsRecursive</code>：如果目录中存在同名（不同扩展名）文件，会被当作目录进行递归尝试（<code>readdirSync</code> 对普通文件会抛异常并被 catch 忽略），产生不必要的异常开销。应先用 <code>statSync</code> 或 <code>readdirSync</code> 的 <code>{ withFileTypes: true }</code> 选项区分文件和目录。</p><p>- <strong>[LOW]</strong> <code>build.ts:207-209</code> — 当 <code>!ghPagesBranch</code> 但 <code>cname</code> 有值时，动态 import <code>node:fs</code> 的 <code>writeFileSync</code>：</p><pre><code>  const { writeFileSync: wf } = await import(&#39;node:fs&#39;)
+  wf(join(output, &#39;CNAME&#39;), cname + &#39;\n&#39;, &#39;utf-8&#39;)
+  </code></pre><p><code>node:fs</code> 的 <code>writeFileSync</code> 在文件顶部已经静态导入（第7行），此处重复动态导入是冗余代码，应直接使用顶部导入的 <code>writeFileSync</code>。</p><p>---</p><p>### 文件：<code>heartbeat/config.ts</code></p><p>- <strong>[MEDIUM]</strong> <code>config.ts:93-96</code> — <code>saveConfig</code> 中对 <code>readonly</code> 字段使用了 <code>?? DEFAULT_*</code> 的可选链：</p><pre><code>  `locale = ${tomlString(cfg.locale ?? DEFAULT_LOCALE)}`,
+  </code></pre><p><code>Config</code> 接口中 <code>locale</code>、<code>gh_pages_branch</code>、<code>cname</code>、<code>webhook_url</code> 均为非可选的 <code>readonly string</code>，TypeScript 类型上这些字段不可能为 <code>undefined</code>，<code>?? DEFAULT_*</code> 是多余的（编译时有 <code>strictNullChecks</code>）。更深层的问题是：若传入的 <code>Config</code> 对象在运行时这些字段真的是 <code>undefined</code>（比如来自外部源），类型系统没有捕获，却被 <code>??</code> 静默处理。</p><p>- <strong>[LOW]</strong> <code>config.ts:267-270</code> — <code>tomlString</code> 函数：</p><pre><code>  function tomlString(value: string): string {
+    const escaped = value.replace(/\\/g, &#39;\\\\&#39;).replace(/&quot;/g, &#39;\\&quot;&#39;)
+    return `&quot;${escaped}&quot;`
+  }
+  </code></pre><p>未转义 TOML 字符串中的其他特殊字符：换行符（<code>\n</code>）、回车符（<code>\r</code>）、制表符（<code>\t</code>）。若用户的 <code>webhook_url</code> 或其他字段包含换行符（理论上不应该，但未在输入验证层阻止），生成的 TOML 文件会语法错误。</p><p>- <strong>[LOW]</strong> <code>config.ts:148</code> — <code>registerProject</code> 中：</p><pre><code>  const name = resolved.split(&#39;/&#39;).pop() ?? &#39;&#39;
+  </code></pre><p>若 <code>resolved</code> 为根路径（<code>/</code>），<code>split(&#39;/&#39;).pop()</code> 返回空字符串 <code>&#39;&#39;</code>，name 为空，这在 <code>saveConfig</code> 中会跳过 name 写入（<code>if (project.name)</code>），行为正确但 edge case 隐晦。</p><p>---</p><p>### 文件：<code>types/report.ts</code></p><p>- <strong>[LOW]</strong> <code>report.ts:10</code> — <code>dateRange: { from: string; to: string }</code> 中 <code>from</code> 和 <code>to</code> 的格式未在类型中约束（只是 <code>string</code>），使用方在 <code>dashboard.ts</code> 中 <code>subtitle.replace(&#39;{from}&#39;, stats.dateRange.from)</code> 时有隐式依赖，若 <code>from</code> 格式不是预期的 <code>YYYY-MM-DD</code> 则用户看到原始字符串。建议添加 JSDoc 注释说明期望格式。</p><p>---</p><p>## 汇总问题清单</p><p>| 严重度 | 数量 | 主要问题 |<br>|--------|------|----------|<br>| CRITICAL | 2 | graph.ts JSON 注入、github-pages.ts shell 注入 |<br>| HIGH | 5 | 动画永不停止、O(n²)性能、canvas DPI bug、gh-pages worktree路径、git subtree无超时 |<br>| MEDIUM | 10 | popover XSS、nav路径深度bug、summary-card硬编码颜色、canvas clearRect bug、transcript摘要永空、markdown偏移量、loadManifests无类型判断等 |<br>| LOW | 12 | i18n占位符未替换、硬编码英文文字、light theme颜色、tomlString不完整转义等 |</p><p>---</p><p>## 总体评级：🟠 HIGH</p><p>两个 CRITICAL 问题（shell 注入和 script 注入）需要<strong>立即修复</strong>才能在受信任边界之外使用。canvas 动画和 O(n²) 性能问题在大数据集下将严重影响用户体验。popover XSS 依赖于 session 标题是否被攻击者控制，在纯本地使用场景风险较低，但在 GitHub Pages 公开部署场景下需修复。其余 MEDIUM/LOW 问题不影响核心功能但影响产品质量和可维护性。</p></div>
+</div></div>
+  </div>
+</div>
+</body>
+</html>

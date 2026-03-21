@@ -573,9 +573,32 @@ tr:hover td { background: var(--bg-secondary); }
 }
 
 .project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
 .project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
 .project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
 .project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
 
 /* ── Responsive: tablet icon mode (768–1024px) ── */
 @media (max-width: 1024px) and (min-width: 769px) {
@@ -784,20 +807,68 @@ pre.mermaid {
   document.addEventListener('DOMContentLoaded', function() {
     var tabs = document.querySelectorAll('.tab-btn');
     var rows = document.querySelectorAll('tr[data-client]');
+    var projectSelect = document.getElementById('project-filter');
+    var subtitle = document.getElementById('sessions-subtitle');
+    var clientFilter = '';
+    var totalRows = rows.length;
+
+    function syncProjectFilter(project) {
+      if (!window.history || !window.history.replaceState) return;
+      var url = new URL(window.location.href);
+      if (project) {
+        url.searchParams.set('project', project);
+      } else {
+        url.searchParams.delete('project');
+      }
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+    }
+
+    function updateSubtitle(visibleCount, project) {
+      if (!subtitle) return;
+      if (project) {
+        subtitle.textContent = visibleCount + ' session(s) shown for project "' + project + '"';
+        return;
+      }
+      subtitle.textContent = totalRows + ' session(s) imported';
+    }
+
+    function applyFilters() {
+      var projectFilter = projectSelect ? projectSelect.value : '';
+      var visibleCount = 0;
+      rows.forEach(function(row) {
+        var matchesClient = !clientFilter || row.getAttribute('data-client') === clientFilter;
+        var matchesProject = !projectFilter || row.getAttribute('data-project') === projectFilter;
+        var visible = matchesClient && matchesProject;
+        row.style.display = visible ? '' : 'none';
+        if (visible) visibleCount += 1;
+      });
+      updateSubtitle(visibleCount, projectFilter);
+      syncProjectFilter(projectFilter);
+    }
+
+    var initialProject = '';
+    try {
+      initialProject = new URL(window.location.href).searchParams.get('project') || '';
+    } catch {}
+
+    if (projectSelect && initialProject) {
+      projectSelect.value = initialProject;
+    }
+
     tabs.forEach(function(btn) {
       btn.addEventListener('click', function() {
-        tabs.forEach(function(b) { b.classList.remove('active'); });
+        tabs.forEach(function(other) { other.classList.remove('active'); });
         btn.classList.add('active');
-        var filter = btn.getAttribute('data-filter');
-        rows.forEach(function(row) {
-          if (!filter || row.getAttribute('data-client') === filter) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
+        clientFilter = btn.getAttribute('data-filter') || '';
+        applyFilters();
       });
     });
+
+    if (projectSelect) {
+      projectSelect.addEventListener('change', applyFilters);
+    }
+
+    applyFilters();
   });
 })();
 </script>
@@ -951,750 +1022,871 @@ pre.mermaid {
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
 <div class="page-header">
   <h1>Sessions</h1>
-  <p class="subtitle">105 session(s) imported</p>
+  <p class="subtitle" id="sessions-subtitle">106 session(s) imported</p>
 </div>
-<div class="tab-bar"><button class="tab-btn active" data-filter="" type="button">All (105)</button><button class="tab-btn" data-filter="claude" type="button">claude (78)</button><button class="tab-btn" data-filter="codex" type="button">codex (27)</button></div>
+<div class="tab-bar"><button class="tab-btn active" data-filter="" type="button">All (106)</button><button class="tab-btn" data-filter="claude" type="button">claude (78)</button><button class="tab-btn" data-filter="codex" type="button">codex (28)</button></div>
+<div class="filter-bar">
+  <label class="filter-label" for="project-filter">Project</label>
+  <select id="project-filter" class="search-filter-select">
+    <option value="">All Projects (106)</option>
+    <option value="memorytree-workflow">memorytree-workflow (106)</option>
+  </select>
+</div>
 <div class="card" style="padding:0;overflow:hidden">
 <table>
 <thead><tr>
   <th>Client</th>
   <th>Title</th>
+  <th>Project</th>
   <th>Date</th>
   <th>ID</th>
   <th style="text-align:right">Msgs</th>
   <th style="text-align:right">Tools</th>
 </tr></thead>
-<tbody><tr data-client="codex">
+<tbody><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__07070f63.html" data-summary="" data-meta="codex · 2026-03-21 · 49 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">49</td>
   <td style="text-align:right;color:var(--text-muted)">190</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__07f3f448.html" data-summary="" data-meta="codex · 2026-03-21 · 54 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">54</td>
   <td style="text-align:right;color:var(--text-muted)">202</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__0c8a181b.html" data-summary="" data-meta="codex · 2026-03-21 · 146 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">146</td>
   <td style="text-align:right;color:var(--text-muted)">552</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__10f6c473.html" data-summary="" data-meta="codex · 2026-03-21 · 19 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">19</td>
   <td style="text-align:right;color:var(--text-muted)">83</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__29a4621c.html" data-summary="" data-meta="codex · 2026-03-21 · 90 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">90</td>
   <td style="text-align:right;color:var(--text-muted)">374</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__2b13436d.html" data-summary="" data-meta="codex · 2026-03-21 · 24 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">24</td>
   <td style="text-align:right;color:var(--text-muted)">108</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__2cec8b02.html" data-summary="" data-meta="codex · 2026-03-21 · 17 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">17</td>
   <td style="text-align:right;color:var(--text-muted)">76</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__3094dd85.html" data-summary="" data-meta="codex · 2026-03-21 · 28 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">28</td>
   <td style="text-align:right;color:var(--text-muted)">118</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__34a0ea06.html" data-summary="" data-meta="codex · 2026-03-21 · 103 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">103</td>
   <td style="text-align:right;color:var(--text-muted)">414</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__66058d5c.html" data-summary="" data-meta="codex · 2026-03-21 · 114 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">114</td>
   <td style="text-align:right;color:var(--text-muted)">452</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__d1155ec7.html" data-summary="" data-meta="codex · 2026-03-21 · 63 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">63</td>
   <td style="text-align:right;color:var(--text-muted)">254</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__d691ed85.html" data-summary="" data-meta="codex · 2026-03-21 · 157 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">157</td>
   <td style="text-align:right;color:var(--text-muted)">616</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
+  <td><span class="badge badge-codex">codex</span></td>
+  <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__dcd31c17.html" data-summary="" data-meta="codex · 2026-03-21 · 161 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
+  <td style="color:var(--text-muted)">2026-03-21 02:40</td>
+  <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
+  <td style="text-align:right;color:var(--text-muted)">161</td>
+  <td style="text-align:right;color:var(--text-muted)">644</td>
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__f35d643c.html" data-summary="" data-meta="codex · 2026-03-21 · 42 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">42</td>
   <td style="text-align:right;color:var(--text-muted)">188</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__f5f8abff.html" data-summary="" data-meta="codex · 2026-03-21 · 85 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">85</td>
   <td style="text-align:right;color:var(--text-muted)">358</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__fb21c287.html" data-summary="" data-meta="codex · 2026-03-21 · 16 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">16</td>
   <td style="text-align:right;color:var(--text-muted)">76</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__fc85858a.html" data-summary="" data-meta="codex · 2026-03-21 · 47 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">47</td>
   <td style="text-align:right;color:var(--text-muted)">190</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0e44-18b1-73a1-b169-7151aa72982b__fd229695.html" data-summary="" data-meta="codex · 2026-03-21 · 130 msgs">rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-21 02:40</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0e44</td>
   <td style="text-align:right;color:var(--text-muted)">130</td>
   <td style="text-align:right;color:var(--text-muted)">488</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__69c1082d.html" data-summary="" data-meta="claude · 2026-03-20 · 2 msgs">agent-a71b98fb19beab11e</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 10:45</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">2</td>
   <td style="text-align:right;color:var(--text-muted)">0</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__999c5ff9.html" data-summary="" data-meta="claude · 2026-03-20 · 3 msgs">agent-a884f7494578d1973</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 10:45</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">3</td>
   <td style="text-align:right;color:var(--text-muted)">14</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__bece86b9.html" data-summary="" data-meta="claude · 2026-03-20 · 1 msgs">agent-a71b98fb19beab11e</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 10:45</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">1</td>
   <td style="text-align:right;color:var(--text-muted)">0</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__ce033ddb.html" data-summary="" data-meta="claude · 2026-03-20 · 2 msgs">agent-a884f7494578d1973</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 10:45</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">2</td>
   <td style="text-align:right;color:var(--text-muted)">2</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__1ec74b3c.html" data-summary="" data-meta="claude · 2026-03-20 · 57 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">57</td>
   <td style="text-align:right;color:var(--text-muted)">217</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__569ebe3e.html" data-summary="" data-meta="claude · 2026-03-20 · 18 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">18</td>
   <td style="text-align:right;color:var(--text-muted)">58</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__59bd0ee7.html" data-summary="" data-meta="claude · 2026-03-20 · 21 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">21</td>
   <td style="text-align:right;color:var(--text-muted)">72</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__718179da.html" data-summary="" data-meta="claude · 2026-03-20 · 25 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">25</td>
   <td style="text-align:right;color:var(--text-muted)">80</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__85e9532c.html" data-summary="" data-meta="claude · 2026-03-20 · 47 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">47</td>
   <td style="text-align:right;color:var(--text-muted)">189</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__8648bf58.html" data-summary="" data-meta="claude · 2026-03-20 · 7 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">7</td>
   <td style="text-align:right;color:var(--text-muted)">28</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__b8d55ac4.html" data-summary="" data-meta="claude · 2026-03-20 · 33 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">33</td>
   <td style="text-align:right;color:var(--text-muted)">146</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__c2b6f021.html" data-summary="" data-meta="claude · 2026-03-20 · 53 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">53</td>
   <td style="text-align:right;color:var(--text-muted)">204</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__c64df5b3.html" data-summary="" data-meta="claude · 2026-03-20 · 16 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">16</td>
   <td style="text-align:right;color:var(--text-muted)">58</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__d155fd66.html" data-summary="" data-meta="claude · 2026-03-20 · 14 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">14</td>
   <td style="text-align:right;color:var(--text-muted)">38</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__ea86b019.html" data-summary="" data-meta="claude · 2026-03-20 · 71 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">71</td>
   <td style="text-align:right;color:var(--text-muted)">232</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f3b32b9b-fcef-44f6-a73b-1ba30f14a777__fc03e570.html" data-summary="" data-meta="claude · 2026-03-20 · 44 msgs">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 09:24</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f3b32b9b</td>
   <td style="text-align:right;color:var(--text-muted)">44</td>
   <td style="text-align:right;color:var(--text-muted)">182</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/1288739c-125e-49de-bec8-3aba3d327475__40fcf04b.html" data-summary="" data-meta="claude · 2026-03-20 · 34 msgs">1288739c-125e-49de-bec8-3aba3d327475</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 07:15</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">1288739c</td>
   <td style="text-align:right;color:var(--text-muted)">34</td>
   <td style="text-align:right;color:var(--text-muted)">76</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/1288739c-125e-49de-bec8-3aba3d327475__420f10ec.html" data-summary="" data-meta="claude · 2026-03-20 · 28 msgs">1288739c-125e-49de-bec8-3aba3d327475</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 07:15</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">1288739c</td>
   <td style="text-align:right;color:var(--text-muted)">28</td>
   <td style="text-align:right;color:var(--text-muted)">68</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/1288739c-125e-49de-bec8-3aba3d327475__6754b8ce.html" data-summary="" data-meta="claude · 2026-03-20 · 45 msgs">1288739c-125e-49de-bec8-3aba3d327475</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 07:15</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">1288739c</td>
   <td style="text-align:right;color:var(--text-muted)">45</td>
   <td style="text-align:right;color:var(--text-muted)">110</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/1288739c-125e-49de-bec8-3aba3d327475__6a29e9b7.html" data-summary="" data-meta="claude · 2026-03-20 · 54 msgs">1288739c-125e-49de-bec8-3aba3d327475</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 07:15</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">1288739c</td>
   <td style="text-align:right;color:var(--text-muted)">54</td>
   <td style="text-align:right;color:var(--text-muted)">136</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/1288739c-125e-49de-bec8-3aba3d327475__976ccd4e.html" data-summary="" data-meta="claude · 2026-03-20 · 47 msgs">1288739c-125e-49de-bec8-3aba3d327475</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 07:15</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">1288739c</td>
   <td style="text-align:right;color:var(--text-muted)">47</td>
   <td style="text-align:right;color:var(--text-muted)">122</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0a00-6303-79b2-b17b-c6faa5dbf4ee__63b2482c.html" data-summary="" data-meta="codex · 2026-03-20 · 178 msgs">rollout-2026-03-20T14-48-10-019d0a00-6303-79b2-b17b-c6faa5dbf4ee</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 06:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0a00</td>
   <td style="text-align:right;color:var(--text-muted)">178</td>
   <td style="text-align:right;color:var(--text-muted)">736</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0a00-6303-79b2-b17b-c6faa5dbf4ee__70ba3e82.html" data-summary="" data-meta="codex · 2026-03-20 · 184 msgs">rollout-2026-03-20T14-48-10-019d0a00-6303-79b2-b17b-c6faa5dbf4ee</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 06:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0a00</td>
   <td style="text-align:right;color:var(--text-muted)">184</td>
   <td style="text-align:right;color:var(--text-muted)">776</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0a00-6303-79b2-b17b-c6faa5dbf4ee__99691bfb.html" data-summary="" data-meta="codex · 2026-03-20 · 122 msgs">rollout-2026-03-20T14-48-10-019d0a00-6303-79b2-b17b-c6faa5dbf4ee</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 06:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0a00</td>
   <td style="text-align:right;color:var(--text-muted)">122</td>
   <td style="text-align:right;color:var(--text-muted)">536</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0a00-6303-79b2-b17b-c6faa5dbf4ee__bddc6eb9.html" data-summary="" data-meta="codex · 2026-03-20 · 183 msgs">rollout-2026-03-20T14-48-10-019d0a00-6303-79b2-b17b-c6faa5dbf4ee</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 06:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0a00</td>
   <td style="text-align:right;color:var(--text-muted)">183</td>
   <td style="text-align:right;color:var(--text-muted)">766</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0a00-6303-79b2-b17b-c6faa5dbf4ee__bed5b5f7.html" data-summary="" data-meta="codex · 2026-03-20 · 160 msgs">rollout-2026-03-20T14-48-10-019d0a00-6303-79b2-b17b-c6faa5dbf4ee</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 06:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0a00</td>
   <td style="text-align:right;color:var(--text-muted)">160</td>
   <td style="text-align:right;color:var(--text-muted)">684</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0a00-6303-79b2-b17b-c6faa5dbf4ee__bfeaaff5.html" data-summary="" data-meta="codex · 2026-03-20 · 138 msgs">rollout-2026-03-20T14-48-10-019d0a00-6303-79b2-b17b-c6faa5dbf4ee</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 06:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0a00</td>
   <td style="text-align:right;color:var(--text-muted)">138</td>
   <td style="text-align:right;color:var(--text-muted)">636</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0a00-6303-79b2-b17b-c6faa5dbf4ee__c9492aa6.html" data-summary="" data-meta="codex · 2026-03-20 · 148 msgs">rollout-2026-03-20T14-48-10-019d0a00-6303-79b2-b17b-c6faa5dbf4ee</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-20 06:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0a00</td>
   <td style="text-align:right;color:var(--text-muted)">148</td>
   <td style="text-align:right;color:var(--text-muted)">662</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0470-9904-7412-9175-57caf6e1277d__03f11e0d.html" data-summary="" data-meta="codex · 2026-03-19 · 223 msgs">rollout-2026-03-19T12-53-01-019d0470-9904-7412-9175-57caf6e1277d</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-19 04:53</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0470</td>
   <td style="text-align:right;color:var(--text-muted)">223</td>
   <td style="text-align:right;color:var(--text-muted)">965</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019d0470-9904-7412-9175-57caf6e1277d__9b1823c8.html" data-summary="" data-meta="codex · 2026-03-19 · 529 msgs">rollout-2026-03-19T12-53-01-019d0470-9904-7412-9175-57caf6e1277d</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-19 04:53</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019d0470</td>
   <td style="text-align:right;color:var(--text-muted)">529</td>
   <td style="text-align:right;color:var(--text-muted)">2140</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/89931ac3-292e-4e33-aead-47d1b8bb506a__985e5617.html" data-summary="" data-meta="claude · 2026-03-17 · 4 msgs">agent-a9211525ee6585197</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-17 10:10</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">89931ac3</td>
   <td style="text-align:right;color:var(--text-muted)">4</td>
   <td style="text-align:right;color:var(--text-muted)">4</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/89931ac3-292e-4e33-aead-47d1b8bb506a__5948896d.html" data-summary="" data-meta="claude · 2026-03-17 · 48 msgs">89931ac3-292e-4e33-aead-47d1b8bb506a</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-17 09:46</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">89931ac3</td>
   <td style="text-align:right;color:var(--text-muted)">48</td>
   <td style="text-align:right;color:var(--text-muted)">190</td>
-</tr><tr data-client="codex">
+</tr><tr data-client="codex" data-project="memorytree-workflow">
   <td><span class="badge badge-codex">codex</span></td>
   <td><a href="codex/019cf8fc-0e0c-7311-817d-87cd1c95e2ac__eee6223b.html" data-summary="" data-meta="codex · 2026-03-16 · 240 msgs">rollout-2026-03-17T07-29-54-019cf8fc-0e0c-7311-817d-87cd1c95e2ac</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-16 23:29</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">019cf8fc</td>
   <td style="text-align:right;color:var(--text-muted)">240</td>
   <td style="text-align:right;color:var(--text-muted)">1000</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5cb496af-a807-4d66-85f9-36b77c973cf4__e6b94232.html" data-summary="" data-meta="claude · 2026-03-15 · 9 msgs">agent-a7eabaeb5720ce075</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 14:27</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5cb496af</td>
   <td style="text-align:right;color:var(--text-muted)">9</td>
   <td style="text-align:right;color:var(--text-muted)">36</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5cb496af-a807-4d66-85f9-36b77c973cf4__ed318d3e.html" data-summary="" data-meta="claude · 2026-03-15 · 26 msgs">agent-ab61b8700750843b2</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 14:27</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5cb496af</td>
   <td style="text-align:right;color:var(--text-muted)">26</td>
   <td style="text-align:right;color:var(--text-muted)">50</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5cb496af-a807-4d66-85f9-36b77c973cf4__b76e78b5.html" data-summary="" data-meta="claude · 2026-03-15 · 65 msgs">5cb496af-a807-4d66-85f9-36b77c973cf4</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 14:21</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5cb496af</td>
   <td style="text-align:right;color:var(--text-muted)">65</td>
   <td style="text-align:right;color:var(--text-muted)">150</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__76c432fd.html" data-summary="" data-meta="claude · 2026-03-15 · 11 msgs">agent-adf6bff7ccadf47f0</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 11:34</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">11</td>
   <td style="text-align:right;color:var(--text-muted)">74</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__d32875df.html" data-summary="" data-meta="claude · 2026-03-15 · 6 msgs">agent-a9ed5da212305ae99</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 11:34</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">6</td>
   <td style="text-align:right;color:var(--text-muted)">36</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__35d8b75b.html" data-summary="" data-meta="claude · 2026-03-15 · 10 msgs">agent-af430e57baf58ea33</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 10:54</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">10</td>
   <td style="text-align:right;color:var(--text-muted)">96</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__6085ae1a.html" data-summary="" data-meta="claude · 2026-03-15 · 9 msgs">agent-abb5b5d34ece1c98b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 10:54</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">9</td>
   <td style="text-align:right;color:var(--text-muted)">84</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__e50a9adb.html" data-summary="" data-meta="claude · 2026-03-15 · 10 msgs">agent-a8e38d22d6ecee674</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 10:18</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">10</td>
   <td style="text-align:right;color:var(--text-muted)">36</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__02a07ffc.html" data-summary="" data-meta="claude · 2026-03-15 · 12 msgs">agent-ab8580bfac7a450c5</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:59</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">12</td>
   <td style="text-align:right;color:var(--text-muted)">40</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__a4c2fe7a.html" data-summary="" data-meta="claude · 2026-03-15 · 8 msgs">agent-a335829ca871a93f0</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:59</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">8</td>
   <td style="text-align:right;color:var(--text-muted)">38</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__1514e622.html" data-summary="" data-meta="claude · 2026-03-15 · 9 msgs">agent-ad33b13d184eabef5</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:55</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">9</td>
   <td style="text-align:right;color:var(--text-muted)">22</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__c9f6f77b.html" data-summary="" data-meta="claude · 2026-03-15 · 8 msgs">agent-a50e84cdae978e608</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:55</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">8</td>
   <td style="text-align:right;color:var(--text-muted)">18</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__ed642bf4.html" data-summary="" data-meta="claude · 2026-03-15 · 9 msgs">agent-a3447f5648dd57ba4</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:55</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">9</td>
   <td style="text-align:right;color:var(--text-muted)">22</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__769902b3.html" data-summary="" data-meta="claude · 2026-03-15 · 19 msgs">agent-ab70aea47b56fa9b7</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:49</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">19</td>
   <td style="text-align:right;color:var(--text-muted)">52</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__4fc6a020.html" data-summary="" data-meta="claude · 2026-03-15 · 8 msgs">agent-a035231bd030782f2</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:43</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">8</td>
   <td style="text-align:right;color:var(--text-muted)">32</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__68f2b5ed.html" data-summary="" data-meta="claude · 2026-03-15 · 17 msgs">agent-ad10adff6cfd6cfaf</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:28</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">17</td>
   <td style="text-align:right;color:var(--text-muted)">44</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__a644921a.html" data-summary="" data-meta="claude · 2026-03-15 · 13 msgs">agent-aef36810bf8f8638b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:28</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">13</td>
   <td style="text-align:right;color:var(--text-muted)">40</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__e0f2ae2c.html" data-summary="" data-meta="claude · 2026-03-15 · 16 msgs">agent-ae31587a32c8eba5b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:28</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">16</td>
   <td style="text-align:right;color:var(--text-muted)">48</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__38941e93.html" data-summary="" data-meta="claude · 2026-03-15 · 23 msgs">agent-ab9d13b2180eaee6d</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:20</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">23</td>
   <td style="text-align:right;color:var(--text-muted)">100</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__bc9bd9e3.html" data-summary="" data-meta="claude · 2026-03-15 · 3 msgs">agent-abbafa7abdf8c7cf8</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:20</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">3</td>
   <td style="text-align:right;color:var(--text-muted)">12</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/9e0eff8c-a777-4bd2-89e4-f5a9d7894a54__5d4d9c27.html" data-summary="" data-meta="claude · 2026-03-15 · 192 msgs">9e0eff8c-a777-4bd2-89e4-f5a9d7894a54</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:20</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">9e0eff8c</td>
   <td style="text-align:right;color:var(--text-muted)">192</td>
   <td style="text-align:right;color:var(--text-muted)">701</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__cb3dcc99.html" data-summary="" data-meta="claude · 2026-03-15 · 11 msgs">agent-a8243905a3958dcef</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:13</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5004f9e7</td>
   <td style="text-align:right;color:var(--text-muted)">11</td>
   <td style="text-align:right;color:var(--text-muted)">82</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__91be25d9.html" data-summary="" data-meta="claude · 2026-03-15 · 3 msgs">agent-a2b4243f489a8c9fa</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:12</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5004f9e7</td>
   <td style="text-align:right;color:var(--text-muted)">3</td>
   <td style="text-align:right;color:var(--text-muted)">4</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__c7cbba81.html" data-summary="" data-meta="claude · 2026-03-15 · 5 msgs">agent-ad20fb8afc64fd75b</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:11</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5004f9e7</td>
   <td style="text-align:right;color:var(--text-muted)">5</td>
   <td style="text-align:right;color:var(--text-muted)">10</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__71f6b273.html" data-summary="" data-meta="claude · 2026-03-15 · 3 msgs">agent-a3752d4634c5c546c</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 09:10</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5004f9e7</td>
   <td style="text-align:right;color:var(--text-muted)">3</td>
   <td style="text-align:right;color:var(--text-muted)">6</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5004f9e7-85a4-49a9-bbb0-07f26d068121__9dad232f.html" data-summary="" data-meta="claude · 2026-03-15 · 39 msgs">5004f9e7-85a4-49a9-bbb0-07f26d068121</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 08:44</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5004f9e7</td>
   <td style="text-align:right;color:var(--text-muted)">39</td>
   <td style="text-align:right;color:var(--text-muted)">182</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__29ee5e32.html" data-summary="" data-meta="claude · 2026-03-15 · 14 msgs">agent-a4b028f71bab82f16</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 08:39</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5ae44e4a</td>
   <td style="text-align:right;color:var(--text-muted)">14</td>
   <td style="text-align:right;color:var(--text-muted)">36</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__f0d71d60.html" data-summary="" data-meta="claude · 2026-03-15 · 4 msgs">agent-a189b261e1db21581</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 08:31</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5ae44e4a</td>
   <td style="text-align:right;color:var(--text-muted)">4</td>
   <td style="text-align:right;color:var(--text-muted)">32</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__0d41aa90.html" data-summary="" data-meta="claude · 2026-03-15 · 6 msgs">agent-a7716a62fc373f754</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 08:22</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5ae44e4a</td>
   <td style="text-align:right;color:var(--text-muted)">6</td>
   <td style="text-align:right;color:var(--text-muted)">50</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__7e19a984.html" data-summary="" data-meta="claude · 2026-03-15 · 7 msgs">agent-af65c73129b3866e6</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 08:22</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5ae44e4a</td>
   <td style="text-align:right;color:var(--text-muted)">7</td>
   <td style="text-align:right;color:var(--text-muted)">40</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/5ae44e4a-fafa-4a58-99cc-a2fa603ea563__4e3291ae.html" data-summary="" data-meta="claude · 2026-03-15 · 14 msgs">5ae44e4a-fafa-4a58-99cc-a2fa603ea563</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 08:15</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">5ae44e4a</td>
   <td style="text-align:right;color:var(--text-muted)">14</td>
   <td style="text-align:right;color:var(--text-muted)">47</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/debdc508-fbec-4d45-9227-b3c8ab1fd5ef__a94a0b7c.html" data-summary="" data-meta="claude · 2026-03-15 · 3 msgs">debdc508-fbec-4d45-9227-b3c8ab1fd5ef</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 08:13</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">debdc508</td>
   <td style="text-align:right;color:var(--text-muted)">3</td>
   <td style="text-align:right;color:var(--text-muted)">8</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/0e2f7eb2-8c85-4a49-bfad-33cf4240300f__0e298a0e.html" data-summary="" data-meta="claude · 2026-03-15 · 20 msgs">agent-ad7603ec07a916029</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 07:47</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">0e2f7eb2</td>
   <td style="text-align:right;color:var(--text-muted)">20</td>
   <td style="text-align:right;color:var(--text-muted)">58</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/0e2f7eb2-8c85-4a49-bfad-33cf4240300f__1123c12e.html" data-summary="" data-meta="claude · 2026-03-15 · 37 msgs">0e2f7eb2-8c85-4a49-bfad-33cf4240300f</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 07:38</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">0e2f7eb2</td>
   <td style="text-align:right;color:var(--text-muted)">37</td>
   <td style="text-align:right;color:var(--text-muted)">61</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/65f1f0a6-1b81-4d85-9202-3619bf5a5bd0__09628969.html" data-summary="" data-meta="claude · 2026-03-15 · 7 msgs">agent-adfe65f735849ca11</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 07:31</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">65f1f0a6</td>
   <td style="text-align:right;color:var(--text-muted)">7</td>
   <td style="text-align:right;color:var(--text-muted)">32</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/65f1f0a6-1b81-4d85-9202-3619bf5a5bd0__d5d9e372.html" data-summary="" data-meta="claude · 2026-03-15 · 60 msgs">65f1f0a6-1b81-4d85-9202-3619bf5a5bd0</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 06:00</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">65f1f0a6</td>
   <td style="text-align:right;color:var(--text-muted)">60</td>
   <td style="text-align:right;color:var(--text-muted)">198</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f4705e61-6bb7-421d-b2e3-5e859067b658__d46d72e7.html" data-summary="" data-meta="claude · 2026-03-15 · 10 msgs">agent-a4628b8ebde0201be</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 05:55</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f4705e61</td>
   <td style="text-align:right;color:var(--text-muted)">10</td>
   <td style="text-align:right;color:var(--text-muted)">68</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f4705e61-6bb7-421d-b2e3-5e859067b658__fd1312c3.html" data-summary="" data-meta="claude · 2026-03-15 · 16 msgs">agent-ad958c301240ad723</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 05:53</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f4705e61</td>
   <td style="text-align:right;color:var(--text-muted)">16</td>
   <td style="text-align:right;color:var(--text-muted)">80</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/f4705e61-6bb7-421d-b2e3-5e859067b658__1719e79f.html" data-summary="" data-meta="claude · 2026-03-15 · 42 msgs">f4705e61-6bb7-421d-b2e3-5e859067b658</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 05:09</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">f4705e61</td>
   <td style="text-align:right;color:var(--text-muted)">42</td>
   <td style="text-align:right;color:var(--text-muted)">154</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/1dbd723e-98a4-45a1-bf09-8fc06fe75630__18620d2d.html" data-summary="" data-meta="claude · 2026-03-15 · 7 msgs">agent-ad0a84c405e94abb7</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 04:48</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">1dbd723e</td>
   <td style="text-align:right;color:var(--text-muted)">7</td>
   <td style="text-align:right;color:var(--text-muted)">18</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/1dbd723e-98a4-45a1-bf09-8fc06fe75630__3738f8d8.html" data-summary="" data-meta="claude · 2026-03-15 · 32 msgs">1dbd723e-98a4-45a1-bf09-8fc06fe75630</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 04:21</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">1dbd723e</td>
   <td style="text-align:right;color:var(--text-muted)">32</td>
   <td style="text-align:right;color:var(--text-muted)">162</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__f6b2fe6d.html" data-summary="" data-meta="claude · 2026-03-15 · 4 msgs">agent-a38d9e76c537170e8</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 04:17</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">4</td>
   <td style="text-align:right;color:var(--text-muted)">16</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__39ab78a3.html" data-summary="" data-meta="claude · 2026-03-15 · 6 msgs">agent-a5b0913dc87d338ef</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 03:46</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">6</td>
   <td style="text-align:right;color:var(--text-muted)">32</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__dd834322.html" data-summary="" data-meta="claude · 2026-03-15 · 10 msgs">agent-a5ac13d36fca58fd4</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 03:46</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">10</td>
   <td style="text-align:right;color:var(--text-muted)">42</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__69e4d497.html" data-summary="" data-meta="claude · 2026-03-15 · 7 msgs">agent-ab4b2ff76f338bd11</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 03:14</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">7</td>
   <td style="text-align:right;color:var(--text-muted)">54</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__f06029ec.html" data-summary="" data-meta="claude · 2026-03-15 · 5 msgs">agent-aeb57c35c051c60b7</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 03:14</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">5</td>
   <td style="text-align:right;color:var(--text-muted)">22</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__31f9098b.html" data-summary="" data-meta="claude · 2026-03-15 · 5 msgs">agent-a07b4eb94c75f8052</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 02:35</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">5</td>
   <td style="text-align:right;color:var(--text-muted)">14</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__f7a55586.html" data-summary="" data-meta="claude · 2026-03-15 · 4 msgs">agent-ad6179f7784b2d9d5</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-15 02:35</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">4</td>
   <td style="text-align:right;color:var(--text-muted)">28</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__6e8e20ad.html" data-summary="" data-meta="claude · 2026-03-14 · 4 msgs">agent-ac3555d3365779848</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-14 16:23</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">4</td>
   <td style="text-align:right;color:var(--text-muted)">18</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__809d6435.html" data-summary="" data-meta="claude · 2026-03-14 · 15 msgs">agent-a30744ecffe2ea820</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-14 16:23</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">15</td>
   <td style="text-align:right;color:var(--text-muted)">68</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/a9b5a5cc-2f5f-47d6-8350-90df3422cbb7__e7dcc2f4.html" data-summary="" data-meta="claude · 2026-03-14 · 150 msgs">a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-14 16:02</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">a9b5a5cc</td>
   <td style="text-align:right;color:var(--text-muted)">150</td>
   <td style="text-align:right;color:var(--text-muted)">560</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/efe4d8d9-0131-41f8-b824-d89ac625ae42__fa6fa79b.html" data-summary="" data-meta="claude · 2026-03-14 · 7 msgs">agent-adfd71f024945ad74</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-14 15:55</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">efe4d8d9</td>
   <td style="text-align:right;color:var(--text-muted)">7</td>
   <td style="text-align:right;color:var(--text-muted)">48</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/efe4d8d9-0131-41f8-b824-d89ac625ae42__3d41f685.html" data-summary="" data-meta="claude · 2026-03-14 · 9 msgs">agent-a85eb087292367fb0</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-14 15:50</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">efe4d8d9</td>
   <td style="text-align:right;color:var(--text-muted)">9</td>
   <td style="text-align:right;color:var(--text-muted)">42</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/efe4d8d9-0131-41f8-b824-d89ac625ae42__ee592b4d.html" data-summary="" data-meta="claude · 2026-03-14 · 14 msgs">agent-a5a298f2bd176e4f1</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-14 14:54</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">efe4d8d9</td>
   <td style="text-align:right;color:var(--text-muted)">14</td>
   <td style="text-align:right;color:var(--text-muted)">66</td>
-</tr><tr data-client="claude">
+</tr><tr data-client="claude" data-project="memorytree-workflow">
   <td><span class="badge badge-claude">claude</span></td>
   <td><a href="claude/efe4d8d9-0131-41f8-b824-d89ac625ae42__4f55dbda.html" data-summary="" data-meta="claude · 2026-03-14 · 29 msgs">efe4d8d9-0131-41f8-b824-d89ac625ae42</a></td>
+  <td><a href="index.html?project=memorytree-workflow" class="table-filter-link">memorytree-workflow</a></td>
   <td style="color:var(--text-muted)">2026-03-14 14:54</td>
   <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem">efe4d8d9</td>
   <td style="text-align:right;color:var(--text-muted)">29</td>

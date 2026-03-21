@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-ad1d4a9de82150ca9 — MemoryTree</title>
+<meta property="og:title" content="agent-ad1d4a9de82150ca9">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="page-header">
+  <h1>agent-ad1d4a9de82150ca9</h1>
+</div>
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-16 09:28:22</td></tr>
+  <tr><td>Session ID</td><td><code>3f4c30cd-e08d-4ef8-8be1-201cb7d2017b</code></td></tr>
+  <tr><td>Messages</td><td>4</td></tr>
+  <tr><td>Tool Events</td><td>58</td></tr>
+  <tr><td>Branch</td><td><code>main</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">1686c5e3f58fdc30…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">09:28:22</span>
+  </div>
+  <div class="message-body"><p>I need to design the implementation plan for a <code>memorytree report</code> command to be added to the memorytree-workflow TypeScript/Node.js project at C:/Users/ai/.codex/skills/memorytree-workflow.</p><p>## Background<br>The project already has:<br>- <code>src/cli/main.ts</code> - Commander.js CLI, registers commands via dynamic imports<br>- <code>src/heartbeat/heartbeat.ts</code> - heartbeat loop that imports transcripts and commits to git<br>- <code>src/heartbeat/config.ts</code> - config.toml loader with Config type<br>- <code>src/transcript/import.ts</code> - exports <code>importTranscript()</code>, <code>writeCleanMarkdown()</code>, <code>ManifestEntry</code> type<br>- <code>src/transcript/parse.ts</code> - exports <code>ParsedTranscript</code>, <code>TranscriptMessage</code><br>- <code>src/types/transcript.ts</code> - all type definitions<br>- Dependencies: commander, fast-glob, smol-toml, sql.js<br>- NO @anthropic-ai/sdk yet<br>- Build: tsup single entry <code>src/cli/main.ts</code> → <code>dist/cli.js</code> (ESM, Node 20)</p><p>## Requirements<br>Generate a full multi-page HTML website from Memory/ directory contents:</p><p>### Pages to generate:<br>1. <code>index.html</code> - Dashboard with stats cards + SVG charts (no CDN needed)<br>2. <code>transcripts/index.html</code> - Session list with filters (client, date, search)<br>3. <code>transcripts/{client}/{sessionStem}.html</code> - Individual session with AI summary + full conversation<br>4. <code>knowledge/index.html</code> - List of Knowledge articles from Memory/04_knowledge/<br>5. <code>goals/index.html</code> - Goals history from Memory/01_goals/<br>6. <code>search.html</code> - Full-text search (client-side, pre-built index embedded as JSON)</p><p>### Features:<br>- <strong>Stats (all code, zero AI)</strong>:<br>  - Total sessions, messages, tool events<br>  - Active days<br>  - Client distribution (codex/claude/gemini)<br>  - Messages per day for heatmap<br>  - Top 10 most-used tool names (parsed from tool_events summaries)<br>  - Avg/max messages per session<br>- <strong>SVG charts</strong> (inline, no Chart.js CDN needed):<br>  - GitHub-style activity calendar heatmap<br>  - Client distribution doughnut (pure SVG)<br>  - Messages per week line chart (pure SVG)<br>  - Top 10 tools horizontal bar chart<br>- <strong>AI summaries via Claude API</strong> (<code>@anthropic-ai/sdk</code>, model <code>claude-haiku-4-5-20251001</code>):<br>  - 2-3 sentence summary per session<br>  - Cache key = raw_sha256, stored in <code>Memory/07_reports/.cache/{sha256}.json</code><br>  - Skip if cache hit or <code>--no-ai</code> flag or no ANTHROPIC_API_KEY env var<br>- <strong>Bidirectional links</strong>:<br>  - Scan clean markdown for <code>[[session-id]]</code> patterns<br>  - Build link graph, inject &quot;Referenced by&quot; section<br>- <strong>Full-text search</strong>:<br>  - Pre-build JSON index {id, title, text, url} for all sessions<br>  - Embed index in search.html as inline JS<br>  - Simple client-side substring search, no external lib<br>- <strong>Dark theme</strong> (GitHub Dark palette), CSS variables for light/dark<br>- <strong>Self-contained HTML</strong> - no external CDN, works from file://</p><p>### CLI interface:</p><pre><code>memorytree report build [--root &lt;path&gt;] [--output &lt;path&gt;] [--no-ai] [--pdf]
+memorytree report serve [--root &lt;path&gt;] [--port &lt;n&gt;]
+</code></pre><p>### Heartbeat integration:<br>- In heartbeat.ts, after successful import, call <code>buildReport(projectPath, {noAi: false})</code><br>- New field in config.toml: <code>generate_report = true</code><br>- Only run if config has <code>generate_report = true</code></p><p>### New files to create:</p><pre><code>src/report/
+  build.ts          - orchestrator, exports buildReport()
+  stats.ts          - computeStats(manifests, parsedMap): ReportStats
+  summarize.ts      - getSummary(messages, sha256, cacheDir): Promise&lt;string&gt;
+  render/
+    layout.ts       - htmlShell(title, content, nav, scripts): string
+    css.ts          - CSS string constant
+    charts.ts       - SVG chart rendering functions
+    dashboard.ts    - renderDashboard(stats, manifests): string
+    transcript-list.ts - renderTranscriptList(manifests): string
+    transcript.ts   - renderTranscript(parsed, manifest, summary, backlinks): string
+    knowledge.ts    - renderKnowledge(files): string
+    goals.ts        - renderGoals(files): string
+    search.ts       - buildSearchIndex + renderSearchPage
+    links.ts        - buildLinkGraph(manifests, cleanFiles): Map&lt;string, string[]&gt;
+src/types/report.ts - ReportStats, SummaryCache, LinkGraph types
+src/cli/cmd-report.ts - report subcommand
+</code></pre><p>### Files to modify:<br>- <code>src/cli/main.ts</code> - register report command<br>- <code>src/heartbeat/heartbeat.ts</code> - call buildReport after import if configured<br>- <code>src/heartbeat/config.ts</code> - add generate_report, ai_summary_model fields<br>- <code>package.json</code> - add @anthropic-ai/sdk</p><p>### Output directory:<br><code>Memory/07_reports/</code> (not committed to git by default, listed in .gitignore)</p><p>Please provide:<br>1. Detailed type definitions for ReportStats, SummaryCache, LinkGraph<br>2. The exact function signatures for all render functions<br>3. SVG chart design for each chart type (heatmap, doughnut, line, bar)<br>4. The exact Claude API call for summaries (model, system prompt, user prompt)<br>5. How heartbeat config.ts needs to change<br>6. Test strategy (what to unit test vs integration test)<br>7. Any gotchas or edge cases to handle</p><p>Be thorough and implementation-ready.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:28:26</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll explore the existing codebase thoroughly before designing the implementation plan.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:29:31</span>
+  </div>
+  <div class="message-body"><p>Now I have a thorough understanding of the codebase. Let me compile the complete implementation plan.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:32:14</span>
+  </div>
+  <div class="message-body"><p>I now have all the context needed for a thorough implementation plan. Here it is:</p><p>---</p><p># Implementation Plan: <code>memorytree report</code> Command</p><p>## 1. Type Definitions (<code>src/types/report.ts</code>)</p><pre><code>// ─── ReportStats ────────────────────────────────────────────────────────────
+export interface ClientCounts {
+  readonly codex: number
+  readonly claude: number
+  readonly gemini: number
+}
+
+export interface DayBucket {
+  readonly date: string          // &quot;YYYY-MM-DD&quot;
+  readonly count: number         // message count that day
+}
+
+export interface WeekBucket {
+  readonly weekStart: string     // &quot;YYYY-MM-DD&quot; Monday of the week
+  readonly count: number
+}
+
+export interface ToolFrequency {
+  readonly name: string
+  readonly count: number
+}
+
+export interface ReportStats {
+  readonly totalSessions: number
+  readonly totalMessages: number
+  readonly totalToolEvents: number
+  readonly activeDays: number                    // unique calendar days with ≥1 message
+  readonly clientCounts: ClientCounts
+  readonly messagesPerDay: readonly DayBucket[]  // sorted ascending, last 365 days
+  readonly messagesPerWeek: readonly WeekBucket[] // sorted ascending, last 52 weeks
+  readonly topTools: readonly ToolFrequency[]     // top 10, sorted descending
+  readonly avgMessagesPerSession: number
+  readonly maxMessagesPerSession: number
+  readonly dateRange: { readonly first: string; readonly last: string } | null
+}
+
+// ─── SummaryCache ────────────────────────────────────────────────────────────
+export interface SummaryCache {
+  readonly sha256: string        // raw_sha256 of the transcript
+  readonly summary: string       // 2-3 sentence AI-generated summary
+  readonly model: string         // model id used
+  readonly generatedAt: string   // ISO timestamp
+}
+
+// ─── LinkGraph ───────────────────────────────────────────────────────────────
+// Maps session stem (artifactStem without extension) → list of session stems
+// that reference it via [[session-id]] wiki-link syntax.
+export type LinkGraph = ReadonlyMap&lt;string, readonly string[]&gt;
+
+// ─── SearchIndexEntry ─────────────────────────────────────────────────────────
+export interface SearchIndexEntry {
+  readonly id: string            // artifactStem
+  readonly title: string
+  readonly client: string
+  readonly project: string
+  readonly startedAt: string
+  readonly text: string          // full plain-text content, truncated to 50 kB
+  readonly url: string           // relative URL e.g. &quot;transcripts/claude/stem.html&quot;
+}
+
+// ─── BuildReportOptions ──────────────────────────────────────────────────────
+export interface BuildReportOptions {
+  readonly root: string          // repo root (Memory/ lives here)
+  readonly output: string        // output dir, default Memory/07_reports
+  readonly noAi: boolean
+  readonly pdf: boolean          // reserved for future use
+}
+
+export interface ServeReportOptions {
+  readonly root: string
+  readonly port: number
+}
+</code></pre><p>Key design decisions:<br>- <code>messagesPerDay</code> uses the last 365 days only (beyond that the heatmap becomes unreadable).<br>- <code>LinkGraph</code> is immutable and uses a <code>ReadonlyMap</code> to match the immutability coding style requirement.<br>- <code>SearchIndexEntry.text</code> is truncated to 50 kB to keep the embedded JSON in <code>search.html</code> from bloating the file beyond reason.</p><p>---</p><p>## 2. Function Signatures for All Modules</p><p>### <code>src/report/stats.ts</code></p><pre><code>import type { ManifestEntry } from &#39;../types/transcript.js&#39;
+import type { ReportStats, ToolFrequency, DayBucket, WeekBucket } from &#39;../types/report.js&#39;
+
+/**
+ * Compute aggregate stats from all manifest entries.
+ * Pure function — no I/O. Takes pre-loaded manifests.
+ */
+export function computeStats(manifests: readonly ManifestEntry[]): ReportStats
+
+// Internal helpers (exported for unit testing):
+export function buildDayBuckets(
+  manifests: readonly ManifestEntry[],
+  windowDays?: number,        // default 365
+): readonly DayBucket[]
+
+export function buildWeekBuckets(
+  manifests: readonly ManifestEntry[],
+  windowWeeks?: number,       // default 52
+): readonly WeekBucket[]
+
+export function extractToolNames(
+  toolEventSummaries: readonly string[],
+  topN?: number,              // default 10
+): readonly ToolFrequency[]
+
+// Tool name is the first space-separated token of each summary string.
+// e.g. &quot;bash input=...&quot; → &quot;bash&quot;
+</code></pre><p>### <code>src/report/summarize.ts</code></p><pre><code>import type { TranscriptMessage } from &#39;../types/transcript.js&#39;
+import type { SummaryCache } from &#39;../types/report.js&#39;
+
+/**
+ * Return a cached or freshly generated AI summary.
+ * Returns empty string if no ANTHROPIC_API_KEY or noAi=true.
+ * Cache file: &lt;cacheDir&gt;/&lt;sha256&gt;.json
+ */
+export async function getSummary(
+  messages: readonly TranscriptMessage[],
+  sha256: string,
+  cacheDir: string,
+  options?: { noAi?: boolean; model?: string },
+): Promise&lt;string&gt;
+
+// Internal — exported for testing:
+export function readSummaryCache(cacheDir: string, sha256: string): SummaryCache | null
+export function writeSummaryCache(cacheDir: string, entry: SummaryCache): void
+export function buildSummaryPrompt(messages: readonly TranscriptMessage[]): string
+</code></pre><p>### <code>src/report/render/layout.ts</code></p><pre><code>/**
+ * Wrap page content in the full HTML shell with nav, CSS, and optional scripts.
+ */
+export function htmlShell(opts: {
+  title: string
+  content: string
+  nav: string
+  inlineScripts?: string  // raw JS, injected before &lt;/body&gt;
+  currentPath?: string    // e.g. &quot;transcripts&quot; to highlight active nav link
+}): string
+
+/** Render the top nav bar HTML */
+export function renderNav(currentPath: string): string
+</code></pre><p>### <code>src/report/render/css.ts</code></p><pre><code>/** Single exported constant: the full CSS string */
+export const REPORT_CSS: string
+</code></pre><p>### <code>src/report/render/charts.ts</code></p><pre><code>import type { DayBucket, WeekBucket, ToolFrequency, ClientCounts } from &#39;../../types/report.js&#39;
+
+/**
+ * GitHub-style activity heatmap.
+ * Renders a 53-column × 7-row grid of day cells, coloured by intensity.
+ * Returns raw &lt;svg&gt;...&lt;/svg&gt; string.
+ */
+export function renderHeatmap(days: readonly DayBucket[]): string
+
+/**
+ * Doughnut chart for client distribution.
+ * Segments: codex/claude/gemini, labelled with percentage.
+ * Returns raw &lt;svg&gt;...&lt;/svg&gt; string.
+ */
+export function renderClientDoughnut(counts: ClientCounts): string
+
+/**
+ * Line chart: messages per week over last 52 weeks.
+ * No grid lines, just a filled area path.
+ * Returns raw &lt;svg&gt;...&lt;/svg&gt; string.
+ */
+export function renderWeeklyLine(weeks: readonly WeekBucket[]): string
+
+/**
+ * Horizontal bar chart: top 10 tool names.
+ * Bars proportional to count, with count label at end.
+ * Returns raw &lt;svg&gt;...&lt;/svg&gt; string.
+ */
+export function renderToolBar(tools: readonly ToolFrequency[]): string
+</code></pre><p>### <code>src/report/render/dashboard.ts</code></p><pre><code>import type { ReportStats } from &#39;../../types/report.js&#39;
+import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+
+export function renderDashboard(stats: ReportStats, manifests: readonly ManifestEntry[]): string
+</code></pre><p>### <code>src/report/render/transcript-list.ts</code></p><pre><code>import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+
+export function renderTranscriptList(manifests: readonly ManifestEntry[]): string
+</code></pre><p>### <code>src/report/render/transcript.ts</code></p><pre><code>import type { ParsedTranscript } from &#39;../../types/transcript.js&#39;
+import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+
+export function renderTranscript(
+  parsed: ParsedTranscript,
+  manifest: ManifestEntry,
+  summary: string,
+  backlinks: readonly string[],    // list of session stems that link to this one
+): string
+</code></pre><p>### <code>src/report/render/knowledge.ts</code></p><pre><code>export interface KnowledgeFile {
+  readonly name: string        // filename without extension
+  readonly path: string        // absolute path
+  readonly content: string     // raw markdown content
+}
+
+export function renderKnowledge(files: readonly KnowledgeFile[]): string
+</code></pre><p>### <code>src/report/render/goals.ts</code></p><pre><code>export interface GoalsFile {
+  readonly name: string
+  readonly path: string
+  readonly content: string
+}
+
+export function renderGoals(files: readonly GoalsFile[]): string
+</code></pre><p>### <code>src/report/render/search.ts</code></p><pre><code>import type { SearchIndexEntry } from &#39;../../types/report.js&#39;
+
+/** Build the search index from manifests and their clean markdown content */
+export function buildSearchIndex(
+  manifests: readonly ManifestEntry[],
+  getCleanContent: (manifest: ManifestEntry) =&gt; string,
+): readonly SearchIndexEntry[]
+
+/** Render the search.html page with index embedded as inline JS */
+export function renderSearchPage(index: readonly SearchIndexEntry[]): string
+</code></pre><p>### <code>src/report/render/links.ts</code></p><pre><code>import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+import type { LinkGraph } from &#39;../../types/report.js&#39;
+
+/**
+ * Scan clean markdown files for [[session-id]] wiki-link patterns.
+ * Returns a map from referenced-session-stem → array of referencing-session-stems.
+ */
+export function buildLinkGraph(
+  manifests: readonly ManifestEntry[],
+  getCleanContent: (manifest: ManifestEntry) =&gt; string,
+): LinkGraph
+</code></pre><p>### <code>src/report/build.ts</code></p><pre><code>import type { BuildReportOptions } from &#39;../types/report.js&#39;
+
+/** Main orchestrator. Called by CLI and heartbeat. */
+export async function buildReport(options: BuildReportOptions): Promise&lt;void&gt;
+
+/** Load all manifest JSON files from Memory/06_transcripts/manifests/ */
+export function loadManifests(root: string): readonly ManifestEntry[]
+
+/** Lazily read a clean markdown file, returning empty string on error */
+export function readCleanContent(manifest: ManifestEntry): string
+</code></pre><p>### <code>src/cli/cmd-report.ts</code></p><pre><code>export interface ReportBuildOptions {
+  root: string
+  output: string
+  noAi: boolean
+  pdf: boolean
+}
+
+export interface ReportServeOptions {
+  root: string
+  port: number
+}
+
+export async function cmdReportBuild(options: ReportBuildOptions): Promise&lt;number&gt;
+export async function cmdReportServe(options: ReportServeOptions): Promise&lt;number&gt;
+</code></pre><p>---</p><p>## 3. SVG Chart Designs</p><p>### 3a. GitHub Heatmap (<code>renderHeatmap</code>)</p><p>The implementation scans the last 365 days ending today, organized into 53 ISO weeks × 7 weekdays. Each day cell is a 10×10 <code>&lt;rect&gt;</code> with <code>rx=&quot;2&quot;</code> (rounded corners), spaced 12px apart horizontally and 12px vertically.</p><p>Color scale (5 levels, GitHub Dark palette):<br>- Level 0 (0 messages): <code>#161b22</code> (dark background)<br>- Level 1 (1-2): <code>#0e4429</code><br>- Level 2 (3-6): <code>#006d32</code><br>- Level 3 (7-12): <code>#26a641</code><br>- Level 4 (13+): <code>#39d353</code></p><p>SVG dimensions: <code>width=&quot;680&quot; height=&quot;112&quot;</code>. Month labels rendered above the grid at the column where a new month starts. Day-of-week labels (Mon, Wed, Fri) on the left side.</p><p>Each rect carries a <code>&lt;title&gt;</code> child: <code>&quot;YYYY-MM-DD: N messages&quot;</code> for browser tooltip on hover.</p><pre><code>viewBox=&quot;0 0 700 130&quot;
+  &lt;text&gt; month labels row (y=14)
+  &lt;text&gt; weekday labels col (x=0)
+  for each (week, day):
+    &lt;rect x={week*12+40} y={day*12+20} width=10 height=10 rx=2
+          fill={levelColor(count)} &gt;
+      &lt;title&gt;date: N messages&lt;/title&gt;
+    &lt;/rect&gt;
+</code></pre><p>### 3b. Client Doughnut (<code>renderClientDoughnut</code>)</p><p>Pure SVG arc path using <code>d=&quot;M ... A ... Z&quot;</code> construction. Three segments for codex/claude/gemini.</p><p>Dimensions: <code>viewBox=&quot;0 0 200 200&quot;</code>. Center: <code>(100,100)</code>. Outer radius: 80. Inner radius: 50 (creating the doughnut hole).</p><p>Color map:<br>- codex: <code>#58a6ff</code><br>- claude: <code>#bc8cff</code><br>- gemini: <code>#3fb950</code></p><p>Each arc segment is computed from cumulative angles. The label text (percentage) is placed at the midpoint of each arc at radius 95 (outside the doughnut). A <code>&lt;text&gt;</code> in the center shows &quot;Sessions&quot;.</p><p>Legend rendered below as three <code>&lt;rect&gt;</code> color swatches + <code>&lt;text&gt;</code> labels.</p><p>### 3c. Weekly Line Chart (<code>renderWeeklyLine</code>)</p><p>Dimensions: <code>viewBox=&quot;0 0 600 120&quot;</code>. Plot area: 560×80 with 20px left and 20px top padding.</p><p>X axis: 52 equidistant points. Y axis: 0 to max count, normalized to 80px height.</p><p>Two SVG elements:<br>1. <code>&lt;path&gt;</code> for the filled area: <code>M x0,bottom L x0,y0 L x1,y1 ... L xN,bottom Z</code> with <code>fill=&quot;rgba(88,166,255,0.2)&quot;</code> (GitHub blue at 20% opacity).<br>2. <code>&lt;path&gt;</code> for the line stroke: <code>M x0,y0 L x1,y1 ...</code> with <code>stroke=&quot;#58a6ff&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;</code>.</p><p>No axis ticks for cleanliness. A hover layer is not needed (this is static HTML).</p><p>### 3d. Tools Horizontal Bar Chart (<code>renderToolBar</code>)</p><p>Dimensions: <code>viewBox=&quot;0 0 500 220&quot;</code>. Renders at most 10 tools.</p><p>Each row is 20px tall with 2px gap. Bar color: <code>#3fb950</code> (green). Max bar width = 380px (normalized to the top tool&#39;s count). Tool name as <code>&lt;text&gt;</code> left-aligned at x=0. Count label as <code>&lt;text&gt;</code> right of the bar end.</p><pre><code>for i in 0..9:
+  y = i * 22
+  barWidth = (tool.count / maxCount) * 380
+  &lt;text x=0 y={y+14}&gt;{tool.name}&lt;/text&gt;      // left label, 120px wide
+  &lt;rect x=125 y={y+2} width={barWidth} height=16 rx=2 fill=&quot;#3fb950&quot;/&gt;
+  &lt;text x={125+barWidth+4} y={y+14}&gt;{tool.count}&lt;/text&gt;
+</code></pre><p>---</p><p>## 4. Claude API Call for Summaries</p><p>### Dependency</p><p>Add to <code>package.json</code> dependencies: <code>&quot;@anthropic-ai/sdk&quot;: &quot;^0.39.0&quot;</code> (latest stable as of March 2026).</p><p>### <code>summarize.ts</code> Implementation Detail</p><pre><code>// Model constant
+const DEFAULT_SUMMARY_MODEL = &#39;claude-haiku-4-5-20251001&#39;
+
+// System prompt
+const SYSTEM_PROMPT = `You are a technical assistant that summarizes AI coding session transcripts.
+Write exactly 2-3 sentences. Focus on what was accomplished, what problems were solved, and any
+notable technical decisions. Be specific about tools used and code changed. Do not use filler
+phrases like &quot;In this session&quot; or &quot;The user&quot;. Write in past tense.`
+
+// User prompt builder
+export function buildSummaryPrompt(messages: readonly TranscriptMessage[]): string {
+  // Take at most 30 messages (15 user + 15 assistant alternating) to stay well
+  // within Haiku&#39;s context window and keep API costs minimal.
+  const sample = messages.slice(0, 30)
+  const lines = sample.map(m =&gt; `[${m.role.toUpperCase()}]: ${m.text.slice(0, 500)}`)
+  return `Summarize this coding session transcript:\n\n${lines.join(&#39;\n\n&#39;)}`
+}
+
+// API call shape
+const response = await client.messages.create({
+  model: options?.model ?? DEFAULT_SUMMARY_MODEL,
+  max_tokens: 200,
+  system: SYSTEM_PROMPT,
+  messages: [{ role: &#39;user&#39;, content: buildSummaryPrompt(messages) }],
+})
+const summary = response.content[0]?.type === &#39;text&#39; ? response.content[0].text.trim() : &#39;&#39;
+</code></pre><p>Key guardrails:<br>- Check <code>process.env[&#39;ANTHROPIC_API_KEY&#39;]</code> before importing the SDK. If absent, return <code>&#39;&#39;</code> immediately without requiring the SDK to be installed.<br>- Wrap the API call in try/catch: on error, log a warning and return <code>&#39;&#39;</code> (never crash the build).<br>- The SDK import is a dynamic <code>await import(&#39;@anthropic-ai/sdk&#39;)</code> so the module loads only when needed and does not break builds where the SDK is not installed yet.<br>- Cache file schema: <code>{ sha256, summary, model, generatedAt }</code> written as formatted JSON.</p><p>---</p><p>## 5. Config Changes (<code>src/heartbeat/config.ts</code>)</p><p>### Config interface additions</p><pre><code>export interface Config {
+  readonly heartbeat_interval: string
+  readonly watch_dirs: readonly string[]
+  readonly projects: readonly ProjectEntry[]
+  readonly auto_push: boolean
+  readonly log_level: string
+  // NEW:
+  readonly generate_report: boolean          // default: false
+  readonly ai_summary_model: string          // default: &#39;claude-haiku-4-5-20251001&#39;
+}
+</code></pre><p>### <code>defaultConfig()</code> additions</p><pre><code>generate_report: false,
+ai_summary_model: &#39;claude-haiku-4-5-20251001&#39;,
+</code></pre><p>### <code>parseRaw()</code> additions</p><pre><code>let generateReport = raw[&#39;generate_report&#39;]
+if (typeof generateReport !== &#39;boolean&#39;) {
+  generateReport = false
+}
+
+let aiSummaryModel = raw[&#39;ai_summary_model&#39;]
+if (typeof aiSummaryModel !== &#39;string&#39; || !aiSummaryModel.trim()) {
+  aiSummaryModel = &#39;claude-haiku-4-5-20251001&#39;
+}
+</code></pre><p>### <code>saveConfig()</code> additions</p><p>Add these two lines to the serialized TOML output:</p><pre><code>lines.push(`generate_report = ${cfg.generate_report ? &#39;true&#39; : &#39;false&#39;}`)
+lines.push(`ai_summary_model = ${tomlString(cfg.ai_summary_model)}`)
+</code></pre><p>### Heartbeat integration (<code>src/heartbeat/heartbeat.ts</code>)</p><p>In <code>processProject()</code>, after the <code>gitCommitAndPush()</code> call:</p><pre><code>if (config.generate_report) {
+  try {
+    const { buildReport } = await import(&#39;../report/build.js&#39;)
+    await buildReport({
+      root: projectPath,
+      output: join(projectPath, &#39;Memory&#39;, &#39;07_reports&#39;),
+      noAi: !process.env[&#39;ANTHROPIC_API_KEY&#39;],
+      pdf: false,
+    })
+    logger.info(`[${projectName}] Report generated.`)
+  } catch (err: unknown) {
+    logger.warn(`[${projectName}] Report generation failed: ${String(err)}`)
+    // Never propagate — report failure must not abort the heartbeat cycle.
+  }
+}
+</code></pre><p>The <code>buildReport</code> import is dynamic (same pattern as all other CLI command imports) to avoid loading the heavy render tree when reports are disabled.</p><p>---</p><p>## 6. <code>src/report/build.ts</code> Orchestration Flow</p><pre><code>buildReport(options):
+  1. resolvedRoot = resolve(options.root)
+  2. outputDir = resolve(options.output)         // Memory/07_reports
+  3. cacheDir = join(outputDir, &#39;.cache&#39;)
+  4. mkdirSync all output subdirs
+  5. manifests = loadManifests(resolvedRoot)      // glob Memory/06_transcripts/manifests/**/*.json
+  6. stats = computeStats(manifests)
+  7. linkGraph = buildLinkGraph(manifests, readCleanContent)
+  8. index = buildSearchIndex(manifests, readCleanContent)
+  9. knowledgeFiles = loadDirectory(join(resolvedRoot, &#39;Memory/04_knowledge&#39;), &#39;**/*.md&#39;)
+  10. goalsFiles = loadDirectory(join(resolvedRoot, &#39;Memory/01_goals&#39;), &#39;**/*.md&#39;)
+
+  // Generate summaries in parallel (max 5 concurrent) for sessions without cache
+  11. For each manifest: summary = await getSummary(messages, sha256, cacheDir, {...})
+
+  // Write pages
+  12. writeFile(join(outputDir, &#39;index.html&#39;), htmlShell({...renderDashboard(stats)}))
+  13. writeFile(join(outputDir, &#39;transcripts/index.html&#39;), htmlShell({...renderTranscriptList(manifests)}))
+  14. For each manifest:
+        parsed = parseTranscript(manifest.client, manifest.global_clean_path)  // or repo_clean_path
+        backlinks = linkGraph.get(sessionStem) ?? []
+        writeFile(join(outputDir, &#39;transcripts&#39;, client, stem + &#39;.html&#39;), renderTranscript(...))
+  15. writeFile(join(outputDir, &#39;knowledge/index.html&#39;), renderKnowledge(knowledgeFiles))
+  16. writeFile(join(outputDir, &#39;goals/index.html&#39;), renderGoals(goalsFiles))
+  17. writeFile(join(outputDir, &#39;search.html&#39;), renderSearchPage(index))
+</code></pre><p>Concurrency for summaries: use a simple semaphore (counter + Promise queue) rather than <code>p-limit</code> to avoid adding another dependency.</p><p>---</p><p>## 7. CLI Registration (<code>src/cli/main.ts</code>)</p><pre><code>// ── report ────────────────────────────────────────────────────────────────
+const report = program
+  .command(&#39;report&#39;)
+  .description(&#39;Generate or serve the HTML Memory report&#39;)
+
+report
+  .command(&#39;build&#39;)
+  .description(&#39;Build the full HTML report from Memory/ contents&#39;)
+  .option(&#39;--root &lt;path&gt;&#39;, &#39;Repository root&#39;, &#39;.&#39;)
+  .option(&#39;--output &lt;path&gt;&#39;, &#39;Output directory&#39;, &#39;&#39;)   // empty = default Memory/07_reports
+  .option(&#39;--no-ai&#39;, &#39;Skip AI-generated summaries&#39;)
+  .option(&#39;--pdf&#39;, &#39;Also export PDF (reserved, not yet implemented)&#39;)
+  .action(async (opts) =&gt; {
+    const { cmdReportBuild } = await import(&#39;./cmd-report.js&#39;)
+    process.exitCode = await cmdReportBuild({
+      root: opts.root,
+      output: opts.output ?? &#39;&#39;,
+      noAi: opts.noAi ?? false,
+      pdf: opts.pdf ?? false,
+    })
+  })
+
+report
+  .command(&#39;serve&#39;)
+  .description(&#39;Serve the report directory over HTTP&#39;)
+  .option(&#39;--root &lt;path&gt;&#39;, &#39;Repository root&#39;, &#39;.&#39;)
+  .option(&#39;--port &lt;n&gt;&#39;, &#39;HTTP port&#39;, &#39;4000&#39;)
+  .action(async (opts) =&gt; {
+    const { cmdReportServe } = await import(&#39;./cmd-report.js&#39;)
+    process.exitCode = await cmdReportServe({
+      root: opts.root,
+      port: parseInt(opts.port, 10) || 4000,
+    })
+  })
+</code></pre><p>The <code>serve</code> subcommand uses Node&#39;s built-in <code>node:http</code> module to serve static files from the output directory with correct MIME types — no additional dependency needed.</p><p>---</p><p>## 8. Test Strategy</p><p>### Unit tests (fast, no I/O)</p><p><strong><code>tests/report/stats.test.ts</code></strong><br>- <code>computeStats([])</code> returns zero-state with no crashes<br>- Day buckets: manifests on the same date accumulate correctly<br>- Week buckets: week boundary (Mon) calculation is correct for leap years<br>- <code>extractToolNames</code>: parses <code>&quot;bash input=...&quot;</code> → <code>&quot;bash&quot;</code>, handles <code>&quot;custom_tool_call input=...&quot;</code>, deduplicates<br>- <code>extractToolNames</code>: returns top-N by count, ties sorted alphabetically for determinism<br>- Client counts: codex/claude/gemini split</p><p><strong><code>tests/report/render/charts.test.ts</code></strong><br>- <code>renderHeatmap</code> with empty input renders 365 cells all level-0<br>- <code>renderHeatmap</code> with a day at count 7 emits level-3 color<br>- <code>renderClientDoughnut</code> with all-zero counts does not divide by zero (renders empty ring)<br>- <code>renderWeeklyLine</code> with single point emits a valid path string<br>- <code>renderToolBar</code> with &gt;10 tools renders only 10 bars</p><p><strong><code>tests/report/render/links.test.ts</code></strong><br>- <code>buildLinkGraph</code> detects <code>[[some-session]]</code> in clean markdown<br>- <code>buildLinkGraph</code> ignores self-references<br>- No false positives on partial bracket matches like <code>[single bracket]</code></p><p><strong><code>tests/report/render/search.test.ts</code></strong><br>- <code>buildSearchIndex</code> truncates text at 50 kB<br>- <code>renderSearchPage</code> embeds index as valid JSON (test with <code>JSON.parse</code>)<br>- URL format is <code>transcripts/{client}/{stem}.html</code></p><p><strong><code>tests/report/summarize.test.ts</code></strong><br>- <code>readSummaryCache</code> returns null for missing file, returns typed object for valid JSON<br>- <code>writeSummaryCache</code> round-trips correctly<br>- <code>buildSummaryPrompt</code> truncates at 30 messages, truncates each message text at 500 chars<br>- <code>getSummary</code> returns <code>&#39;&#39;</code> when <code>noAi: true</code> without calling the SDK<br>- <code>getSummary</code> returns <code>&#39;&#39;</code> when <code>ANTHROPIC_API_KEY</code> is absent (mock <code>process.env</code>)<br>- <code>getSummary</code> returns cached value without calling the SDK when cache hit</p><p><strong><code>tests/heartbeat/config.test.ts</code> additions</strong><br>- <code>loadConfig</code> reads <code>generate_report = true</code> correctly<br>- <code>loadConfig</code> defaults <code>generate_report</code> to <code>false</code> when absent<br>- <code>loadConfig</code> reads <code>ai_summary_model</code> string<br>- <code>saveConfig</code> round-trips both new fields</p><p>### Integration tests</p><p><strong><code>tests/report/build.test.ts</code></strong><br>- Scaffold a minimal <code>Memory/06_transcripts/manifests/</code> tree with 2 manifest JSON files and matching clean markdown files in a <code>mkdtempSync</code> temp dir<br>- Call <code>buildReport({ root, output, noAi: true, pdf: false })</code><br>- Assert that <code>index.html</code>, <code>transcripts/index.html</code>, <code>search.html</code>, <code>knowledge/index.html</code>, <code>goals/index.html</code> all exist in the output directory<br>- Assert that the transcript-specific HTML file for the test session exists at the expected path<br>- Assert that <code>search.html</code> contains the embedded JSON array<br>- Assert that <code>index.html</code> contains <code>&lt;svg</code> (chart was rendered)</p><p><strong><code>tests/cli/daemon.test.ts</code> additions (or new <code>cmd-report.test.ts</code>)</strong><br>- <code>cmdReportBuild</code> returns exit code 1 when root does not exist<br>- <code>cmdReportBuild</code> returns exit code 0 for a valid but empty Memory tree</p><p>### What NOT to unit test<br>- The full SVG path math (it is visual, verified by inspection)<br>- The Anthropic API call itself (mock only; never call real API in tests)<br>- CSS string content</p><p>---</p><p>## 9. Gotchas and Edge Cases</p><p>### Manifest loading<br><code>Memory/06_transcripts/manifests/</code> is partitioned by <code>client/year/month/</code>. Use <code>fast-glob</code> pattern <code>Memory/06_transcripts/manifests/<em>*/</em>.json</code> — the same glob package is already a dependency. Sort by <code>started_at</code> for stable output ordering.</p><p>### Clean markdown path resolution<br><code>manifest.repo_clean_path</code> is a POSIX-relative path (e.g. <code>Memory/06_transcripts/clean/...</code>). Use <code>join(root, manifest.repo_clean_path)</code> to resolve it. Some manifests may have <code>repo_mirror_enabled: false</code> and an empty <code>repo_clean_path</code> — in that case fall back to <code>manifest.global_clean_path</code>. Always guard with <code>existsSync</code> and return <code>&#39;&#39;</code> on missing files.</p><p>### <code>--no-ai</code> Commander.js flag gotcha<br>Commander treats <code>--no-&lt;name&gt;</code> as a boolean negation flag. The option declared as <code>.option(&#39;--no-ai&#39;, ...)</code> will populate <code>opts.ai</code> as <code>false</code> when passed and <code>true</code> by default. The <code>noAi</code> property must be <code>!opts.ai</code>. This matches the existing <code>--no-&lt;x&gt;</code> patterns in Commander.</p><p>### <code>@anthropic-ai/sdk</code> optional dependency<br>The SDK import must be dynamic (<code>await import(&#39;@anthropic-ai/sdk&#39;)</code>), placed inside a try/catch that returns <code>&#39;&#39;</code> on <code>MODULE_NOT_FOUND</code>. This way the package is truly optional — the build still works even if the user hasn&#39;t installed it. Add to <code>package.json</code> as a regular dependency (not optional), but the code must defensively handle its absence for the period before npm install is re-run.</p><p>### HTML escaping<br>All user-generated content (titles, session IDs, message text, file paths) that is interpolated into HTML strings must be HTML-escaped. Write a small <code>escHtml(s: string): string</code> utility in <code>render/layout.ts</code> that handles <code>&amp; &lt; &gt; &quot; &#39;</code>. This is the most common XSS source in template-style HTML generation.</p><p>### File system on Windows<br>The project runs on Windows (confirmed by the platform info). All path construction must use <code>node:path</code> <code>join()</code>, not string concatenation with <code>/</code>. The <code>toPosixPath</code> utility from <code>src/utils/path.ts</code> is already available for converting before writing into HTML href attributes.</p><p>### Large transcript sets<br><code>buildReport</code> must not hold all parsed transcript content in memory simultaneously. Process transcripts in a streaming fashion: parse → summarize → render → write → discard. Keep only manifests (small) in memory throughout. The summary concurrency limit (5 parallel) also limits peak memory.</p><p>### <code>.gitignore</code> for <code>Memory/07_reports/</code><br>The requirements specify the output dir should not be committed. The <code>cmd-report.ts</code> or <code>build.ts</code> should check if <code>Memory/07_reports</code> is already in <code>.gitignore</code> and append it if not. Alternatively document this as a manual step, since the <code>init</code> command scaffolds <code>.gitignore</code> already — the safer approach is to add <code>Memory/07_reports/</code> to the default gitignore template in <code>src/project/scaffold.ts</code>.</p><p>### Wiki-link regex<br>The <code>[[session-id]]</code> pattern must use a non-greedy match: <code>/\[\[([^\]]+?)\]\]/g</code>. Session stems can contain hyphens and underscores but not <code>]]</code>. The regex must not match across newlines.</p><p>### Empty / single-data-point charts<br>- Doughnut with all zeros: render an empty gray ring, no percentage labels.<br>- Line chart with 1 data point: render a single dot (circle), not a path.<br>- Heatmap with no data: render all gray cells (still useful as a date grid).<br>- Bar chart with no tools: render the SVG with a &quot;No tool events recorded&quot; text node.</p><p>### <code>serve</code> command port conflicts<br>Wrap the HTTP server creation in a try/catch for <code>EADDRINUSE</code>. Print a clear message: <code>&quot;Port NNNN is in use. Try --port MMMM.&quot;</code> and exit with code 1.</p><p>### Report cache invalidation<br>The cache key is <code>raw_sha256</code> (the SHA256 of the raw source file). This means the cache entry is permanently valid as long as the source file has not changed — which is the correct invariant. No TTL is needed.</p><p>---</p><p>## 10. Implementation Sequence</p><p>1. <strong><code>src/types/report.ts</code></strong> — all types first<br>2. <strong><code>src/report/render/css.ts</code></strong> — CSS constant (pure string, no deps)<br>3. <strong><code>src/report/render/layout.ts</code></strong> — <code>htmlShell</code>, <code>renderNav</code>, <code>escHtml</code><br>4. <strong><code>src/report/stats.ts</code></strong> — <code>computeStats</code> and sub-helpers (pure, fully testable without I/O)<br>5. <strong><code>src/report/render/charts.ts</code></strong> — SVG functions (pure)<br>6. <strong><code>src/report/render/links.ts</code></strong> — <code>buildLinkGraph</code> (pure, takes content as string)<br>7. <strong><code>src/report/render/search.ts</code></strong> — <code>buildSearchIndex</code>, <code>renderSearchPage</code><br>8. <strong><code>src/report/render/dashboard.ts</code></strong>, <code>transcript-list.ts</code>, <code>transcript.ts</code>, <code>knowledge.ts</code>, <code>goals.ts</code><br>9. <strong><code>src/report/summarize.ts</code></strong> — AI integration (isolated, mockable)<br>10. <strong><code>src/report/build.ts</code></strong> — orchestrator tying everything together<br>11. <strong><code>src/cli/cmd-report.ts</code></strong> — thin CLI adapter<br>12. <strong>Modify <code>src/cli/main.ts</code></strong> — register <code>report</code> command<br>13. <strong>Modify <code>src/heartbeat/config.ts</code></strong> — add two new fields<br>14. <strong>Modify <code>src/heartbeat/heartbeat.ts</code></strong> — call <code>buildReport</code> if configured<br>15. <strong>Modify <code>package.json</code></strong> — add <code>@anthropic-ai/sdk</code><br>16. <strong><code>tests/report/stats.test.ts</code></strong>, <code>charts.test.ts</code>, <code>links.test.ts</code>, <code>search.test.ts</code>, <code>summarize.test.ts</code><br>17. <strong><code>tests/report/build.test.ts</code></strong> — integration test with temp dir</p><p>---</p><p>### Critical Files for Implementation</p><p>- <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/cli/main.ts</code> - Register the <code>report</code> command using the established subcommand pattern (dynamic import, Commander subcommand tree)<br>- <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/config.ts</code> - Add <code>generate_report</code> and <code>ai_summary_model</code> fields to the <code>Config</code> interface and all three code paths: <code>defaultConfig</code>, <code>parseRaw</code>, <code>saveConfig</code><br>- <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/heartbeat.ts</code> - Add the conditional <code>buildReport</code> call in <code>processProject</code> after <code>gitCommitAndPush</code>, with the dynamic import and non-throwing try/catch pattern<br>- <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/types/transcript.ts</code> - Reference for the exact <code>ManifestEntry</code> and <code>ParsedTranscript</code> fields used throughout the report renderer (especially <code>repo_clean_path</code>, <code>global_clean_path</code>, <code>raw_sha256</code>, <code>repo_mirror_enabled</code>)<br>- <code>C:/Users/ai/.codex/skills/memorytree-workflow/src/transcript/import.ts</code> - Pattern to follow for manifest path construction conventions and the <code>writeCleanMarkdown</code> output format that <code>buildLinkGraph</code> and <code>buildSearchIndex</code> will parse</p></div>
+</div></div>
+  </div>
+</div>
+</body>
+</html>
