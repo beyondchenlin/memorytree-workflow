@@ -17,7 +17,7 @@ program
 
 program
   .command('init')
-  .description('Initialize a MemoryTree workspace in a repository')
+  .description('Initialize MemoryTree files in a repository without registering heartbeat')
   .option('--root <path>', 'Target repository root', '.')
   .option('--project-name <name>', 'Project name', 'this project')
   .option('--goal-summary <text>', 'Initial goal summary', 'Describe the long-term project goal here.')
@@ -26,6 +26,14 @@ program
   .option('--time <time>', 'Override time as HH:MM')
   .option('--skip-agents', 'Deprecated — use upgrade instead')
   .option('--force', 'Overwrite existing generated files')
+  .addHelpText('after', [
+    '',
+    'This command only creates repository files.',
+    'It does not register the repository with heartbeat or modify ~/.memorytree/config.toml.',
+    '',
+    'If you want the default heartbeat setup afterwards:',
+    '  memorytree daemon quick-start --root .',
+  ].join('\n'))
   .action(async (opts) => {
     const { cmdInit } = await import('./cmd-init.js')
     process.exitCode = cmdInit({
@@ -44,7 +52,7 @@ program
 
 program
   .command('upgrade')
-  .description('Upgrade a repository to MemoryTree without overwriting existing policy')
+  .description('Upgrade repository files to MemoryTree without registering heartbeat')
   .option('--root <path>', 'Target repository root', '.')
   .option('--project-name <name>', 'Project name', 'this project')
   .option('--goal-summary <text>', 'Fallback goal summary', 'Describe the long-term project goal here.')
@@ -52,6 +60,14 @@ program
   .option('--date <date>', 'Override date as YYYY-MM-DD')
   .option('--time <time>', 'Override time as HH:MM')
   .option('--format <format>', 'Output format: text or json', 'text')
+  .addHelpText('after', [
+    '',
+    'This command updates repository files only.',
+    'It does not register the repository with heartbeat or modify ~/.memorytree/config.toml.',
+    '',
+    'If you want the default heartbeat setup afterwards:',
+    '  memorytree daemon quick-start --root .',
+  ].join('\n'))
   .action(async (opts) => {
     const { cmdUpgrade } = await import('./cmd-upgrade.js')
     process.exitCode = cmdUpgrade({
@@ -376,7 +392,7 @@ daemon
 
 daemon
   .command('quick-start')
-  .description('Install the scheduler if needed, register this repository, and run one heartbeat sync now')
+  .description('Quick install: connect this repository to heartbeat with the recommended defaults')
   .option('--root <path>', 'Development directory to quick-start', '.')
   .option('--name <name>', 'Project display name')
   .addHelpText('after', [
@@ -384,7 +400,7 @@ daemon
     'Example:',
     '  memorytree daemon quick-start --root .',
     '',
-    'This is the shortest first-time setup path for the current repository.',
+    'This is the default first-time setup path when you want heartbeat for the current repository.',
   ].join('\n'))
   .action(async (opts) => {
     const { cmdQuickStart } = await import('./cmd-daemon.js')
@@ -396,7 +412,7 @@ daemon
 
 daemon
   .command('register')
-  .description('Register or update a repository with a dedicated heartbeat worktree')
+  .description('Advanced heartbeat setup for a repository with a dedicated MemoryTree worktree')
   .option('--root <path>', 'Development directory to register', '.')
   .option('--name <name>', 'Project display name')
   .option('--worktree <path>', 'Override the dedicated MemoryTree worktree path')
@@ -412,8 +428,10 @@ daemon
     'Examples:',
     '  Recommended defaults for the current repository:',
     '    memorytree daemon register --root . --quick-start',
-    '  Detailed setup with custom values:',
+    '  Advanced setup with custom values:',
     '    memorytree daemon register --root . --heartbeat-interval 10m --refresh-interval 30m --auto-push true --generate-report true',
+    '',
+    'Use this command when you want to choose the branch, intervals, auto_push, report port, or worktree path yourself.',
   ].join('\n'))
   .action(async (opts) => {
     const { cmdRegisterProject } = await import('./cmd-daemon.js')

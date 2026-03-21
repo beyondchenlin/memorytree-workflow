@@ -46,8 +46,21 @@ export function cmdUpgrade(options: UpgradeOptions): number {
 
   if (options.format === 'json') {
     process.stdout.write(JSON.stringify(result) + '\n')
+    writeHeartbeatNextStep(root, process.stderr)
   } else {
     process.stdout.write(formatResultText(result) + '\n')
+    writeHeartbeatNextStep(root)
   }
   return 0
+}
+
+function writeHeartbeatNextStep(
+  root: string,
+  stream: Pick<NodeJS.WriteStream, 'write'> = process.stdout,
+): void {
+  const displayRoot = root.includes(' ') ? `"${root}"` : root
+  stream.write('This command updated repository files only.\n')
+  stream.write('It did not register heartbeat or modify ~/.memorytree/config.toml.\n')
+  stream.write('If you want the default heartbeat setup for this repository, run:\n')
+  stream.write(`  memorytree daemon quick-start --root ${displayRoot}\n`)
 }

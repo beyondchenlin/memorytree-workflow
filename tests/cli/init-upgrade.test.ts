@@ -18,7 +18,9 @@ afterEach(() => {
 })
 
 describe('cmdInit', () => {
-  it('initializes a repo with auto locale using installed templates', () => {
+  it('initializes a repo with auto locale using installed templates and prints the heartbeat next step', () => {
+    const stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+
     const result = cmdInit({
       root: tmpDir,
       projectName: 'demo-project',
@@ -35,12 +37,18 @@ describe('cmdInit', () => {
     expect(existsSync(join(tmpDir, 'Memory', '01_goals', 'goal_v001_20250615.md'))).toBe(true)
     expect(existsSync(join(tmpDir, 'Memory', '02_todos', 'todo_v001_001_20250615.md'))).toBe(true)
     expect(existsSync(join(tmpDir, 'Memory', '03_chat_logs', '2025-06-15_14-30.md'))).toBe(true)
+
+    const output = stdout.mock.calls.map(call => String(call[0])).join('')
+    expect(output).toContain('Initialized MemoryTree files in:')
+    expect(output).toContain('did not register heartbeat')
+    expect(output).toContain('memorytree daemon quick-start --root')
   })
 })
 
 describe('cmdUpgrade', () => {
   it('upgrades a repo with auto locale using installed templates', () => {
     const stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+    const stderr = vi.spyOn(process.stderr, 'write').mockImplementation(() => true)
 
     const result = cmdUpgrade({
       root: tmpDir,
@@ -57,12 +65,16 @@ describe('cmdUpgrade', () => {
     expect(existsSync(join(tmpDir, 'Memory', '01_goals', 'goal_v001_20250615.md'))).toBe(true)
 
     const output = stdout.mock.calls.map(call => String(call[0])).join('')
+    const errorOutput = stderr.mock.calls.map(call => String(call[0])).join('')
     expect(output).toContain('"state_before":"not-installed"')
     expect(output).toContain('"state_after":"installed"')
+    expect(errorOutput).toContain('This command updated repository files only.')
+    expect(errorOutput).toContain('did not register heartbeat')
+    expect(errorOutput).toContain('memorytree daemon quick-start --root')
   })
 
-  it('writes scaffolded content from the expected template set', () => {
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+  it('writes scaffolded content from the expected template set and prints the heartbeat next step in text mode', () => {
+    const stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
     writeFileSync(join(tmpDir, 'README.md'), '# Demo Project\n\nThis repository uses English documentation.\n')
 
     cmdUpgrade({
@@ -78,5 +90,10 @@ describe('cmdUpgrade', () => {
     const goal = readFileSync(join(tmpDir, 'Memory', '01_goals', 'goal_v001_20250615.md'), 'utf-8')
     expect(goal).toContain('# Project Goal v001')
     expect(goal).toContain('Build a durable project memory workflow.')
+
+    const output = stdout.mock.calls.map(call => String(call[0])).join('')
+    expect(output).toContain('This command updated repository files only.')
+    expect(output).toContain('did not register heartbeat')
+    expect(output).toContain('memorytree daemon quick-start --root')
   })
 })
