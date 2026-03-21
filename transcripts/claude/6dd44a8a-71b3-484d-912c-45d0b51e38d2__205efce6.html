@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a9b67be85bcdd332b — MemoryTree</title>
+<meta property="og:title" content="agent-a9b67be85bcdd332b">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://beyondchenlin.github.io/memorytree-workflow/transcripts/claude/6dd44a8a-71b3-484d-912c-45d0b51e38d2__205efce6.html">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="page-header">
+  <h1>agent-a9b67be85bcdd332b</h1>
+</div>
+<table class="meta-table card">
+<tbody>
+  <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
+  <tr><td>Date</td><td>2026-03-16 09:45:56</td></tr>
+  <tr><td>Session ID</td><td><code>6dd44a8a-71b3-484d-912c-45d0b51e38d2</code></td></tr>
+  <tr><td>Messages</td><td>12</td></tr>
+  <tr><td>Tool Events</td><td>46</td></tr>
+  <tr><td>Branch</td><td><code>main</code></td></tr>
+  <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">205efce6b8f915c3…</code></td></tr>
+</tbody>
+</table>
+<h2 style="margin-top:1.5rem">Messages</h2>
+<div class="messages"><div class="message message-user">
+  <div class="message-header">
+    <span class="message-role">user</span><span style="margin-left:auto">09:45:56</span>
+  </div>
+  <div class="message-body"><p>Explore the codebase at C:/Users/ai/.codex/skills/memorytree-workflow. I need to understand:<br>1. The full directory structure (src/, tests/, etc.)<br>2. Contents of src/types/ directory - list all type files<br>3. Contents of src/heartbeat/config.ts - full file<br>4. Contents of src/heartbeat/heartbeat.ts - full file<br>5. Contents of src/cli/main.ts - full file<br>6. Contents of package.json - full file<br>7. Contents of tsconfig.json if it exists<br>8. Any existing manifest/transcript type definitions<br>9. The structure of Memory/ directory in D:/demo1/openmnemo if accessible<br>10. Any existing tests in tests/ to understand test patterns</p><p>Please provide the full content of each file found.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:47:47</span>
+  </div>
+  <div class="message-body"><p>I&#39;ll explore the codebase systematically to understand its structure and contents.</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:47:52</span>
+  </div>
+  <div class="message-body"><p>Let me focus on the src directory structure:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:47:54</span>
+  </div>
+  <div class="message-body"><p>Good! Now let me explore the src directory structure:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:47:57</span>
+  </div>
+  <div class="message-body"><p>Now let me read all the key files you requested:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:48:01</span>
+  </div>
+  <div class="message-body"><p>Now let me read more important files:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:48:04</span>
+  </div>
+  <div class="message-body"><p>Now let me check the Memory directory structure at the openmnemo location:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:48:08</span>
+  </div>
+  <div class="message-body"><p>Let me read some of the transcript-related files and test examples:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:48:12</span>
+  </div>
+  <div class="message-body"><p>Now let me read some actual transcript examples and manifest examples:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:48:18</span>
+  </div>
+  <div class="message-body"><p>Let me read more test files to understand test patterns:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:48:22</span>
+  </div>
+  <div class="message-body"><p>Let me read a few more key files to complete the picture:</p></div>
+</div>
+<div class="message message-assistant">
+  <div class="message-header">
+    <span class="message-role">assistant</span><span style="margin-left:auto">09:49:08</span>
+  </div>
+  <div class="message-body"><p>Perfect! Now let me create a comprehensive summary document for you:</p><p>## Comprehensive Codebase Exploration Report</p><p>### 1. <strong>Directory Structure</strong></p><pre><code>C:/Users/ai/.codex/skills/memorytree-workflow/
+├── src/
+│   ├── cli/               # CLI command implementations
+│   │   ├── main.ts       # Commander.js CLI definition
+│   │   ├── cmd-init.ts   # Initialize MemoryTree
+│   │   ├── cmd-upgrade.ts
+│   │   ├── cmd-import.ts
+│   │   ├── cmd-discover.ts
+│   │   ├── cmd-recall.ts
+│   │   ├── cmd-daemon.ts
+│   │   └── cmd-locale.ts
+│   ├── heartbeat/        # Background sync daemon
+│   │   ├── config.ts     # TOML config loading/saving
+│   │   ├── heartbeat.ts  # Main heartbeat logic
+│   │   ├── log.ts        # Logging to files + stderr
+│   │   ├── alert.ts      # Alert deduplication &amp; persistence
+│   │   └── lock.ts       # PID-based single-instance lock
+│   ├── transcript/       # Core transcript parsing &amp; import
+│   │   ├── index.ts      # Barrel exports
+│   │   ├── parse.ts      # Client-specific parsers (Codex, Claude, Gemini)
+│   │   ├── common.ts     # Utilities: hash, timestamp, text extraction
+│   │   ├── import.ts     # Manifest &amp; artifact writing
+│   │   ├── discover.ts   # Find source files
+│   │   └── db.ts         # SQLite search index
+│   ├── project/         # Repository scaffolding
+│   │   ├── scaffold.ts
+│   │   ├── locale.ts
+│   │   └── upgrade.ts
+│   ├── recall/          # Session recall
+│   │   └── recall.ts
+│   ├── types/
+│   │   └── transcript.ts # Type definitions
+│   └── utils/
+│       ├── exec.ts      # Shell execution
+│       └── path.ts      # Path conversion
+├── tests/               # Vitest test suite
+│   ├── heartbeat/       # Config, lock, log, alert tests
+│   ├── transcript/      # Parser, import, discovery tests
+│   ├── cli/             # CLI tests
+│   ├── project/         # Scaffolding tests
+│   ├── recall/
+│   └── smoke.test.ts
+├── assets/templates/    # i18n templates (en, zh-cn)
+├── package.json
+├── tsconfig.json
+├── vitest.config.ts
+├── tsup.config.ts
+└── README.md
+</code></pre><p>### 2. <strong>Type Definitions</strong> (<code>src/types/transcript.ts</code>)</p><pre><code>export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39;
+
+export interface TranscriptMessage {
+  role: string                    // &#39;user&#39;, &#39;assistant&#39;, etc.
+  text: string
+  timestamp: string | null        // ISO 8601 or null
+}
+
+export interface TranscriptToolEvent {
+  summary: string                 // e.g., &quot;function_call input=...&quot;
+  timestamp: string | null
+}
+
+export interface ParsedTranscript {
+  client: Client
+  session_id: string
+  title: string
+  started_at: string             // ISO 8601
+  cwd: string                    // Current working directory
+  branch: string                 // Git branch name
+  messages: TranscriptMessage[]
+  tool_events: TranscriptToolEvent[]
+  source_path: string            // Original file path
+}
+
+export interface ManifestEntry {
+  client: string
+  project: string                // Project slug
+  session_id: string
+  raw_sha256: string
+  title: string
+  started_at: string
+  imported_at: string
+  cwd: string
+  branch: string
+  raw_source_path: string
+  raw_upload_permission: string  // &#39;not-set&#39;, &#39;approved&#39;, &#39;denied&#39;
+  global_raw_path: string        // ~/.memorytree/transcripts/raw/...
+  global_clean_path: string      // ~/.memorytree/transcripts/clean/...
+  global_manifest_path: string   // ~/.memorytree/transcripts/index/manifests/...
+  repo_raw_path: string          // Memory/06_transcripts/raw/...
+  repo_clean_path: string        // Memory/06_transcripts/clean/...
+  repo_manifest_path: string     // Memory/06_transcripts/manifests/...
+  message_count: number
+  tool_event_count: number
+  cleaning_mode: string          // &#39;deterministic-code&#39;
+  repo_mirror_enabled: boolean
+}
+</code></pre><p>### 3. <strong>Core Files</strong></p><p>#### <strong>package.json</strong><br>- Name: <code>memorytree-workflow</code> v0.1.0<br>- Node: &gt;=20<br>- Binaries: <code>memorytree</code>, <code>memorytree-daemon</code> → <code>dist/cli.js</code><br>- Key Dependencies:<br>  - <code>commander</code> ^13.1.0 (CLI framework)<br>  - <code>fast-glob</code> ^3.3.3 (file discovery)<br>  - <code>smol-toml</code> ^1.3.1 (config parsing)<br>  - <code>sql.js</code> ^1.12.0 (SQLite search index)<br>- Dev: vitest, tsx, tsup, typescript, eslint</p><p>#### <strong>tsconfig.json</strong><br>- Target: ES2022<br>- Module: NodeNext<br>- Strict mode enabled<br>- exactOptionalPropertyTypes, noUncheckedIndexedAccess for extra safety<br>- sourceMap: true</p><p>#### <strong>src/heartbeat/config.ts</strong> (236 lines)<br><strong>Purpose</strong>: Manage ~/.memorytree/config.toml configuration</p><p><strong>Key Functions</strong>:<br>- <code>loadConfig(): Config</code> - Load TOML with fallback to defaults<br>- <code>saveConfig(cfg: Config): void</code> - Persist config to TOML file<br>- <code>intervalToSeconds(interval: string): number</code> - Parse &quot;5m&quot; → 300 seconds<br>- <code>registerProject(cfg: Config, repoPath: string): Config</code> - Add project (immutable update)</p><p><strong>Config Interface</strong>:</p><pre><code>interface Config {
+  heartbeat_interval: string      // &#39;5m&#39;, &#39;1h&#39;, etc. Default: &#39;5m&#39;
+  watch_dirs: readonly string[]   // Directories to monitor
+  projects: readonly ProjectEntry[]
+  auto_push: boolean              // Default: true
+  log_level: string               // &#39;debug&#39;|&#39;info&#39;|&#39;warn&#39;|&#39;error&#39;
+}
+</code></pre><p><strong>Key Implementation Details</strong>:<br>- Uses smol-toml for parsing<br>- Defaults: 5m interval, info level, auto_push enabled<br>- Validates intervals with regex <code>/^(\d+)\s*(s|m|h)$/</code><br>- Deduplicates projects by resolved path<br>- <strong>Immutable</strong>: registerProject returns new Config object</p><p>#### <strong>src/heartbeat/heartbeat.ts</strong> (209 lines)<br><strong>Purpose</strong>: Main heartbeat daemon orchestration</p><p><strong>Entry Points</strong>:<br>- <code>main(): Promise&lt;number&gt;</code> - Single execution with lock acquisition<br>- <code>runHeartbeat(config: Config): Promise&lt;number&gt;</code> - Orchestrate project processing<br>- <code>processProject(config, projectPath, projectName): Promise&lt;void&gt;</code> - Per-project work</p><p><strong>Core Logic</strong>:<br>1. Acquire lock (prevent concurrent runs)<br>2. For each registered project:<br>   - Discover source transcripts (Codex, Claude, Gemini)<br>   - Parse each transcript<br>   - Check for content<br>   - Match to repository<br>   - Scan for sensitive patterns<br>   - Import to Memory/<br>3. Git commit + push (with retry)<br>4. Release lock</p><p><strong>Sensitive Pattern Detection</strong> (5 regex patterns):<br>- API keys: <code>api_key=</code> or <code>apikey=</code><br>- Passwords: <code>password=</code>, <code>passwd=</code>, <code>pwd=</code><br>- Secrets/tokens: <code>secret=</code>, <code>token=</code><br>- Known prefixes: <code>sk-</code>, <code>pk_live_</code>, <code>ghp_</code>, <code>gho_</code>, <code>glpat-</code><br>- Bearer tokens: <code>Bearer &lt;20+ chars&gt;</code></p><p><strong>Git Operations</strong>:<br>- Check <code>git status --porcelain Memory/</code> for changes<br>- Commit with message: <code>memorytree(transcripts): import N transcript(s)</code><br>- Push with retry logic (2 attempts)<br>- Threshold-based alerts on 3 consecutive failures</p><p>#### <strong>src/cli/main.ts</strong> (209 lines)<br><strong>Purpose</strong>: CLI entry point with all subcommands</p><p><strong>Commands</strong>:<br>1. <code>init</code> - Initialize MemoryTree in repository<br>   - Options: --root, --project-name, --goal-summary, --locale, --date, --time, --force<br>2. <code>upgrade</code> - Upgrade repo without overwriting policy<br>3. <code>import</code> - Import single transcript<br>   - Required: --source<br>   - Options: --root, --client, --project-name, --global-root, --raw-upload-permission<br>4. <code>discover</code> - Bulk import with filtering<br>   - Options: --client (all|codex|claude|gemini), --scope, --limit<br>5. <code>locale</code> - Detect effective locale<br>6. <code>recall</code> - On-demand sync + session recall<br>7. <code>daemon</code> (subcommands):<br>   - <code>install</code> - Register with OS scheduler<br>   - <code>uninstall</code> - Remove scheduled task<br>   - <code>run-once</code> - Single heartbeat cycle<br>   - <code>watch</code> - Continuous loop (dev only)<br>   - <code>status</code> - Show registration state</p><p><strong>Implementation</strong>: Uses Commander.js with lazy import of command handlers</p><p>### 4. <strong>Supporting Files</strong></p><p>#### <strong>src/heartbeat/log.ts</strong> (203 lines)<br>- Singleton logger writing to <code>~/.memorytree/logs/heartbeat-YYYY-MM-DD.log</code> + stderr<br>- Levels: debug, info, warn, error<br>- Methods: debug(), info(), warn(), error(), exception(msg, err)<br>- Test helper: <code>_resetLogger()</code></p><p>#### <strong>src/heartbeat/alert.ts</strong> (216 lines)<br>- Persistent deduplication: <code>~/.memorytree/alerts.json</code><br>- Threshold-based: accumulate 3 failures before writing alert<br>- Failure counts: <code>~/.memorytree/failure_counts.json</code><br>- Max alerts kept: 100 (FIFO trim)<br>- Alert types: no_remote, sensitive_match, push_failed, lock_held<br>- Functions: readAlerts(), writeAlert(), writeAlertWithThreshold(), resetFailureCount()</p><p>#### <strong>src/heartbeat/lock.ts</strong> (170 lines)<br>- PID-based exclusive lock: <code>~/.memorytree/heartbeat.lock</code><br>- Handles stale locks from dead processes<br>- Platform detection: Windows (tasklist) vs Unix (kill -0)<br>- TOCTOU-safe: uses <code>O_CREAT | O_EXCL</code><br>- Functions: acquireLock(), releaseLock(), readLockPid(), isProcessAlive()</p><p>#### <strong>src/transcript/parse.ts</strong> (398 lines)<br><strong>Three parsers</strong> (by client):</p><p><strong>Codex Parser</strong> (parseCodexTranscript):<br>- JSONL format with canonical <code>response_item</code> records<br>- Fallback to <code>event_msg</code> streaming events<br>- Filters system injections with markers: <code>&lt;INSTRUCTIONS&gt;</code>, <code>&lt;environment_context&gt;</code>, etc.<br>- Extracts: messages, tool events (function_call, custom_tool_call)</p><p><strong>Claude Parser</strong> (parseClaudeTranscript):<br>- JSONL records with structured content blocks<br>- Supports text, thinking, reasoning (skipped), tool_use, tool_result<br>- Deduplicates by timestamp + content hash</p><p><strong>Gemini Parser</strong> (parseGeminiTranscript):<br>- Flexible: JSONL or JSON<br>- Deep tree traversal to find metadata and messages<br>- Handles variants: role/author/sender, parts/content/text, toolUse/toolName</p><p><strong>Common</strong>: Client inference from path patterns (/.codex/, /.claude/, /.gemini/)</p><p>#### <strong>src/transcript/common.ts</strong> (356 lines)<br><strong>Utilities</strong>:<br>- <code>slugify(value, fallback)</code> - Convert to kebab-case slug<br>- <code>sha256File(path)</code> - Hash raw file<br>- <code>contentHash(text)</code> - First 16 chars of SHA256<br>- <code>normalizeTimestamp(value, fallback)</code> - Convert to ISO 8601<br>- <code>parseIsoTimestamp(value)</code> - Parse ISO to Date<br>- <code>timestampPartition(ts)</code> - Extract YYYY, MM for directory paths<br>- <code>joinParagraphs(parts)</code> - Join text with double newlines<br>- <code>summarizeValue(value, limit)</code> - Summarize to 180 chars<br>- <code>yamlEscape(value)</code> - Quote &amp; escape for YAML front matter<br>- <code>deduplicateMessages()</code>, <code>deduplicateToolEvents()</code> - By signature (timestamp + hash)<br>- Text extraction: <code>extractTextBlocks()</code>, <code>extractSimpleText()</code>, <code>extractGeminiText()</code><br>- Data access: <code>ensureDict()</code>, <code>ensureList()</code>, <code>getNested()</code>, <code>loadJsonl()</code>, <code>loadJson()</code></p><p>#### <strong>src/transcript/import.ts</strong> (150+ lines)<br><strong>Main Function</strong>: <code>importTranscript(parsed, root, globalRoot, projectSlug, permission, mirrorToRepo)</code></p><p><strong>Creates Artifacts</strong>:<br>1. Raw JSONL copy (global + optionally repo)<br>2. Clean markdown with YAML front matter (global + optionally repo)<br>3. JSON manifest (global + optionally repo)<br>4. Appends to <code>sessions.jsonl</code> (deduped by SHA256)<br>5. Upserts SQLite search index</p><p><strong>Paths</strong>:<br>- Repo: <code>Memory/06_transcripts/{raw,clean,manifests}/{client}/{YYYY}/{MM}/{session_id}__{hash8}.{ext}</code><br>- Global: <code>~/.memorytree/transcripts/{raw,clean}/{client}/{project}/{YYYY}/{MM}/{session_id}__{hash8}.{ext}</code></p><p><strong>Markdown Format</strong>: YAML front matter + metadata table + messages + tool events</p><p>### 5. <strong>Memory Directory Structure</strong> (D:/demo1/openmnemo/Memory)</p><pre><code>Memory/
+├── 01_goals/                          # Long-term project goals
+│   └── goal_v001_20260316.md
+├── 02_todos/                          # Task tracking
+│   └── todo_v001_001_20260316.md
+├── 03_chat_logs/                      # Chat history snapshots
+│   └── 2026-03-16_12-05.md
+├── 04_knowledge/                      # Extracted knowledge/summaries
+│   ├── memory-classification-and-cleaning_2026-03-16.md
+│   └── memorytree-vault-architecture_2026-03-16.md
+└── 06_transcripts/                    # AI session transcripts (main)
+    ├── raw/                           # Original JSONL
+    │   ├── codex/2026/03/*.jsonl
+    │   └── claude/2026/03/*.jsonl
+    ├── clean/                         # Cleaned markdown
+    │   ├── codex/2026/03/*.md
+    │   └── claude/2026/03/*.md
+    └── manifests/                     # Metadata JSON
+        ├── codex/2026/03/*.json
+        └── claude/2026/03/*.json
+</code></pre><p><strong>Example Manifest</strong> (019cf4b1-5d2d-7d20-b373-a69ade3bc5c3__0ebaa458.json):<br>- Client: codex<br>- Session ID: 019cf4b1-5d2d-7d20-b373-a69ade3bc5c3<br>- Message count: 203<br>- Tool event count: 748<br>- Import timestamp: 2026-03-16T08:32:09Z<br>- SHA256: 0ebaa45828828a35237af35509c3dd72dab402be55e9b683039bf7a1615da5a5</p><p><strong>Example Clean Markdown</strong> (first 100 lines):<br>- YAML front matter with metadata<br>- Numbered messages with timestamps<br>- Indented text content<br>- Supports multiple clients with their specific message structure</p><p>### 6. <strong>Test Suite</strong> (17 test files)</p><p><strong>Patterns</strong>:<br>- Uses Vitest with beforeEach/afterEach setup<br>- Mocks <code>node:os.homedir()</code> to temp directories (prevents pollution)<br>- Test fixtures in tmpdir<br>- Examples:<br>  - <code>config.test.ts</code>: roundtrip save/load, interval parsing, project registration<br>  - <code>heartbeat.test.ts</code>: sensitive pattern detection (API keys, tokens, passwords)<br>  - <code>parse.test.ts</code>: (not shown but exists)<br>  - <code>import.test.ts</code>: (not shown but exists)<br>  - <code>lock.test.ts</code>: (not shown but exists)<br>  - <code>alert.test.ts</code>: (not shown but exists)</p><p><strong>Test Pattern Example</strong> (config.test.ts):</p><pre><code>beforeEach(() =&gt; { tmpDir = mkdtempSync(...) })
+afterEach(() =&gt; { rmSync(tmpDir, { recursive: true }) })
+
+describe(&#39;loadConfig&#39;, () =&gt; {
+  it(&#39;returns defaults when file missing&#39;, () =&gt; { ... })
+  it(&#39;parses valid TOML&#39;, () =&gt; { ... })
+  it(&#39;uses defaults for invalid fields&#39;, () =&gt; { ... })
+})
+</code></pre><p>### 7. <strong>Architecture Notes</strong></p><p><strong>Immutability Principle</strong>:<br>- Config updates return new objects: <code>registerProject(cfg, path)</code> → new Config<br>- Alert operations create new arrays: <code>writeAlert()</code> reads, modifies copy, writes<br>- Failure counts: same pattern</p><p><strong>Stateless &amp; Idempotent</strong>:<br>- Heartbeat: single-shot execution, no state between runs<br>- Lock prevents concurrent execution<br>- Manifest deduplication by SHA256 prevents re-imports</p><p><strong>Platform Support</strong>:<br>- Windows: tasklist for PID checking, handles backslashes in paths<br>- Unix: kill -0 for PID checking<br>- Path normalization: toPosixPath converts backslashes to forward slashes</p><p><strong>Security</strong>:<br>- Sensitive pattern detection before import<br>- Alerts on matches (no upload)<br>- File hashing prevents tampering detection<br>- Input validation throughout</p><p>### 8. <strong>Key Implementation Details</strong></p><p><strong>Timestamp Handling</strong>:<br>- Unix seconds → ISO 8601 conversion<br>- Fallback to file mtime if metadata missing<br>- Earliest timestamp detection for session start<br>- Partition by YYYY/MM for directory structure</p><p><strong>Text Extraction</strong>:<br>- Multi-format support: string, nested objects, arrays<br>- Deduplication by timestamp + content hash<br>- Paragraph joining with double newlines<br>- Summarization with truncation (default 180 chars)</p><p><strong>Git Integration</strong>:<br>- Works with any git repo with Memory/ subdirectory<br>- Commits only if changes exist in Memory/<br>- Automatic retry on push failure<br>- Respects auto_push config flag</p><p>This is a complete, production-grade TypeScript implementation of a transcript management system with heartbeat scheduling, multi-client parsing, and persistent state management.</p></div>
+</div></div>
+  </div>
+</div>
+</body>
+</html>
