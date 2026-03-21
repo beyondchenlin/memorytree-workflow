@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import type { ManifestEntry } from '../../../src/types/transcript.js'
-import { extractProject, renderProjects } from '../../../src/report/render/projects.js'
 import { en } from '../../../src/report/i18n/en.js'
 import { zhCN } from '../../../src/report/i18n/zh-CN.js'
+import { extractProject, projectNameOfManifest, renderProjects } from '../../../src/report/render/projects.js'
 
 // ---------------------------------------------------------------------------
 // extractProject
@@ -18,7 +19,6 @@ describe('extractProject', () => {
   })
 
   it('handles trailing slash', () => {
-    // No trailing slash in real use, but be resilient
     expect(extractProject('/home/user/myproject')).toBe('myproject')
   })
 
@@ -36,6 +36,22 @@ describe('extractProject', () => {
 
   it('handles deep path', () => {
     expect(extractProject('/a/b/c/d/e')).toBe('e')
+  })
+})
+
+describe('projectNameOfManifest', () => {
+  it('prefers the manifest project field when present', () => {
+    expect(projectNameOfManifest({
+      project: 'alpha',
+      cwd: '/home/user/other-name',
+    } as Pick<ManifestEntry, 'project' | 'cwd'>)).toBe('alpha')
+  })
+
+  it('falls back to cwd when project is empty', () => {
+    expect(projectNameOfManifest({
+      project: '',
+      cwd: '/home/user/beta',
+    } as Pick<ManifestEntry, 'project' | 'cwd'>)).toBe('beta')
   })
 })
 
@@ -71,29 +87,28 @@ function makeManifest(overrides: Partial<ManifestEntry> = {}): ManifestEntry {
 }
 
 // ---------------------------------------------------------------------------
-// renderProjects — grouping
+// renderProjects
 // ---------------------------------------------------------------------------
 
-describe('renderProjects — grouping', () => {
+describe('renderProjects', () => {
   it('groups sessions by last cwd segment', () => {
     const manifests = [
-      makeManifest({ session_id: 's1', cwd: '/home/user/alpha' }),
-      makeManifest({ session_id: 's2', cwd: '/home/user/alpha' }),
-      makeManifest({ session_id: 's3', cwd: '/home/user/beta' }),
+      makeManifest({ session_id: 's1', project: '', cwd: '/home/user/alpha' }),
+      makeManifest({ session_id: 's2', project: '', cwd: '/home/user/alpha' }),
+      makeManifest({ session_id: 's3', project: '', cwd: '/home/user/beta' }),
     ]
     const html = renderProjects(manifests)
     expect(html).toContain('alpha')
     expect(html).toContain('beta')
-    // alpha appears once as a project card name
     const alphaCount = (html.match(/alpha/g) ?? []).length
     expect(alphaCount).toBeGreaterThanOrEqual(1)
   })
 
   it('shows session count per project', () => {
     const manifests = [
-      makeManifest({ session_id: 's1', cwd: '/home/user/alpha' }),
-      makeManifest({ session_id: 's2', cwd: '/home/user/alpha' }),
-      makeManifest({ session_id: 's3', cwd: '/home/user/beta' }),
+      makeManifest({ session_id: 's1', project: '', cwd: '/home/user/alpha' }),
+      makeManifest({ session_id: 's2', project: '', cwd: '/home/user/alpha' }),
+      makeManifest({ session_id: 's3', project: '', cwd: '/home/user/beta' }),
     ]
     const html = renderProjects(manifests)
     expect(html).toContain('2')
@@ -106,15 +121,15 @@ describe('renderProjects — grouping', () => {
   })
 
   it('handles "unknown" cwd gracefully', () => {
-    const manifests = [makeManifest({ cwd: '' })]
+    const manifests = [makeManifest({ project: '', cwd: '' })]
     const html = renderProjects(manifests)
     expect(html).toContain('unknown')
   })
 
   it('shows client badges per project', () => {
     const manifests = [
-      makeManifest({ session_id: 's1', cwd: '/home/user/proj', client: 'claude' }),
-      makeManifest({ session_id: 's2', cwd: '/home/user/proj', client: 'codex' }),
+      makeManifest({ session_id: 's1', project: '', cwd: '/home/user/proj', client: 'claude' }),
+      makeManifest({ session_id: 's2', project: '', cwd: '/home/user/proj', client: 'codex' }),
     ]
     const html = renderProjects(manifests)
     expect(html).toContain('badge-claude')
@@ -135,10 +150,38 @@ describe('renderProjects — grouping', () => {
 
   it('shows last active date', () => {
     const manifests = [
-      makeManifest({ session_id: 's1', cwd: '/home/user/alpha', started_at: '2026-03-10T10:00:00Z' }),
-      makeManifest({ session_id: 's2', cwd: '/home/user/alpha', started_at: '2026-03-16T10:00:00Z' }),
+      makeManifest({ session_id: 's1', project: '', cwd: '/home/user/alpha', started_at: '2026-03-10T10:00:00Z' }),
+      makeManifest({ session_id: 's2', project: '', cwd: '/home/user/alpha', started_at: '2026-03-16T10:00:00Z' }),
     ]
     const html = renderProjects(manifests)
     expect(html).toContain('2026-03-16')
+  })
+
+  it('links each card to the filtered sessions view', () => {
+    const html = renderProjects([
+      makeManifest({ cwd: '/home/user/alpha', project: 'alpha' }),
+    ])
+    expect(html).toContain('../transcripts/index.html?project=alpha')
+    expect(html).toContain('project-card-link')
+  })
+
+  it('groups by manifest project when available', () => {
+    const html = renderProjects([
+      makeManifest({ session_id: 's1', cwd: '/home/user/elsewhere', project: 'openmnemo' }),
+      makeManifest({ session_id: 's2', cwd: '/home/user/still-elsewhere', project: 'openmnemo' }),
+    ])
+    expect(html).toContain('openmnemo')
+    expect(html).not.toContain('still-elsewhere')
+  })
+
+  it('uses translated project strings when a locale is provided', () => {
+    const html = renderProjects([
+      makeManifest({ session_id: 's1', cwd: '/home/user/alpha', project: 'alpha', started_at: '2026-03-10T10:00:00Z' }),
+    ], zhCN)
+
+    expect(html).toContain('共 1 个项目')
+    expect(html).toContain('1 个会话 - 最近活跃 2026-03-10')
+    expect(html).toContain('查看 alpha 的会话')
+    expect(html).not.toContain('View sessions for alpha')
   })
 })

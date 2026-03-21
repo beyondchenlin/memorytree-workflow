@@ -26,6 +26,7 @@ import { resetFailureCount, writeAlert, writeAlertWithThreshold } from './alert.
 import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
 import { syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
+import { collectExtraManifestDirs } from '../report/extra-manifests.js'
 import {
   ensureBranchUpstream,
   ensureProjectWorktree,
@@ -135,11 +136,7 @@ export async function runHeartbeat(config: Config, options: HeartbeatRunOptions 
           )
         }
 
-        // Collect manifest dirs from all other registered projects for global report
-        const extraManifestDirs = config.projects
-          .filter(p => p.id !== entry.id)
-          .map(p => join(resolve(projectExecutionPath(p)), 'Memory', '06_transcripts', 'manifests'))
-
+        const extraManifestDirs = collectExtraManifestDirs(projectPath)
         await processProject(config, projectPath, projectName, entry, extraManifestDirs)
         nextConfig = noteProjectHeartbeatRun(nextConfig, entry.id, runTimestamp)
         configChanged = true

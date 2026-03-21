@@ -109,23 +109,33 @@ I'm doing well, thank you!
 // ---------------------------------------------------------------------------
 
 describe('buildReport', () => {
-  function scaffoldMemory(root: string): void {
+  function scaffoldMemory(
+    root: string,
+    overrides: Partial<{
+      project: string
+      cwd: string
+      title: string
+      sessionId: string
+      rawSha256: string
+      stem: string
+    }> = {},
+  ): void {
     // Create directory structure
     const manifestsDir = join(root, 'Memory', '06_transcripts', 'manifests', 'codex', '2026', '03')
     const cleanDir = join(root, 'Memory', '06_transcripts', 'clean', 'codex', '2026', '03')
     mkdirSync(manifestsDir, { recursive: true })
     mkdirSync(cleanDir, { recursive: true })
 
-    const stem = 'test-session__deadbeef'
+    const stem = overrides.stem ?? 'test-session__deadbeef'
     const manifest = {
       client: 'codex',
-      project: 'test',
-      session_id: 'test-session-001',
-      raw_sha256: 'deadbeef' + '0'.repeat(56),
-      title: 'Integration Test Session',
+      project: overrides.project ?? 'test',
+      session_id: overrides.sessionId ?? 'test-session-001',
+      raw_sha256: overrides.rawSha256 ?? ('deadbeef' + '0'.repeat(56)),
+      title: overrides.title ?? 'Integration Test Session',
       started_at: '2026-03-10T10:00:00Z',
       imported_at: '2026-03-10T10:01:00Z',
-      cwd: '/home/user/project',
+      cwd: overrides.cwd ?? '/home/user/project',
       branch: 'main',
       raw_source_path: '/src/session.jsonl',
       raw_upload_permission: 'not-set',
@@ -252,5 +262,41 @@ I'll help with that!
     ).resolves.toBeUndefined()
 
     expect(existsSync(join(output, 'index.html'))).toBe(true)
+  })
+
+  it('includes extra manifest dirs in the projects and sessions pages', async () => {
+    scaffoldMemory(tmpDir, {
+      project: 'alpha',
+      cwd: '/home/user/alpha',
+      sessionId: 'alpha-session-001',
+      rawSha256: 'a'.repeat(64),
+      stem: 'alpha-session__aaaabbbb',
+    })
+
+    const extraRoot = join(tmpDir, 'extra-project')
+    scaffoldMemory(extraRoot, {
+      project: 'beta',
+      cwd: '/home/user/beta',
+      sessionId: 'beta-session-001',
+      rawSha256: 'b'.repeat(64),
+      stem: 'beta-session__ccccdddd',
+    })
+
+    const output = join(tmpDir, 'Memory', '07_reports')
+    await buildReport({
+      root: tmpDir,
+      output,
+      noAi: true,
+      extraManifestDirs: [join(extraRoot, 'Memory', '06_transcripts', 'manifests')],
+    })
+
+    const projectsHtml = readFileSync(join(output, 'projects', 'index.html'), 'utf-8')
+    expect(projectsHtml).toContain('alpha')
+    expect(projectsHtml).toContain('beta')
+    expect(projectsHtml).toContain('../transcripts/index.html?project=beta')
+
+    const sessionsHtml = readFileSync(join(output, 'transcripts', 'index.html'), 'utf-8')
+    expect(sessionsHtml).toContain('id="project-filter"')
+    expect(sessionsHtml).toContain('data-project="beta"')
   })
 })

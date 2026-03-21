@@ -30,6 +30,10 @@ export const en: Translations = {
     msgs: 'Msgs',
     tools: 'Tools',
     all: 'All',
+    project: 'Project',
+    allProjects: 'All Projects',
+    importedCount: '{count} session(s) imported',
+    shownForProject: '{count} session(s) shown for project "{project}"',
   },
   transcript: {
     aiSummary: 'AI Summary',
@@ -52,6 +56,9 @@ export const en: Translations = {
     title: 'Projects',
     noProjects: 'No projects found.',
     sessions: 'sessions',
+    projectCount: '{count} project(s)',
+    cardMeta: '{count} {sessions} - last active {date}',
+    viewSessionsForProject: 'View sessions for {project}',
   },
   search: {
     title: 'Search',

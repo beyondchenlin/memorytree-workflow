@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
 import {
+  fallbackHeartbeatScriptPath,
   heartbeatScriptPath,
   isLaunchdRegistered,
   cmdUninstall,
@@ -24,6 +25,18 @@ describe('heartbeatScriptPath', () => {
   it('contains dist directory in the path', () => {
     const scriptPath = heartbeatScriptPath()
     expect(scriptPath).toContain('dist')
+  })
+})
+
+describe('fallbackHeartbeatScriptPath', () => {
+  it('resolves dist-side bundled modules back to dist/cli.js', () => {
+    const scriptPath = fallbackHeartbeatScriptPath('file:///D:/demo1/memorytree-workflow/dist/cmd-daemon-Q5EUSPRF.js')
+    expect(scriptPath.replace(/\\/g, '/')).toBe('D:/demo1/memorytree-workflow/dist/cli.js')
+  })
+
+  it('resolves source modules back to repository dist/cli.js', () => {
+    const scriptPath = fallbackHeartbeatScriptPath('file:///D:/demo1/memorytree-workflow/src/cli/cmd-daemon.ts')
+    expect(scriptPath.replace(/\\/g, '/')).toBe('D:/demo1/memorytree-workflow/dist/cli.js')
   })
 })
 

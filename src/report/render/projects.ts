@@ -1,5 +1,5 @@
 /**
- * Projects page: groups sessions by their working directory (last segment).
+ * Projects page: groups sessions by project and links into the filtered session list.
  */
 
 import type { ManifestEntry } from '../../types/transcript.js'
@@ -13,6 +13,11 @@ import { clientBadge, escHtml, htmlShell, renderNav } from './layout.js'
 export function extractProject(cwd: string): string {
   if (!cwd) return 'unknown'
   return cwd.split(/[/\\]/).filter(Boolean).at(-1) ?? 'unknown'
+}
+
+export function projectNameOfManifest(manifest: Pick<ManifestEntry, 'project' | 'cwd'>): string {
+  const declared = typeof manifest.project === 'string' ? manifest.project.trim() : ''
+  return declared || extractProject(manifest.cwd)
 }
 
 // ---------------------------------------------------------------------------
@@ -31,50 +36,70 @@ export function renderProjects(manifests: ManifestEntry[], t?: Translations): st
     return htmlShell(title, content, nav)
   }
 
-  // Group by project name
   const projectMap = new Map<string, ManifestEntry[]>()
-  for (const m of manifests) {
-    const proj = extractProject(m.cwd)
-    const group = projectMap.get(proj)
+  for (const manifest of manifests) {
+    const projectName = projectNameOfManifest(manifest)
+    const group = projectMap.get(projectName)
     if (group) {
-      group.push(m)
+      group.push(manifest)
     } else {
-      projectMap.set(proj, [m])
+      projectMap.set(projectName, [manifest])
     }
   }
 
-  // Sort by session count desc
-  const sorted = [...projectMap.entries()].sort((a, b) => b[1].length - a[1].length)
+  const sorted = [...projectMap.entries()].sort((a, b) => {
+    const byCount = b[1].length - a[1].length
+    return byCount !== 0 ? byCount : a[0].localeCompare(b[0])
+  })
 
   const sessionLabel = t?.projects.sessions ?? 'sessions'
+  const projectCountTemplate = t?.projects.projectCount ?? '{count} project(s)'
+  const cardMetaTemplate = t?.projects.cardMeta ?? '{count} {sessions} - last active {date}'
+  const viewSessionsTemplate = t?.projects.viewSessionsForProject ?? 'View sessions for {project}'
+  const unknownLabel = t?.common.unknown ?? 'unknown'
 
   const cards = sorted.map(([name, sessions]) => {
     const count = sessions.length
     const lastActive = sessions
-      .map(s => s.started_at)
+      .map(session => session.started_at)
       .sort()
       .at(-1)
-      ?.slice(0, 10) ?? '—'
+      ?.slice(0, 10) ?? unknownLabel
 
-    const clients = [...new Set(sessions.map(s => s.client))]
-    const badges = clients.map(c => clientBadge(c)).join(' ')
+    const clients = [...new Set(sessions.map(session => session.client))]
+    const badges = clients.map(client => clientBadge(client)).join(' ')
+    const href = `../transcripts/index.html?project=${encodeURIComponent(name)}`
+    const meta = formatTemplate(cardMetaTemplate, {
+      count: String(count),
+      sessions: sessionLabel,
+      date: lastActive,
+    })
+    const ariaLabel = formatTemplate(viewSessionsTemplate, { project: name })
 
-    return `<div class="project-card">
+    return `<a class="project-card project-card-link" href="${escHtml(href)}" aria-label="${escHtml(ariaLabel)}">
   <div class="project-card-name">${escHtml(name)}</div>
   <div class="project-card-meta">
-    ${count} ${escHtml(sessionLabel)} · last active ${escHtml(lastActive)}
+    ${escHtml(meta)}
   </div>
   <div class="project-card-clients">${badges}</div>
-</div>`
+</a>`
   }).join('\n')
 
   const content = `<div class="page-header">
   <h1>${escHtml(title)}</h1>
-  <p class="subtitle">${sorted.length} project(s)</p>
+  <p class="subtitle">${escHtml(formatTemplate(projectCountTemplate, { count: String(sorted.length) }))}</p>
 </div>
 <div class="project-grid">
 ${cards}
 </div>`
 
   return htmlShell(title, content, nav)
+}
+
+function formatTemplate(template: string, values: Record<string, string>): string {
+  let result = template
+  for (const [key, value] of Object.entries(values)) {
+    result = result.replaceAll(`{${key}}`, value)
+  }
+  return result
 }

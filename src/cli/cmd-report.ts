@@ -5,6 +5,7 @@
 import { createServer } from 'node:http'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import { extname, join, resolve, sep } from 'node:path'
+import { collectExtraManifestDirs as collectRegisteredProjectManifestDirs } from '../report/extra-manifests.js'
 
 // ---------------------------------------------------------------------------
 // Build command
@@ -22,13 +23,15 @@ export interface CmdReportBuildOptions {
 export async function cmdReportBuild(opts: CmdReportBuildOptions): Promise<number> {
   const { buildReport } = await import('../report/build.js')
   try {
+    const resolvedRoot = resolve(opts.root)
     const buildOptions = {
-      root: resolve(opts.root),
+      root: resolvedRoot,
       output: resolve(opts.output),
       noAi: opts.noAi,
       model: opts.model,
       ...(opts.locale ? { locale: opts.locale } : {}),
       ...(opts.reportBaseUrl ? { reportBaseUrl: opts.reportBaseUrl } : {}),
+      extraManifestDirs: collectRegisteredProjectManifestDirs(resolvedRoot),
     }
     await buildReport(buildOptions)
     console.log(`Report generated at: ${resolve(opts.output)}`)
@@ -38,6 +41,10 @@ export async function cmdReportBuild(opts: CmdReportBuildOptions): Promise<numbe
     console.error(`Report build failed: ${String(err)}`)
     return 1
   }
+}
+
+export function collectExtraManifestDirs(root: string): string[] {
+  return collectRegisteredProjectManifestDirs(root)
 }
 
 // ---------------------------------------------------------------------------

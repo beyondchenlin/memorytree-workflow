@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, unlinkSync } from '
 import { homedir } from 'node:os'
 import { basename, dirname, resolve } from 'node:path'
 import { platform } from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import {
   DEFAULT_MEMORY_BRANCH,
@@ -571,9 +572,15 @@ export function heartbeatScriptPath(): string {
   if (scriptArg && scriptArg.endsWith('cli.js')) {
     return resolve(scriptArg)
   }
-  // Fallback: resolve relative to import.meta.url
-  const urlPath = new URL(import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, '$1')
-  return resolve(dirname(urlPath), '..', '..', 'dist', 'cli.js')
+  return fallbackHeartbeatScriptPath(import.meta.url)
+}
+
+export function fallbackHeartbeatScriptPath(moduleUrl: string): string {
+  const moduleDir = dirname(fileURLToPath(moduleUrl))
+  if (basename(moduleDir).toLowerCase() === 'dist') {
+    return resolve(moduleDir, 'cli.js')
+  }
+  return resolve(moduleDir, '..', '..', 'dist', 'cli.js')
 }
 
 function parseOptionalBoolean(value: string | undefined): boolean | undefined {

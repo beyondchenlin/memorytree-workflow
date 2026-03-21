@@ -14,7 +14,7 @@ export const zhCN: Translations = {
   },
   dashboard: {
     title: '记忆仪表盘',
-    subtitle: '活动时间：{from} 至 {to}',
+    subtitle: '活动时间：{from} 到 {to}',
     sessions: '会话数',
     messages: '消息数',
     toolEvents: '工具调用',
@@ -30,6 +30,10 @@ export const zhCN: Translations = {
     msgs: '消息',
     tools: '工具',
     all: '全部',
+    project: '项目',
+    allProjects: '全部项目',
+    importedCount: '已导入 {count} 个会话',
+    shownForProject: '项目“{project}”当前显示 {count} 个会话',
   },
   transcript: {
     aiSummary: 'AI 摘要',
@@ -52,6 +56,9 @@ export const zhCN: Translations = {
     title: '项目',
     noProjects: '未找到项目。',
     sessions: '个会话',
+    projectCount: '共 {count} 个项目',
+    cardMeta: '{count} {sessions} - 最近活跃 {date}',
+    viewSessionsForProject: '查看 {project} 的会话',
   },
   search: {
     title: '搜索',

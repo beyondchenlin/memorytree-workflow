@@ -32,6 +32,10 @@ export interface Translations {
     msgs: string
     tools: string
     all: string
+    project: string
+    allProjects: string
+    importedCount: string
+    shownForProject: string
   }
   transcript: {
     aiSummary: string
@@ -54,6 +58,9 @@ export interface Translations {
     title: string
     noProjects: string
     sessions: string
+    projectCount: string
+    cardMeta: string
+    viewSessionsForProject: string
   }
   search: {
     title: string
