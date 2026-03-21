@@ -20,7 +20,7 @@
 - Keep raw transcripts in both this repository's `Memory/06_transcripts/raw/` mirror and the user-level MemoryTree archive.
 - Keep this repository mirror limited to transcripts that belong to the current project. Archive unrelated projects in the global MemoryTree archive only.
 - Generate cleaned transcript indexes with deterministic code, not model-generated rewriting.
-- Raw transcript upload permission for this repository: not set. Ask the user before the first raw transcript commit or push, then record the answer here.
+- Raw transcript upload permission for this repository: approved on 2026-03-21.
 - If raw transcript uploads are not approved, keep `Memory/06_transcripts/raw/**` unstaged and commit only cleaned transcript indexes or manifests for this repository.
 
 ## Git Rules
