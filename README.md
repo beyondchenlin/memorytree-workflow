@@ -101,7 +101,9 @@ The skill detects whether the current repository is `not-installed`, `partial`, 
 
 ### Use the CLI directly
 
-Recommended first-time setup for a repository:
+`memorytree init` and `memorytree upgrade` only create or update repository files. They do not register the repository with heartbeat or modify `~/.memorytree/config.toml` by themselves.
+
+Recommended first-time setup for a repository that should use heartbeat:
 
 ```bash
 memorytree upgrade --root . --format json
@@ -282,11 +284,13 @@ Recommended setup:
 memorytree daemon quick-start --root .
 ```
 
-If you want more control, register the machine scheduler once and then register repositories individually:
+Use this as the quick-install path when you want the current repository to join heartbeat with the recommended defaults.
+
+If you want more control, install the machine scheduler once and then register each repository with your own branch, interval, and report settings:
 
 ```bash
 memorytree daemon install --interval 5m --auto-push true
-memorytree daemon register --root . --quick-start
+memorytree daemon register --root . --branch memorytree-docs --heartbeat-interval 10m --refresh-interval 30m --auto-push false --generate-report true --report-port 10010
 memorytree daemon run-once --root . --force
 ```
 
@@ -412,8 +416,8 @@ All commands are available through `node dist/cli.js <subcommand> ...`, or `memo
 
 | Command | Description |
 |---|---|
-| `memorytree init` | Initialize a MemoryTree workspace in a repository |
-| `memorytree upgrade` | Upgrade a partial repository without overwriting stronger repo policy |
+| `memorytree init` | Initialize MemoryTree files in a repository without registering heartbeat |
+| `memorytree upgrade` | Upgrade repository files to MemoryTree without registering heartbeat |
 | `memorytree import --source <file>` | Import one transcript into the repo mirror and global archive |
 | `memorytree discover` | Scan local client stores and import matching transcripts |
 | `memorytree locale` | Detect the effective repository locale |
@@ -424,8 +428,8 @@ All commands are available through `node dist/cli.js <subcommand> ...`, or `memo
 | `memorytree caddy disable` | Remove the current project's managed Caddy fragment and reload Caddy |
 | `memorytree caddy status` | Show whether the current project is connected to MemoryTree-managed Caddy |
 | `memorytree daemon install` | Register the machine-level heartbeat scheduler |
-| `memorytree daemon quick-start` | Install the scheduler if needed, register the repository, and run one immediate sync |
-| `memorytree daemon register` | Register or update a repository with a dedicated MemoryTree worktree |
+| `memorytree daemon quick-start` | Quick install: connect the repository to heartbeat with the recommended defaults |
+| `memorytree daemon register` | Advanced heartbeat setup with custom per-project settings |
 | `memorytree daemon uninstall` | Remove the scheduled heartbeat task |
 | `memorytree daemon run-once` | Execute one heartbeat cycle immediately |
 | `memorytree daemon watch` | Development-only continuous heartbeat loop |

@@ -69,6 +69,15 @@ export function cmdInit(options: InitOptions): number {
   const paths = resolveScaffoldPaths(root, dt)
   scaffoldContentFiles(paths, templates, options.goalSummary, options.projectName, options.force)
   writeTemplate(join(templates, 'agents.md'), agentsPath, options.force, {})
+  writeHeartbeatNextStep(root)
 
   return 0
+}
+
+function writeHeartbeatNextStep(root: string): void {
+  const displayRoot = root.includes(' ') ? `"${root}"` : root
+  process.stdout.write(`Initialized MemoryTree files in: ${root}\n`)
+  process.stdout.write('This command did not register heartbeat or modify ~/.memorytree/config.toml.\n')
+  process.stdout.write('If you want the default heartbeat setup for this repository, run:\n')
+  process.stdout.write(`  memorytree daemon quick-start --root ${displayRoot}\n`)
 }

@@ -256,7 +256,7 @@ export async function processProject(
         cname,
         webhookUrl,
         reportBaseUrl,
-        extraManifestDirs,
+        ...(extraManifestDirs ? { extraManifestDirs } : {}),
       })
       logger.info(`[${projectName}] Report generated.`)
     } catch (err: unknown) {

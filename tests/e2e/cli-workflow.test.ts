@@ -81,6 +81,8 @@ describe('CLI E2E', () => {
     expect(payload['state_before']).toBe('not-installed')
     expect(payload['state_after']).toBe('installed')
     expect(payload['effective_locale']).toBe('en')
+    expect(result.stderr).toContain('This command updated repository files only.')
+    expect(result.stderr).toContain('memorytree daemon quick-start --root')
     expect(existsSync(join(repoRoot, 'AGENTS.md'))).toBe(true)
     expect(existsSync(join(repoRoot, 'Memory', '01_goals'))).toBe(true)
     expect(existsSync(join(repoRoot, 'Memory', '02_todos'))).toBe(true)
@@ -405,12 +407,28 @@ describe('CLI E2E', () => {
     const quickStartHelp = runCli(['daemon', 'quick-start', '--help'])
     assertSuccess(quickStartHelp, 'memorytree daemon quick-start --help')
     expect(quickStartHelp.stdout).toContain('memorytree daemon quick-start --root .')
-    expect(quickStartHelp.stdout).toContain('shortest first-time setup path')
+    expect(quickStartHelp.stdout).toContain('default first-time setup path')
 
     const registerHelp = runCli(['daemon', 'register', '--help'])
     assertSuccess(registerHelp, 'memorytree daemon register --help')
     expect(registerHelp.stdout).toContain('Recommended defaults for the current repository:')
+    expect(registerHelp.stdout).toContain('Advanced setup with custom values:')
+    expect(registerHelp.stdout).toContain('choose the branch, intervals, auto_push, report port, or worktree path yourself')
     expect(registerHelp.stdout).toContain('memorytree daemon register --root . --quick-start')
+  })
+
+  it('shows that init and upgrade do not register heartbeat by themselves', () => {
+    expect(existsSync(cliPath)).toBe(true)
+
+    const initHelp = runCli(['init', '--help'])
+    assertSuccess(initHelp, 'memorytree init --help')
+    expect(initHelp.stdout).toContain('does not register the repository with heartbeat')
+    expect(initHelp.stdout).toContain('memorytree daemon quick-start --root .')
+
+    const upgradeHelp = runCli(['upgrade', '--help'])
+    assertSuccess(upgradeHelp, 'memorytree upgrade --help')
+    expect(upgradeHelp.stdout).toContain('does not register the repository with heartbeat')
+    expect(upgradeHelp.stdout).toContain('memorytree daemon quick-start --root .')
   })
 
   it('registers a repository with a dedicated heartbeat worktree through the CLI', () => {
