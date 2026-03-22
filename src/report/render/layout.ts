@@ -47,12 +47,17 @@ const SIDEBAR_INLINE_JS = `
   var saved = localStorage.getItem('mt-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
   // Sidebar collapse
-  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
   function updateThemeBtn() {
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
   }
   document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
     updateThemeBtn();
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.addEventListener('click', function() {

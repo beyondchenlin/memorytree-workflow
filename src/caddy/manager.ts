@@ -7,6 +7,7 @@ import { toPosixPath } from '../utils/path.js'
 import { execCommand } from '../utils/exec.js'
 
 const CADDY_ADMIN_URL = 'http://127.0.0.1:2019'
+const CADDY_ADMIN_ORIGIN = 'http://127.0.0.1:2019'
 
 export interface ManagedCaddyPaths {
   readonly rootDir: string
@@ -257,7 +258,11 @@ function adaptManagedCaddyConfig(mainConfigPath: string): string {
 
 async function fetchRunningCaddyConfigText(): Promise<string | null> {
   try {
-    const response = await fetch(`${CADDY_ADMIN_URL}/config/`)
+    const response = await fetch(`${CADDY_ADMIN_URL}/config/`, {
+      headers: {
+        Origin: CADDY_ADMIN_ORIGIN,
+      },
+    })
     if (!response.ok) return null
     return await response.text()
   } catch {

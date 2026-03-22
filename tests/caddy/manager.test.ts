@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 
 let tmpHome: string
+const execCommandMock = vi.fn()
 
 vi.mock('node:os', async () => {
   const actual = await vi.importActual<typeof import('node:os')>('node:os')
@@ -13,8 +14,13 @@ vi.mock('node:os', async () => {
   }
 })
 
+vi.mock('../../src/utils/exec.js', () => ({
+  execCommand: (...args: unknown[]) => execCommandMock(...args),
+}))
+
 import {
   findManagedPortConflict,
+  loadManagedCaddyStatus,
   managedCaddyPaths,
   managedCaddyStartCommand,
   renderManagedMainCaddyfile,
@@ -24,10 +30,12 @@ import { toPosixPath } from '../../src/utils/path.js'
 
 beforeEach(() => {
   tmpHome = mkdtempSync(join(tmpdir(), 'memorytree-caddy-test-'))
+  execCommandMock.mockReset()
 })
 
 afterEach(() => {
   rmSync(tmpHome, { recursive: true, force: true })
+  vi.unstubAllGlobals()
 })
 
 describe('managedCaddyPaths', () => {
@@ -113,5 +121,56 @@ describe('managedCaddyStartCommand', () => {
     expect(managedCaddyStartCommand()).toContain('caddy run --config')
     expect(managedCaddyStartCommand()).toContain('.memorytree')
     expect(managedCaddyStartCommand()).toContain('Caddyfile')
+  })
+})
+
+describe('loadManagedCaddyStatus', () => {
+  it('sends an allowed Origin header when querying the Caddy admin API', async () => {
+    execCommandMock.mockImplementation((_command: string, args: string[]) => {
+      if (args[0] === 'version') return 'v2.9.0'
+      if (args[0] === 'adapt') return '{"apps":{"http":{"servers":{}}}}'
+      throw new Error(`Unexpected execCommand call: ${args.join(' ')}`)
+    })
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => '{"apps":{"http":{"servers":{}}}}',
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const paths = managedCaddyPaths('demo-project')
+    mkdirSync(paths.rootDir, { recursive: true })
+    mkdirSync(paths.sitesDir, { recursive: true })
+    writeFileSync(paths.mainConfigPath, renderManagedMainCaddyfile(), 'utf-8')
+    writeFileSync(paths.fragmentPath, '# demo-project\n', 'utf-8')
+
+    await loadManagedCaddyStatus({
+      id: 'demo-project',
+      path: '/memorytree/worktrees/demo-project',
+      name: 'demo-project',
+      development_path: '/repo',
+      memory_path: '/memorytree/worktrees/demo-project',
+      memory_branch: 'memorytree',
+      heartbeat_interval: '5m',
+      refresh_interval: '30m',
+      auto_push: true,
+      generate_report: true,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      report_exposure: 'lan',
+      last_heartbeat_at: '',
+      last_refresh_at: '',
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:2019/config/', {
+      headers: {
+        Origin: 'http://127.0.0.1:2019',
+      },
+    })
   })
 })
