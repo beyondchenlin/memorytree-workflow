@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, rmSync, existsSync } from 'node:fs'
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import initSqlJs from 'sql.js'
@@ -27,11 +26,17 @@ function makeManifest(overrides: Partial<ManifestEntry> = {}): ManifestEntry {
     raw_upload_permission: 'granted',
     global_raw_path: '/global/raw/file.jsonl',
     global_clean_path: '/global/clean/file.md',
+    global_manifest_path: '/global/manifests/file.json',
+    global_full_path: '/global/full/file.json',
     repo_raw_path: '.memorytree/raw/file.jsonl',
     repo_clean_path: '.memorytree/clean/file.md',
     repo_manifest_path: '.memorytree/manifest.yaml',
+    repo_full_path: '.memorytree/full.json',
     message_count: 42,
     tool_event_count: 7,
+    event_count: 21,
+    cleaning_mode: 'deterministic-code',
+    repo_mirror_enabled: true,
     ...overrides,
   }
 }
@@ -130,9 +135,9 @@ describe('upsertSearchIndex', () => {
   })
 
   // -----------------------------------------------------------------------
-  // 3. Table schema has 18 columns
+  // 3. Table schema has 22 columns
   // -----------------------------------------------------------------------
-  it('creates table with 18 columns', async () => {
+  it('creates table with 22 columns', async () => {
     await upsertSearchIndex(dbPath, makeManifest())
 
     const SQL = await initSqlJs()
@@ -140,7 +145,7 @@ describe('upsertSearchIndex', () => {
     try {
       const info = db.exec('PRAGMA table_info(transcripts)')
       expect(info).toHaveLength(1)
-      expect(info[0]!.values).toHaveLength(18)
+      expect(info[0]!.values).toHaveLength(22)
 
       // Verify column names
       const columnNames = info[0]!.values.map((row) => row[1])
@@ -148,9 +153,9 @@ describe('upsertSearchIndex', () => {
         'client', 'project', 'session_id', 'raw_sha256',
         'title', 'started_at', 'imported_at',
         'cwd', 'branch', 'raw_source_path', 'raw_upload_permission',
-        'global_raw_path', 'global_clean_path',
-        'repo_raw_path', 'repo_clean_path', 'repo_manifest_path',
-        'message_count', 'tool_event_count',
+        'global_raw_path', 'global_clean_path', 'global_manifest_path', 'global_full_path',
+        'repo_raw_path', 'repo_clean_path', 'repo_manifest_path', 'repo_full_path',
+        'message_count', 'tool_event_count', 'event_count',
       ])
     } finally {
       db.close()
@@ -225,6 +230,56 @@ describe('upsertSearchIndex', () => {
       expect(rows[0]!.values[1]![0]).toBe('Second')
     } finally {
       db.close()
+    }
+  })
+
+  it('migrates an existing db that predates full transcript columns', async () => {
+    const SQL = await initSqlJs()
+    const db = new SQL.Database()
+    try {
+      db.run(`
+        CREATE TABLE transcripts (
+          client TEXT NOT NULL,
+          project TEXT NOT NULL,
+          session_id TEXT NOT NULL,
+          raw_sha256 TEXT NOT NULL,
+          title TEXT NOT NULL,
+          started_at TEXT NOT NULL,
+          imported_at TEXT NOT NULL,
+          cwd TEXT NOT NULL,
+          branch TEXT NOT NULL,
+          raw_source_path TEXT NOT NULL,
+          raw_upload_permission TEXT NOT NULL,
+          global_raw_path TEXT NOT NULL,
+          global_clean_path TEXT NOT NULL,
+          repo_raw_path TEXT NOT NULL,
+          repo_clean_path TEXT NOT NULL,
+          repo_manifest_path TEXT NOT NULL,
+          message_count INTEGER NOT NULL,
+          tool_event_count INTEGER NOT NULL,
+          PRIMARY KEY (client, project, session_id, raw_sha256)
+        )
+      `)
+      writeFileSync(dbPath, Buffer.from(db.export()))
+    } finally {
+      db.close()
+    }
+
+    await upsertSearchIndex(dbPath, makeManifest())
+
+    const SQL2 = await initSqlJs()
+    const migrated = new SQL2.Database(readFileSync(dbPath))
+    try {
+      const info = migrated.exec('PRAGMA table_info(transcripts)')
+      const columnNames = info[0]!.values.map((row) => row[1])
+      expect(columnNames).toContain('global_full_path')
+      expect(columnNames).toContain('repo_full_path')
+      expect(columnNames).toContain('event_count')
+
+      const rows = migrated.exec('SELECT global_full_path, repo_full_path, event_count FROM transcripts')
+      expect(rows[0]!.values[0]).toEqual(['/global/full/file.json', '.memorytree/full.json', 21])
+    } finally {
+      migrated.close()
     }
   })
 })

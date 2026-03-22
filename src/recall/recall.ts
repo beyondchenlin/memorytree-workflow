@@ -12,6 +12,7 @@ import { slugify } from '../transcript/common.js'
 import { defaultGlobalTranscriptRoot, discoverSourceFiles, transcriptMatchesRepo } from '../transcript/discover.js'
 import { importTranscript, transcriptHasContent } from '../transcript/import.js'
 import { parseTranscript } from '../transcript/parse.js'
+import type { ParsedTranscript, TranscriptEvent } from '../types/transcript.js'
 import { toPosixPath } from '../utils/path.js'
 
 // ---------------------------------------------------------------------------
@@ -32,8 +33,11 @@ export interface RecallResult {
   branch?: string
   message_count?: number
   tool_event_count?: number
+  event_count?: number
   global_clean_path?: string
+  global_full_path?: string
   clean_content?: string
+  normalized_content?: string
 }
 
 // ---------------------------------------------------------------------------
@@ -66,6 +70,7 @@ export async function recall(
   }
 
   const cleanPath = String(session['global_clean_path'] ?? '')
+  const fullPath = String(session['global_full_path'] ?? '')
   let cleanContent = ''
   if (cleanPath && existsSync(cleanPath)) {
     try {
@@ -74,6 +79,7 @@ export async function recall(
       // ignore read errors
     }
   }
+  const normalizedContent = loadNormalizedContent(fullPath)
 
   return {
     found: true,
@@ -88,8 +94,11 @@ export async function recall(
     branch: String(session['branch'] ?? ''),
     message_count: Number(session['message_count'] ?? 0),
     tool_event_count: Number(session['tool_event_count'] ?? 0),
+    event_count: Number(session['event_count'] ?? 0),
     global_clean_path: cleanPath,
+    global_full_path: fullPath,
     clean_content: cleanContent,
+    normalized_content: normalizedContent,
   }
 }
 
@@ -270,13 +279,72 @@ export function formatText(payload: RecallResult): string {
     `branch: ${payload.branch ?? ''}`,
     `messages: ${payload.message_count ?? 0}`,
     `tool_events: ${payload.tool_event_count ?? 0}`,
+    `events: ${payload.event_count ?? 0}`,
     `imported_this_sync: ${payload.imported_count}`,
     `clean_transcript: ${payload.global_clean_path ?? ''}`,
   ]
 
-  if (payload.clean_content) {
+  if (payload.global_full_path) {
+    lines.push(`full_transcript: ${payload.global_full_path}`)
+  }
+
+  if (payload.normalized_content) {
+    lines.push('', '--- normalized transcript content ---', payload.normalized_content)
+  } else if (payload.clean_content) {
     lines.push('', '--- clean transcript content ---', payload.clean_content)
   }
 
   return lines.join('\n')
+}
+
+function loadNormalizedContent(fullPath: string): string {
+  if (!fullPath || !existsSync(fullPath)) return ''
+
+  try {
+    const raw = readFileSync(fullPath, 'utf-8')
+    const parsed = JSON.parse(raw) as ParsedTranscript
+    if (Array.isArray(parsed.events) && parsed.events.length > 0) {
+      return formatNormalizedEvents(parsed.events)
+    }
+    if (Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+      return parsed.messages
+        .map(message => {
+          const time = message.timestamp?.slice(11, 19) || '--:--:--'
+          return `[${time}] ${message.role}: ${message.text}`
+        })
+        .join('\n')
+    }
+  } catch {
+    return ''
+  }
+
+  return ''
+}
+
+function formatNormalizedEvents(events: TranscriptEvent[]): string {
+  return events
+    .map(event => {
+      const time = event.timestamp?.slice(11, 19) || '--:--:--'
+      if (event.kind === 'message') {
+        return `[${time}] ${event.role}: ${event.text}`
+      }
+      if (event.kind === 'reasoning') {
+        return `[${time}] reasoning: ${event.summary || event.text || 'Reasoning step recorded.'}`
+      }
+      if (event.kind === 'tool_call') {
+        return `[${time}] tool_call ${event.tool_name}${event.call_id ? ` (${event.call_id})` : ''}: ${event.summary || event.tool_name}`
+      }
+      if (event.kind === 'tool_result') {
+        const suffix = typeof event.exit_code === 'number' ? ` exit=${event.exit_code}` : ''
+        return `[${time}] tool_result ${event.tool_name}${event.call_id ? ` (${event.call_id})` : ''}${suffix}: ${event.summary || `${event.tool_name} result`}`
+      }
+      if (event.kind === 'task_status') {
+        return `[${time}] task_${event.status}: ${event.summary || `Task ${event.status}`}`
+      }
+      if (event.kind === 'token_count') {
+        return `[${time}] token_count: ${event.summary || 'Token usage updated.'}`
+      }
+      return `[${time}] ${event.title || event.kind}: ${event.summary || ''}`.trim()
+    })
+    .join('\n')
 }

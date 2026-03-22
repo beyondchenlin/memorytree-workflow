@@ -1,12 +1,14 @@
-/**
- * Transcript parsing — client inference, dispatch, and format-specific parsers.
- * Port of scripts/_transcript_parse.py
- */
-
 import { readFileSync, statSync } from 'node:fs'
 import { basename, extname } from 'node:path'
 
-import type { Client, ParsedTranscript, TranscriptMessage, TranscriptToolEvent } from '../types/transcript.js'
+import type {
+  Client,
+  ParsedTranscript,
+  TranscriptEvent,
+  TranscriptMessage,
+  TranscriptMessageEvent,
+  TranscriptToolEvent,
+} from '../types/transcript.js'
 import { toPosixPath } from '../utils/path.js'
 import {
   SKIP_BLOCK_TYPES,
@@ -19,18 +21,16 @@ import {
   ensureDict,
   ensureList,
   extractGeminiText,
+  extractSimpleText,
   extractTextBlocks,
   findFirstMappingWithKeys,
   getNested,
   joinParagraphs,
   loadJsonl,
   normalizeTimestamp,
+  parseIsoTimestamp,
   summarizeValue,
 } from './common.js'
-
-// ---------------------------------------------------------------------------
-// Client inference + dispatch
-// ---------------------------------------------------------------------------
 
 export function inferClient(client: string, sourcePath: string): Client {
   if (client !== 'auto') {
@@ -70,10 +70,6 @@ export function parseTranscript(client: string, sourcePath: string): ParsedTrans
   throw new Error(`unsupported transcript client: ${resolved}`)
 }
 
-// ---------------------------------------------------------------------------
-// Codex parser
-// ---------------------------------------------------------------------------
-
 export function parseCodexTranscript(filePath: string): ParsedTranscript {
   const records = loadJsonl(filePath)
   const stem = basename(filePath, extname(filePath))
@@ -82,20 +78,18 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
   let startedAt = normalizeTimestamp(statSync(filePath).mtimeMs / 1000)
   let cwd = ''
   let branch = ''
-  // Canonical messages from `payload.type === 'message'` (response_item records).
+
   const messages: TranscriptMessage[] = []
-  // Streaming fallback: `agent_message` / `user_message` from event_msg records.
-  // The Codex CLI double-encodes every message: each turn fires as a streaming
-  // `event_msg` (agent_message / user_message) AND later as a canonical
-  // `response_item` (message). Processing both causes duplicates because the two
-  // representations share almost-identical but not always equal timestamps
-  // (millisecond jitter), defeating timestamp-based deduplication. We therefore
-  // prefer canonical records and use streaming records only as a fallback for
-  // sessions recorded by older Codex versions that emit only streaming events.
   const streamingMessages: TranscriptMessage[] = []
   const toolEvents: TranscriptToolEvent[] = []
+  const canonicalMessageEvents: TranscriptMessageEvent[] = []
+  const streamingMessageEvents: TranscriptMessageEvent[] = []
+  const otherEvents: TranscriptEvent[] = []
+  const toolNamesByCallId = new Map<string, string>()
 
-  for (const record of records) {
+  for (let index = 0; index < records.length; index++) {
+    const record = records[index]!
+    const sequence = index
     const recordType = String(record['type'] ?? '')
     const timestamp = normalizeTimestamp(record['timestamp'], startedAt)
 
@@ -103,9 +97,30 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
       const payload = ensureDict(record['payload'])
       sessionId = String(payload['id'] ?? '') || sessionId
       title = String(payload['thread_name'] ?? '') || String(payload['title'] ?? '') || title
-      startedAt = earliestTimestamp(startedAt, payload['timestamp'])
+      startedAt = earliestTimestamp(startedAt, payload['timestamp'] ?? record['timestamp'])
       cwd = String(payload['cwd'] ?? '') || cwd
       branch = String(getNested(payload, 'git', 'branch') ?? '') || branch
+      otherEvents.push({
+        kind: 'context',
+        title: 'session_meta',
+        timestamp,
+        sequence,
+        summary: title || sessionId,
+        metadata: payload,
+      })
+      continue
+    }
+
+    if (recordType === 'turn_context') {
+      const payload = ensureDict(record['payload'])
+      otherEvents.push({
+        kind: 'context',
+        title: 'turn_context',
+        timestamp,
+        sequence,
+        summary: String(payload['model'] ?? '') || String(payload['cwd'] ?? '') || 'turn_context',
+        metadata: payload,
+      })
       continue
     }
 
@@ -118,70 +133,174 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
 
     if (payloadType === 'message') {
       const role = String(payload['role'] ?? '').toLowerCase()
-      if (role === 'user' || role === 'assistant') {
-        const text = extractTextBlocks(payload['content'])
-        if (text) {
+      const text = extractTextBlocks(payload['content'])
+      if (text) {
+        const phase = asOptionalString(payload['phase'])
+        canonicalMessageEvents.push({
+          kind: 'message',
+          role: role || 'unknown',
+          text,
+          timestamp,
+          sequence,
+          summary: summarizeValue(text, 240),
+          ...(phase ? { phase } : {}),
+        })
+        if (role === 'user' || role === 'assistant') {
           messages.push({ role, text, timestamp })
         }
       }
       continue
     }
 
-    // Collect streaming events as fallback only — never mix with canonical records.
     if (payloadType === 'user_message' || payloadType === 'agent_message') {
       const role = payloadType === 'user_message' ? 'user' : 'assistant'
       const text = String(payload['message'] ?? '').trim()
       if (text) {
+        const phase = asOptionalString(payload['phase'])
+        streamingMessageEvents.push({
+          kind: 'message',
+          role,
+          text,
+          timestamp,
+          sequence,
+          summary: summarizeValue(text, 240),
+          ...(phase ? { phase } : {}),
+        })
         streamingMessages.push({ role, text, timestamp })
       }
       continue
     }
 
-    if (payloadType === 'function_call') {
-      const name = String(payload['name'] ?? '') || 'function_call'
-      const args = payload['arguments'] ?? payload['input']
-      toolEvents.push({
-        summary: `${name} input=${summarizeValue(args)}`,
+    if (payloadType === 'function_call' || payloadType === 'custom_tool_call') {
+      const toolName =
+        String(payload['name'] ?? '') ||
+        String(payload['call_id'] ?? '') ||
+        payloadType
+      const input =
+        payloadType === 'function_call'
+          ? parseStructuredValue(payload['arguments'] ?? payload['input'])
+          : parseStructuredValue(payload['input'])
+      const summary = `${toolName} input=${summarizeValue(input)}`
+      const callId = asOptionalString(payload['call_id'])
+      if (callId) {
+        toolNamesByCallId.set(callId, toolName)
+      }
+      toolEvents.push({ summary, timestamp })
+      otherEvents.push({
+        kind: 'tool_call',
+        tool_name: toolName,
+        input,
         timestamp,
+        sequence,
+        summary,
+        metadata: payload,
+        ...(callId ? { call_id: callId } : {}),
       })
       continue
     }
 
-    if (payloadType === 'custom_tool_call') {
-      const name = String(payload['name'] ?? '') || String(payload['call_id'] ?? '') || 'custom_tool_call'
-      toolEvents.push({
-        summary: `${name} input=${summarizeValue(payload['input'])}`,
-        timestamp,
-      })
-      continue
-    }
-
-    if (payloadType === 'function_call_output') {
-      const name = String(payload['name'] ?? '') || String(payload['call_id'] ?? '') || 'function_call_output'
+    if (payloadType === 'function_call_output' || payloadType === 'custom_tool_call_output') {
+      const callId = asOptionalString(payload['call_id'])
+      const toolName =
+        String(payload['name'] ?? '') ||
+        (callId ? toolNamesByCallId.get(callId) ?? '' : '') ||
+        String(payload['call_id'] ?? '') ||
+        payloadType
       const output = payload['output'] ?? payload['content']
-      toolEvents.push({
-        summary: `${name} output=${summarizeValue(output)}`,
+      const normalizedOutput = parseStructuredValue(output)
+      const summary = `${toolName} output=${summarizeValue(normalizedOutput)}`
+      toolEvents.push({ summary, timestamp })
+      otherEvents.push({
+        kind: 'tool_result',
+        tool_name: toolName,
+        output: normalizedOutput,
+        exit_code: extractExitCode(normalizedOutput),
         timestamp,
+        sequence,
+        summary,
+        metadata: payload,
+        ...(callId ? { call_id: callId } : {}),
       })
       continue
     }
 
-    if (payloadType === 'custom_tool_call_output') {
-      const name = String(payload['name'] ?? '') || String(payload['call_id'] ?? '') || 'custom_tool_call_output'
-      const output = payload['output'] ?? payload['content']
-      toolEvents.push({
-        summary: `${name} output=${summarizeValue(output)}`,
+    if (payloadType === 'reasoning') {
+      const reasoningText = extractReasoningText(payload)
+      const reasoningSummary = extractReasoningSummary(payload, reasoningText)
+      const redacted = Boolean(payload['encrypted_content'])
+      otherEvents.push({
+        kind: 'reasoning',
         timestamp,
+        sequence,
+        summary: reasoningSummary,
+        redacted,
+        metadata: extractReasoningMetadata(payload),
+        ...(!redacted && reasoningText ? { text: reasoningText } : {}),
+      })
+      continue
+    }
+
+    if (payloadType === 'token_count') {
+      const totals = ensureDict(getNested(payload, 'info', 'total_token_usage'))
+      const totalTokens = asOptionalNumber(totals['total_tokens'])
+      const inputTokens = asOptionalNumber(totals['input_tokens'])
+      const outputTokens = asOptionalNumber(totals['output_tokens'])
+      const reasoningTokens = asOptionalNumber(totals['reasoning_output_tokens'])
+      otherEvents.push({
+        kind: 'token_count',
+        timestamp,
+        sequence,
+        summary: buildTokenSummary(totals),
+        metadata: payload,
+        ...(typeof totalTokens === 'number' ? { total_tokens: totalTokens } : {}),
+        ...(typeof inputTokens === 'number' ? { input_tokens: inputTokens } : {}),
+        ...(typeof outputTokens === 'number' ? { output_tokens: outputTokens } : {}),
+        ...(typeof reasoningTokens === 'number' ? { reasoning_tokens: reasoningTokens } : {}),
+      })
+      continue
+    }
+
+    if (payloadType === 'task_started' || payloadType === 'task_complete') {
+      const turnId = asOptionalString(payload['turn_id'])
+      const lastAgentMessage = asOptionalString(payload['last_agent_message'])
+      otherEvents.push({
+        kind: 'task_status',
+        status: payloadType === 'task_started' ? 'started' : 'completed',
+        timestamp,
+        sequence,
+        summary:
+          payloadType === 'task_complete'
+            ? summarizeValue(payload['last_agent_message'] ?? payloadType, 240)
+            : payloadType,
+        metadata: payload,
+        ...(turnId ? { turn_id: turnId } : {}),
+        ...(lastAgentMessage ? { last_agent_message: lastAgentMessage } : {}),
+      })
+      continue
+    }
+
+    if (payloadType) {
+      const text = extractSimpleText(payload['message']) || extractSimpleText(payload['content']) || undefined
+      otherEvents.push({
+        kind: 'system',
+        title: payloadType,
+        timestamp,
+        sequence,
+        summary: summarizeValue(payload, 240),
+        metadata: payload,
+        ...(text ? { text } : {}),
       })
     }
   }
 
-  // Use canonical records when available; fall back to streaming events otherwise.
-  // Then drop only the leading Codex system injection messages so we do not
-  // accidentally erase later turns where the user is legitimately discussing
-  // AGENTS.md, environment tags, or other injected scaffolding.
   const finalMessages = trimLeadingCodexSystemInjections(
     messages.length > 0 ? messages : streamingMessages,
+  )
+  const chosenMessageEvents = deduplicateMessageEvents(
+    canonicalMessageEvents.length > 0 ? canonicalMessageEvents : streamingMessageEvents,
+  )
+  const finalEvents = renumberEvents(
+    [...otherEvents, ...chosenMessageEvents].sort(compareEventSequence),
   )
 
   return {
@@ -193,19 +312,11 @@ export function parseCodexTranscript(filePath: string): ParsedTranscript {
     branch,
     messages: deduplicateMessages(finalMessages),
     tool_events: deduplicateToolEvents(toolEvents),
+    events: finalEvents,
     source_path: filePath,
   }
 }
 
-// ---------------------------------------------------------------------------
-// Codex system injection detection
-// ---------------------------------------------------------------------------
-
-// The Codex CLI injects system context — AGENTS.md instructions, skill
-// definitions, environment metadata, and permissions — as the first
-// `message(role=user)` record of every session. These are not real user turns
-// and must be filtered so the clean transcript starts with the actual
-// conversation.
 const CODEX_INJECTION_MARKERS: readonly string[] = [
   '<INSTRUCTIONS>',
   '<environment_context>',
@@ -230,10 +341,6 @@ function trimLeadingCodexSystemInjections(messages: TranscriptMessage[]): Transc
   return messages.slice(firstRealIndex)
 }
 
-// ---------------------------------------------------------------------------
-// Claude parser
-// ---------------------------------------------------------------------------
-
 export function parseClaudeTranscript(filePath: string): ParsedTranscript {
   const records = loadJsonl(filePath)
   const stem = basename(filePath, extname(filePath))
@@ -244,6 +351,9 @@ export function parseClaudeTranscript(filePath: string): ParsedTranscript {
   let branch = ''
   const messages: TranscriptMessage[] = []
   const toolEvents: TranscriptToolEvent[] = []
+  const events: TranscriptEvent[] = []
+  const toolNamesByUseId = new Map<string, string>()
+  let sequence = 0
 
   for (const record of records) {
     const recordType = String(record['type'] ?? '')
@@ -259,15 +369,38 @@ export function parseClaudeTranscript(filePath: string): ParsedTranscript {
 
     const message = ensureDict(record['message'])
     const role = String(message['role'] ?? '').toLowerCase() || recordType
-    const textParts: string[] = []
     const content = message['content']
 
     if (typeof content === 'string') {
       const text = content.trim()
-      if ((role === 'user' || role === 'assistant') && text) {
+      if (text) {
         messages.push({ role, text, timestamp })
+        events.push({
+          kind: 'message',
+          role,
+          text,
+          timestamp,
+          sequence: sequence++,
+          summary: summarizeValue(text, 240),
+        })
       }
       continue
+    }
+
+    const textParts: string[] = []
+    const flushMessage = (): void => {
+      const text = joinParagraphs(textParts)
+      textParts.length = 0
+      if (!text) return
+      messages.push({ role, text, timestamp })
+      events.push({
+        kind: 'message',
+        role,
+        text,
+        timestamp,
+        sequence: sequence++,
+        summary: summarizeValue(text, 240),
+      })
     }
 
     for (const block of ensureList(content)) {
@@ -280,6 +413,7 @@ export function parseClaudeTranscript(filePath: string): ParsedTranscript {
       if (block === null || typeof block !== 'object' || Array.isArray(block)) {
         continue
       }
+
       const rec = block as Record<string, unknown>
       const blockType = String(rec['type'] ?? '').toLowerCase()
 
@@ -290,30 +424,67 @@ export function parseClaudeTranscript(filePath: string): ParsedTranscript {
         }
         continue
       }
+
       if (SKIP_BLOCK_TYPES.has(blockType)) {
+        flushMessage()
+        const reasoningText = String(rec['text'] ?? '').trim()
+        if (reasoningText) {
+          events.push({
+            kind: 'reasoning',
+            timestamp,
+            sequence: sequence++,
+            text: reasoningText,
+            summary: summarizeValue(reasoningText, 240),
+            redacted: false,
+          })
+        }
         continue
       }
+
       if (TOOL_USE_TYPES.has(blockType)) {
-        const name = String(rec['name'] ?? '') || 'tool_use'
-        toolEvents.push({
-          summary: `${name} input=${summarizeValue(rec['input'])}`,
+        flushMessage()
+        const toolName = String(rec['name'] ?? '') || 'tool_use'
+        const toolUseId = asOptionalString(rec['id']) ?? asOptionalString(rec['tool_use_id'])
+        if (toolUseId) {
+          toolNamesByUseId.set(toolUseId, toolName)
+        }
+        const input = rec['input']
+        const summary = `${toolName} input=${summarizeValue(input)}`
+        toolEvents.push({ summary, timestamp })
+        events.push({
+          kind: 'tool_call',
+          tool_name: toolName,
+          input,
           timestamp,
+          sequence: sequence++,
+          summary,
+          metadata: rec,
+          ...(toolUseId ? { call_id: toolUseId } : {}),
         })
         continue
       }
+
       if (TOOL_RESULT_TYPES.has(blockType)) {
-        const toolUseId = String(rec['tool_use_id'] ?? '') || 'tool_result'
-        toolEvents.push({
-          summary: `${toolUseId} output=${summarizeValue(rec['content'])}`,
+        flushMessage()
+        const toolUseId = asOptionalString(rec['tool_use_id'])
+        const toolName = (toolUseId ? toolNamesByUseId.get(toolUseId) : undefined) ?? toolUseId ?? 'tool_result'
+        const output = rec['content']
+        const summary = `${toolName} output=${summarizeValue(output)}`
+        toolEvents.push({ summary, timestamp })
+        events.push({
+          kind: 'tool_result',
+          tool_name: toolName,
+          output,
           timestamp,
+          sequence: sequence++,
+          summary,
+          metadata: rec,
+          ...(toolUseId ? { call_id: toolUseId } : {}),
         })
       }
     }
 
-    const text = joinParagraphs(textParts)
-    if ((role === 'user' || role === 'assistant') && text) {
-      messages.push({ role, text, timestamp })
-    }
+    flushMessage()
   }
 
   return {
@@ -325,13 +496,10 @@ export function parseClaudeTranscript(filePath: string): ParsedTranscript {
     branch,
     messages: deduplicateMessages(messages),
     tool_events: deduplicateToolEvents(toolEvents),
+    events: renumberEvents(events),
     source_path: filePath,
   }
 }
-
-// ---------------------------------------------------------------------------
-// Gemini parser
-// ---------------------------------------------------------------------------
 
 export function parseGeminiTranscript(filePath: string): ParsedTranscript {
   const stem = basename(filePath, extname(filePath))
@@ -353,7 +521,11 @@ export function parseGeminiTranscript(filePath: string): ParsedTranscript {
   const metaKeys: ReadonlySet<string> = new Set(['sessionId', 'chatId', 'cwd', 'branch', 'timestamp'])
   const firstMeta = findFirstMappingWithKeys(payload, metaKeys)
   if (firstMeta !== null) {
-    sessionId = String(firstMeta['sessionId'] ?? '') || String(firstMeta['chatId'] ?? '') || String(firstMeta['id'] ?? '') || sessionId
+    sessionId =
+      String(firstMeta['sessionId'] ?? '') ||
+      String(firstMeta['chatId'] ?? '') ||
+      String(firstMeta['id'] ?? '') ||
+      sessionId
     startedAt = earliestTimestamp(startedAt, firstMeta['timestamp'])
     cwd = String(firstMeta['cwd'] ?? '') || String(firstMeta['projectRoot'] ?? '') || cwd
     branch = String(firstMeta['branch'] ?? '') || branch
@@ -369,9 +541,13 @@ export function parseGeminiTranscript(filePath: string): ParsedTranscript {
     if (node === null || typeof node !== 'object') {
       return
     }
-    const rec = node as Record<string, unknown>
 
-    sessionId = String(rec['sessionId'] ?? '') || String(rec['chatId'] ?? '') || String(rec['id'] ?? '') || sessionId
+    const rec = node as Record<string, unknown>
+    sessionId =
+      String(rec['sessionId'] ?? '') ||
+      String(rec['chatId'] ?? '') ||
+      String(rec['id'] ?? '') ||
+      sessionId
     startedAt = earliestTimestamp(startedAt, rec['timestamp'])
     cwd = String(rec['cwd'] ?? '') || String(rec['projectRoot'] ?? '') || cwd
     branch = String(rec['branch'] ?? '') || branch
@@ -406,6 +582,26 @@ export function parseGeminiTranscript(filePath: string): ParsedTranscript {
 
   visit(payload)
 
+  const dedupedMessages = deduplicateMessages(messages)
+  const dedupedToolEvents = deduplicateToolEvents(toolEvents)
+  const events = renumberEvents([
+    ...dedupedMessages.map((message, index) => ({
+      kind: 'message' as const,
+      role: message.role,
+      text: message.text,
+      timestamp: message.timestamp,
+      sequence: index,
+      summary: summarizeValue(message.text, 240),
+    })),
+    ...dedupedToolEvents.map((event, index) => ({
+      kind: 'tool_call' as const,
+      tool_name: toolNameFromSummary(event.summary),
+      timestamp: event.timestamp,
+      sequence: dedupedMessages.length + index,
+      summary: event.summary,
+    })),
+  ].sort(compareEventTime))
+
   return {
     client: 'gemini',
     session_id: sessionId,
@@ -413,32 +609,13 @@ export function parseGeminiTranscript(filePath: string): ParsedTranscript {
     started_at: startedAt,
     cwd,
     branch,
-    messages: deduplicateMessages(messages),
-    tool_events: deduplicateToolEvents(toolEvents),
+    messages: dedupedMessages,
+    tool_events: dedupedToolEvents,
+    events,
     source_path: filePath,
   }
 }
 
-// ---------------------------------------------------------------------------
-// Doubao parser
-// ---------------------------------------------------------------------------
-//
-// Doubao TXT export format:
-//
-//   Title: 对话标题
-//   URL: https://www.doubao.com/chat/38416801786598914
-//   Platform: 豆包
-//   Created: 2026-03-16 10:22:17
-//   Messages: 28
-//
-//   User: [2026-03-16 10:22:17]
-//   用户消息内容...
-//
-//   AI: [2026-03-16 15:43:17]
-//   AI 回复内容...
-//
-
-/** Matches a turn header: "User: [2026-03-16 10:22:17]" or "AI: [2026-03-16 15:43:17]" */
 const DOUBAO_TURN_RE = /^(User|AI):\s*\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\]\s*$/
 
 export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
@@ -450,7 +627,6 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
   let sessionId = stem
   let startedAt = normalizeTimestamp(statSync(filePath).mtimeMs / 1000)
 
-  // --- Parse header block (key: value lines before the first blank line) ---
   let lineIndex = 0
   for (; lineIndex < lines.length; lineIndex++) {
     const line = lines[lineIndex] ?? ''
@@ -465,7 +641,6 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
     const urlMatch = line.match(/^URL:\s*(.+)$/)
     if (urlMatch) {
       const url = (urlMatch[1] ?? '').trim()
-      // Derive session_id from the last path segment of the URL
       const lastSegment = url.split('/').pop() ?? ''
       if (lastSegment) sessionId = lastSegment
       continue
@@ -473,21 +648,16 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
 
     const createdMatch = line.match(/^Created:\s*(.+)$/)
     if (createdMatch) {
-      // Doubao exports user-local time with no timezone info.
-      // Convert "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DDTHH:MM:SS" (naive, no Z suffix)
-      // so we don't falsely claim UTC.
       const raw = (createdMatch[1] ?? '').trim().replace(' ', 'T')
       if (raw) startedAt = raw
       continue
     }
   }
 
-  // Skip blank lines between header and first turn
   while (lineIndex < lines.length && (lines[lineIndex] ?? '').trim() === '') {
     lineIndex++
   }
 
-  // --- Parse message turns ---
   const messages: TranscriptMessage[] = []
 
   while (lineIndex < lines.length) {
@@ -500,16 +670,13 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
     }
 
     const role: string = match[1] === 'User' ? 'user' : 'assistant'
-    // Doubao exports user-local time — keep as naive ISO, no Z suffix.
     const timestamp = (match[2] ?? '').trim().replace(' ', 'T')
-    lineIndex++ // advance past turn header
+    lineIndex++
 
-    // Skip blank line that follows the turn header
     while (lineIndex < lines.length && (lines[lineIndex] ?? '').trim() === '') {
       lineIndex++
     }
 
-    // Collect body lines until next turn header or EOF
     const bodyLines: string[] = []
     while (lineIndex < lines.length) {
       const bodyLine = lines[lineIndex] ?? ''
@@ -518,7 +685,6 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
       lineIndex++
     }
 
-    // Trim trailing blank lines from body
     while (bodyLines.length > 0 && (bodyLines[bodyLines.length - 1] ?? '').trim() === '') {
       bodyLines.pop()
     }
@@ -529,6 +695,8 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
     }
   }
 
+  const dedupedMessages = deduplicateMessages(messages)
+
   return {
     client: 'doubao',
     session_id: sessionId,
@@ -536,8 +704,128 @@ export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
     started_at: startedAt,
     cwd: '',
     branch: '',
-    messages: deduplicateMessages(messages),
+    messages: dedupedMessages,
     tool_events: [],
+    events: renumberEvents(
+      dedupedMessages.map((message, index) => ({
+        kind: 'message',
+        role: message.role,
+        text: message.text,
+        timestamp: message.timestamp,
+        sequence: index,
+        summary: summarizeValue(message.text, 240),
+      })),
+    ),
     source_path: filePath,
   }
+}
+
+function asOptionalString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed || undefined
+}
+
+function asOptionalNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+function parseStructuredValue(value: unknown): unknown {
+  if (typeof value !== 'string') return value
+  const trimmed = value.trim()
+  if (!trimmed) return trimmed
+  if (!/^(?:\{|\[|"|-)/.test(trimmed)) return trimmed
+  try {
+    return JSON.parse(trimmed) as unknown
+  } catch {
+    return trimmed
+  }
+}
+
+function extractReasoningText(payload: Record<string, unknown>): string {
+  const contentText = extractTextBlocks(payload['content'])
+  if (contentText) return contentText
+
+  const parts: string[] = []
+  for (const item of ensureList(payload['summary'])) {
+    const text = extractSimpleText(item)
+    if (text) {
+      parts.push(text)
+    }
+  }
+  return joinParagraphs(parts)
+}
+
+function extractReasoningSummary(payload: Record<string, unknown>, reasoningText: string): string {
+  if (reasoningText) {
+    return summarizeValue(reasoningText, 240)
+  }
+  if (payload['encrypted_content']) {
+    return 'Private reasoning captured; content is encrypted.'
+  }
+  return 'Reasoning step recorded.'
+}
+
+function extractReasoningMetadata(payload: Record<string, unknown>): Record<string, unknown> {
+  const metadata: Record<string, unknown> = {}
+  if (payload['encrypted_content']) {
+    metadata['encrypted'] = true
+  }
+  if (Array.isArray(payload['summary'])) {
+    metadata['summary_count'] = payload['summary'].length
+  }
+  return metadata
+}
+
+function buildTokenSummary(totals: Record<string, unknown>): string {
+  const totalTokens = asOptionalNumber(totals['total_tokens'])
+  if (typeof totalTokens === 'number') {
+    return `total_tokens=${totalTokens}`
+  }
+  return 'Token usage updated.'
+}
+
+function extractExitCode(value: unknown): number | null {
+  if (typeof value !== 'string') return null
+  const match = value.match(/Exit code:\s*(-?\d+)/)
+  if (!match) return null
+  return Number.parseInt(match[1] ?? '', 10)
+}
+
+function deduplicateMessageEvents(events: TranscriptMessageEvent[]): TranscriptMessageEvent[] {
+  const seen = new Set<string>()
+  const result: TranscriptMessageEvent[] = []
+  for (const event of events) {
+    const signature = `${event.timestamp ?? ''}\0${event.role}\0${event.text}`
+    if (seen.has(signature)) {
+      continue
+    }
+    seen.add(signature)
+    result.push(event)
+  }
+  return result
+}
+
+function renumberEvents(events: TranscriptEvent[]): TranscriptEvent[] {
+  return events.map((event, index) => ({ ...event, sequence: index }))
+}
+
+function compareEventSequence(a: TranscriptEvent, b: TranscriptEvent): number {
+  return a.sequence - b.sequence
+}
+
+function compareEventTime(a: TranscriptEvent, b: TranscriptEvent): number {
+  const left = a.timestamp ? parseIsoTimestamp(a.timestamp) : null
+  const right = b.timestamp ? parseIsoTimestamp(b.timestamp) : null
+  if (left !== null && right !== null) {
+    return left.getTime() - right.getTime()
+  }
+  if (left !== null) return -1
+  if (right !== null) return 1
+  return a.sequence - b.sequence
+}
+
+function toolNameFromSummary(summary: string): string {
+  const match = summary.trim().match(/^([A-Za-z_][A-Za-z0-9_:-]*)/)
+  return match?.[1] ?? 'tool'
 }

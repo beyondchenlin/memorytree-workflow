@@ -31,6 +31,31 @@ function makeParsed(overrides: Partial<ParsedTranscript> = {}): ParsedTranscript
     tool_events: [
       { summary: 'read_file input="test.ts"', timestamp: '2024-06-15T12:00:02Z' },
     ],
+    events: [
+      {
+        kind: 'message',
+        role: 'user',
+        text: 'Hello',
+        timestamp: '2024-06-15T12:00:00Z',
+        sequence: 0,
+      },
+      {
+        kind: 'message',
+        role: 'assistant',
+        text: 'Hi there',
+        timestamp: '2024-06-15T12:00:01Z',
+        sequence: 1,
+      },
+      {
+        kind: 'tool_call',
+        tool_name: 'read_file',
+        call_id: 'call-1',
+        summary: 'read_file input="test.ts"',
+        input: { path: 'test.ts' },
+        timestamp: '2024-06-15T12:00:02Z',
+        sequence: 2,
+      },
+    ],
     source_path: '',
     ...overrides,
   }
@@ -55,8 +80,11 @@ function makeManifest(overrides: Partial<ManifestEntry> = {}): ManifestEntry {
     repo_raw_path: 'Memory/06_transcripts/raw/codex/2024/06/test__abcdef12.jsonl',
     repo_clean_path: 'Memory/06_transcripts/clean/codex/2024/06/test__abcdef12.md',
     repo_manifest_path: 'Memory/06_transcripts/manifests/codex/2024/06/test__abcdef12.json',
+    global_full_path: '/home/user/.memorytree/transcripts/full/codex/test-project/2024/06/test__abcdef12.json',
+    repo_full_path: 'Memory/06_transcripts/full/codex/2024/06/test__abcdef12.json',
     message_count: 2,
     tool_event_count: 1,
+    event_count: 3,
     cleaning_mode: 'deterministic-code',
     repo_mirror_enabled: true,
     ...overrides,
@@ -76,8 +104,12 @@ describe('transcriptHasContent', () => {
     expect(transcriptHasContent(makeParsed({ messages: [], tool_events: [{ summary: 'tool', timestamp: null }] }))).toBe(true)
   })
 
+  it('returns true when only normalized events exist', () => {
+    expect(transcriptHasContent(makeParsed({ messages: [], tool_events: [], events: [{ kind: 'context', title: 'turn_context', timestamp: null, sequence: 0 }] }))).toBe(true)
+  })
+
   it('returns false when both empty', () => {
-    expect(transcriptHasContent(makeParsed({ messages: [], tool_events: [] }))).toBe(false)
+    expect(transcriptHasContent(makeParsed({ messages: [], tool_events: [], events: [] }))).toBe(false)
   })
 })
 
@@ -284,6 +316,7 @@ describe('importTranscript', () => {
     expect(result.project).toBe('my-project')
     expect(result.message_count).toBe(2)
     expect(result.tool_event_count).toBe(1)
+    expect(result.event_count).toBe(3)
     expect(result.cleaning_mode).toBe('deterministic-code')
     expect(result.repo_mirror_enabled).toBe(true)
 
@@ -291,6 +324,11 @@ describe('importTranscript', () => {
     expect(existsSync(join(repoRoot, result.repo_raw_path))).toBe(true)
     expect(existsSync(join(repoRoot, result.repo_clean_path))).toBe(true)
     expect(existsSync(join(repoRoot, result.repo_manifest_path))).toBe(true)
+    expect(existsSync(join(repoRoot, result.repo_full_path))).toBe(true)
+
+    const full = JSON.parse(readFileSync(join(repoRoot, result.repo_full_path), 'utf-8')) as Record<string, unknown>
+    expect(full['schema_version']).toBe('transcript.full.v1')
+    expect(Array.isArray(full['events'])).toBe(true)
   })
 
   it('imports without repo mirror', async () => {
@@ -303,7 +341,9 @@ describe('importTranscript', () => {
     expect(result.repo_raw_path).toBe('')
     expect(result.repo_clean_path).toBe('')
     expect(result.repo_manifest_path).toBe('')
+    expect(result.repo_full_path).toBe('')
     expect(result.repo_mirror_enabled).toBe(false)
+    expect(existsSync(result.global_full_path)).toBe(true)
   })
 
   it('preserves imported_at on idempotent re-import', async () => {
