@@ -10,6 +10,7 @@ import { escHtml, htmlShell, renderNav, transcriptUrlFromRoot } from './layout.j
 
 const MAX_INDEX_BYTES = 50_000
 const SNIPPET_LEN = 200
+const SEARCH_TEXT_LEN = 700
 
 // ---------------------------------------------------------------------------
 // Index construction
@@ -18,12 +19,14 @@ const SNIPPET_LEN = 200
 export function buildSearchIndex(
   manifests: ManifestEntry[],
   getSnippet: (m: ManifestEntry) => string,
+  getSearchText: (m: ManifestEntry) => string = getSnippet,
 ): SearchIndexEntry[] {
   const entries: SearchIndexEntry[] = []
   let totalBytes = 0
 
   for (const m of manifests) {
     let snippet = getSnippet(m).slice(0, SNIPPET_LEN)
+    let searchText = getSearchText(m).slice(0, SEARCH_TEXT_LEN)
     const project = m.project || lastPathSegment(m.cwd) || 'unknown'
 
     // Check if truncating the snippet is needed to stay within budget
@@ -34,11 +37,21 @@ export function buildSearchIndex(
       project,
       date: m.started_at.slice(0, 10),
       snippet: '',
+      search_text: '',
     }).length
-    const budgetForSnippet = MAX_INDEX_BYTES - totalBytes - baseBytes - 10
-    if (budgetForSnippet < 20) break
-    if (baseBytes + snippet.length > MAX_INDEX_BYTES - totalBytes) {
-      snippet = snippet.slice(0, Math.max(0, budgetForSnippet))
+    const budgetForText = MAX_INDEX_BYTES - totalBytes - baseBytes - 10
+    if (budgetForText < 20) break
+
+    const combinedText = snippet.length + searchText.length
+    if (combinedText > budgetForText) {
+      const snippetBudget = Math.min(
+        snippet.length,
+        budgetForText,
+        Math.max(40, Math.floor(budgetForText * 0.35)),
+      )
+      const searchBudget = Math.max(0, budgetForText - snippetBudget)
+      snippet = snippet.slice(0, snippetBudget)
+      searchText = searchText.slice(0, searchBudget)
     }
 
     const entry: SearchIndexEntry = {
@@ -48,6 +61,7 @@ export function buildSearchIndex(
       project,
       date: m.started_at.slice(0, 10),
       snippet,
+      ...(searchText ? { search_text: searchText } : {}),
     }
     totalBytes += JSON.stringify(entry).length
     entries.push(entry)
@@ -155,9 +169,10 @@ const SEARCH_INDEX = ${indexJson};
       if (filterClient && e.client !== filterClient) return false;
       if (filterProject && e.project !== filterProject) return false;
       if (!q) return true;
-      return (e.title || '').toLowerCase().includes(q) ||
-             (e.snippet || '').toLowerCase().includes(q);
-    });
+       return (e.title || '').toLowerCase().includes(q) ||
+              (e.snippet || '').toLowerCase().includes(q) ||
+              (e.search_text || '').toLowerCase().includes(q);
+     });
     if (!q && !filterClient && !filterProject) {
       resultsEl.innerHTML = '';
       countEl.textContent = SEARCH_INDEX.length + ' session(s) indexed';

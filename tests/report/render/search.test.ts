@@ -23,11 +23,14 @@ function makeManifest(id: string, client = 'codex', repoClean = ''): ManifestEnt
     global_raw_path: '',
     global_clean_path: '',
     global_manifest_path: '',
+    global_full_path: '',
     repo_raw_path: '',
     repo_clean_path: repoClean,
     repo_manifest_path: '',
+    repo_full_path: '',
     message_count: 5,
     tool_event_count: 2,
+    event_count: 9,
     cleaning_mode: 'deterministic-code',
     repo_mirror_enabled: true,
   }
@@ -83,6 +86,12 @@ describe('buildSearchIndex', () => {
   it('returns empty array for no manifests', () => {
     expect(buildSearchIndex([], () => '')).toEqual([])
   })
+
+  it('stores hidden normalized search text when provided', () => {
+    const m = makeManifest('searchable')
+    const index = buildSearchIndex([m], () => 'short snippet', () => 'tool shell_command reasoning branch main')
+    expect(index[0]!.search_text).toContain('shell_command')
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -92,7 +101,7 @@ describe('buildSearchIndex', () => {
 describe('renderSearchPage', () => {
   it('embeds SEARCH_INDEX as inline JS', () => {
     const index: SearchIndexEntry[] = [
-      { url: 'transcripts/codex/a.html', title: 'Test', client: 'codex', date: '2026-03-10', snippet: 'hi' },
+      { url: 'transcripts/codex/a.html', title: 'Test', client: 'codex', project: 'test', date: '2026-03-10', snippet: 'hi' },
     ]
     const html = renderSearchPage(index)
     expect(html).toContain('const SEARCH_INDEX =')
@@ -108,7 +117,7 @@ describe('renderSearchPage', () => {
 
   it('embeds valid JSON in the index', () => {
     const index: SearchIndexEntry[] = [
-      { url: 'a.html', title: 'Test <session>', client: 'codex', date: '2026-03-10', snippet: 'body' },
+      { url: 'a.html', title: 'Test <session>', client: 'codex', project: 'test', date: '2026-03-10', snippet: 'body' },
     ]
     const html = renderSearchPage(index)
     // Extract the JSON part

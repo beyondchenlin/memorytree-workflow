@@ -38,6 +38,7 @@ export interface SearchIndexEntry {
   project: string
   date: string
   snippet: string
+  search_text?: string
 }
 
 export interface BuildReportOptions {

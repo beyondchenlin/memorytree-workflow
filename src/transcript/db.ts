@@ -44,14 +44,44 @@ const DATA_COLUMNS = [
   'raw_upload_permission',
   'global_raw_path',
   'global_clean_path',
+  'global_manifest_path',
+  'global_full_path',
   'repo_raw_path',
   'repo_clean_path',
   'repo_manifest_path',
+  'repo_full_path',
   'message_count',
   'tool_event_count',
+  'event_count',
 ] as const
 
 const ALL_COLUMNS = [...PK_COLUMNS, ...DATA_COLUMNS] as const
+type ColumnName = (typeof ALL_COLUMNS)[number]
+
+const COLUMN_DEFS: Record<ColumnName, { type: 'TEXT' | 'INTEGER'; defaultValue: string }> = {
+  client: { type: 'TEXT', defaultValue: "''" },
+  project: { type: 'TEXT', defaultValue: "''" },
+  session_id: { type: 'TEXT', defaultValue: "''" },
+  raw_sha256: { type: 'TEXT', defaultValue: "''" },
+  title: { type: 'TEXT', defaultValue: "''" },
+  started_at: { type: 'TEXT', defaultValue: "''" },
+  imported_at: { type: 'TEXT', defaultValue: "''" },
+  cwd: { type: 'TEXT', defaultValue: "''" },
+  branch: { type: 'TEXT', defaultValue: "''" },
+  raw_source_path: { type: 'TEXT', defaultValue: "''" },
+  raw_upload_permission: { type: 'TEXT', defaultValue: "''" },
+  global_raw_path: { type: 'TEXT', defaultValue: "''" },
+  global_clean_path: { type: 'TEXT', defaultValue: "''" },
+  global_manifest_path: { type: 'TEXT', defaultValue: "''" },
+  global_full_path: { type: 'TEXT', defaultValue: "''" },
+  repo_raw_path: { type: 'TEXT', defaultValue: "''" },
+  repo_clean_path: { type: 'TEXT', defaultValue: "''" },
+  repo_manifest_path: { type: 'TEXT', defaultValue: "''" },
+  repo_full_path: { type: 'TEXT', defaultValue: "''" },
+  message_count: { type: 'INTEGER', defaultValue: '0' },
+  tool_event_count: { type: 'INTEGER', defaultValue: '0' },
+  event_count: { type: 'INTEGER', defaultValue: '0' },
+}
 
 // ---------------------------------------------------------------------------
 // SQL statements (built once)
@@ -59,24 +89,7 @@ const ALL_COLUMNS = [...PK_COLUMNS, ...DATA_COLUMNS] as const
 
 const CREATE_TABLE_SQL = `
   CREATE TABLE IF NOT EXISTS transcripts (
-    client              TEXT    NOT NULL,
-    project             TEXT    NOT NULL,
-    session_id          TEXT    NOT NULL,
-    raw_sha256          TEXT    NOT NULL,
-    title               TEXT    NOT NULL,
-    started_at          TEXT    NOT NULL,
-    imported_at         TEXT    NOT NULL,
-    cwd                 TEXT    NOT NULL,
-    branch              TEXT    NOT NULL,
-    raw_source_path     TEXT    NOT NULL,
-    raw_upload_permission TEXT  NOT NULL,
-    global_raw_path     TEXT    NOT NULL,
-    global_clean_path   TEXT    NOT NULL,
-    repo_raw_path       TEXT    NOT NULL,
-    repo_clean_path     TEXT    NOT NULL,
-    repo_manifest_path  TEXT    NOT NULL,
-    message_count       INTEGER NOT NULL,
-    tool_event_count    INTEGER NOT NULL,
+    ${ALL_COLUMNS.map((column) => columnDefinition(column)).join(',\n    ')},
     PRIMARY KEY (client, project, session_id, raw_sha256)
   )
 `
@@ -112,13 +125,13 @@ export async function upsertSearchIndex(
 
   try {
     db.run('PRAGMA journal_mode=WAL')
-    db.run(CREATE_TABLE_SQL)
+    ensureTableSchema(db)
 
     const record: Record<string, unknown> = { ...manifest }
     const params = ALL_COLUMNS.map((col) => {
       const value = record[col]
       if (value === undefined || value === null) {
-        return ''
+        return COLUMN_DEFS[col].type === 'INTEGER' ? 0 : ''
       }
       return typeof value === 'number' ? value : String(value)
     })
@@ -129,5 +142,28 @@ export async function upsertSearchIndex(
     writeFileSync(dbPath, Buffer.from(data))
   } finally {
     db.close()
+  }
+}
+
+function columnDefinition(column: ColumnName, includeDefault = false): string {
+  const def = COLUMN_DEFS[column]
+  return `${column} ${def.type} NOT NULL${includeDefault ? ` DEFAULT ${def.defaultValue}` : ''}`
+}
+
+function ensureTableSchema(db: {
+  run: (sql: string) => unknown
+  exec: (sql: string) => Array<{ values: unknown[][] }>
+}): void {
+  db.run(CREATE_TABLE_SQL)
+
+  const info = db.exec('PRAGMA table_info(transcripts)')
+  const existing = new Set(
+    info[0]?.values.map((row) => String(row[1] ?? '')) ?? [],
+  )
+
+  for (const column of DATA_COLUMNS) {
+    if (!existing.has(column)) {
+      db.run(`ALTER TABLE transcripts ADD COLUMN ${columnDefinition(column, true)}`)
+    }
   }
 }

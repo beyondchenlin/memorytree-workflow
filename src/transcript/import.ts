@@ -6,7 +6,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs'
 import { dirname, extname, join, basename, relative } from 'node:path'
 
-import type { ManifestEntry, ParsedTranscript } from '../types/transcript.js'
+import type { ManifestEntry, ParsedTranscript, TranscriptArtifact } from '../types/transcript.js'
 import { toPosixPath } from '../utils/path.js'
 import {
   loadJson,
@@ -41,18 +41,20 @@ export async function importTranscript(
   const repoRawPath = join(repoRoot, 'raw', parsed.client, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
   const repoCleanPath = join(repoRoot, 'clean', parsed.client, yearToken, monthToken, `${artifactStem}.md`)
   const repoManifestPath = join(repoRoot, 'manifests', parsed.client, yearToken, monthToken, `${artifactStem}.json`)
+  const repoFullPath = join(repoRoot, 'full', parsed.client, yearToken, monthToken, `${artifactStem}.json`)
 
   const globalRawPath = join(globalRoot, 'raw', parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
   const globalCleanPath = join(globalRoot, 'clean', parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.md`)
   const globalManifestPath = join(globalRoot, 'index', 'manifests', parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.json`)
+  const globalFullPath = join(globalRoot, 'full', parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.json`)
   const globalEventLogPath = join(globalRoot, 'index', 'sessions.jsonl')
   const globalDbPath = join(globalRoot, 'index', 'search.sqlite')
 
-  for (const p of [globalRawPath, globalCleanPath, globalManifestPath, globalEventLogPath, globalDbPath]) {
+  for (const p of [globalRawPath, globalCleanPath, globalManifestPath, globalFullPath, globalEventLogPath, globalDbPath]) {
     mkdirSync(dirname(p), { recursive: true })
   }
   if (mirrorToRepo) {
-    for (const p of [repoRawPath, repoCleanPath, repoManifestPath]) {
+    for (const p of [repoRawPath, repoCleanPath, repoManifestPath, repoFullPath]) {
       mkdirSync(dirname(p), { recursive: true })
     }
   }
@@ -77,11 +79,14 @@ export async function importTranscript(
     repo_raw_path: mirrorToRepo ? toPosixPath(relative(root, repoRawPath)) : '',
     repo_clean_path: mirrorToRepo ? toPosixPath(relative(root, repoCleanPath)) : '',
     repo_manifest_path: mirrorToRepo ? toPosixPath(relative(root, repoManifestPath)) : '',
+    repo_full_path: mirrorToRepo ? toPosixPath(relative(root, repoFullPath)) : '',
     global_raw_path: toPosixPath(globalRawPath),
     global_clean_path: toPosixPath(globalCleanPath),
     global_manifest_path: toPosixPath(globalManifestPath),
+    global_full_path: toPosixPath(globalFullPath),
     message_count: parsed.messages.length,
     tool_event_count: parsed.tool_events.length,
+    event_count: parsed.events.length,
     cleaning_mode: 'deterministic-code',
     repo_mirror_enabled: mirrorToRepo,
   }
@@ -91,8 +96,10 @@ export async function importTranscript(
 
   if (mirrorToRepo) {
     writeCleanMarkdown(parsed, manifest, repoCleanPath)
+    writeFullJson(parsed, repoFullPath)
   }
   writeCleanMarkdown(parsed, manifest, globalCleanPath)
+  writeFullJson(parsed, globalFullPath)
   const manifestRecord = { ...manifest } as Record<string, unknown>
   if (mirrorToRepo) {
     writeJson(repoManifestPath, manifestRecord)
@@ -108,7 +115,7 @@ export async function importTranscript(
 }
 
 export function transcriptHasContent(parsed: ParsedTranscript): boolean {
-  return parsed.messages.length > 0 || parsed.tool_events.length > 0
+  return parsed.messages.length > 0 || parsed.tool_events.length > 0 || parsed.events.length > 0
 }
 
 export function writeCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestEntry, filePath: string): void {
@@ -163,6 +170,14 @@ export function writeCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestE
   }
 
   writeFileSync(filePath, lines.join('\n'), 'utf-8')
+}
+
+export function writeFullJson(parsed: ParsedTranscript, filePath: string): void {
+  const artifact: TranscriptArtifact = {
+    schema_version: 'transcript.full.v1',
+    ...parsed,
+  }
+  writeFileSync(filePath, JSON.stringify(artifact, null, 2) + '\n', 'utf-8')
 }
 
 export function preserveExistingImportTimestamp(

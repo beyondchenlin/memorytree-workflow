@@ -331,6 +331,7 @@ describe('parseCodexTranscript', () => {
         payload: {
           type: 'function_call',
           name: 'readFile',
+          call_id: 'call-read-1',
           arguments: '/tmp/test.txt',
         },
       }),
@@ -339,7 +340,7 @@ describe('parseCodexTranscript', () => {
         timestamp: '2024-06-01T10:00:05Z',
         payload: {
           type: 'function_call_output',
-          name: 'readFile',
+          call_id: 'call-read-1',
           output: 'file contents here',
         },
       }),
@@ -361,6 +362,7 @@ describe('parseCodexTranscript', () => {
         payload: {
           type: 'custom_tool_call',
           name: 'myTool',
+          call_id: 'myTool-1',
           input: { key: 'value' },
         },
       }),
@@ -379,7 +381,108 @@ describe('parseCodexTranscript', () => {
     const result = parseCodexTranscript(filePath)
     expect(result.tool_events).toHaveLength(2)
     expect(result.tool_events[0]!.summary).toContain('myTool input=')
-    expect(result.tool_events[1]!.summary).toContain('myTool-1 output=')
+    expect(result.tool_events[1]!.summary).toContain('myTool output=')
+  })
+
+  it('emits normalized events for context, reasoning, tools, token counts, and task status', () => {
+    const filePath = join(tmpDir, 'events.jsonl')
+    const lines = [
+      JSON.stringify({
+        type: 'session_meta',
+        timestamp: '2024-06-01T10:00:00Z',
+        payload: {
+          id: 'ses-events',
+          thread_name: 'Eventful Session',
+          timestamp: '2024-06-01T09:59:59Z',
+          cwd: '/home/user/project',
+          git: { branch: 'main' },
+          model_provider: 'openai',
+        },
+      }),
+      JSON.stringify({
+        type: 'turn_context',
+        timestamp: '2024-06-01T10:00:01Z',
+        payload: {
+          turn_id: 'turn-1',
+          cwd: '/home/user/project',
+          model: 'gpt-5.4',
+          current_date: '2024-06-01',
+        },
+      }),
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:02Z',
+        payload: {
+          type: 'task_started',
+          turn_id: 'turn-1',
+          collaboration_mode_kind: 'default',
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:03Z',
+        payload: {
+          type: 'reasoning',
+          summary: [{ type: 'summary_text', text: 'Checking repository state' }],
+          encrypted_content: 'opaque',
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:04Z',
+        payload: {
+          type: 'function_call',
+          name: 'shell_command',
+          call_id: 'call-1',
+          arguments: '{"command":"git status"}',
+        },
+      }),
+      JSON.stringify({
+        type: 'response_item',
+        timestamp: '2024-06-01T10:00:05Z',
+        payload: {
+          type: 'function_call_output',
+          call_id: 'call-1',
+          output: 'Exit code: 0\nOutput:\nclean',
+        },
+      }),
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:06Z',
+        payload: {
+          type: 'token_count',
+          info: {
+            total_token_usage: {
+              input_tokens: 100,
+              output_tokens: 30,
+              reasoning_output_tokens: 10,
+              total_tokens: 140,
+            },
+          },
+        },
+      }),
+      JSON.stringify({
+        type: 'event_msg',
+        timestamp: '2024-06-01T10:00:07Z',
+        payload: {
+          type: 'task_complete',
+          turn_id: 'turn-1',
+          last_agent_message: 'Finished work',
+        },
+      }),
+    ]
+    writeFileSync(filePath, lines.join('\n'))
+
+    const result = parseCodexTranscript(filePath)
+    expect(result.events.length).toBeGreaterThanOrEqual(7)
+    expect(result.events.some(e => e.kind === 'context' && e.title === 'session_meta')).toBe(true)
+    expect(result.events.some(e => e.kind === 'context' && e.title === 'turn_context')).toBe(true)
+    expect(result.events.some(e => e.kind === 'task_status' && e.status === 'started')).toBe(true)
+    expect(result.events.some(e => e.kind === 'reasoning' && e.redacted === true)).toBe(true)
+    expect(result.events.some(e => e.kind === 'tool_call' && e.tool_name === 'shell_command')).toBe(true)
+    expect(result.events.some(e => e.kind === 'tool_result' && e.call_id === 'call-1' && e.tool_name === 'shell_command')).toBe(true)
+    expect(result.events.some(e => e.kind === 'token_count' && e.total_tokens === 140)).toBe(true)
+    expect(result.events.some(e => e.kind === 'task_status' && e.status === 'completed')).toBe(true)
   })
 
   it('deduplicates identical messages', () => {
@@ -495,13 +598,13 @@ describe('parseClaudeTranscript', () => {
         type: 'assistant',
         timestamp: '2024-06-01T10:00:00Z',
         message: {
-          role: 'assistant',
-          content: [
-            { type: 'text', text: 'Let me check that' },
-            { type: 'tool_use', name: 'readFile', input: { path: '/tmp/f.txt' } },
-          ],
-        },
-      }),
+             role: 'assistant',
+             content: [
+               { type: 'text', text: 'Let me check that' },
+               { type: 'tool_use', id: 'toolu_123', name: 'readFile', input: { path: '/tmp/f.txt' } },
+             ],
+           },
+         }),
       JSON.stringify({
         type: 'user',
         timestamp: '2024-06-01T10:00:05Z',
@@ -518,7 +621,7 @@ describe('parseClaudeTranscript', () => {
     const result = parseClaudeTranscript(filePath)
     expect(result.tool_events).toHaveLength(2)
     expect(result.tool_events[0]!.summary).toContain('readFile input=')
-    expect(result.tool_events[1]!.summary).toContain('toolu_123 output=')
+    expect(result.tool_events[1]!.summary).toContain('readFile output=')
     // The assistant message should also contain the text part
     expect(result.messages.some(m => m.text === 'Let me check that')).toBe(true)
   })

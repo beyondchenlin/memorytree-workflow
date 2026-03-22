@@ -166,7 +166,10 @@ describe('formatText', () => {
       branch: 'main',
       message_count: 42,
       tool_event_count: 7,
+      event_count: 64,
       global_clean_path: '/tmp/clean.md',
+      global_full_path: '/tmp/full.json',
+      normalized_content: '[10:00:00] user: Hello',
     }
 
     const text = formatText(payload)
@@ -178,7 +181,10 @@ describe('formatText', () => {
     expect(text).toContain('branch: main')
     expect(text).toContain('messages: 42')
     expect(text).toContain('tool_events: 7')
+    expect(text).toContain('events: 64')
     expect(text).toContain('imported_this_sync: 3')
+    expect(text).toContain('full_transcript: /tmp/full.json')
+    expect(text).toContain('--- normalized transcript content ---')
   })
 
   it('formats a not-found result with message', () => {

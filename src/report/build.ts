@@ -15,7 +15,8 @@ import {
 import { basename, dirname, join } from 'node:path'
 
 import type { BuildReportOptions } from '../types/report.js'
-import type { ManifestEntry } from '../types/transcript.js'
+import type { ManifestEntry, ParsedTranscript, TranscriptEvent } from '../types/transcript.js'
+import { parseTranscript } from '../transcript/parse.js'
 import { computeStats, extractToolNames, accumulateToolCounts } from './stats.js'
 import { renderDashboard } from './render/dashboard.js'
 import { renderTranscriptList } from './render/transcript-list.js'
@@ -93,15 +94,22 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
 
   // Process each transcript: parse → summarize → render → write → discard
   const snippets: Record<string, string> = {}
+  const searchTexts: Record<string, string> = {}
   const summaries: Record<string, string> = {}
   const summaryPromises: Array<Promise<void>> = []
 
   for (const m of manifests) {
-    const messages = parseCleanMarkdownMessages(m, root)
+    const parsedTranscript = loadStructuredTranscript(m, root)
+    const messages = parsedTranscript
+      ? parsedTranscript.messages.map(toRenderedMessage)
+      : parseCleanMarkdownMessages(m, root)
+    const events = parsedTranscript?.events ?? []
 
-    // Tool events from parsed transcript (try raw path)
-    const rawPath = resolveRawPath(m, root)
-    if (rawPath && existsSync(rawPath)) {
+    if (events.length > 0) {
+      toolCounts = accumulateToolCounts(toolCounts, extractToolNamesFromEvents(events))
+    } else {
+      const rawPath = resolveRawPath(m, root)
+      if (rawPath && existsSync(rawPath)) {
       try {
         const toolSummaries = extractToolSummariesFromRaw(rawPath, m.client)
         const names = extractToolNames(toolSummaries)
@@ -109,15 +117,17 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
       } catch {
         // Skip if raw parsing fails
       }
+      }
     }
 
-    // Search snippet from first message text
     const firstMsg = messages[0]
-    snippets[m.session_id] = firstMsg ? firstMsg.text.slice(0, 300) : ''
+    snippets[m.session_id] = firstMsg ? firstMsg.text.slice(0, 300) : snippetFromEvents(events)
+    searchTexts[m.session_id] = buildSearchText(messages, events)
 
     // Summarize + render (deferred to allow parallel API calls)
     const manifest = m
     const msgs = messages
+    const transcriptEvents = events
     summaryPromises.push(
       (async () => {
         try {
@@ -128,7 +138,15 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
           .map(id => manifests.find(x => x.session_id === id))
           .filter((x): x is ManifestEntry => x !== undefined)
 
-        const html = renderTranscript(msgs, manifest, summary, backlinkManifests, t, reportBaseUrl)
+        const html = renderTranscript(
+          msgs,
+          manifest,
+          summary,
+          backlinkManifests,
+          t,
+          reportBaseUrl,
+          transcriptEvents,
+        )
         const outPath = transcriptOutputPath(output, manifest)
         mkdirSync(dirname(outPath), { recursive: true })
         writeFileSync(outPath, html, 'utf-8')
@@ -215,7 +233,11 @@ export async function buildReport(options: BuildReportOptions): Promise<void> {
   )
 
   // Search
-  const searchIndex = buildSearchIndex(manifests, m => snippets[m.session_id] ?? '')
+  const searchIndex = buildSearchIndex(
+    manifests,
+    m => snippets[m.session_id] ?? '',
+    m => searchTexts[m.session_id] ?? snippets[m.session_id] ?? '',
+  )
   writeFileSync(join(output, 'search.html'), renderSearchPage(searchIndex, t), 'utf-8')
 
   // RSS Feed
@@ -423,6 +445,12 @@ function extractToolSummariesFromRaw(rawPath: string, _client: string): string[]
   return summaries
 }
 
+function extractToolNamesFromEvents(events: TranscriptEvent[]): string[] {
+  return events
+    .filter((event): event is Extract<TranscriptEvent, { kind: 'tool_call' }> => event.kind === 'tool_call')
+    .map(event => event.tool_name)
+}
+
 // ---------------------------------------------------------------------------
 // Output path helpers
 // ---------------------------------------------------------------------------
@@ -442,6 +470,145 @@ function resolveRawPath(m: ManifestEntry, root: string): string | null {
     return m.global_raw_path
   }
   return null
+}
+
+function resolveFullPath(m: ManifestEntry, root: string): string | null {
+  if (m.repo_full_path) {
+    const repoPath = join(root, m.repo_full_path)
+    if (existsSync(repoPath)) return repoPath
+  }
+  if (m.global_full_path && existsSync(m.global_full_path)) {
+    return m.global_full_path
+  }
+  const derivedRepoPath = deriveFullPathFromCleanPath(m.repo_clean_path ? join(root, m.repo_clean_path) : '')
+  if (derivedRepoPath) {
+    return derivedRepoPath
+  }
+  const derivedGlobalPath = deriveFullPathFromCleanPath(m.global_clean_path)
+  if (derivedGlobalPath) {
+    return derivedGlobalPath
+  }
+  return null
+}
+
+function loadNormalizedTranscript(m: ManifestEntry, root: string): ParsedTranscript | null {
+  const fullPath = resolveFullPath(m, root)
+  if (!fullPath) return null
+
+  try {
+    const raw = readFileSync(fullPath, 'utf-8')
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    if (
+      !Array.isArray(parsed['messages']) ||
+      !Array.isArray(parsed['tool_events']) ||
+      !Array.isArray(parsed['events'])
+    ) {
+      return null
+    }
+
+    return {
+      client: String(parsed['client'] ?? m.client) as ParsedTranscript['client'],
+      session_id: String(parsed['session_id'] ?? m.session_id),
+      title: String(parsed['title'] ?? m.title),
+      started_at: String(parsed['started_at'] ?? m.started_at),
+      cwd: String(parsed['cwd'] ?? m.cwd),
+      branch: String(parsed['branch'] ?? m.branch),
+      messages: parsed['messages'] as ParsedTranscript['messages'],
+      tool_events: parsed['tool_events'] as ParsedTranscript['tool_events'],
+      events: parsed['events'] as ParsedTranscript['events'],
+      source_path: String(parsed['source_path'] ?? m.raw_source_path),
+    }
+  } catch {
+    return null
+  }
+}
+
+function loadStructuredTranscript(m: ManifestEntry, root: string): ParsedTranscript | null {
+  const normalizedTranscript = loadNormalizedTranscript(m, root)
+  if (normalizedTranscript) {
+    return normalizedTranscript
+  }
+
+  const rawPath = resolveRawPath(m, root)
+  if (!rawPath || !existsSync(rawPath)) {
+    return null
+  }
+
+  try {
+    return parseTranscript(m.client, rawPath)
+  } catch {
+    return null
+  }
+}
+
+function deriveFullPathFromCleanPath(cleanPath: string): string | null {
+  if (!cleanPath || !existsSync(cleanPath)) return null
+  const fullPath = cleanPath
+    .replace(/[\\/]clean[\\/]/, '/full/')
+    .replace(/\.md$/i, '.json')
+  return existsSync(fullPath) ? fullPath : null
+}
+
+function toRenderedMessage(message: ParsedTranscript['messages'][number]): RenderedMessage {
+  return {
+    role: message.role,
+    timestamp: message.timestamp ?? '',
+    text: message.text,
+  }
+}
+
+function snippetFromEvents(events: TranscriptEvent[]): string {
+  for (const event of events) {
+    if (event.kind === 'message') {
+      return event.text.slice(0, 300)
+    }
+    if (event.kind === 'reasoning') {
+      const text = event.text || event.summary || ''
+      if (text) return text.slice(0, 300)
+    }
+    if (event.summary) {
+      return event.summary.slice(0, 300)
+    }
+  }
+  return ''
+}
+
+function buildSearchText(messages: RenderedMessage[], events: TranscriptEvent[]): string {
+  const headParts: string[] = []
+  const bodyParts: string[] = []
+
+  if (events.length > 0) {
+    for (const event of events) {
+      if (event.kind === 'message') {
+        bodyParts.push(event.role, event.text)
+        continue
+      }
+      if (event.kind === 'reasoning') {
+        headParts.push(event.text || event.summary || 'reasoning')
+        continue
+      }
+      if (event.kind === 'tool_call' || event.kind === 'tool_result') {
+        headParts.push(event.tool_name, event.summary || '')
+        continue
+      }
+      if (event.title) {
+        headParts.push(event.title)
+      }
+      if (event.summary) {
+        headParts.push(event.summary)
+      }
+    }
+  } else {
+    for (const message of messages) {
+      bodyParts.push(message.role, message.text)
+    }
+  }
+
+  return normalizeSearchText([...headParts, ...bodyParts].join('\n')).slice(0, 1600)
+}
+
+function normalizeSearchText(text: string): string {
+  return text.replace(/\s+/g, ' ').trim()
 }
 
 // ---------------------------------------------------------------------------
