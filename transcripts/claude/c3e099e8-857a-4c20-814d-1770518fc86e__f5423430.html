@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>c3e099e8-857a-4c20-814d-1770518fc86e</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>c3e099e8-857a-4c20-814d-1770518fc86e</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>4</strong> Messages</span>
+      <span class="transcript-pill"><strong>6</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 08:47:43</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>4</td></tr>
   <tr><td>Tool Events</td><td>6</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">f54234304a4a605e…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">f54234304a4a605e...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -992,6 +1015,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>审计完成，以下是 Goal v002 + Todo v002_001 与代码库实际状态的对照分析：</p><p>---</p><p>## 一、Goal v002 方案审计</p><p>方案整体结构清晰，分层逻辑（数据→存储→推理→协作→插件）合理，商业模式参考 GitLab CE/EE 是成熟路径。几个值得注意的点：</p><p>1. 竞品对比中 Mem0 的差异写的是&quot;Git 版本历史 + 跨客户端 + 离线&quot;，但目前 Git commit 关联索引还没实现，这个差异化优势暂时只存在于规划中，不是已交付能力。</p><p>2. &quot;不做向量数据库（SQLite FTS 够用）&quot;这个非目标判断在 Phase 0-1 是对的，但到推理层做跨 session 记忆推断时，纯 FTS 可能不够——语义相似性检索是 FTS 的弱项。建议在 Phase 1 启动时重新评估。</p><p>3. Phase 时间线（Phase 1 三个月内、Phase 2 三到六个月）偏乐观，尤其是推理层要 fork EvoScientist + 做跨 session 推断 + Webhook 富文本，三个月内 MVP 需要非常聚焦。</p><p>---</p><p>## 二、Todo v002_001 与代码实际状态对照</p><p>| Todo 项 | 声称状态 | 实际状态 | 差异 |<br>|---------|---------|---------|------|<br>| npm token 轮换 | 紧急待办 | ⚠️ 未处理 | 仍需立即执行 |<br>| FTS 全文检索 | In Progress | 部分完成 | 当前只索引 title/cwd/branch，缺 content 和 commit_layer |<br>| Git Commit 关联索引 | In Progress | 未开始 | 无 git log 解析、无 commit_index 表、无关联算法 |<br>| GiteaAdapter 完整链路 | Done 区暗示已完成 | 代码存在但无 E2E 测试、无配置文档 | Done 区过早声明 |<br>| DataLayerAPI 接口定义 | In Progress | 未开始 | types/core 中无此接口 |<br>| 包版本 v0.4.1 | Done | ✅ 确认一致 | — |<br>| 测试 ~602 | Done | 实际 ~855 | 数字过时，应更新 |<br>| 心跳守护进程 | Done | ✅ 已实现 | — |<br>| HTML 报告生成 | Done | ✅ 已实现 | — |</p><p>---</p><p>## 三、关键问题</p><p>1. <strong>npm token 轮换标记为&quot;先于一切执行&quot;但仍未处理</strong>——这是真正的安全风险，应该在做任何功能开发之前完成。</p><p>2. <strong>Done 区的 GiteaAdapter 声明不准确</strong>——代码实现了但没有 E2E 测试和文档，不应算作&quot;完成&quot;。建议移回 In Progress 或加子任务。</p><p>3. <strong>MEMORY.md 中版本号过时</strong>——记录的是 v0.2.2，实际已经是 v0.4.1，测试数也从 602 涨到 855。</p><p>4. <strong>Milestone 1 的四个子任务（FTS/Git索引/Gitea验证/API定义）全部未完成</strong>，但 Todo 标记为 In Progress，实际只有 FTS 有部分基础代码（FTS4 表结构存在但字段不全），其余三个是零进度。</p><p>---</p><p>## 四、建议调整</p><p>1. 立即轮换 npm token，不要再拖。<br>2. 把 GiteaAdapter 从 Done 移到 In Progress，补 E2E 测试 + 配置文档。<br>3. 更新 MEMORY.md 的版本号和测试数。<br>4. Milestone 1 的优先级排序建议：FTS content 字段 → DataLayerAPI 接口定义 → Git commit 索引 → Gitea E2E，因为 API 接口定义越早越好，后续推理层依赖它。<br>5. Phase 1 时间线建议加 buffer，或者砍掉 Webhook 富文本卡片放到 Phase 1.5。</p><p>需要我帮你更新 Todo 文件或 MEMORY.md 吗？</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

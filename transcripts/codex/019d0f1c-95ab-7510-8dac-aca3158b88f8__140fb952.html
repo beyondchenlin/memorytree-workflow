@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>rollout-2026-03-21T14-37-04-019d0f1c-95ab-7510-8dac-aca3158b88f8</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>rollout-2026-03-21T14-37-04-019d0f1c-95ab-7510-8dac-aca3158b88f8</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-codex">codex</span></span>
+      <span class="transcript-pill"><strong>15</strong> Messages</span>
+      <span class="transcript-pill"><strong>226</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-21 06:37:04</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">dev</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">d:\demo1\papaweb</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-codex">codex</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>019d0f1c-95ab-7510-8dac-aca3158b88f8</code></td></tr>
   <tr><td>Messages</td><td>15</td></tr>
   <tr><td>Tool Events</td><td>226</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>dev</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">d:\demo1\papaweb</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">140fb952a98acf53…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">140fb952a98acf53...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1058,6 +1081,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>可以。用大白话说：</p><p>这份方案想把你们现在的系统，从“抓网页的小流水线”，升级成“长期研究平台 + 证据档案库 + 报告工厂 + 情报大屏”。</p><p>方向是对的，但我审计后的意思是：</p><p><strong>不是方案错了，而是现在的地基还没完全到那个级别。</strong></p><p>最关键的 5 个点，我给你翻成白话：</p><p>1. 现在系统更像“抓网页后生成一张结果卡片”，不是“保存完整证据包和历史版本”。<br>现在的主链路大概是：<br>抓取网页 -&gt; 提取标题摘要 -&gt; 打分 -&gt; 发布</p><p>但你的新方案要求的是：<br>每次任务都要留下证据、版本、模板版本、报告版本，而且以后还能回看“当时为什么得出这个结论”。</p><p>问题在于：现在很多结果是会被新结果覆盖的，不是真正“冻住历史版本”。<br>所以文档里说的“PDF/CSV/报告可追溯”，现在底层还撑不住。</p><p>一句话：<br>现在像“更新最新结果”，你方案要的是“保存每次研究的档案”。</p><p>2. 你方案想支持“多个客户/多个组织/长期监控”，但现在底层很多状态还是“全局共用”的。<br>比如同一个来源、同一个 URL，现在更像是全系统共用一份状态。</p><p>这会带来一个风险：<br>A 客户在监控这个主题，B 客户也在监控类似来源时，底层状态可能互相影响。</p><p>一句话：<br>你方案想开“多租户商场”，但现在底层还有点像“一个大仓库大家共用一个货架号”。</p><p>3. 文档把现状写得有点太简单了。<br>文档里说现有系统主要就是：<br><code>query-api -&gt; fetch -&gt; normalize -&gt; quality -&gt; publish</code></p><p>但实际上现在已经有一套“源站配置 + 发现规则”的东西了，比如：<br>哪些站先抓、哪些 URL 算详情页、哪些要走 Pinchtab。</p><p>也就是说，<code>source-registry</code> 这个概念你们其实已经有半套了，只是名字还不叫这个。</p><p>我的担心是：<br>后面如果再新造一套 <code>source-registry</code>，很容易变成老系统一套、新系统一套，两边同时维护。</p><p>一句话：<br>不是从 0 开始建，而是已经有半栋楼了，改造时要接着现有结构来。</p><p>4. 文档里的 <code>TaskSpec / WorkflowSpec / ReportSpec</code> 现在更像“产品示意图”，还不像“工程施工单”。<br>这些例子看起来很合理，但如果真让程序跑，还缺一些关键东西，比如：</p><p>- 这次运行的唯一编号<br>- 重试时怎么避免重复执行<br>- 这个任务是按哪个版本的规则编译出来的<br>- 后面出了问题怎么回放和审计</p><p>一句话：<br>现在像“设计草图”，还不是“施工图纸”。</p><p>5. 现在最薄弱的地方，恰好是以后会最复杂的地方。<br>你后面要加：</p><p>- Intent Router<br>- Policy Gate<br>- 多引擎路由<br>- 长期 watch<br>- 可视化门户</p><p>这些都会让系统更复杂。</p><p>但当前最容易出问题的一层，像 discovery / source routing 这些，测试还不算强。<br>意思是：房子还要加层，但地基这块的压力测试还不够。</p><p>一句话：<br>先补测试，再上复杂能力，不然以后很容易“功能越多越不稳”。</p><p><strong>如果再浓缩成一句总评：</strong></p><p>这份方案的战略方向是对的，<br>但它默认了一个比当前仓库更成熟的底座。<br>所以真正落地时，不能直接从“做门户、做模板、做 Agent”开始，<br>而是要先补：</p><p>1. 证据和历史版本模型<br>2. 多租户/权限模型<br>3. 源站配置真源<br>4. 可执行的任务契约<br>5. discovery/路由测试</p><p><strong>你可以把它理解成：</strong><br>不是“这方案不能做”，而是“这方案要先修地基，再盖上层”。</p><p>如果你愿意，我下一步可以直接帮你做两种版本之一：</p><p>1. 把整份方案改写成“大白话版”<br>2. 直接告诉你“这份文档具体该改哪几段、怎么改”</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

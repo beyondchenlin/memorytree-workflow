@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-adf1b6a2d49086731</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-adf1b6a2d49086731</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>11</strong> Messages</span>
+      <span class="transcript-pill"><strong>38</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 14:17:57</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>11</td></tr>
   <tr><td>Tool Events</td><td>38</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">1c26d4a619751d5f…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">1c26d4a619751d5f...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1122,6 +1145,7 @@ export function createGraphAdapter(cfg: StorageConfig): GraphAdapter {
   </div>
   <div class="message-body"><p>Based on my thorough second-pass review, here are the critical findings:</p><p>## SECOND-PASS CODE REVIEW REPORT</p><p>### 1. <strong>FTS4 Column Filter Syntax — CRITICAL</strong><br><strong>File:</strong> <code>packages/core/src/transcript/db.ts</code> (line 253)  <br><strong>Issue:</strong> The column filter syntax <code>col:term OR col2:term</code> is <strong>not valid FTS4 syntax</strong>.</p><p>FTS4 column filters use the format <code>column:term</code> but the <code>OR</code> operator at the FTS level doesn&#39;t work as intended. The correct syntax should be <code>(commit_layer:${sanitized})</code> as a single MATCH clause, not <code>commit_layer:term OR content:term</code>.</p><p><strong>Impact:</strong> <code>searchTranscriptsByColumns([&#39;commit_layer&#39;, &#39;content&#39;], query)</code> will likely fail silently or return incorrect results because the MATCH clause becomes malformed.</p><p><strong>Severity:</strong> CRITICAL — Search layer 1 and 3 in <code>searchRecall</code> may not work correctly.</p><p>---</p><p>### 2. <strong>Race Condition in Migration — HIGH</strong><br><strong>File:</strong> <code>packages/core/src/transcript/db.ts</code> (lines 156-164, 170-180)  <br><strong>Issue:</strong> <code>migrateSchema</code> and <code>migrateFts</code> are called inside <code>upsertSearchIndex</code> without transaction protection. Multiple concurrent writers can:<br>- Both attempt <code>ALTER TABLE ADD COLUMN</code> simultaneously<br>- One process drops FTS table while another is querying it<br>- Partial migration state leaves DB inconsistent</p><p><strong>Current mitigation:</strong> <code>busy_timeout = 5000ms</code> only delays, doesn&#39;t prevent race conditions.</p><p><strong>Severity:</strong> HIGH — Under concurrent load (multiple sync processes), DB corruption or query failures are possible.</p><p>---</p><p>### 3. <strong>Content Field Size — Performance Risk — HIGH</strong><br><strong>File:</strong> <code>packages/core/src/transcript/import.ts</code> (line 106-107)  <br><strong>Issue:</strong> Clean markdown files can be 100KB+ (full session transcripts). Storing entire content in SQLite TEXT column and rebuilding FTS index on every upsert is expensive:<br>- FTS rebuild is O(n) for all rows<br>- Large TEXT fields slow down FTS queries<br>- No pagination or chunking strategy</p><p><strong>Current behavior:</strong> Every <code>upsertSearchIndex</code> call triggers <code>REBUILD_FTS_SQL</code> (line 287 in db.ts), even for single-row inserts.</p><p><strong>Severity:</strong> HIGH — Performance degrades with large transcripts; FTS rebuild becomes bottleneck.</p><p>---</p><p>### 4. <strong>searchRecall Layer Logic — Overlapping Results — MEDIUM</strong><br><strong>File:</strong> <code>packages/core/src/recall/recall.ts</code> (lines 293-308)  <br><strong>Issue:</strong> Layers 1, 2, and 3 can return overlapping results:<br>- Layer 1 searches <code>commit_layer</code> column<br>- Layer 2 searches <code>title, cwd, branch</code> (default FTS)<br>- Layer 3 searches <code>content</code> column</p><p>If a term appears in both <code>commit_layer</code> and <code>title</code>, layer 1 returns it and layer 2 is skipped. This is intentional (first match wins), but there&#39;s <strong>no test coverage</strong> for this behavior. Edge case: what if layer 1 returns partial results (&lt; limit) but layer 2 would have better matches?</p><p><strong>Severity:</strong> MEDIUM — Design is defensible but untested; could surprise users.</p><p>---</p><p>### 5. <strong>Factory Design — Incomplete Phase 1 — MEDIUM</strong><br><strong>File:</strong> <code>packages/core/src/storage/factory.ts</code> (lines 24-43)  <br><strong>Issue:</strong> Both <code>createVectorAdapter</code> and <code>createGraphAdapter</code> always throw &quot;not implemented in Phase 1&quot;. However:<br>- Tests expect this (lines 108-129 in adapters.test.ts)<br>- No callers currently invoke these factories (grep found 0 usages outside tests)<br>- But if code is added that calls these factories without try-catch, it will crash</p><p><strong>Severity:</strong> MEDIUM — Design is correct for Phase 1, but fragile. Should document that these are stubs.</p><p>---</p><p>### 6. <strong>Migration Idempotency Under Failure — HIGH</strong><br><strong>File:</strong> <code>packages/core/src/transcript/db.ts</code> (lines 156-164)  <br><strong>Issue:</strong> If <code>migrateSchema</code> partially succeeds (e.g., adds <code>content</code> but crashes before <code>commit_layer</code>), the next call will:<br>- Skip <code>content</code> (already exists, caught by try-catch)<br>- Attempt <code>commit_layer</code> again<br>- But <code>migrateFts</code> checks for <code>commit_layer</code> in FTS table, not in transcripts table</p><p><strong>Scenario:</strong> Crash after <code>ALTER TABLE ADD COLUMN content</code> but before <code>ALTER TABLE ADD COLUMN commit_layer</code>. Next restart: <code>migrateFts</code> sees old FTS table (no <code>commit_layer</code>), drops it, recreates it. But transcripts table is missing <code>commit_layer</code> column → INSERT fails.</p><p><strong>Severity:</strong> HIGH — Partial migration can leave DB in broken state.</p><p>---</p><p>### 7. <strong>Test Gaps — MEDIUM</strong><br><strong>Missing test coverage:</strong><br>- No tests for <code>searchTranscriptsByColumns</code> with actual FTS queries (only db.test.ts line 7 imports it, but no dedicated test suite)<br>- No concurrent write tests (multiple processes upsert simultaneously)<br>- No <code>searchRecall</code> layer fallback tests (what if layer 1 returns 0 results?)<br>- No large content field tests (100KB+ markdown in FTS)<br>- No migration failure recovery tests (crash mid-migration)</p><p><strong>Severity:</strong> MEDIUM — Critical paths untested.</p><p>---</p><p>### 8. <strong>Error Handling in searchTranscriptsByColumns — LOW</strong><br><strong>File:</strong> <code>packages/core/src/transcript/db.ts</code> (lines 243-262)  <br><strong>Issue:</strong> Catch-all <code>catch { return [] }</code> silently swallows all errors, including:<br>- Malformed FTS query syntax (the column filter bug above)<br>- Database corruption<br>- Permission errors</p><p>Users get empty results with no indication of failure.</p><p><strong>Severity:</strong> LOW — Defensive, but makes debugging hard.</p><p>---</p><p>## Summary Table</p><p>| Issue | File | Line(s) | Severity | Category |<br>|-------|------|---------|----------|----------|<br>| FTS4 column filter syntax invalid | db.ts | 253 | CRITICAL | Correctness |<br>| Race condition in migration | db.ts | 156-180 | HIGH | Concurrency |<br>| Content field size / FTS rebuild perf | import.ts, db.ts | 106-107, 287 | HIGH | Performance |<br>| searchRecall layer overlap untested | recall.ts | 293-308 | MEDIUM | Testing |<br>| Factory stubs fragile | factory.ts | 24-43 | MEDIUM | Design |<br>| Partial migration recovery broken | db.ts | 156-164, 170-180 | HIGH | Reliability |<br>| Test gaps (concurrency, layers, large content) | tests/ | — | MEDIUM | Testing |<br>| Silent error swallowing | db.ts | 257 | LOW | Observability |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

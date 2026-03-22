@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a88ac26782dbb224d</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a88ac26782dbb224d</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>17</strong> Messages</span>
+      <span class="transcript-pill"><strong>72</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 02:18:44</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>17</td></tr>
   <tr><td>Tool Events</td><td>72</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">f0a2f965a0f34244…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">f0a2f965a0f34244...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1070,6 +1093,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>Excellent! Now let me compile my complete findings:</p><p>---</p><p>## COMPREHENSIVE CODE REVIEW: Recent Changes to <code>/d/demo1/openmnemo</code></p><p>### 1. <strong>packages/core/src/transcript/db.ts</strong> — FTS4 Search</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>FTS4 table definition (line 105-109):</strong> Properly uses <code>USING fts4(content=&#39;transcripts&#39;, title, cwd, branch)</code>. The <code>content=&#39;transcripts&#39;</code> parameter is correct for FTS4 — it creates a shadow table pointing to the actual <code>transcripts</code> table for content. Uses <code>fts4</code> (correct; FTS5 not available in sql.js default build).<br>- <strong>Lazy rebuild detection (line 185):</strong> Uses <code>SELECT COUNT(*) FROM transcripts_fts_segdir</code> — correct FTS4 internal table for detecting an empty/unbuilt index.<br>- <strong>sanitizeFtsQuery (lines 149-154):</strong> Strips ALL dangerous FTS4 metacharacters: <code>&quot;</code> (phrase), <code>*</code> (prefix), <code>(</code> <code>)</code> (grouping), <code>-</code> (exclusion), <code>^</code> (boost). Regex <code>[^\p{L}\p{N}\s&#39;]</code> keeps only letters, digits, apostrophes, whitespace. Safe.<br>- <strong>searchTranscripts (lines 165-212):</strong> Correct JOIN on <code>transcripts_fts.docid = t.rowid</code> (FTS4 standard). Limit applied correctly at line 123. Empty database handled (line 175). Sanitized query forwarded to FTS MATCH (line 193).</p><p>### 2. <strong>packages/core/src/index.ts</strong> — Barrel Exports</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>Line 59:</strong> <code>export { upsertSearchIndex, searchTranscripts, sanitizeFtsQuery }</code> — All three exported.<br>- <strong>Line 60:</strong> Type <code>SearchResult</code> exported.</p><p>### 3. <strong>packages/cli/src/cmd-search.ts</strong> — Search Command</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>Query validation (lines 18-22):</strong> Checks empty query, returns exit code 1 with error message to stderr.<br>- <strong>Global root fallback (line 24):</strong> Uses <code>options.globalRoot ? resolve(options.globalRoot) : defaultGlobalTranscriptRoot()</code> — correct.<br>- <strong>Text format (lines 44-57):</strong> Outputs <code>query: &lt;query&gt;</code>, <code>count: &lt;count&gt;</code>, <code>results:</code> list with client/project/session_id/title/started_at/cwd/branch. Correct structure.<br>- <strong>JSON format (line 37):</strong> Outputs <code>{ query, results, count }</code> with newline. Correct.<br>- <strong>Error handling (lines 30-34):</strong> Catches errors, writes to stderr, returns 1. Correct.</p><p>### 4. <strong>packages/cli/src/cmd-report.ts</strong> — Report Build + Serve</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>createReportServer extracted (lines 52-120):</strong> Properly exported function. Takes <code>CmdReportServeOptions</code>, returns <code>http.Server</code>.<br>- <strong>cmdReportServe (lines 122-125):</strong> Delegates to <code>createReportServer</code>, returns 0 immediately (server runs in background). Correct.<br>- <strong>Path containment check (line 79):</strong> Uses <code>if (!filePath.startsWith(root + sep) &amp;&amp; filePath !== root)</code> with <code>sep</code> from <code>node:path</code>. Cross-platform safe (handles both Windows <code>\</code> and Unix <code>/</code>). Correctly blocks directory traversal while allowing root directory itself.<br>- <strong>MIME types (lines 56-63):</strong> Standard mappings. Correct.<br>- <strong>Directory-to-index.html redirect (lines 86-88):</strong> Serves <code>index.html</code> for directory requests. Correct.</p><p>### 5. <strong>packages/cli/tests/helpers/capture.ts</strong> — Shared Helper</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>Captures stdout (lines 14, 19):</strong> Both <code>process.stdout.write</code> and <code>console.log</code> (via line 21) captured.<br>- <strong>Captures stderr (lines 15, 20):</strong> Both <code>process.stderr.write</code> and <code>console.error</code> (via line 22) captured.<br>- <strong>Restore (lines 27-31):</strong> Properly restores all four overrides.</p><p>### 6. <strong>packages/cli/tests/cli/recall.test.ts</strong> — Recall Tests</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>MOCK_RECALL_RESULT (lines 12-27):</strong> Uses correct field names: <code>global_clean_path</code> (line 25), <code>clean_content</code> (line 26). ✓<br>- <strong>activationTime forwarding test (lines 99-129):</strong> Line 117 passes <code>activationTime: &#39;2024-06-01T09:00:00Z&#39;</code>, line 128 verifies it forwarded as 4th argument to <code>recall()</code>. ✓</p><p>### 7. <strong>packages/cli/tests/cli/report.test.ts</strong> — Report Tests</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>HTTP server tests (lines 133-149, 151-163):</strong> Both use <code>createReportServer({ dir: tmpDir, port: 0 })</code>, port 0 lets OS pick free port, server properly closed in afterEach (lines 118-120). ✓<br>- <strong>Build success assertion (lines 47-48):</strong> Checks for both <code>&#39;Report generated at:&#39;</code> and <code>&#39;Open:&#39;</code> in stdout. ✓<br>- <strong>cmdReportServe test (lines 125-131):</strong> Delegates to <code>createReportServer</code>, returns 0 synchronously. ✓</p><p>### 8. <strong>packages/cli/tests/cli/discover.test.ts</strong> — Discover Tests</p><p><strong>Status:</strong> ✓ CORRECT</p><p>- <strong>No static import of cmdDiscover:</strong> Lines 5-10 show NO top-level import. All tests use dynamic import (line 25, 54, 85): <code>const { cmdDiscover } = await import(&#39;../../src/cmd-discover.js&#39;)</code>. ✓</p><p>---</p><p>## Summary</p><p>| Category | Status | Details |<br>|----------|--------|---------|<br>| FTS4 SQL | ✓ PASS | Correct FTS4 syntax, docid/rowid JOIN, lazy rebuild detection |<br>| Query Sanitization | ✓ PASS | All metacharacters stripped; unicode-aware |<br>| Exports | ✓ PASS | All functions and types properly exported |<br>| Search Command | ✓ PASS | Validation, fallback, formatting, error handling correct |<br>| Report Server | ✓ PASS | Extraction, delegation, path containment check with <code>sep</code> correct |<br>| Test Helpers | ✓ PASS | Captures stdout/stderr and console methods |<br>| Test Mocks | ✓ PASS | Mock fields match actual API (global_clean_path, clean_content, activationTime) |<br>| HTTP Tests | ✓ PASS | Port 0 usage, proper cleanup |<br>| Dynamic Imports | ✓ PASS | No static imports of dynamic commands |</p><p>---</p><p>## Verdict</p><p><strong>NO CRITICAL ISSUES FOUND</strong><br><strong>NO HIGH-PRIORITY ISSUES FOUND</strong>  <br><strong>NO MEDIUM-PRIORITY ISSUES FOUND</strong></p><p>All reviewed files are <strong>production-ready</strong> with correct implementations, proper error handling, cross-platform compatibility, and comprehensive test coverage.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

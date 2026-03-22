@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a68667cfa464a24aa</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a68667cfa464a24aa</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>10</strong> Messages</span>
+      <span class="transcript-pill"><strong>74</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 05:00:05</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>acad61e8-8f09-4b5a-9ef1-4c1c9499ba77</code></td></tr>
   <tr><td>Messages</td><td>10</td></tr>
   <tr><td>Tool Events</td><td>74</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">6ec2ff3bd4728aad…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">6ec2ff3bd4728aad...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1028,6 +1051,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>Based on my thorough exploration of the D:/demo1/openmnemo/ repository, here&#39;s a comprehensive summary of the monorepo setup, CI/CD pipeline, release process, and project structure:</p><p>## Monorepo Structure</p><p><strong>Root Configuration:</strong><br>- <strong>pnpm-workspace.yaml</strong>: Defines workspace with <code>packages/*</code> pattern<br>- <strong>package.json</strong>: Private monorepo root with Node &gt;=20 requirement, pnpm 9.15.0<br>- <strong>turbo.json</strong>: Turbo build orchestration with task dependencies (build → test, typecheck depends on ^build)<br>- <strong>tsconfig.json</strong>: Not present at root (each package has its own)<br>- <strong>eslint.config.mjs</strong>: TypeScript ESLint config with unused vars rule</p><p><strong>5 Published Packages</strong> (all at v0.4.1):<br>1. <code>@openmnemo/types</code> — Shared TypeScript interfaces<br>2. <code>@openmnemo/core</code> — Transcript parsing, import, dedup, indexing, FTS4 search<br>3. <code>@openmnemo/sync</code> — Heartbeat daemon, config management, background sync<br>4. <code>@openmnemo/report</code> — Static HTML dashboard generation<br>5. <code>@openmnemo/cli</code> — Unified CLI (openmnemo command)</p><p>All packages use:<br>- ESM with TypeScript strict mode<br>- tsup for building (outputs to <code>dist/</code>)<br>- Vitest for testing (testTimeout: 15000ms)<br>- <code>.js</code> extension required in imports (NodeNext ESM)</p><p>## CI/CD Pipeline</p><p><strong>ci.yml</strong> (on push/PR to main):<br>- Matrix: Ubuntu + Windows, Node 22 &amp; 24<br>- Steps: install → build → typecheck → lint → test<br>- Turbo telemetry disabled</p><p><strong>release.yml</strong> (on push to main + workflow_dispatch):<br>- Concurrency: <code>cancel-in-progress: false</code> (no cancellation)<br>- Checks for changesets in <code>.changeset/*.md</code><br>- If changesets exist: runs <code>pnpm version-packages</code>, commits as &quot;chore: release&quot;, pushes<br>- If no changesets: runs <code>pnpm release</code> (build + publish to npm)<br>- Requires <code>NPM_TOKEN</code> secret (Classic Automation token)<br>- npm provenance enabled (id-token: write)</p><p><strong>publish.yml</strong> (manual workflow_dispatch only):<br>- Idempotent: catches &quot;previously published versions&quot; error and treats as success<br>- Full pipeline: install → build → typecheck → test → publish<br>- Verifies NPM_TOKEN is set before publishing</p><p>## Release Process</p><p><strong>Changesets Configuration</strong> (.changeset/config.json):<br>- All 5 packages in fixed group (versioned together)<br>- Changelog: <code>@changesets/cli/changelog</code><br>- No auto-commit on changeset creation<br>- Base branch: main<br>- updateInternalDependencies: patch</p><p><strong>Release Workflow:</strong><br>1. Create changeset: <code>pnpm changeset</code><br>2. Commit changeset file to <code>.changeset/</code><br>3. Push to main → release.yml triggers<br>4. If changesets exist: auto-version all packages, commit, push<br>5. If no changesets: publish all packages to npm<br>6. GitHub Actions publishes automatically on tag push</p><p><strong>Version History:</strong><br>- v0.2.0, v0.2.1, v0.2.2 (earlier releases)<br>- v0.3.0 (added search, report, recall, Doubao parser)<br>- v0.3.1 (port/help text changes)<br>- v0.4.0 (CLI command aliases, release.yml refactor)<br>- v0.4.1 (search --limit 0 fix, CI improvements)</p><p>## Project Details</p><p><strong>Repository:</strong> https://github.com/openmnemo/openmnemo.git</p><p><strong>Description:</strong> Cross-platform AI conversation memory manager — auto-discovers, imports, and version-controls AI coding sessions (Claude Code, Codex, Gemini CLI, Doubao), generates searchable HTML dashboard.</p><p><strong>Supported Clients:</strong><br>- Claude Code: <code>~/.claude/projects/</code> (JSONL)<br>- Codex: <code>~/.codex/sessions/</code> (JSONL)<br>- Gemini CLI: <code>~/.gemini/</code> (JSON/JSONL)<br>- Doubao: Manual import (TXT)</p><p><strong>Key Features:</strong><br>- Auto-discovery and import of transcripts<br>- Full-text search (FTS4)<br>- HTML report generation with charts, knowledge graph<br>- Daemon for background sync (30-min heartbeat)<br>- GitHub Pages deployment support<br>- Webhook integration (Feishu, Slack, Discord, Telegram)<br>- i18n support (en, zh-CN)</p><p><strong>Root-Level Directories:</strong><br>- <code>.changeset/</code> — Changeset files + config<br>- <code>.github/workflows/</code> — CI/CD pipelines (ci.yml, release.yml, publish.yml)<br>- <code>packages/</code> — 5 npm packages<br>- <code>deploy/</code> — docker-compose.yml (Gitea + PostgreSQL)<br>- <code>Memory/</code> — MemoryTree project memory (goals, todos, transcripts, reports, knowledge)<br>- <code>.turbo/</code> — Turbo cache</p><p><strong>Configuration Files:</strong><br>- <code>.gitignore</code>: Excludes node_modules, dist, coverage, .env, Memory/07_reports<br>- <code>LICENSE</code>: MIT<br>- <code>AGENTS.md</code>: MemoryTree agent rules for transcript management, git workflow, heartbeat</p><p><strong>Scripts:</strong><br>- <code>pnpm build</code> — Turbo build all packages<br>- <code>pnpm test</code> — Turbo test all packages<br>- <code>pnpm lint</code> — Turbo lint all packages<br>- <code>pnpm typecheck</code> — Turbo typecheck all packages<br>- <code>pnpm changeset</code> — Create changeset<br>- <code>pnpm version-packages</code> — Bump versions from changesets<br>- <code>pnpm release</code> — Build + publish to npm</p><p><strong>Node Requirement:</strong> &gt;=20 (tested on 22, 24)</p><p><strong>Package Manager:</strong> pnpm 9.15.0 (required)</p><p>All absolute file paths for reference:<br>- D:/demo1/openmnemo/package.json<br>- D:/demo1/openmnemo/pnpm-workspace.yaml<br>- D:/demo1/openmnemo/turbo.json<br>- D:/demo1/openmnemo/.changeset/config.json<br>- D:/demo1/openmnemo/.github/workflows/ci.yml<br>- D:/demo1/openmnemo/.github/workflows/release.yml<br>- D:/demo1/openmnemo/.github/workflows/publish.yml<br>- D:/demo1/openmnemo/README.md<br>- D:/demo1/openmnemo/AGENTS.md<br>- D:/demo1/openmnemo/packages/*/package.json (5 packages)<br>- D:/demo1/openmnemo/packages/*/CHANGELOG.md (5 changelogs)</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a8d5b6fa6f7970230</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a8d5b6fa6f7970230</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>58</strong> Messages</span>
+      <span class="transcript-pill"><strong>154</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-17 14:53:56</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>58</td></tr>
   <tr><td>Tool Events</td><td>154</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">82384e962d05493c…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">82384e962d05493c...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1322,6 +1345,7 @@ pre.mermaid {
 </code></pre><p>With empty outputs, tests won&#39;t be cached, which is correct practice.</p><p>Now let me prepare my final report:</p><p>## Code Review Summary</p><p>Based on my thorough review of the openmnemo monorepo, I found the following issues:</p><p>### CRITICAL Issues</p><p><strong>1. CRITICAL: Doubao client support is incomplete in code but documented as working</strong><br>- <strong>Files affected</strong>: <br>  - README.md:185 (documents feature)<br>  - packages/cli/src/main.ts:78 (import command help text)<br>  - packages/core/src/transcript/common.ts:1 (CLIENTS constant)<br>  - packages/core/src/transcript/parse.ts (parseTranscript function)<br>  - packages/core/src/transcript/discover.ts:20-31 (CLIENT_PATTERNS - missing doubao)</p><p><strong>Issue</strong>: README.md line 185 claims users can run <code>openmnemo import --source &lt;file&gt; --client doubao</code>, but:<br>1. The import command help text says &quot;auto, codex, claude, gemini&quot; (doubao is missing from help)<br>2. No parseDoubao function exists<br>3. parseTranscript function throws &quot;unsupported transcript client: doubao&quot; if doubao is passed<br>4. inferClient function doesn&#39;t recognize doubao and will throw on auto-detection</p><p><strong>Action</strong>: Either implement doubao support (parser + discovery patterns) or remove it from README and CLIENTS constant.</p><p>---</p><p><strong>2. HIGH: TypeScript strictness inconsistency across packages</strong><br>- <strong>File</strong>: packages/sync/tsconfig.json:1-15</p><p><strong>Issue</strong>: packages/sync/tsconfig.json has <code>&quot;strict&quot;: true</code> but is missing:<br>- <code>&quot;noUncheckedIndexedAccess&quot;: true</code><br>- <code>&quot;exactOptionalPropertyTypes&quot;: true</code></p><p>All other packages (cli, core, types, report) have both flags explicitly set. According to the project memory, these should be &quot;consistently set&quot;.</p><p><strong>Impact</strong>: Reduced type safety in the sync package.</p><p>---</p><p>### HIGH Issues</p><p><strong>3. HIGH: Discover command help text is incomplete</strong><br>- <strong>File</strong>: packages/cli/src/main.ts:102</p><p><strong>Issue</strong>: Help text says &quot;Client filter: all, codex, claude, gemini&quot; but the code in cmd-discover.ts:35 uses:</p><pre><code>const requestedClients = options.client === &#39;all&#39; ? CLIENTS : new Set([options.client])
 </code></pre><p>This means passing <code>--client doubao</code> to discover would be accepted (due to Set creation with a string), but would silently fail to discover anything because CLIENT_PATTERNS has no doubao patterns.</p><p><strong>Better</strong>: Either document that doubao is not discoverable in help text, or prevent passing invalid clients.</p><p>---</p><p>### MEDIUM Issues</p><p><strong>4. MEDIUM: Import command help text missing doubao option</strong><br>- <strong>File</strong>: packages/cli/src/main.ts:78</p><p><strong>Issue</strong>: The help text says &quot;Transcript client: auto, codex, claude, gemini&quot; but README.md:130 documents doubao as a valid override option. The help text should list all supported clients for manual specification.</p><p><strong>Note</strong>: This would only matter if doubao parsing is actually implemented (see CRITICAL issue #1).</p><p>---</p><p><strong>5. MEDIUM: Sync package exports internal functions</strong><br>- <strong>File</strong>: packages/sync/src/index.ts:19-22</p><p><strong>Issue</strong>: The following functions are exported but are only used internally within heartbeat.ts:<br>- <code>processProject</code> (line 105 in heartbeat.ts)<br>- <code>scanSensitive</code> (line 144 in heartbeat.ts)  <br>- <code>gitCommitAndPush</code> (line 158 in heartbeat.ts)<br>- <code>tryPush</code> (line 218-220 in heartbeat.ts)</p><p>These are implementation details that leak the public API. Consider marking them as internal or moving them to a private module if they&#39;re not meant for external use.</p><p><strong>Note</strong>: They may be intentionally exported for testing, which would be acceptable.</p><p>---</p><p>### LOW Issues</p><p><strong>6. LOW: CLI package missing exports field</strong><br>- <strong>File</strong>: packages/cli/package.json:1-56</p><p><strong>Issue</strong>: Unlike other packages, @openmnemo/cli has no <code>exports</code> field. This is fine since it&#39;s a binary package with a <code>bin</code> entry, but the inconsistency could cause confusion.</p><p><strong>Recommendation</strong>: This is correct as-is (binaries don&#39;t need exports), just noting for consistency.</p><p>---</p><p>### INFO Items</p><p><strong>7. INFO: README and code are consistent (apart from doubao)</strong><br>- README.md examples match actual CLI signatures for init, discover, import, report build/serve, recall, daemon commands<br>- Default values in documentation match code<br>- Supported clients table accurately describes non-doubao clients</p><p><strong>8. INFO: CI/CD is well-configured</strong><br>- All GitHub action references are pinned to full SHAs (v4.2.2, v4.4.0)<br>- NPM token verification in publish workflow is present<br>- Tag version verification in publish workflow is present<br>- Test caching is correctly disabled (empty outputs array)</p><p><strong>9. INFO: dependabot.yml is well-structured</strong><br>- Separate groups for typescript-tooling and openmnemo-runtime<br>- Weekly schedule on Mondays<br>- GitHub Actions also configured for updates</p><p>---</p><p>## Summary Table</p><p>| Severity | Issue | File:Line | Type |<br>|----------|-------|-----------|------|<br>| CRITICAL | Doubao support incomplete in code | parse.ts, discover.ts, main.ts | Feature/Documentation mismatch |<br>| HIGH | Missing TypeScript strict flags | sync/tsconfig.json:8-10 | Type Safety |<br>| HIGH | Incomplete discover help text | main.ts:102 | Documentation |<br>| MEDIUM | Import help missing doubao | main.ts:78 | Documentation |<br>| MEDIUM | Internal exports leaking | sync/index.ts:19-22 | API Design |<br>| LOW | CLI package missing exports field | package.json | Consistency |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

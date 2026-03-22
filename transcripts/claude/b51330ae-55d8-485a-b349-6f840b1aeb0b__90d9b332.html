@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a422a5660122ee753</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a422a5660122ee753</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>5</strong> Messages</span>
+      <span class="transcript-pill"><strong>24</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 00:02:03</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>5</td></tr>
   <tr><td>Tool Events</td><td>24</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">90d9b3326c683b6a…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">90d9b3326c683b6a...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1006,6 +1029,7 @@ import { resolve } from &#39;node:path&#39;
 </code></pre><p>The comment above <code>searchTranscripts</code> still says &quot;FTS5&quot; but the implementation uses FTS4. This is a documentation inaccuracy.</p><p><strong>14. README search section is missing <code>--root</code> option (README.md lines 172-178)</strong></p><p>The registered <code>--root</code> option (even if unused) does not appear in the README&#39;s option table. This is inconsistent with other commands that document all options. As noted in finding #9, it should either be removed or documented.</p><p><strong>15. README example may mislead users about phrase vs. term search</strong></p><pre><code>openmnemo search --query &quot;authentication bug&quot;
 </code></pre><p>The shell double-quotes are consumed by the shell and the CLI receives <code>authentication bug</code> as the argument. FTS4 <code>MATCH &#39;authentication bug&#39;</code> matches documents containing both words independently (AND logic), not the exact phrase. A user who expects <code>&quot;authentication bug&quot;</code> (the phrase) to work differently from <code>authentication bug</code> (two terms) will be surprised. The README should clarify this or the implementation should wrap the query in FTS quote-escaping.</p><p><strong>16. <code>cmdSearch</code> function name capitalization inconsistency in the file header comment</strong></p><p><code>cmd-search.ts</code> line 1 says <code>CLI: openmnemo search — full-text search over the transcript index.</code> — this is fine. But <code>searchTranscripts</code> in the JSDoc (db.ts line 132) still says &quot;FTS5&quot; as noted above. Minor, but combined with other stale comments it suggests the migration from FTS5 to FTS4 was done quickly.</p><p>---</p><p>### Summary Table</p><p>| # | Severity | Location | Issue |<br>|---|----------|----------|-------|<br>| 1 | CRITICAL | db.ts:111 | <code>tokenize=unicode61</code> unsupported in FTS4 / sql.js |<br>| 2 | CRITICAL | db.ts:145-146 | Full FTS rebuild on every search call |<br>| 3 | CRITICAL | db.ts:151 | FTS MATCH receives raw user query; special chars cause errors |<br>| 4 | HIGH | db.ts vs types | <code>ManifestEntry</code> fields <code>global_manifest_path</code>/<code>cleaning_mode</code>/<code>repo_mirror_enabled</code> silently dropped |<br>| 5 | HIGH | db.ts:104,123 | <code>rank: 0</code> hardcoded but exported as meaningful field |<br>| 6 | HIGH | db.ts:144-169 | FTS table never persisted; cost paid on every search |<br>| 7 | MEDIUM | cmd-search.ts:5-6 | Duplicate <code>node:path</code> imports |<br>| 8 | MEDIUM | cmd-search.ts:16 | <code>format</code> typed as <code>string</code> not <code>&#39;text&#39; \| &#39;json&#39;</code> |<br>| 9 | MEDIUM | main.ts:146 / cmd-search.ts:13 | <code>--root</code> wired but unused, absent from README |<br>| 10 | MEDIUM | db.test.ts:285 | Limit test uses <code>toBeLessThanOrEqual</code> not <code>toBe(3)</code> |<br>| 11 | MEDIUM | db.test.ts:304 | No assertion on <code>rank</code> field value |<br>| 12 | MEDIUM | tests | No test for multi-word query or special-character input |<br>| 13 | LOW | db.ts:132 | JSDoc still says &quot;FTS5&quot; after migration |<br>| 14 | LOW | README.md:172-178 | <code>--root</code> not listed under <code>search</code> options |<br>| 15 | LOW | README.md:170 | Example implies phrase match; FTS4 does AND-term match |<br>| 16 | LOW | db.ts:132 | Minor stale comment from FTS5 era |</p><p>The three most urgent fixes before shipping are: removing or replacing the <code>tokenize=unicode61</code> clause (#1), moving the FTS rebuild out of the hot search path (#2), and sanitizing/quoting the FTS MATCH query argument (#3).</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

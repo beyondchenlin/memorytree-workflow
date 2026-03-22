@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a252bf5840c192736</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a252bf5840c192736</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>4</strong> Messages</span>
+      <span class="transcript-pill"><strong>10</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-17 07:50:28</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>14cced9c-a515-415f-8b44-6064fdd89d0f</code></td></tr>
   <tr><td>Messages</td><td>4</td></tr>
   <tr><td>Tool Events</td><td>10</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">1f81da4c80fca1de…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">1f81da4c80fca1de...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1084,6 +1107,7 @@ try {
 }
 </code></pre><p>已传入 <code>allowFailure: true</code>，根据 <code>execCommand</code> 实现，失败时返回空字符串而不抛出。外层 try-catch 实际上是多余的双重保护，造成轻微混淆。</p><p>---</p><p>## 路径安全性矩阵</p><p>| 路径场景 | scriptPath (VBS内容) | vbsPath (/tr参数) | 结论 |<br>|---|---|---|---|<br>| 普通路径，无空格 | 安全 | 安全 | OK |<br>| 含空格（如 <code>C:\Users\John Doe</code>） | 安全（<code>&quot;&quot;</code> 包裹） | 安全（外层 <code>&quot;</code> 包裹） | OK |<br>| 含括号（如 <code>Program Files (x86)</code>） | 安全 | 安全 | OK |<br>| 含中文（如 <code>C:\用户\张三</code>） | <strong>VBS 文件 UTF-8 编码问题</strong>（M4） | schtasks 参数层安全 | 存在风险 |<br>| 含双引号（非法 Windows 路径，但可能被上层传入） | 已转义为 <code>&quot;&quot;</code> | <strong>vbsPath 路径不含引号，安全</strong> | scriptPath 已处理，vbsPath 无需处理 |<br>| 含 <code>%</code>（如环境变量展开场景） | VBScript 不展开 <code>%</code>，安全 | schtasks 会展开 <code>%VAR%</code> | 理论风险，实际路径不含 <code>%</code> |</p><p>---</p><p>## 与 uninstall 的对称性分析</p><p>| 操作 | install | uninstall |<br>|---|---|---|<br>| 幂等保护 | 有（<code>isSchtasksRegistered()</code> 检查） | 无（无条件执行+输出成功） |<br>| VBS 文件处理 | 创建 | 删除（有 <code>existsSync</code> 检查）|<br>| 错误反馈 | 友好提示 | 静默（best effort） |<br>| 与 launchd 对称性 | 一致 | <strong>不一致</strong>：launchd 用 <code>existsSync</code> 判断，schtasks 直接执行 |</p><p><code>installLaunchd</code> 用文件存在性判断幂等，<code>installSchtasks</code> 用 <code>isSchtasksRegistered()</code> 查询系统——方法不同但都有保护。<code>uninstallSchtasks</code> 缺少等价的&quot;是否注册&quot;检查是最主要的对称性缺失。</p><p>---</p><p>## 测试覆盖分析</p><p>现有测试文件 <code>heartbeat.test.ts</code> <strong>完全没有覆盖 cmd-daemon.ts 的任何函数</strong>——它只测试 <code>scanSensitive</code>、<code>readAlerts</code>、<code>clearAlerts</code> 等 heartbeat 核心逻辑。</p><p>### 需要补充的测试</p><p>以下测试均应 mock <code>node:os</code>（已有基础设施）、mock <code>execCommand</code>、mock <code>node:fs</code>：</p><p>1. <strong><code>writeVbsLauncher</code> - 路径含空格</strong><br>   验证生成的 VBScript 内容中 <code>scriptPath</code> 被 <code>&quot;&quot;</code> 正确包裹。</p><p>2. <strong><code>writeVbsLauncher</code> - scriptPath 含双引号</strong><br>   验证 <code>&quot;</code> 被转义为 <code>&quot;&quot;</code>，VBScript 内容格式正确。</p><p>3. <strong><code>writeVbsLauncher</code> - scriptPath 含中文</strong><br>   验证写入的文件字节序列与 wscript.exe 在 GBK 系统上的期望一致（或记录已知限制）。</p><p>4. <strong><code>installSchtasks</code> - 已注册时返回 1</strong><br>   mock <code>isSchtasksRegistered</code> 返回 true，验证输出错误并返回 1。</p><p>5. <strong><code>installSchtasks</code> - schtasks 执行失败返回 1</strong><br>   mock <code>execCommand</code> 抛出，验证错误提示和返回值。</p><p>6. <strong><code>installSchtasks</code> - 正常流程</strong><br>   验证 schtasks 接收到的参数包含 <code>/tn</code>、<code>TASK_NAME</code>、<code>/tr</code>，以及 <code>/tr</code> 值格式正确。</p><p>7. <strong><code>uninstallSchtasks</code> - 任务不存在时仍返回 0</strong><br>   验证幂等行为（当前行为），或触发 M3 的讨论。</p><p>8. <strong><code>uninstallSchtasks</code> - VBS 文件不存在时跳过 unlink</strong><br>   验证不抛出异常。</p><p>9. <strong><code>uninstallSchtasks</code> - VBS 文件存在时被删除</strong><br>   验证 <code>unlinkSync</code> 被调用。</p><p>10. <strong><code>vbsLauncherPath</code></strong><br>    验证路径包含 <code>.memorytree/heartbeat-launcher.vbs</code>（间接通过其他测试覆盖即可）。</p><p>---</p><p>## 总结</p><p>| 级别 | 数量 | 最重要 |<br>|---|---|---|<br>| CRITICAL | 0 | — |<br>| HIGH | 2 | H1(vbsPath引号保护缺失结构) / H2(scriptPath注入结构，实际攻击面窄) |<br>| MEDIUM | 4 | M4(中文路径UTF-8编码) / M2(writeVbsLauncher错误未友好处理) |<br>| LOW | 2 | L1(任务名风格) / L2(多余try-catch) |</p><p><strong>最需要优先处理的是 M4</strong>（中文 homedir 路径导致 VBScript 乱码），这在中文 Windows 环境下是一个真实的用户场景，且完全沉默失败（任务注册成功但实际不执行）。建议写入 VBScript 文件时改用 UTF-8 with BOM，或改用 PowerShell 脚本替代 VBScript（PowerShell 原生支持 UTF-8）。</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>rollout-2026-03-21T15-12-15-019d0f3c-ca42-7ee1-bbe6-aed4bbe9cabe</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>rollout-2026-03-21T15-12-15-019d0f3c-ca42-7ee1-bbe6-aed4bbe9cabe</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-codex">codex</span></span>
+      <span class="transcript-pill"><strong>41</strong> Messages</span>
+      <span class="transcript-pill"><strong>133</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-21 07:12:15</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">d:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-codex">codex</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>019d0f3c-ca42-7ee1-bbe6-aed4bbe9cabe</code></td></tr>
   <tr><td>Messages</td><td>41</td></tr>
   <tr><td>Tool Events</td><td>133</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">d:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">74a93dfd621a8676…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">74a93dfd621a8676...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1214,6 +1237,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>是两者都有，但权重不一样：</p><p><strong>结论</strong><br>- <code>sensitive_match</code> 本身不是 <code>memorytree-workflow</code> 造成的，根因还是上游 transcript 里进了 secret。<br>- 但 <code>memorytree-workflow</code> <strong>当前设计确实偏宽松，值得改</strong>。它现在是“发现敏感内容后继续导入，只写告警，不自动降级”。</p><p><strong>为什么说它需要改</strong><br>- 在 [heartbeat.ts](C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/heartbeat.ts) 里，heartbeat 会先 <code>scanSensitive(parsed, projectPath)</code>，但随后还是直接 <code>importTranscript(...)</code>。<br>- 具体就是 [heartbeat.ts](C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/heartbeat.ts):218 和 [heartbeat.ts](C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/heartbeat.ts):221 这一段。<br>- <code>scanSensitive</code> 的实现只是：<br>  - 打一条 warning<br>  - 写入 <code>alerts.json</code><br>  - 然后 <code>return</code><br>- 见 [heartbeat.ts](C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/heartbeat.ts):266。<br>- 也就是说它现在的语义是：<br>  - “我看见风险了”<br>  - “但我还是继续搬运这个 transcript”</p><p>这就属于<strong>合理的第一版副作用</strong>，但不是理想的安全设计。</p><p><strong>它现在还有两个设计问题</strong><br>- 告警计数会被重复扫描不断累加，不代表新增了那么多风险。<br>  这是因为 [alert.ts](C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/alert.ts):79 会对同类 alert 直接 <code>count + 1</code>，heartbeat 每次扫描到同一个文件都会继续涨。<br>- <code>push_failed</code> 的诊断太粗。<br>  在 [heartbeat.ts](C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/heartbeat.ts):325 之后，<code>tryPush()</code> 失败只返回 <code>false</code>，几乎吞掉了底层 git 失败原因，所以最后你只看到“push failed after retry”，但不知道是认证失败、保护分支拒绝，还是网络问题。</p><p><strong>我对它的判断</strong><br>- 这不是“这个 skill 很危险，应该停用”。<br>- 更像是“这个 skill 的安全策略还停留在检测告警阶段，还没进入自动隔离阶段”。<br>- 所以它不是污染源，但它<strong>确实需要一次安全收紧</strong>。</p><p><strong>最该改的 4 件事</strong><br>1. <code>sensitive_match</code> 命中后，默认不要继续 repo mirror 导入，更不要继续 commit/push。至少改成“global archive only”。<br>2. 对命中敏感内容的 raw transcript，默认标记为 <code>unstaged + unpushable</code>，哪怕用户后面允许普通 raw transcript 上传，也要单独豁免。<br>3. <code>push_failed</code> 记录 git stderr 摘要，不要只写一个总括性失败。<br>4. <code>alerts.json</code> 对 <code>sensitive_match</code> 改成“同文件去重”，不要每次 heartbeat 都把同一问题计数刷高。</p><p><strong>哪一条最关键</strong><br>- 最关键的是第 1 条。<br>- 因为现在真正放大风险的不是“发现了告警”，而是“发现后还继续导入流程”。</p><p><strong>和你主线的关系</strong><br>- 这件事不需要打断 OpenMnemo 当前 SQLite 主线。<br>- 但如果你后面继续深用 <code>memorytree-workflow</code> 做 transcript heartbeat，我会建议把它列成一个并行的安全修补项。</p><p>如果你愿意，我下一步可以直接帮你把这 4 条整理成一版可执行的修改方案，甚至进一步给出应该改哪些函数、怎么改最小。</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

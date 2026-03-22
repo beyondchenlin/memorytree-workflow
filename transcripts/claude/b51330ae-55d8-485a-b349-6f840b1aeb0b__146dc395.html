@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a712cf03d950db4bb</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a712cf03d950db4bb</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>21</strong> Messages</span>
+      <span class="transcript-pill"><strong>44</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 01:12:59</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>21</td></tr>
   <tr><td>Tool Events</td><td>44</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">146dc3955d2d6ae3…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">146dc3955d2d6ae3...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1094,6 +1117,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>Perfect. Now I have all the information I need for a complete assessment.</p><p>## Second Review: Sync Barrel Cleanup - FINDINGS</p><p>### Status: PASSED - No Breaking Changes</p><p>#### 1. Barrel Export Verification<br>Current <code>D:/demo1/openmnemo/packages/sync/src/index.ts</code> state: <strong>CORRECT</strong><br>- Exports <code>heartbeatMain</code> (renamed from <code>main</code>) and <code>runHeartbeat</code> ✓<br>- Removed from barrel: <code>processProject</code>, <code>scanSensitive</code>, <code>gitCommitAndPush</code>, <code>tryPush</code> ✓</p><p>#### 2. CLI Usage (cmd-daemon.ts) Analysis<br><strong>Result: UNAFFECTED - Uses only exported functions</strong></p><p>Imports from <code>@openmnemo/sync</code>:<br>- <code>configPath</code> ✓ (still exported)<br>- <code>intervalToSeconds</code> ✓ (still exported)<br>- <code>loadConfig</code> ✓ (still exported)<br>- <code>saveConfig</code> ✓ (still exported)<br>- <code>readLockPid</code> ✓ (still exported)<br>- <code>heartbeatMain</code> (lines 60, 68) - dynamic imports <code>await import(&#39;@openmnemo/sync&#39;)</code> ✓ (properly exported)</p><p>No usage of removed functions detected in any CLI commands.</p><p>#### 3. Cross-Package Import Audit<br><strong>Result: CLEAN - No imports of removed functions</strong></p><p>Grep scan of all <code>packages/<em>/src/</em>.ts</code>:<br>- Only <code>cmd-daemon.ts</code> imports from <code>@openmnemo/sync</code><br>- No other packages import sync internals<br>- Tests in <code>sync/tests/heartbeat/heartbeat.test.ts</code> import directly from <code>&#39;../../src/heartbeat.js&#39;</code> (not barrel) ✓</p><p>#### 4. Removed Function Usage<br><strong>Result: ISOLATED - Only internal to heartbeat.ts</strong></p><p>The four removed functions are used only within <code>D:/demo1/openmnemo/packages/sync/src/heartbeat.ts</code>:<br>- <code>processProject()</code> - called from <code>runHeartbeat()</code> at line 105<br>- <code>scanSensitive()</code> - called from <code>processProject()</code> at line 144<br>- <code>gitCommitAndPush()</code> - called from <code>processProject()</code> at line 158<br>- <code>tryPush()</code> - called from <code>gitCommitAndPush()</code> at lines 218, 220</p><p>No external callers (internal only, as intended).</p><p>#### 5. Skill Code Verification<br><strong>Result: UNAFFECTED</strong></p><p>Memorytree-workflow skill (<code>C:/Users/ai/.codex/skills/memorytree-workflow/src/heartbeat/</code>):<br>- Defines its own <code>processProject</code>, <code>scanSensitive</code>, <code>gitCommitAndPush</code>, <code>tryPush</code> implementations<br>- Imports from local modules, NOT from <code>@openmnemo/sync</code><br>- No dependency on barrel exports of removed functions ✓</p><p>#### 6. Missing Exports Check<br><strong>Result: COMPLETE</strong></p><p>Barrel exports all necessary public APIs:<br>- Config operations: <code>memorytreeRoot</code>, <code>configPath</code>, <code>loadConfig</code>, <code>saveConfig</code>, <code>intervalToSeconds</code>, <code>registerProject</code> ✓<br>- Heartbeat: <code>heartbeatMain</code>, <code>runHeartbeat</code> ✓<br>- Lock: <code>lockPath</code>, <code>acquireLock</code>, <code>releaseLock</code>, <code>readLockPid</code>, <code>isProcessAlive</code> ✓<br>- Alert: full suite (MAX_ALERTS, ALERT_TYPES, etc.) ✓<br>- Logging: <code>setupLogging</code>, <code>getLogger</code> with types ✓</p><p>Nothing missing from public API.</p><p>---</p><p>### Summary</p><p>| Category | Severity | Status |<br>|----------|----------|--------|<br>| Barrel state | - | ✓ CORRECT |<br>| CLI dependencies | - | ✓ UNAFFECTED |<br>| Cross-package imports | - | ✓ CLEAN |<br>| Removed function usage | - | ✓ ISOLATED |<br>| Skill code | - | ✓ UNAFFECTED |<br>| Public API completeness | - | ✓ COMPLETE |</p><p><strong>CONCLUSION: The sync barrel cleanup is safe to merge. All removed functions are internal-only and properly isolated to heartbeat.ts. No external consumers, no breaking changes to the public API.</strong></p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

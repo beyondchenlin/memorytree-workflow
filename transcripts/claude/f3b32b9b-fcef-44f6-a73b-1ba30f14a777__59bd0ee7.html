@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>f3b32b9b-fcef-44f6-a73b-1ba30f14a777</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>f3b32b9b-fcef-44f6-a73b-1ba30f14a777</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>21</strong> Messages</span>
+      <span class="transcript-pill"><strong>72</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-20 09:24:12</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>f3b32b9b-fcef-44f6-a73b-1ba30f14a777</code></td></tr>
   <tr><td>Messages</td><td>21</td></tr>
   <tr><td>Tool Events</td><td>72</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">59bd0ee767c3eac1…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">59bd0ee767c3eac1...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1100,6 +1123,7 @@ http://127.0.0.1:10010/projects/openmnemo/            ← openmnemo 报告
   </div>
   <div class="message-body"><p>现在我对整个项目有了足够清晰的认识，来做一个公允的方案评估。</p><p>---</p><p>## 重新审视你的需求</p><p>你的需求本质是：<strong>10010 端口应该是机器级 MemoryTree 控制台</strong>，能看到所有注册项目，而不是某一个项目的单独报告站点。</p><p>---</p><p>## 我上一个方案的问题</p><p>我之前提的方案（新建 <code>src/caddy/hub.ts</code> + 全局 Hub 页 + 新 CLI 命令）<strong>方向对，但架构选择有问题</strong>：</p><p>- 新建一套独立的静态 HTML 生成器，CSS/样式体系和现有报告完全割裂<br>- 用 Caddy path prefix 路由各项目 (<code>/projects/&lt;name&gt;/*</code>) 是可行的，但把&quot;全局总览&quot;和&quot;单项目报告&quot;混在同一个 Caddy 站点里，会让报告内的相对路径链接全部失效（报告里的 <code>../transcripts/xxx</code> 会变成错误路径）<br>- 增加新的 CLI 子命令是过度工程，用户不需要手动管理 hub</p><p>---</p><p>## 更好的方案</p><p>项目里已经有一套完整的报告渲染体系（CSS、layout、i18n、dashboard、projects 页），而且 <code>buildReport</code> 本身就支持 <code>root</code> + <code>output</code> 分离。</p><p><strong>正确做法：让现有报告系统本身支持&quot;全局模式&quot;</strong></p><p>### 核心改动</p><p>1. <strong><code>buildReport</code> 新增全局模式</strong> — 读取 <code>~/.memorytree/config.toml</code> 里的所有项目，把各项目的 manifests 合并进来，<code>cwd</code> 信息天然就能在 <code>projects.ts</code> 里分组出多个项目</p><p>2. <strong>Caddy 片段不变</strong> — 10010 仍然只指向一个目录，但那个目录是&quot;全局报告&quot;的输出目录（比如 <code>~/.memorytree/hub/07_reports/</code>）</p><p>3. <strong>heartbeat 集成</strong> — 每轮 heartbeat 结束后，如果有项目 <code>generate_report=true</code>，额外跑一次全局报告构建</p><p>4. <strong><code>/projects/index.html</code> 自然就对了</strong> — 因为 manifests 包含了所有项目，<code>extractProject</code> 按 cwd 末段分组，papaweb/memorytree-workflow/openmnemo 全部出现</p><p>### 优点<br>- 零新增 CSS/模板，复用全部现有渲染基础设施<br>- i18n、搜索、dashboard 统计都自动是全局的<br>- Caddy 配置逻辑完全不变<br>- 不引入新的 CLI 命令</p><p>---</p><p><strong>这个方向你认可吗？确认后我立刻开始实现。</strong></p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

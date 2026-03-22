@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a3752d4634c5c546c</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a3752d4634c5c546c</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>3</strong> Messages</span>
+      <span class="transcript-pill"><strong>6</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 09:10:35</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">ts</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>5004f9e7-85a4-49a9-bbb0-07f26d068121</code></td></tr>
   <tr><td>Messages</td><td>3</td></tr>
   <tr><td>Tool Events</td><td>6</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>ts</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">71f6b2730e3e2560…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">71f6b2730e3e2560...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1011,6 +1034,7 @@ class ParsedTranscript:
     source_path: Path
 </code></pre><p>### Client Inference &amp; Parsing</p><p><strong>infer_client(client: str, source: Path) -&gt; str</strong><br>- If <code>client != &quot;auto&quot;</code>, return client as-is<br>- Otherwise, check source path (case-insensitive):<br>  - If contains <code>/.codex/</code> or filename contains <code>rollout-</code> → &quot;codex&quot;<br>  - If contains <code>/.claude/</code> or <code>/projects/</code> → &quot;claude&quot;<br>  - If contains <code>/.gemini/</code> or filename contains <code>checkpoint</code> → &quot;gemini&quot;<br>- Raises SystemExit if cannot infer</p><p><strong>parse_transcript(client: str, source: Path) -&gt; ParsedTranscript</strong><br>- Dispatch function: calls appropriate parser based on client name<br>- Raises SystemExit if client unsupported</p><p>### Codex Parser</p><p><strong>parse_codex_transcript(path: Path) -&gt; ParsedTranscript</strong><br>1. Load JSONL records<br>2. Initialize: <code>session_id = title = path.stem</code>, <code>started_at = file mtime</code>, <code>cwd = branch = &quot;&quot;</code><br>3. For each record:<br>   - Get <code>type</code> field (string), normalize timestamp<br>   - If type == &quot;session_meta&quot;:<br>     - Update session_id, title, started_at (use earliest), cwd, branch from payload<br>     - Continue<br>   - Skip if type not in {&quot;response_item&quot;, &quot;event_msg&quot;}<br>   - Get payload, check payload.type:<br>     - <strong>&quot;message&quot;</strong>: Extract role (must be &quot;user&quot;/&quot;assistant&quot;), text from content blocks, create TranscriptMessage<br>     - <strong>&quot;user_message&quot;/&quot;agent_message&quot;</strong>: role = &quot;user&quot; or &quot;assistant&quot;, text from message field<br>     - <strong>&quot;function_call&quot;</strong>: name field (or &quot;function_call&quot;), arguments field (or input), create tool event with summary: <code>f&quot;{name} input={summarize_value(arguments)}&quot;</code><br>     - <strong>&quot;custom_tool_call&quot;</strong>: name (or call_id or &quot;custom_tool_call&quot;), create tool event with input summary<br>     - <strong>&quot;function_call_output&quot;</strong>: name, output (or content), create tool event with summary: <code>f&quot;{name} output={summarize_value(output)}&quot;</code><br>     - <strong>&quot;custom_tool_call_output&quot;</strong>: name, output (or content), create tool event with output summary<br>4. Deduplicate messages and tool events<br>5. Return ParsedTranscript with client=&quot;codex&quot;</p><p>### Claude Parser</p><p><strong>parse_claude_transcript(path: Path) -&gt; ParsedTranscript</strong><br>1. Load JSONL records<br>2. Initialize: <code>session_id = title = path.stem</code>, <code>started_at = file mtime</code>, <code>cwd = branch = &quot;&quot;</code><br>3. For each record:<br>   - Extract <code>type</code>, timestamp<br>   - Update session_id from <code>sessionId</code>, started_at (earliest), cwd, branch fields<br>   - Skip if type not in {&quot;user&quot;, &quot;assistant&quot;}<br>   - Get message dict from record.message<br>   - Extract role from message.role or use record_type<br>   - Parse content:<br>     - If string: check if non-empty and role valid, create TranscriptMessage<br>     - If list of blocks:<br>       - Collect text from blocks with type in TEXT_BLOCK_TYPES<br>       - Skip SKIP_BLOCK_TYPES<br>       - For TOOL_USE_TYPES: create tool event with summary <code>f&quot;{name} input={summarize_value(input)}&quot;</code><br>       - For TOOL_RESULT_TYPES: create tool event with summary <code>f&quot;{tool_use_id} output={summarize_value(content)}&quot;</code><br>       - Create single TranscriptMessage from collected text_parts if valid role and non-empty<br>4. Deduplicate messages and tool events<br>5. Return ParsedTranscript with client=&quot;claude&quot;</p><p>### Gemini Parser</p><p><strong>parse_gemini_transcript(path: Path) -&gt; ParsedTranscript</strong><br>1. Initialize: <code>session_id = title = path.stem</code>, <code>started_at = file mtime</code>, <code>cwd = branch = &quot;&quot;</code><br>2. Load payload:<br>   - If .jsonl suffix: use <code>load_jsonl()</code><br>   - Otherwise: parse as JSON string<br>3. Find first metadata dict containing keys {&quot;sessionId&quot;, &quot;chatId&quot;, &quot;cwd&quot;, &quot;branch&quot;, &quot;timestamp&quot;}<br>4. If found, extract session_id, started_at (earliest), cwd, branch<br>5. <strong>Recursive visit(node) function</strong>:<br>   - Skip non-dicts and non-lists<br>   - For lists: visit all items<br>   - For dicts:<br>     - Update session_id, started_at (earliest), cwd, branch from fields<br>     - Check for role (&quot;user&quot;/&quot;assistant&quot;/&quot;model&quot;), normalize &quot;model&quot; to &quot;assistant&quot;<br>     - Get timestamp, extract text via <code>extract_gemini_text(node)</code><br>     - Create TranscriptMessage if valid role and non-empty text<br>     - Check for tool usage:<br>       - tool_name from: <code>node.toolUse.name</code> OR <code>node.toolName</code> OR <code>node.functionName</code> OR <code>node.tool</code><br>       - If found: create tool event with summary <code>f&quot;{tool_name} input={summarize_value(node.args or node.input)}&quot;</code><br>     - Recursively visit all node values<br>6. Call visit(payload)<br>7. Deduplicate messages and tool events<br>8. Return ParsedTranscript with client=&quot;gemini&quot;</p><p>---</p><p>## 3. <strong>_transcript_utils.py</strong> - Barrel Export Pattern</p><p>The file serves as a <strong>backward-compatible re-export hub</strong>. New code imports from specific modules. It re-exports:<br>- From <code>_transcript_common</code>: 19 items (constants, utils, text extraction, dedup)<br>- From <code>_transcript_parse</code>: 7 items (dataclasses, parsers, inference)<br>- From <code>_transcript_import</code>: 8 items (import functions, manifests, writers)<br>- From <code>_transcript_index</code>: 1 item (search indexing)<br>- From <code>_transcript_discover</code>: 6 items (file discovery, project matching)</p><p>---</p><p>## Critical Implementation Notes for TypeScript Port</p><p>1. <strong>Timestamp Handling</strong>: The Z-suffix conversion is critical — Python&#39;s isoformat() produces <code>+00:00</code>, but the code explicitly replaces it with <code>Z</code>.</p><p>2. <strong>SHA256 Prefix</strong>: Always use first 16 characters of hexdigest, not full digest.</p><p>3. <strong>Deduplication Signature</strong>: Messages use <code>(timestamp, role, content_hash)</code>, tool events use <code>(timestamp, summary_hash)</code>. The signature SET approach ensures first-occurrence preservation.</p><p>4. <strong>Gemini&#39;s Recursive Traversal</strong>: The visit function must properly handle deeply nested structures and update metadata at any depth level.</p><p>5. <strong>Text Extraction</strong>: Three different strategies (blocks, simple, gemini) — each handles different JSON structures with fallbacks.</p><p>6. <strong>Client Inference</strong>: Path-based detection with specific patterns; must handle path separators correctly.</p><p>7. <strong>Encoding Handling</strong>: Python uses UTF-8 with &quot;ignore&quot; error handling for JSONL; TypeScript should be flexible with malformed JSON.</p><p>8. <strong>Type Coercion</strong>: Heavy use of <code>str()</code> conversion — must replicate in TypeScript with proper null/undefined handling.</p><p>9. <strong>Immutability</strong>: Deduplication creates new lists; parsers return new dataclass instances.</p><p>10. <strong>Normalization Flexibility</strong>: <code>ensure_dict()</code> and <code>ensure_list()</code> provide safe defaults when types are wrong.</p><p>---</p><p>## File Locations (Absolute Paths)</p><p>- <strong>D:\demo1\memorytree-workflow\scripts\_transcript_common.py</strong> — 294 lines, constants + 40+ utility functions<br>- <strong>D:\demo1\memorytree-workflow\scripts\_transcript_parse.py</strong> — 361 lines, 3 dataclasses + 3 client parsers<br>- <strong>D:\demo1\memorytree-workflow\scripts\_transcript_utils.py</strong> — 128 lines, barrel re-export pattern</p><p>All three files are foundational. The _transcript_common utilities are used by _transcript_parse, which depends on them for text extraction, deduplication, and timestamp normalization.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

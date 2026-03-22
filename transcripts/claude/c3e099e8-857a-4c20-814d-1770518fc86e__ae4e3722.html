@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a7563b70c91073333</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a7563b70c91073333</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>4</strong> Messages</span>
+      <span class="transcript-pill"><strong>20</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 14:39:08</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>4</td></tr>
   <tr><td>Tool Events</td><td>20</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">ae4e372238057fcf…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">ae4e372238057fcf...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -992,6 +1015,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>## Comprehensive SQLite Migration Review</p><p>I&#39;ve completed a thorough end-to-end review of the SQLite migration. Here are my findings:</p><p>---</p><p>### Schema Completeness ✓</p><p><strong>db.ts (lines 24-53):</strong> ALL_COLUMNS correctly includes all 23 fields:<br>- PK_COLUMNS: client, project, session_id, raw_sha256<br>- DATA_COLUMNS: 19 fields including content and commit_layer</p><p><strong>CREATE_TABLE_SQL (lines 59-86):</strong> Matches ALL_COLUMNS exactly with proper defaults for new columns (lines 74, 80-83).</p><p><strong>types/src/index.ts (lines 29-53):</strong> ManifestEntry has all 23 fields. The <code>content</code> and <code>commit_layer</code> fields are correctly marked as optional (lines 51-52), which is appropriate since they&#39;re populated at import time.</p><p><strong>Status:</strong> ✓ Schema is complete and consistent.</p><p>---</p><p>### Data Flow Correctness ✓</p><p><strong>import.ts (lines 106-112):</strong> Correctly populates all fields:<br>- Reads clean markdown content (line 107)<br>- Calls buildCommitLayer() for git data (line 108)<br>- Passes both to upsertSearchIndex() (line 109)<br>- Gracefully handles failures with try/catch (lines 106-112)</p><p><strong>exec.ts buildCommitLayer() (lines 44-71):</strong> Handles non-git directories correctly:<br>- Uses allowFailure: true for git commands (lines 49, 55)<br>- Returns empty string on any error (line 69)<br>- Deduplicates file paths (lines 62-64)</p><p><strong>db.ts upsertSearchIndex() (lines 281-306):</strong> Correctly maps all ManifestEntry fields:<br>- Iterates ALL_COLUMNS (line 295)<br>- Handles undefined/null values as empty strings (lines 296-298)<br>- Preserves numeric types (line 298)</p><p><strong>Status:</strong> ✓ Data flow is correct and defensive.</p><p>---</p><p>### Search Correctness ✓</p><p><strong>recall.ts searchRecall() (lines 297-312):</strong> Three-layer search correctly implemented:<br>- Layer 1: searchTranscriptsByColumns([&#39;commit_layer&#39;]) (line 304)<br>- Layer 2: searchTranscripts() (line 307)<br>- Layer 3: searchTranscriptsByColumns([&#39;content&#39;]) (line 310)<br>- Returns first non-empty layer (lines 305, 308, 311)</p><p><strong>db.ts searchTranscriptsByColumns() (lines 254-275):</strong> Column validation is correct:<br>- FTS_COLUMNS whitelist defined (line 247)<br>- Validates each column against whitelist (line 262)<br>- Returns empty if no valid columns (line 263)<br>- Constructs safe column:term syntax (line 266)</p><p><strong>cmd-search.ts (lines 18-45):</strong> Correctly uses searchRecall():<br>- Imports from @openmnemo/core (line 8)<br>- Calls searchRecall() with globalRoot and query (line 30)<br>- Handles both JSON and text output formats (lines 39-43)</p><p><strong>Status:</strong> ✓ Search implementation is correct and safe.</p><p>---</p><p>### Migration Safety ✓</p><p><strong>migrateSchema() (lines 162-170):</strong> Truly idempotent:<br>- Iterates all 5 new columns (line 163)<br>- Catches &quot;duplicate column name&quot; errors (line 167)<br>- Re-throws other errors (line 167)<br>- Safe to call multiple times</p><p><strong>migrateFts() (lines 176-186):</strong> Safe on existing DBs:<br>- Checks if FTS table exists and has commit_layer (line 181)<br>- Only drops/recreates if needed (lines 182-184)<br>- Rebuilds index after recreation (line 184)</p><p><strong>initSchema() (lines 196-208):</strong> Wrapped in transaction:<br>- Uses db.transaction() (line 199)<br>- Calls all migration steps in order (lines 200-203)<br>- Properly closes DB in finally block (line 206)</p><p><strong>upsertSearchIndex() (lines 281-306):</strong> Also wrapped in transaction:<br>- Schema init in transaction (lines 287-292)<br>- Upsert and rebuild in same transaction (lines 301-302)<br>- Proper cleanup in finally block (line 304)</p><p><strong>Status:</strong> ✓ Migrations are idempotent and transactional.</p><p>---</p><p>### Export Completeness ✓</p><p><strong>packages/core/src/index.ts (lines 1-119):</strong> All new public functions exported:<br>- Line 57: upsertSearchIndex, searchTranscripts, searchTranscriptsByColumns, sanitizeFtsQuery, initSchema, rebuildFtsIndex<br>- Line 87: searchRecall<br>- Line 98: buildCommitLayer<br>- Lines 107-108: SqliteFtsAdapter</p><p><strong>cmd-search.ts imports:</strong> Correctly imports from @openmnemo/core (line 8):<br>- defaultGlobalTranscriptRoot ✓<br>- searchRecall ✓<br>- SearchResult type ✓</p><p><strong>Status:</strong> ✓ All exports are complete and correct.</p><p>---</p><p>### Additional Observations</p><p>1. <strong>FTS Query Sanitization (db.ts lines 139-144):</strong> Excellent — strips problematic characters including single quotes that cause FTS4 MATCH parse errors.</p><p>2. <strong>Readonly Search (db.ts line 237):</strong> searchTranscripts() opens DB readonly, preventing accidental writes.</p><p>3. <strong>Error Handling:</strong> Comprehensive try/catch blocks throughout with graceful fallbacks (e.g., recall.ts lines 161-162 falls back to JSONL if DB fails).</p><p>4. <strong>Type Safety:</strong> ManifestEntry fields properly typed; optional fields for content/commit_layer are correct.</p><p>5. <strong>Config Integration (sync/src/config.ts):</strong> All new config fields present and properly parsed (lines 38-48, 159-170, 220-232).</p><p>---</p><p>## Summary</p><p><strong>No issues found.</strong> The SQLite migration is well-designed and correctly implemented:<br>- Schema is complete and consistent across all files<br>- Data flow properly populates all fields including new columns<br>- Search implementation is correct with proper column validation<br>- Migrations are idempotent and transactional<br>- All exports are complete<br>- Error handling is comprehensive and defensive</p><p>The code is production-ready.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

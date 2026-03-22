@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>rollout-2026-03-21T09-39-29-019d0e0c-20c9-7fc3-b8f7-22ef7d7ece96</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>rollout-2026-03-21T09-39-29-019d0e0c-20c9-7fc3-b8f7-22ef7d7ece96</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-codex">codex</span></span>
+      <span class="transcript-pill"><strong>28</strong> Messages</span>
+      <span class="transcript-pill"><strong>140</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-21 01:39:29</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">dev</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">d:\demo1\papaweb</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-codex">codex</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>019d0e0c-20c9-7fc3-b8f7-22ef7d7ece96</code></td></tr>
   <tr><td>Messages</td><td>28</td></tr>
   <tr><td>Tool Events</td><td>140</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>dev</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">d:\demo1\papaweb</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">2688fe7df2c60c8b…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">2688fe7df2c60c8b...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1153,6 +1176,7 @@ pre.mermaid {
   -&gt; query-api / search / IM reply
 </code></pre><p><strong>各层怎么分工</strong><br>- <code>agent-gateway</code><br>  - 接 IM/自然语言请求，不要让大模型直接驱动浏览器。<br>  - 把“朱一龙最近在做什么”“监控某个保健品舆情”“抓某平台视频和评论”先转成结构化任务。<br>- <code>source-registry</code><br>  - 为每个 source 定义 <code>acquisition_mode</code>、<code>engine_preference</code>、<code>auth_mode</code>、<code>media_policy</code>、<code>freshness_sla</code>、<code>comment_enabled</code>、<code>video_enabled</code>。<br>  - 决定一个任务应该走 HTTP、Pinchtab、Crawlee，还是 Camoufox。<br>- <code>worker-fetch-http</code><br>  - 继续跑静态页、公开 API、RSS、站内搜索结果页、商品详情页这类轻量源。<br>  - 你们现在这层已经是标准任务 worker，保留最划算。[platform-fetch.mjs](D:/demo1/papaweb/packages/shared/src/platform-fetch.mjs)<br>- <code>worker-fetch-browser-crawlee</code><br>  - 新增一个 Node 服务，专门做浏览器采集编排。<br>  - 用 Crawlee 管任务队列、BrowserPool、SessionPool、并发和失败恢复。<br>  - 不要把它做成整个平台入口，它只是浏览器 worker。<br>- <code>Camoufox</code><br>  - 不作为全站默认浏览器。<br>  - 只作为 <code>worker-fetch-browser-crawlee</code> 的一个后端，用在你们定义为 <code>engine_preference=camoufox</code> 的 source profile 上。<br>  - 最好单独容器化，作为远程浏览器服务，而不是硬塞进所有 Node worker。<br>- <code>Pinchtab</code><br>  - 保留为另一条浏览器执行通道。<br>  - 更适合你们已有的 Go 服务体系、OpenClaw 插件接入、已有 dashboard/agent bridge，以及你们已经沉淀的浏览器控制能力。<br>- <code>MediaCrawler</code><br>  - 不做总控，不做唯一运行时。<br>  - 拆解出 <code>social-adapters</code>：平台字段、评论树、视频元数据、作者模型、页面解析、平台特有 extractor。<br>  - 也可以保留少量已稳定的专项流程，作为过渡期 fallback。</p><p><strong>最重要的设计不是“一个浏览器吃天下”，而是“采集模式矩阵”</strong><br>- 官方/合作 API：优先。<br>  - YouTube、Reddit、部分电商/搜索/媒体源优先走 API 或授权 feed。<br>- 公开静态页：走 <code>worker-fetch-http</code>。<br>- 公开动态页、需要渲染但允许浏览器采集：走 <code>worker-fetch-browser-crawlee</code>。<br>- 需要特殊浏览器画像或特定站点兼容性：走 <code>Crawlee + Camoufox</code>。<br>- 需要你们已有 Go 浏览器服务、OpenClaw 联动、或现有 Chrome 通路：走 <code>Pinchtab</code>。<br>- 平台特有解析：统一走 <code>social-adapters</code>，而不是散落在各 worker 里。</p><p><strong>视频、评论、帖子怎么落地</strong><br>- 新增 <code>worker-media-fetch</code>。<br>- 第一阶段只抓“媒体描述符”，比如 <code>poster_url</code>、<code>stream_manifest_url</code>、<code>duration</code>、<code>codec</code>、<code>source_post_id</code>。<br>- 第二阶段再做“媒体归档”，但必须由 <code>media_policy</code> 控制。<br>  - 允许归档：下载到对象存储。<br>  - 不允许归档：只存元数据和外链。<br>- 评论、帖子、视频三类对象在 normalize 后统一成内容模型：<br>  - <code>content_item</code><br>  - <code>content_comment</code><br>  - <code>media_asset</code><br>  - <code>author_profile</code><br>  - <code>source_snapshot</code></p><p><strong>和你们现有仓库怎么接</strong><br>- 保留现有主链路不动：<br>  - [query-api](D:/demo1/papaweb/services/query-api/src/index.mjs)<br>  - [worker-fetch-http](D:/demo1/papaweb/services/worker-fetch-http/src/index.mjs)<br>  - [worker-normalize](D:/demo1/papaweb/services/worker-normalize/src/index.mjs)<br>- 新增这些服务最合适：<br>  - <code>services/agent-gateway</code><br>  - <code>services/worker-fetch-browser-crawlee</code><br>  - <code>services/worker-media-fetch</code><br>- 新增这些包最有价值：<br>  - <code>packages/source-registry</code><br>  - <code>packages/browser-contracts</code><br>  - <code>packages/media-model</code><br>- 继续沿用现有 <code>contracts/shared/policy-engine</code>，不要另起一套主链路。</p><p><strong>我建议的最终定位</strong><br>- <code>Pinchtab</code>：浏览器服务层 + Agent 工具桥。<br>- <code>Crawlee</code>：Node 浏览器 worker 编排层。<br>- <code>Camoufox</code>：特定 source 的浏览器后端。<br>- <code>MediaCrawler</code>：平台适配能力母本和部分专项 fallback。<br>- <code>query-api + Airflow/Temporal</code>：统一任务入口和长期监控调度。</p><p><strong>最关键的一句</strong><br>不是“Pinchtab 还是 Camoufox 谁替代谁”，而是：<br><code>Pinchtab + Crawlee + Camoufox + MediaCrawler</code> 各自占一层，按 source profile 选路，由统一编排层调度。</p><p>我参考的官方资料主要是：<br>- Crawlee 官方文档：https://crawlee.dev/js/docs/introduction<br>- Crawlee 会话管理：https://crawlee.dev/js/docs/guides/session-management<br>- Crawlee 扩缩容：https://crawlee.dev/js/docs/guides/scaling-crawlers<br>- Camoufox 官方仓库：https://github.com/daijro/camoufox</p><p>如果你要，我下一步可以直接帮你把这套内容落成一版新的架构文档，或者更进一步，给你出一版“按你们当前仓库目录可直接实施”的服务拆分清单。</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

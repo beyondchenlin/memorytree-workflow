@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-aa4b0ba7011b47847</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-aa4b0ba7011b47847</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>6</strong> Messages</span>
+      <span class="transcript-pill"><strong>60</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-16 10:18:49</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>6dd44a8a-71b3-484d-912c-45d0b51e38d2</code></td></tr>
   <tr><td>Messages</td><td>6</td></tr>
   <tr><td>Tool Events</td><td>60</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">544bdcbee6930266…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">544bdcbee6930266...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1014,6 +1037,7 @@ if (fwd) {
   .map(id =&gt; manifests.find(x =&gt; x.session_id === id))
 </code></pre><p>This is O(N × M) where N = backlink count and M = total manifests. For large datasets this should be a pre-built lookup map (<code>Map&lt;string, ManifestEntry&gt;</code>). The same pattern appears to be intended in <code>links.ts</code> (where <code>lookup</code> is already a plain object), but <code>build.ts</code> does not share or reuse it.</p><p><strong>LOW — <code>buildSearchIndex</code> calls <code>JSON.stringify(entry)</code> twice per entry (lines 33, 41)</strong></p><p>The size check serializes the entry to measure bytes, then serializes it again after the potential truncation. One of these could be eliminated.</p><p>---</p><p>## 7. MAINTAINABILITY</p><p><strong>MEDIUM — Inline JavaScript embedded in a TypeScript template string (<code>search.ts</code> lines 85–138)</strong></p><p>The vanilla JS search logic is a 50-line string inside <code>renderSearchPage</code>. It has its own <code>escHtml</code> function that duplicates the one in <code>layout.ts</code>. This code is not type-checked, not linted, and not directly testable in isolation. The tests for it only verify substring presence. A change to the search logic requires editing a template string — no autocomplete, no type errors. This should be extracted to a static <code>.js</code> asset file bundled/inlined at build time, or at minimum the function-level duplication (<code>escHtml</code>) should be eliminated.</p><p><strong>LOW — <code>isoWeek</code> implementation is duplicated between <code>stats.ts</code> and <code>charts.ts</code></strong></p><p><code>isoWeek</code> (in <code>stats.ts</code>, line 134) and <code>toIsoWeek</code> (in <code>charts.ts</code>, line 263) implement the same ISO week calculation with identical logic. They are separate private functions. The canonical version should be exported from <code>stats.ts</code> and imported by <code>charts.ts</code>.</p><p><strong>LOW — No type guard on parsed manifest data</strong></p><p><code>loadManifestsRecursive</code> in <code>build.ts</code> performs a type assertion (<code>as ManifestEntry</code>) after checking only <code>session_id</code> and <code>client</code>. A manifest missing <code>message_count</code> or <code>started_at</code> would pass the guard and cause silent arithmetic errors downstream (NaN in stats, empty date ranges). A schema validation step (even a manual field check) would catch malformed manifests early.</p><p>---</p><p>## 8. PLAN COMPLIANCE</p><p><strong>CRITICAL — Cache location deviates from spec</strong></p><p>The plan spec (and the <code>references/transcript-archive.md</code> global configuration document) places the global search index and derived artifacts at <code>~/.memorytree/</code>. The cache for AI summaries is placed at <code>join(output, &#39;.cache&#39;)</code> — inside <code>Memory/07_reports/.cache/</code>. This means:</p><p>- The cache is <strong>inside the output directory</strong>, which is gitignored as <code>Memory/07_reports/</code>. The cache is therefore gitignored and lost every time the output directory is cleaned.<br>- If the user specifies a custom <code>--output</code>, the cache follows it rather than being stable across output changes.</p><p>The spec implies the cache should be stable and persistent, decoupled from the ephemeral output. It should live at a path like <code>join(root, &#39;Memory&#39;, &#39;07_reports&#39;, &#39;.cache&#39;)</code> that is stable regardless of the <code>--output</code> flag, or at a user-level path like <code>~/.memorytree/report-cache/</code>. As currently written, re-running <code>report build</code> after <code>rm -rf Memory/07_reports</code> will re-issue API calls for every transcript.</p><p><strong>HIGH — Model ID used as default does not match the plan&#39;s stated model</strong></p><p><code>build.ts</code> line 32 and <code>main.ts</code> line 177 both reference <code>claude-haiku-4-5-20251001</code>. The performance guidelines specify <code>claude-haiku-4-5</code> as the appropriate lightweight model for worker agents. The date-stamped model ID <code>20251001</code> is an internal version that may be deprecated. The CLI <code>--model</code> default in <code>main.ts</code> and the <code>DEFAULT_MODEL</code> constant in <code>build.ts</code> must be kept in sync manually — if one changes, the other becomes stale. These should reference a single constant defined once.</p><p><strong>LOW — <code>pdf?: boolean</code> in <code>BuildReportOptions</code> is exposed in the type but never implemented</strong></p><p>If the plan included a PDF output feature, it is not present. If it was descoped, the option should be removed from the interface to avoid confusion.</p><p>---</p><p>## Summary Table</p><p>| # | Severity | File(s) | Issue |<br>|---|----------|---------|-------|<br>| 1 | CRITICAL | <code>build.ts</code> | Cache placed inside gitignored output dir; lost on clean build |<br>| 2 | HIGH | <code>search.ts</code> | <code>&lt;/script&gt;</code> injection not escaped in inline JSON — real XSS vector |<br>| 3 | HIGH | <code>links.ts</code> | Arrays mutated in-place, violating immutability policy |<br>| 4 | HIGH | <code>build.ts</code>, <code>dashboard.ts</code>, <code>transcript-list.ts</code>, <code>transcript.ts</code> | <code>transcriptHref</code> triplicated with slightly different logic |<br>| 5 | HIGH | Tests | No XSS/escaping test for manifest-derived HTML content |<br>| 6 | HIGH | <code>build.ts</code> | Default model constant not aligned with CLI flag default — dual maintenance risk |<br>| 7 | MEDIUM | <code>summarize.ts</code> | Module-level mutable <code>activeCalls</code> counter; polling semaphore |<br>| 8 | MEDIUM | <code>build.ts</code> | File I/O parallelism is unbounded; only AI calls are gated |<br>| 9 | MEDIUM | <code>build.ts</code> | <code>loadMarkdownFiles</code>, <code>extractMarkdownTitle</code> live in orchestrator, not renderer |<br>| 10 | MEDIUM | <code>goals.ts</code>, <code>knowledge.ts</code> | Identical <code>GoalFile</code>/<code>KnowledgeFile</code> interfaces and <code>slugify</code> duplicated |<br>| 11 | MEDIUM | Tests | No unit tests for <code>markdownToHtml</code> or <code>renderMessageBody</code> |<br>| 12 | MEDIUM | <code>search.ts</code> | Inline JS string with duplicated <code>escHtml</code>; not type-checked or linted |<br>| 13 | MEDIUM | <code>build.ts</code> | O(N×M) backlink lookup should use a pre-built <code>Map</code> |<br>| 14 | LOW | <code>dashboard.ts</code> | <code>clientBadge</code> exported from page renderer, imported by sibling pages |<br>| 15 | LOW | <code>stats.ts</code>, <code>charts.ts</code> | <code>isoWeek</code>/<code>toIsoWeek</code> duplicated |<br>| 16 | LOW | <code>build.ts</code> | Silent catch in tool extraction; no warning logged |<br>| 17 | LOW | Tests | No test verifying transcript HTML content (only file existence) |<br>| 18 | LOW | <code>types/report.ts</code> | <code>pdf?: boolean</code> declared but never read; vestigial |<br>| 19 | LOW | <code>build.ts</code> | No type guard on manifest fields beyond <code>session_id</code>+<code>client</code> |<br>| 20 | LOW | Tests | ISO week calculation not verified against known dates |</p><p>---</p><p>## Key Recommendations (priority order)</p><p>1. <strong>Fix the <code>&lt;/script&gt;</code> injection</strong> in <code>renderSearchPage</code> — replace the raw <code>JSON.stringify</code> embed with a version that escapes <code>&lt;/</code> sequences (e.g., replace <code>&lt;/</code> with <code>&lt;\/</code> inside the JSON string before embedding).</p><p>2. <strong>Move the summary cache</strong> to a stable path outside the output directory, such as <code>join(root, &#39;Memory&#39;, &#39;.report-cache&#39;)</code>, so it survives <code>rm -rf Memory/07_reports</code>.</p><p>3. <strong>Extract <code>transcriptHref</code> into a single shared function</strong> in <code>layout.ts</code> parameterized by caller depth, and delete the three copies.</p><p>4. <strong>Fix <code>links.ts</code> mutation</strong> — replace the <code>.push()</code> pattern with an immutable array update to comply with the project&#39;s own coding standard.</p><p>5. <strong>Add a unit test module for <code>markdown.ts</code> and <code>transcript.ts</code> render functions</strong>, including at least one XSS injection case for manifest-controlled fields.</p><p>6. <strong>Consolidate the default model constant</strong> into <code>types/report.ts</code> or a <code>constants.ts</code> file so <code>build.ts</code> and <code>main.ts</code> share the same reference.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

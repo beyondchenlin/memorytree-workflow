@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a82e8512aa8d838de</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a82e8512aa8d838de</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>19</strong> Messages</span>
+      <span class="transcript-pill"><strong>62</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 02:22:13</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>19</td></tr>
   <tr><td>Tool Events</td><td>62</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">a3899f4bd4749b8a…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">a3899f4bd4749b8a...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1090,6 +1113,7 @@ pre.mermaid {
   })
   </code></pre><p>- <strong>Handling</strong>: <code>searchTranscripts</code> at line 170-171 correctly returns <code>[]</code> for empty sanitized query<br>- <strong>Status</strong>: NOT AN ISSUE (properly tested and handled)</p><p>---</p><p><strong>5. Empty String globalRoot in cmd-search.ts</strong><br>- <strong>Location</strong>: <code>packages/cli/src/cmd-search.ts</code> line 24<br>- <strong>Code</strong>: <code>const globalRoot = options.globalRoot ? resolve(options.globalRoot) : defaultGlobalTranscriptRoot()</code><br>- <strong>Issue</strong>: If <code>globalRoot</code> is empty string (falsy), falls back to default correctly ✓<br>- <strong>Path construction</strong> (line 25): <code>join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)</code> works correctly with any resolved path<br>- <strong>Status</strong>: NOT AN ISSUE (correctly defensive)</p><p>---</p><p>### LOW Issues</p><p><strong>6. No Concurrent Call Guard for FTS Rebuild</strong><br>- <strong>Location</strong>: <code>packages/core/src/transcript/db.ts</code> lines 165-212<br>- <strong>Issue</strong>: Comment at line 182 says &quot;Lazy rebuild: if two concurrent calls both detect empty segdir...&quot;<br>- <strong>Analysis</strong>: sql.js is synchronous WebAssembly (single-threaded), so concurrent calls within Node.js are impossible unless:<br>  - Multiple processes are accessing the same <code>dbPath</code> simultaneously<br>  - File is read via <code>readFileSync</code> (line 176), modified in memory, then written back — no race window in a single Node process<br>- <strong>Risk</strong>: If accessed from multiple Node processes (e.g., worker threads + main), both could rebuild<br>- <strong>Actual risk level</strong>: LOW because:<br>  1. This is a CLI/reporting tool (typically single-process)<br>  2. Rebuilding twice is idempotent (FTS rebuild is safe)<br>  3. Worst case: slight redundant work, not data corruption<br>- <strong>Status</strong>: NOT AN ISSUE for current architecture</p><p>---</p><p>### TEST COVERAGE SUMMARY</p><p>| Test File | Coverage | Gaps |<br>|-----------|----------|------|<br>| <code>db.test.ts</code> | 20 tests, good coverage of happy path | Missing: legacy DB rebuild, long query limit testing |<br>| <code>search.test.ts</code> | 5 tests, mocks searchTranscripts | Missing: integration test with real FTS |<br>| <code>report.test.ts</code> | 3 tests for serve | <strong>CRITICAL</strong>: Missing path containment/traversal tests |</p><p>---</p><p>### ACTIONABLE RECOMMENDATIONS</p><p>| Priority | Finding | Action |<br>|----------|---------|--------|<br>| CRITICAL | Path traversal tests missing | Add tests for <code>../../../etc/passwd</code>, symlink escapes, double-dot segments |<br>| HIGH | Legacy DB FTS rebuild untested | Add test: create DB with transcripts table only, verify lazy rebuild populates FTS |<br>| HIGH | Release workflow lockfile sync | Verify changesets/action documentation or test release workflow end-to-end on test repo |<br>| MEDIUM | Long query length limit | Consider adding test for very long queries (e.g., 10,000 chars) to verify FTS MATCH doesn&#39;t fail |<br>| LOW | Process-level concurrency | Document that sql.js is single-threaded in code comments |</p><p>---</p><p>## Summary</p><p><strong>No CRITICAL bugs found in the code itself</strong>, but <strong>significant test coverage gaps exist</strong>, especially around:<br>1. <strong>Security</strong>: Path traversal in report serve (code is correct, but untested)<br>2. <strong>Backwards compatibility</strong>: Legacy database FTS rebuild (code is correct, but untested)<br>3. <strong>Release reliability</strong>: Release workflow lockfile synchronization (assumed correct but not explicitly verified)</p><p>All identified issues are either <strong>NOT actual bugs</strong> (correct handling) or <strong>test coverage gaps</strong> (code is correct but needs adversarial test cases).</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

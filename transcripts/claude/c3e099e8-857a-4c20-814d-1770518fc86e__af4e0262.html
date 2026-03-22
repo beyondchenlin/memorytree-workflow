@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-aa2acf34fb077f486</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-aa2acf34fb077f486</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>2</strong> Messages</span>
+      <span class="transcript-pill"><strong>0</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 14:17:57</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>2</td></tr>
   <tr><td>Tool Events</td><td>0</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">af4e0262f4a0c087…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">af4e0262f4a0c087...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1289,6 +1312,7 @@ embedding_dims: typeof raw[&#39;embedding_dims&#39;] === &#39;number&#39; &amp;&
   </div>
   <div class="message-body"><p>I&#39;ll review these files systematically for correctness, edge cases, and potential bugs.</p><p>## Review Findings</p><p>### packages/types/src/index.ts<br><strong>No issues found.</strong> Type definitions are clean and well-structured. The <code>ManifestEntry</code> interface properly includes optional fields (<code>content?</code>, <code>commit_layer?</code>) matching the db.ts schema defaults.</p><p>---</p><p>### packages/core/src/transcript/db.ts</p><p><strong>1. CRITICAL: Silent error swallowing in searchTranscripts and searchTranscriptsByColumns</strong><br>- Lines: <code>catch { return [] }</code> in both functions<br>- Issue: Catches all exceptions including database corruption, permission errors, and query syntax errors. Caller has no way to distinguish &quot;no results&quot; from &quot;database error&quot;. This masks bugs in FTS query construction.<br>- Impact: Bugs in <code>searchTranscriptsByColumns</code> column query formatting (line 77) could silently fail without detection.<br>- Fix: Log errors or throw; at minimum, distinguish error cases from empty results.</p><p><strong>2. HIGH: Unsafe FTS query construction in searchTranscriptsByColumns</strong><br>- Line 77: <code>const columnQuery = columns.map((col) =&gt; \</code>${col}:${sanitized}\<code>).join(&#39; OR &#39;)</code><br>- Issue: Column names are not validated. If <code>columns</code> array contains user input or untrusted values, this could inject FTS operators or malformed syntax. The <code>sanitized</code> query is safe, but column names bypass validation.<br>- Impact: Potential FTS query injection if columns come from user input.<br>- Fix: Validate/whitelist column names against known safe set: <code>[&#39;title&#39;, &#39;cwd&#39;, &#39;branch&#39;, &#39;content&#39;, &#39;commit_layer&#39;]</code></p><p><strong>3. HIGH: Race condition in migrateFts</strong><br>- Lines 60-66: Checks if FTS table exists, then drops and recreates it<br>- Issue: Between the check and the drop, another process could modify the table. Also, <code>REBUILD_FTS_SQL</code> is called after every upsert (line 95), which is expensive and unnecessary—FTS4 with <code>content=</code> option auto-syncs.<br>- Impact: Unnecessary performance degradation; potential data loss if concurrent access occurs.<br>- Fix: Use <code>IF NOT EXISTS</code> in CREATE, remove <code>REBUILD_FTS_SQL</code> from upsertSearchIndex, or use FTS5 with auto-rebuild.</p><p><strong>4. MEDIUM: Missing global_manifest_path in ALL_COLUMNS</strong><br>- Line 10: <code>ManifestEntry</code> includes <code>global_manifest_path</code>, but it&#39;s not in <code>DATA_COLUMNS</code> or <code>ALL_COLUMNS</code><br>- Issue: This field is silently dropped during upsert. If it&#39;s needed later, data loss occurs.<br>- Impact: Incomplete manifest persistence.<br>- Fix: Add <code>&#39;global_manifest_path&#39;</code> to <code>DATA_COLUMNS</code> and update CREATE_TABLE_SQL.</p><p><strong>5. MEDIUM: Inconsistent null handling in upsertSearchIndex</strong><br>- Lines 88-92: Converts <code>undefined</code> and <code>null</code> to empty string <code>&#39;&#39;</code><br>- Issue: This loses information—can&#39;t distinguish &quot;field was null&quot; from &quot;field was empty string&quot;. For optional fields like <code>content</code> and <code>commit_layer</code>, this may be intentional, but for required fields like <code>title</code>, it masks data quality issues.<br>- Impact: Silent data corruption if required fields are missing.<br>- Fix: Validate that required fields are present before upsert; throw error if missing.</p><p><strong>6. MEDIUM: FTS4 content table sync issue</strong><br>- Line 95: <code>db.exec(REBUILD_FTS_SQL)</code> after every upsert<br>- Issue: FTS4 with <code>content=</code> option requires manual rebuild only if the content table is modified outside FTS. Since we&#39;re using prepared statements, this is unnecessary overhead.<br>- Impact: Performance: every upsert triggers a full FTS rebuild.<br>- Fix: Remove the rebuild call; FTS4 auto-syncs with content table.</p><p><strong>7. LOW: Missing index on search results</strong><br>- Line 50: SEARCH_SQL joins on <code>rowid</code> but no explicit index<br>- Issue: FTS4 provides implicit rowid mapping, but performance could degrade with large tables.<br>- Impact: Slow searches on large datasets.<br>- Fix: Consider adding explicit index or migrating to FTS5.</p><p>---</p><p>### packages/core/src/transcript/import.ts</p><p><strong>1. MEDIUM: Empty commit_layer silently set</strong><br>- Line: <code>commit_layer: &#39;&#39;</code><br>- Issue: The field is always initialized to empty string, but <code>searchRecall</code> (recall.ts line 8) searches for non-empty <code>commit_layer</code> in layer 1. This means layer 1 will never return results unless <code>commit_layer</code> is explicitly populated elsewhere.<br>- Impact: Layer 1 search is dead code.<br>- Fix: Either populate <code>commit_layer</code> during import or remove layer 1 from searchRecall.</p><p>---</p><p>### packages/core/src/recall/recall.ts</p><p><strong>1. HIGH: Unreachable layer 1 search</strong><br>- Lines 8-9: Searches <code>commit_layer</code> column, but import.ts always sets it to <code>&#39;&#39;</code><br>- Issue: Layer 1 will always return empty results.<br>- Impact: Search logic is broken; layer 1 is dead code.<br>- Fix: Either populate <code>commit_layer</code> during import or remove layer 1 logic.</p><p><strong>2. MEDIUM: No limit enforcement across layers</strong><br>- Lines 8-13: Each layer search respects <code>limit</code>, but if layer 1 returns 1 result and layer 2 returns 19, the caller gets 20 total—not the requested limit.<br>- Issue: Ambiguous semantics: does <code>limit</code> apply per-layer or total?<br>- Impact: Inconsistent result counts.<br>- Fix: Document behavior or enforce total limit across all layers.</p><p>---</p><p>### packages/core/src/storage/search/sqlite-fts-adapter.ts</p><p><strong>1. MEDIUM: Error handling gap</strong><br>- Line 8: <code>searchTranscripts</code> can silently return <code>[]</code> on error (db.ts line 73)<br>- Issue: Adapter doesn&#39;t distinguish &quot;no results&quot; from &quot;database error&quot;. Caller can&#39;t retry or handle errors.<br>- Impact: Silent failures propagate up the stack.<br>- Fix: Propagate errors from db.ts instead of swallowing them.</p><p>---</p><p>### packages/sync/src/config.ts</p><p><strong>1. MEDIUM: Missing validation for embedding_dims</strong><br>- Line: <code>embedding_dims: 1536</code><br>- Issue: No validation that <code>embedding_dims</code> matches the actual embedding model. If user sets <code>embedding_model: &#39;text-embedding-3-small&#39;</code> (1536 dims) but <code>embedding_dims: 3072</code>, vector operations will fail.<br>- Impact: Runtime errors during vector operations.<br>- Fix: Add validation that dims match model, or auto-detect from model name.</p><p><strong>2. LOW: Empty embedding_model default</strong><br>- Line: <code>embedding_model: &#39;&#39;</code><br>- Issue: Empty string is falsy but not <code>null</code>. Code checking <code>if (cfg.embedding_model)</code> will fail silently.<br>- Impact: Vector operations will fail if embedding_model is not explicitly set.<br>- Fix: Use <code>null</code> or throw error if embedding_model is required.</p><p>---</p><p>## Summary</p><p><strong>CRITICAL (1):</strong> Silent error swallowing in search functions masks bugs.</p><p><strong>HIGH (3):</strong> <br>- FTS query injection via unvalidated column names<br>- Race condition in FTS migration<br>- Unreachable layer 1 search (dead code)</p><p><strong>MEDIUM (6):</strong> Missing <code>global_manifest_path</code> in schema, null handling inconsistency, unnecessary FTS rebuilds, layer 1 always empty, error handling gaps, embedding_dims validation missing.</p><p><strong>Recommendation:</strong> Fix CRITICAL and HIGH issues before next release. The layer 1 search being dead code suggests incomplete implementation—clarify whether <code>commit_layer</code> should be populated during import.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

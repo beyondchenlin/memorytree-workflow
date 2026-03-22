@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-af5b725465501dd6c</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-af5b725465501dd6c</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>5</strong> Messages</span>
+      <span class="transcript-pill"><strong>14</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 13:47:34</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>5</td></tr>
   <tr><td>Tool Events</td><td>14</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">effa04cde13880b3…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">effa04cde13880b3...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1076,6 +1099,7 @@ upsertSearchIndex(globalDbPath, manifest)  // sync, no await
 global_raw_path: &#39;/global/raw/file.jsonl&#39;,
 </code></pre><p>Tests run on Windows (the repo&#39;s platform per env). These paths are stored as-is in SQLite. <code>cwdMatches</code> in recall.ts calls <code>toPosixPath(resolve(cwd)).toLowerCase()</code> — <code>resolve(&#39;/home/user/project&#39;)</code> on Windows returns <code>C:\home\user\project</code> (anchored to current drive), not <code>/home/user/project</code>. Any test that exercises the full <code>findLatestSession</code> → <code>cwdMatches</code> path with these fixtures will produce false negatives on Windows. The test suite currently does not test <code>findLatestSession</code> directly, so this is latent, but it will bite when those tests are added.</p><p><strong>L3. <code>recall.ts</code> — <code>syncCurrentProject</code> calls <code>importTranscript</code> which calls <code>upsertSearchIndex</code> synchronously, but <code>syncCurrentProject</code> is still <code>async</code> and its callers <code>await</code> it</strong></p><p>This is correct and not a bug, but the async boundary is now misleading: <code>syncCurrentProject</code> is <code>async</code> only because it <code>await</code>s <code>importTranscript</code>, which is <code>async</code> only because of other I/O inside it (not because of the DB call). If a future refactor removes those other awaits, the function silently becomes a synchronous operation wrapped in a resolved Promise, which is fine but wastes a microtask tick per transcript. Worth a comment.</p><p><strong>L4. <code>db.test.ts</code> — no test for <code>upsertSearchIndex</code> with a manifest that has <code>undefined</code> or <code>null</code> fields</strong></p><p>The <code>params</code> map in <code>upsertSearchIndex</code> converts <code>undefined</code>/<code>null</code> to <code>&#39;&#39;</code>. There is no test that passes a manifest with missing optional fields (e.g. <code>branch: undefined</code>) and verifies the stored value is <code>&#39;&#39;</code> rather than the string <code>&#39;undefined&#39;</code>. The <code>typeof value === &#39;number&#39;</code> branch also means a <code>0</code> message count is stored correctly, but there is no test for <code>message_count: 0</code> specifically.</p><p>---</p><p>### Summary table</p><p>| ID | Severity | Area | One-line description |<br>|----|----------|------|----------------------|<br>| C1 | CRITICAL | Type safety | <code>run(...params)</code> not type-safe; boolean/object fields coerce silently |<br>| C2 | CRITICAL | FTS4 correctness | <code>docid = rowid</code> join breaks after DELETE or VACUUM |<br>| H1 | HIGH | Windows compat | <code>resolve(cwd)</code> on relative/UNC DB values gives false positives |<br>| H2 | HIGH | Error handling | Bare <code>upsertSearchIndex()</code> call in import.ts throws through and corrupts import count |<br>| H3 | HIGH | Type safety | <code>ALL_COLUMNS</code> missing 3 <code>ManifestEntry</code> fields; silently dropped, no compile error |<br>| M1 | MEDIUM | Type safety | <code>ALL_COLUMNS</code> not constrained to <code>keyof ManifestEntry</code>; schema drift undetected |<br>| M2 | MEDIUM | Test coverage | No test for legacy DB (transcripts table exists, FTS table missing) |<br>| M3 | MEDIUM | Test coverage | Single-quote passthrough has no regression test |<br>| M4 | MEDIUM | Correctness | ISO timestamp lexicographic compare breaks on non-UTC or non-ISO stored values |<br>| L1 | LOW | Architecture | <code>recall.ts</code> imports <code>better-sqlite3</code> directly, duplicating <code>db.ts</code> coupling |<br>| L2 | LOW | Windows compat | Test fixtures use Unix paths; <code>cwdMatches</code> will fail on Windows when exercised |<br>| L3 | LOW | Clarity | <code>syncCurrentProject</code> async boundary is misleading post-sync refactor |<br>| L4 | LOW | Test coverage | No test for null/undefined manifest fields or <code>message_count: 0</code> |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

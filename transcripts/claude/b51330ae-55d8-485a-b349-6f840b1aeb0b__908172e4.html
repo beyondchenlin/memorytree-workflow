@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a1df4f279b6095890</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a1df4f279b6095890</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>3</strong> Messages</span>
+      <span class="transcript-pill"><strong>102</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-17 12:58:25</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>3</td></tr>
   <tr><td>Tool Events</td><td>102</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">908172e409796bc5…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">908172e409796bc5...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1003,6 +1026,7 @@ if [ &quot;$TAG_VERSION&quot; != &quot;$PKG_VERSION&quot; ]; then echo &quot;Tag
     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 </code></pre><p>---</p><p><strong>M-7: No Dependabot configuration for GitHub Actions or npm dependencies</strong><br><code>.github/</code> (missing <code>dependabot.yml</code>)</p><p>There is no Dependabot or Renovate config. Action versions (<code>@v4</code> tags) and package versions will silently go stale. Given that actions are pinned to mutable tags (H-4), this compounds the risk.</p><p>Fix: add <code>.github/dependabot.yml</code> with both <code>package-ecosystem: npm</code> for the workspace and <code>package-ecosystem: github-actions</code> for the workflows.</p><p>---</p><p>### LOW</p><p><strong>L-1: <code>turbo.json</code> has no <code>globalEnv</code> for <code>NODE_ENV</code> or similar — cache may be non-deterministic</strong><br><code>turbo.json</code> (entire file)</p><p>If any package reads <code>process.env.NODE_ENV</code> at build time (e.g., for conditional dev/prod output), Turbo will not factor that into the cache key. A CI build with <code>NODE_ENV=test</code> and a local build with <code>NODE_ENV=development</code> would share a cache hit.</p><p>Fix: add <code>&quot;globalEnv&quot;: [&quot;NODE_ENV&quot;]</code> (and any other env vars that affect build output) to <code>turbo.json</code>.</p><p>---</p><p><strong>L-2: <code>@openmnemo/types</code> has no <code>test</code> script — <code>turbo test</code> silently no-ops for it</strong><br><code>packages/types/package.json:23-27</code></p><p>Turbo&#39;s <code>test</code> task runs <code>npm run test</code> per package. <code>@openmnemo/types</code> has no <code>test</code> script, so Turbo skips it with a warning (or silently depending on version). If type-only utility functions are added to <code>types/</code>, there is no test harness available and no reminder to add one.</p><p>Fix: add <code>&quot;test&quot;: &quot;vitest run&quot;</code> to <code>packages/types/package.json</code> and create a <code>tests/</code> directory with at least a smoke test.</p><p>---</p><p><strong>L-3: CI matrix includes Windows but no cross-platform path handling is verified</strong><br><code>.github/workflows/ci.yml:14</code></p><p>The matrix runs on <code>windows-latest</code>. The <code>fast-glob</code> package normalizes separators, but <code>path.join</code> calls in <code>@openmnemo/core</code> and <code>@openmnemo/sync</code> may produce <code>\</code>-separated paths on Windows that are then compared against POSIX patterns. If tests are written to expect <code>/</code> separators this would fail on Windows CI specifically.</p><p>This is a latent risk — whether it actually manifests depends on the test implementations. Worth auditing path comparison logic in <code>packages/core/src/</code> and <code>packages/sync/src/</code>.</p><p>---</p><p><strong>L-4: <code>pnpm/action-setup@v4</code> without explicit <code>version:</code> reads from <code>packageManager</code> field</strong><br><code>.github/workflows/ci.yml:23</code>, <code>.github/workflows/publish.yml:21</code></p><p>This is actually correct behavior for <code>pnpm/action-setup@v4</code>, which automatically reads the <code>packageManager</code> field from <code>package.json</code> (<code>pnpm@9.15.0</code>). No issue here, but it is worth noting that if the <code>packageManager</code> field is ever removed or renamed, both workflows will silently fall back to whatever pnpm version the action defaults to.</p><p>---</p><p>### Summary Table</p><p>| ID | Severity | File | Issue |<br>|----|----------|------|-------|<br>| C-1 | CRITICAL | <code>packages/cli/src/main.ts:11-13</code> | Binary shows wrong name (<code>memorytree</code>) and version (<code>0.1.0</code>) |<br>| C-2 | CRITICAL | <code>publish.yml:29-36</code> | No tests run before publish |<br>| C-3 | CRITICAL | <code>publish.yml</code> (whole file) | Tag/version not validated before publish |<br>| H-1 | HIGH | All <code>packages/<em>/package.json</code> deps | <code>workspace:</em></code> publishes as exact version, not <code>^</code> |<br>| H-2 | HIGH | All <code>packages/*/package.json</code> devDeps | <code>@types/node@^25.5.0</code> vs <code>engines: &gt;=20</code> |<br>| H-3 | HIGH | <code>turbo.json:8-10</code> | Tests cached by default — stale results hide failures |<br>| H-4 | HIGH | Both workflow files | Actions pinned to mutable tags, not SHAs |<br>| M-1 | MEDIUM | All <code>packages/*/package.json</code> | No <code>engines</code> field in published packages |<br>| M-2 | MEDIUM | All <code>packages/*/package.json</code> | No <code>exports</code> field — bundler resolution broken |<br>| M-3 | MEDIUM | <code>packages/report/package.json:7-8</code> | <code>main</code>/<code>types</code> paths missing leading <code>./</code> |<br>| M-4 | MEDIUM | All <code>packages/*/tsconfig.json</code> | Strict flags inconsistent across packages |<br>| M-5 | MEDIUM | <code>packages/cli/tsup.config.ts</code> | No <code>dts: true</code> — no types emitted for CLI |<br>| M-6 | MEDIUM | <code>publish.yml:36</code> | No early validation that <code>NPM_TOKEN</code> is set |<br>| M-7 | MEDIUM | <code>.github/</code> | No Dependabot config |<br>| L-1 | LOW | <code>turbo.json</code> | No <code>globalEnv</code> for env-sensitive cache invalidation |<br>| L-2 | LOW | <code>packages/types/package.json</code> | No <code>test</code> script in <code>@openmnemo/types</code> |<br>| L-3 | LOW | <code>ci.yml:14</code> | Windows matrix may expose path separator issues |<br>| L-4 | LOW | Both workflow files | <code>pnpm/action-setup</code> version is implicit via <code>packageManager</code> |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

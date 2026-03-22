@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a37795fb3f3581c0b</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a37795fb3f3581c0b</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>8</strong> Messages</span>
+      <span class="transcript-pill"><strong>80</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 00:01:59</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>8</td></tr>
   <tr><td>Tool Events</td><td>80</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">3de5f59630158af3…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">3de5f59630158af3...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1028,6 +1051,7 @@ if (r.cwd) lines.push(`  cwd: ${r.cwd}`)
 </code></pre><p>A user passing <code>--limit 0</code> gets 20 results, not 0 or &quot;unlimited&quot;. The discover command (line 118) uses <code>|| 0</code> for the same reason (0 = unlimited). For search, 0 as &quot;no limit&quot; is arguably reasonable but <code>|| 20</code> makes 0 invisible. Consider <code>parseInt(..., 10)</code> followed by a <code>Number.isNaN</code> or <code>&lt;= 0</code> check for a more deliberate behavior.</p><p>File: <code>/packages/cli/src/main.ts</code>, line 156.</p><p><strong>6. <code>--root</code> option in <code>search</code> command is declared but explicitly marked unused</strong></p><p>The option comment says <code>&#39;Target repository root (unused; reserved for future filtering)&#39;</code>. While the intent is future-proofing, Commander will accept <code>--root</code> silently and do nothing with it. Users who pass <code>--root</code> expecting project-filtered search will get back all-projects results with no warning. Either omit the option now and add it when the feature lands, or emit a warning when it is supplied with a non-default value.</p><p>File: <code>/packages/cli/src/main.ts</code>, lines 146–147.</p><p>---</p><p>### LOW</p><p><strong>7. Test for <code>searchTranscripts</code> limit is weaker than necessary</strong></p><p>Test &quot;respects the limit parameter&quot; (line 276):</p><pre><code>expect(results.length).toBeLessThanOrEqual(3)
 </code></pre><p>Since all 5 rows match and limit is 3, the result will always be exactly 3. The assertion <code>toBeLessThanOrEqual</code> does not catch a regression where limit is silently ignored (e.g., returns 5 rows). It should be <code>toEqual(3)</code>.</p><p>File: <code>/packages/core/tests/transcript/db.test.ts</code>, line 285.</p><p><strong>8. No test for malformed FTS4 query string</strong></p><p><code>searchTranscripts</code> with a query like <code>&quot;OR OR AND&quot;</code> causes sql.js to throw <code>&quot;malformed MATCH expression&quot;</code>. The <code>try/catch</code> in <code>cmdSearch</code> handles this correctly and returns exit code 1 with a message. However, no test covers this path — neither in <code>db.test.ts</code> (which could test that <code>searchTranscripts</code> throws for malformed queries) nor in CLI-level tests. Given the user controls the query string, this is an important error path.</p><p><strong>9. No CLI-level unit tests for <code>cmdSearch</code></strong></p><p><code>packages/cli/tests/cli/</code> only contains <code>daemon.test.ts</code>. The other cmd modules (<code>cmd-recall</code>, <code>cmd-import</code>, <code>cmd-discover</code>) also lack CLI-level tests, so this is consistent with the existing pattern. Still, <code>cmdSearch</code>&#39;s logic is testable (empty query validation, format=json output shape, db-not-found behavior) and worth adding given the new feature.</p><p><strong>10. <code>SearchResult.rank</code> is always <code>0</code> — the field is misleading</strong></p><p>The <code>rank</code> field exists in the interface and is always hardcoded to <code>0 as rank</code> in <code>SEARCH_SQL</code>. FTS4 without the <code>matchinfo()</code> function does not provide relevance scores, so the comment correctly explains this. But shipping a public interface field that is permanently <code>0</code> is confusing to API consumers. Either remove <code>rank</code> from <code>SearchResult</code> now, or document it explicitly as &quot;always 0, reserved for future BM25 ranking&quot;. The field is also exposed in the JSON output, so external tooling could depend on it.</p><p>File: <code>/packages/core/src/transcript/db.ts</code>, line 96–105 (interface), line 122–123 (SQL).</p><p><strong>11. README <code>search</code> section is missing <code>--root</code> from the options table</strong></p><p>The README (lines 172–178) documents <code>--query</code>, <code>--global-root</code>, <code>--limit</code>, and <code>--format</code> but omits <code>--root</code>, which is registered in <code>main.ts</code>. Even though <code>--root</code> is currently a no-op, it is visible in <code>openmnemo search --help</code> and users will ask about it.</p><p>File: <code>README.md</code>, lines 172–178.</p><p>---</p><p>### Summary Table</p><p>| # | Severity | File | Issue |<br>|---|----------|------|-------|<br>| 1 | HIGH | <code>db.ts:93,132</code> | Stale &quot;FTS5&quot; comments after FTS4 migration |<br>| 2 | HIGH | <code>db.ts:144–146</code> | FTS rebuild runs on every search call (O(N) perf) |<br>| 3 | MEDIUM | <code>cmd-search.ts:5–6</code> | Redundant split <code>node:path</code> import |<br>| 4 | MEDIUM | <code>cmd-search.ts:50–55</code> | <code>branch</code> field missing from text format output |<br>| 5 | MEDIUM | <code>main.ts:156</code> | <code>--limit 0</code> silently maps to 20 |<br>| 6 | MEDIUM | <code>main.ts:146–147</code> | Unused <code>--root</code> option gives no warning when supplied |<br>| 7 | LOW | <code>db.test.ts:285</code> | Limit test uses <code>toBeLessThanOrEqual</code> instead of <code>toEqual(3)</code> |<br>| 8 | LOW | <code>db.test.ts</code> | No test for malformed FTS4 query error path |<br>| 9 | LOW | <code>cli/tests/</code> | No CLI-level tests for <code>cmdSearch</code> |<br>| 10 | LOW | <code>db.ts:96–105</code> | <code>rank: 0</code> always — field is permanently meaningless in public API |<br>| 11 | LOW | <code>README.md:172–178</code> | <code>--root</code> missing from <code>search</code> command option docs |</p><p>The FTS5 → FTS4 migration itself is <strong>correct</strong>: <code>fts4</code> with <code>content=&#39;transcripts&#39;</code>, <code>tokenize=unicode61</code>, and the <code>docid = t.rowid</code> join all work correctly with the sql.js WASM build (which ships FTS4 but not FTS5), verified by direct runtime testing. The migration was necessary and the SQL is sound.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

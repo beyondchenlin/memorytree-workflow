@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>7a813b51-78e9-46a8-983d-08411cbb2fa6</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>7a813b51-78e9-46a8-983d-08411cbb2fa6</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>55</strong> Messages</span>
+      <span class="transcript-pill"><strong>124</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-20 06:45:16</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">dev</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">d:\demo1\papaweb</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>7a813b51-78e9-46a8-983d-08411cbb2fa6</code></td></tr>
   <tr><td>Messages</td><td>55</td></tr>
   <tr><td>Tool Events</td><td>124</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>dev</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">d:\demo1\papaweb</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">7bb8af0b6dfa4f37…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">7bb8af0b6dfa4f37...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1359,6 +1382,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>结论已经够清晰了，直接给你分析：</p><p>---</p><p>## Pinchtab 在 Go 生态的替代方案</p><p><strong>先说结论：Go 原生没有能直接替代 Pinchtab 深度反检测的方案。</strong></p><p>### Go 生态现有选项</p><p>| 项目 | 类型 | 反检测深度 | License | 能替代？ |<br>|------|------|-----------|---------|---------|<br>| <strong>go-rod</strong> | 浏览器自动化 | ❌ 无内置 | MIT | 部分替代（要自己注入 stealth JS） |<br>| <strong>playwright-go</strong> | 浏览器自动化 | ❌ 无内置 | MIT | 同上，且底层跑 Node.js 运行时 |<br>| <strong>azuretls-client</strong> | HTTP 客户端 | ✅ TLS/JA3/JA4/H2 指纹 | MIT | 只替代<strong>网络层</strong>，不能渲染 JS |<br>| <strong>Katana</strong> | 爬虫框架 | ⚠️ 实验性 TLS | MIT | 爬取层可用，指纹不够深 |</p><p>### 关键差距</p><p>Go 生态缺失的是 <strong>浏览器引擎级</strong> 的指纹伪装（Canvas/WebGL/AudioContext/Navigator），这一层只有：<br>- Camoufox（Python，修改 Firefox C++ 引擎）<br>- puppeteer-extra-stealth（Node.js，JS 注入方式）</p><p>### 实际可行的替代路径</p><p><strong>方案 A：go-rod + stealth JS 注入（保持纯 Go）</strong><br>- 用 go-rod 替代 chromedp，API 更人性化<br>- 启动时注入 [puppeteer-extra-plugin-stealth](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth) 的 JS 脚本（开源 MIT，可以直接拿脚本用）<br>- 优点：纯 Go，无额外运行时<br>- 缺点：JS 注入方式能被检测到（<code>Object.defineProperty</code> 痕迹）</p><p><strong>方案 B：azuretls-client 处理 HTTP，go-rod 处理 JS 渲染（分层）</strong><br>- 无需 JS 渲染的接口调用 → azuretls-client（TLS 指纹完美）<br>- 必须用浏览器的场景 → go-rod + stealth 脚本<br>- 这实际上也是我们架构方案里分层的思路</p><p><strong>方案 C：接受 Camoufox sidecar（混合架构）</strong><br>- Camoufox 以独立进程运行，Go 通过 HTTP/WebSocket 调用<br>- 指纹伪装最深，但引入了 Python 依赖</p><p>### 我的建议</p><p>如果 Pinchtab 是你们现有的 Go 浏览器自动化层，<strong>go-rod + stealth JS 注入</strong>是成本最低的升级路径。azuretls-client 值得引入来补 TLS 层。Camoufox sidecar 留作对抗强检测平台（比如某些金融、电商平台）的备选。</p><p>要我把这个层叠架构画出来吗？</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

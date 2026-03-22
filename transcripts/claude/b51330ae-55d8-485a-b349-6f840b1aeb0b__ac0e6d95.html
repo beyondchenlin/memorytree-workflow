@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-ad3058a6ce00743c9</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-ad3058a6ce00743c9</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>7</strong> Messages</span>
+      <span class="transcript-pill"><strong>36</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 00:50:43</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>7</td></tr>
   <tr><td>Tool Events</td><td>36</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">ac0e6d954da8c7dd…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">ac0e6d954da8c7dd...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1017,6 +1040,7 @@ summary: &#39;Session summary text&#39;,      // field does not exist on RecallR
 console.log(`Open: ${join(resolve(opts.output), &#39;index.html&#39;)}`)
 </code></pre><p>The test only checks for <code>&#39;Report generated at:&#39;</code>. The second line is never asserted, meaning if it were accidentally removed, no test would catch it.</p><p>### H5 — <code>search.test.ts</code>: <code>dbPath</code> construction is untested/invisible<br><strong>File:</strong> <code>packages/cli/tests/cli/cmd-search.ts</code> / <code>search.test.ts</code></p><p><code>cmd-search.ts</code> constructs <code>dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)</code> and passes it to <code>searchTranscripts(dbPath, ...)</code>. The tests mock <code>searchTranscripts</code> at the <code>@openmnemo/core</code> level, so the actual <code>dbPath</code> value is never verified. If the path construction logic changed, no test would catch it. A dedicated test asserting what <code>dbPath</code> was passed to <code>searchTranscripts</code> (like <code>report.test.ts</code> does for <code>buildOptions</code>) would close this gap.</p><p>---</p><p>## MEDIUM Issues</p><p>### M1 — <code>captureOutput</code> helper is duplicated across all 5 test files<br>All five files define an identical (or near-identical) <code>captureOutput</code> function. The <code>report.test.ts</code> version has an extended variant that also captures <code>console.log</code>/<code>console.error</code>. The other four do not — meaning if any of those commands ever switch from <code>process.stdout.write</code> to <code>console.log</code>, those tests silently stop capturing output without failing. This is inconsistent with <code>report.test.ts</code>, which correctly handles both. A shared <code>tests/helpers/capture.ts</code> utility would eliminate this drift.</p><p>### M2 — <code>discover.test.ts</code>: <code>discovered_count</code> is 0 in the mock, but the assertion checks it<br><strong>File:</strong> <code>packages/cli/tests/cli/discover.test.ts</code> line 84</p><p>The mock returns an empty array from <code>discoverSourceFiles()</code>. The payload sets <code>discovered_count: discovered.length</code> where <code>discovered</code> is the array returned by <code>discoverSourceFiles</code>. The test asserts <code>expect(out).toContain(&#39;discovered_count: 0&#39;)</code>. This is correct, but there is no test for <code>discovered_count &gt; 0</code> — the <code>imports:</code> section of <code>formatDiscoverText</code> is only reached when imports are non-empty, and that branch is never exercised.</p><p>### M3 — <code>import.test.ts</code>: <code>rawUploadPermission: &#39;not-set&#39;</code> used for <code>format: &#39;json&#39;</code> test<br><strong>File:</strong> <code>packages/cli/tests/cli/import.test.ts</code> lines 120–138</p><p>In <code>cmdImport</code>, when <code>matchesCurrentRepo</code> is true, <code>rawUploadPermission</code> is forwarded to <code>importTranscript</code>. The JSON format test uses the real <code>importTranscript</code> call (no mock), which means the test is doing a full integration write to <code>tmpDir</code>. This is intentional but undocumented — if the test is slow or fails due to a side effect, the root cause is non-obvious. At minimum a comment explaining the integration nature would help.</p><p>### M4 — <code>recall.test.ts</code> misses the <code>activationTime</code> propagation test<br><strong>File:</strong> <code>packages/cli/tests/cli/recall.test.ts</code></p><p>The <code>cmdRecall</code> function passes <code>activationTime</code> directly to <code>recall(...)</code>. The JSON-format test sets <code>activationTime: &#39;2024-06-01T09:00:00Z&#39;</code>, but since <code>recall</code> is mocked to ignore its arguments, there is no test verifying that the value is actually forwarded. The daemon.test.ts pattern of capturing args passed to mocked functions (e.g., <code>savedConfigs.push(cfg)</code>) should be applied here.</p><p>### M5 — <code>report.test.ts</code> <code>cmdReportServe</code> with <code>port: 0</code> leaves server untracked<br><strong>File:</strong> <code>packages/cli/tests/cli/report.test.ts</code> lines 146–158</p><p><code>port: 0</code> asks the OS to assign an ephemeral port. The comment says &quot;we just verify the function returns 0 without throwing&quot;. This is fine, but since <code>cmdReportServe</code> calls <code>process.exit(1)</code> on <code>EADDRINUSE</code>, any global state from a previous leaked server could cause the test process to exit without a helpful message. The <code>server</code> variable in <code>afterEach</code> does not track this server.</p><p>### M6 — <code>discover.test.ts</code> and <code>recall.test.ts</code> call <code>vi.resetModules()</code> in <code>beforeEach</code> (redundant)<br>Both files call <code>vi.resetModules()</code> in both <code>beforeEach</code> and <code>afterEach</code>. The call in <code>beforeEach</code> is redundant given the call in <code>afterEach</code> ran for the previous test. This is a minor noise issue that matches no pattern in <code>daemon.test.ts</code> (which only calls it in <code>afterEach</code>).</p><p>---</p><p>## LOW Issues</p><p>### L1 — <code>report.test.ts</code>: Hardcoded ports 19871 / 19872 risk inter-test conflicts<br>Ports are fixed integers. If these tests run in parallel with another suite (e.g., via <code>--pool=threads</code>) that uses the same ports, tests will flake. Using <code>port: 0</code> and reading back <code>server.address().port</code> after the listen callback fires is the robust pattern — but this requires exposing the server reference from <code>cmdReportServe</code>, which is an API change.</p><p>### L2 — <code>import.test.ts</code>: Codex JSONL uses non-standard <code>type: &#39;response_item&#39;</code><br><strong>File:</strong> <code>packages/cli/tests/cli/import.test.ts</code> lines 87–91</p><p>The test creates a Codex JSONL with <code>type: &#39;response_item&#39;</code>. This matches the Codex format, but the <code>payload.type: &#39;message&#39;</code> + <code>content[0].type: &#39;input_text&#39;</code> structure should be verified against <code>parseCodexTranscript</code> to confirm the fixture actually produces 2 messages (<code>message_count: 2</code>). If the parser changes, the test would silently produce a different <code>message_count</code> without a structural fixture failure.</p><p>### L3 — <code>search.test.ts</code> does not test the <code>limit</code> parameter propagation<br>The <code>cmdSearch</code> function passes <code>options.limit</code> directly to <code>searchTranscripts(dbPath, query, options.limit)</code>. No test verifies that the limit value is forwarded correctly.</p><p>### L4 — Consistency: <code>import.test.ts</code> imports <code>cmdImport</code> statically at top level<br><strong>File:</strong> <code>packages/cli/tests/cli/import.test.ts</code> line 10</p><p>Unlike <code>recall.test.ts</code> and <code>search.test.ts</code> (which dynamically import after <code>vi.doMock</code>), <code>import.test.ts</code> imports statically. This is fine because <code>import.test.ts</code> never mocks <code>@openmnemo/core</code> — it relies on real integration behavior. However, if a future test in that file needs to mock core functions, the static import will prevent the mock from taking effect unless a developer knows to switch to dynamic import. This is inconsistent with the established pattern in <code>daemon.test.ts</code>.</p><p>---</p><p>## Pattern Consistency with <code>daemon.test.ts</code></p><p><code>daemon.test.ts</code> establishes these patterns — not all new files follow them:</p><p>| Pattern | daemon.test.ts | new files |<br>|---|---|---|<br>| Dynamic import after <code>vi.doMock</code> | Yes | recall/search/discover (yes); import (no, never mocks core) |<br>| Capture both stdout and stderr | Yes (separate vars) | All files — but only report.test.ts also captures <code>console.*</code> |<br>| <code>vi.resetModules()</code> only in <code>afterEach</code> | Yes | discover/recall add redundant <code>beforeEach</code> call |<br>| Capture exact arg passed to mock | Yes (<code>savedConfigs.push</code>) | Only report.test.ts does this; recall/search do not |<br>| <code>vi.restoreAllMocks()</code> in <code>afterEach</code> | Yes | All files — consistent |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

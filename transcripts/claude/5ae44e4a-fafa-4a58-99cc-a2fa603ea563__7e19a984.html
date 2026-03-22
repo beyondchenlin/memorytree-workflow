@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-af65c73129b3866e6</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-af65c73129b3866e6</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>7</strong> Messages</span>
+      <span class="transcript-pill"><strong>40</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 08:22:22</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">ts</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>5ae44e4a-fafa-4a58-99cc-a2fa603ea563</code></td></tr>
   <tr><td>Messages</td><td>7</td></tr>
   <tr><td>Tool Events</td><td>40</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>ts</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">7e19a984be11b241…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">7e19a984be11b241...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1017,6 +1040,7 @@ pre.mermaid {
 }
 </code></pre><p>特别是 <code>module: &quot;NodeNext&quot;</code> vs <code>module: &quot;ESNext&quot;</code> 的区别：NodeNext 要求导入语句带 <code>.js</code> 扩展名（<code>import { foo } from &#39;./bar.js&#39;</code>），不遵守会导致运行时 <code>ERR_MODULE_NOT_FOUND</code>。2025 年大量 TS 项目仍因这一点踩坑。</p><p><strong>建议</strong>：在 Phase 0 给出完整的 <code>tsconfig.json</code> 样板，而不是只列三个字段。</p><p>---</p><p>### [HIGH] <code>tsup</code> 的打包配置未说明</p><p>计划只说&quot;tsup 打包&quot;，但没有说明：<br>- <code>entry</code> 是什么（CLI 入口？还是库入口？两者打包策略不同）<br>- <code>format</code> 是 <code>esm</code> 还是 <code>cjs</code>（OS 调度任务直接调用的 JS 文件，需要 CJS 或带 shebang 的 ESM）<br>- <code>dts</code> 是否需要（如果只是 CLI 工具，不需要生成 <code>.d.ts</code>）<br>- <code>sourcemap</code> 在生产环境是否开启（daemon 崩溃时的 stack trace 可读性）</p><p>Python 端不需要编译，这类问题不存在。TS 端必须在 Phase 0 就把构建配置定清楚，否则 Phase 1 写出来的代码可能因为 ESM/CJS 格式不匹配而在 cron 环境无法运行。</p><p>---</p><p>### [HIGH] 缺少 Node.js 版本的 <code>engines</code> 字段约束</p><p>计划 CI 矩阵是 Node.js 18/20/22，但没有在 <code>package.json</code> 的 <code>engines</code> 字段声明最低版本。Node.js 18 已于 2025 年 4 月 EOL，实际上目前（2026-03）应该把最低版本设为 20（LTS）。</p><p><code>better-sqlite3</code> 对 Node.js 版本有严格的 napi 版本要求，不在 <code>engines</code> 中声明会导致用户用 Node 16/18 安装时得到难以理解的编译错误。</p><p>---</p><p>### [MEDIUM] <code>vitest</code> 的 mock 策略与 Python <code>unittest.mock</code> 的差异未讨论</p><p>Python 测试大量使用 <code>unittest.mock.patch</code> 来 mock 文件系统、subprocess、时间。TS/Vitest 的 mock 机制完全不同：</p><p>- <code>vi.mock()</code> 是模块级 mock，有提升（hoisting）行为，与 Python 的上下文管理器 mock 不同<br>- 文件系统 mock 通常用 <code>memfs</code> 或 <code>@jest-community/jest-mock-extended</code>，不是内置的<br>- subprocess 等价物（<code>child_process.execSync</code>）的 mock 比 Python 更繁琐</p><p>计划中测试用例描述（如&quot;install/uninstall 各平台分支&quot;）隐含了大量 subprocess mock，但完全没有讨论 mock 策略。这会导致实际实现时发现测试比预期复杂 2-3 倍。</p><p><strong>建议</strong>：在 Phase 0 的测试基础设施部分，明确说明：文件系统操作用 <code>memfs</code> mock、subprocess 用 <code>vi.mock(&#39;node:child_process&#39;)</code>、时间用 <code>vi.setSystemTime()</code>，给出具体的工具选型。</p><p>---</p><p>### [MEDIUM] 缺少 ESLint 配置</p><p>计划没有提到代码风格工具。TS 项目没有 ESLint 会导致：<br>- 团队成员（或不同 AI agent）产出风格不一致的代码<br>- 潜在 bug（<code>no-floating-promises</code>、<code>@typescript-eslint/no-explicit-any</code> 等规则能捕获常见错误）</p><p>Python 端用 <code># noqa</code> 注释说明已有 linter 存在意识，TS 端需要同等配置。</p><p><strong>建议</strong>：Phase 0 增加 <code>eslint</code> + <code>@typescript-eslint/eslint-plugin</code> 配置，至少开启 <code>recommended</code> 规则集。</p><p>---</p><p>## 五、遗漏项</p><p>### [CRITICAL] Windows 路径分隔符的系统性处理方案缺失</p><p>Python 代码大量使用 <code>Path.as_posix()</code> 将路径转为正斜杠，并在 manifest JSON 中存储 posix 路径。TS 中 <code>path.join()</code> 在 Windows 返回反斜杠，<code>path.posix.join()</code> 强制正斜杠，但两者不能混用。</p><p>当前 Python 测试（如 <code>test_transcript_utils.py</code> 中的 <code>make_transcript</code>）明确使用了 Windows 路径 <code>C:/Users/ai/.claude/projects/demo-repo/session.jsonl</code>，说明 Windows 兼容性已经是当前测试的重要维度。</p><p>TS 迁移计划中没有任何一处提到路径处理规范。如果 TS 端存储了 <code>C:\Users\ai\.claude\...</code> 而 Python 端存储了 <code>C:/Users/ai/.claude/...</code>，SQLite 索引和 manifest 文件的跨平台兼容性会出现静默数据不一致。</p><p><strong>建议</strong>：在 Phase 0 的&quot;通用工具&quot;部分增加一条：所有路径存储到文件（JSON/SQLite/Markdown）时，统一用正斜杠（posix 格式），定义 <code>toPosixPath(p: string): string</code> 工具函数并在所有模块强制使用。</p><p>---</p><p>### [CRITICAL] 错误处理策略完全缺失</p><p>Python 实现有明确的错误处理哲学：<br>- heartbeat 对单个 project 的异常用 <code>try/except</code> 包裹并 <code>logger.exception()</code>，不中断整体流程<br>- 解析器对格式错误用 <code>logger.debug(&quot;Failed to parse ... skipping.&quot;)</code> 降级<br>- 锁文件的 TOCTOU race 用 <code>O_CREAT | O_EXCL</code> 原子操作处理<br>- git 操作区分&quot;允许失败&quot;（<code>status</code>、<code>remote</code>）和&quot;必须成功&quot;（<code>add</code>、<code>commit</code>）</p><p>TS 计划中没有任何一处讨论：<br>- 是否使用 <code>Result&lt;T, E&gt;</code> 类型（函数式错误处理）还是抛出异常<br>- async 函数中 unhandled Promise rejection 的全局处理<br>- subprocess 调用失败时的行为（Node.js <code>child_process.execSync</code> 默认抛出，与 Python <code>subprocess.run</code> 默认不抛出不同）</p><p><strong>建议</strong>：在 Phase 0 确定错误处理规范：选择异常（try/catch）还是 Result 类型，并在计划文档中明确记录，确保所有模块一致。</p><p>---</p><p>### [HIGH] <code>recall-session.py</code> 完全被遗漏</p><p>Python 端有 <code>scripts/recall-session.py</code>（P0.5 跨会话上下文恢复的核心脚本），在迁移计划中完全没有出现。Phase 3 的 CLI 统一化部分列出了 <code>memorytree recall</code>（<code>← recall-session.py</code>），但没有对应的实现任务。</p><p>---</p><p>### [HIGH] 版本号与 CHANGELOG 管理方案缺失</p><p>Python 端 <code>TODO.md</code> 中有 P3 包化计划（<code>pyproject.toml</code> + 版本号）。TS 迁移后同样需要版本管理，但计划中没有提到：<br>- <code>package.json</code> 的初始版本（建议 <code>0.1.0</code> 起步，Phase 3 完成后 <code>1.0.0</code>）<br>- semver 策略（迁移期间两套并存，版本如何与 Python 版本对应）<br>- CHANGELOG 格式（与 <code>TODO.md</code> 的 phase 结构对应关系）</p><p>---</p><p>### [HIGH] 敏感信息扫描的正则模式缺少 TS 测试向量</p><p>Python <code>heartbeat.py</code> 的 <code>SENSITIVE_PATTERNS</code> 包含 6 条正则，其中 <code>(?:sk-|pk_live_|sk_live_|ghp_|gho_|glpat-)</code> 是精确前缀匹配。TS 的 <code>RegExp</code> 与 Python <code>re</code> 在某些边界情况下行为不同（如 <code>\S+</code> 在 Unicode 字符上的匹配范围）。</p><p>计划 2.5 节&quot;敏感信息检测&quot;只说&quot;正则扫描 API key / password / token 模式&quot;，没有明确这些正则是直接从 Python 移植还是重新设计，也没有要求用相同测试向量验证一致性。</p><p>---</p><p>### [MEDIUM] 全局 <code>~/.memorytree/</code> 目录的初始化时机未说明</p><p>Python 端各模块（<code>_config_utils.py</code>、<code>_lock_utils.py</code>、<code>_alert_utils.py</code>、<code>_log_utils.py</code>）都有各自的 <code>mkdir(parents=True, exist_ok=True)</code> 调用，防御性地确保目录存在。TS 计划没有统一的目录初始化策略，如果各模块各自处理，代码重复；如果集中处理，需要明确说明在哪里调用。</p><p>---</p><p>### [MEDIUM] <code>_transcript_index.py</code> 没有 FTS5，计划却要求实现 FTS5</p><p>现有 Python <code>_transcript_index.py</code> 只有一张普通表（<code>CREATE TABLE IF NOT EXISTS transcripts</code>），没有 FTS5 全文搜索。TS 计划 1.5 节要求&quot;SQLite 索引：<code>search.sqlite</code> 建表 + FTS5&quot;和&quot;搜索：<code>searchSessions(query, filters)</code>&quot;，这是新增功能而非迁移。</p><p>这不是问题本身，但是计划在多处混淆了&quot;迁移&quot;（1:1 功能对等）和&quot;新功能&quot;（超越 Python 版本）的边界，会导致工作量估算偏差。</p><p>---</p><p>### [LOW] <code>_locale_utils.py</code> 未被读取但在迁移计划中</p><p>迁移计划 3.2 节提到 <code>src/utils/locale.ts</code>，但我未读取 <code>_locale_utils.py</code> 的具体内容（它通过 <code>_scaffold_utils.py</code> 中的 <code>from _locale_utils import normalize_locale</code> 被引用）。如果 locale 检测依赖特定的文件系统扫描逻辑，可能涉及比计划预期更多的工作量。</p><p>---</p><p>### [LOW] 没有提到 <code>.nvmrc</code> 或 <code>volta</code> 的 Node.js 版本固定</p><p>类似于 Python 端用 <code>uv</code> 管理版本，Node.js 端应该用 <code>.nvmrc</code>（或 <code>package.json</code> 中的 <code>volta</code> 字段）固定 Node.js 版本，确保开发环境与 CI 一致。</p><p>---</p><p>## 六、综合评级与优先修复建议</p><p>| 严重程度 | 问题数 | 最高优先修复项 |<br>|----------|--------|----------------|<br>| CRITICAL | 4 | SQLite 选型锁定、tsconfig 完整配置、Windows 路径规范、错误处理策略 |<br>| HIGH | 9 | src/transcript/index.ts 命名冲突、ParsedTranscript 字段对齐、行为一致性验证、Python Daemon 迁移窗口、recall-session 遗漏 |<br>| MEDIUM | 6 | 日志模块实现、mock 策略、ESLint、目录结构语义、CI job 分离 |<br>| LOW | 4 | 版本 pin、.nvmrc、commander 必要性、barrel 文件循环依赖 |</p><p><strong>建议在开始任何编码工作前，先修复以下 4 个 CRITICAL 问题</strong>：<br>1. 在 Phase 0 文档中明确 SQLite 选型（<code>sql.js</code> 或 <code>better-sqlite3</code> + prebuilt，二选一，不留&quot;视情况&quot;）<br>2. 给出完整的 <code>tsconfig.json</code> 样板（至少包含 <code>module: NodeNext</code>、<code>moduleResolution: NodeNext</code>、<code>noUncheckedIndexedAccess: true</code>）<br>3. 增加 Windows 路径规范章节（所有路径存储统一 posix 格式）<br>4. 确定错误处理哲学（异常 vs Result 类型），在 Phase 0 记录为团队规范</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a30744ecffe2ea820</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a30744ecffe2ea820</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>15</strong> Messages</span>
+      <span class="transcript-pill"><strong>68</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-14 16:23:24</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</code></td></tr>
   <tr><td>Messages</td><td>15</td></tr>
   <tr><td>Tool Events</td><td>68</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>master</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">809d64353015d872…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">809d64353015d872...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1094,6 +1117,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p><strong>MEDIUM -- <code>heartbeat-scheduling.md</code> uses &quot;Core Rules&quot; while <code>global-configuration.md</code> skips it.</strong> The established pattern from <code>execution-environment.md</code> and <code>transcript-archive.md</code> is: &quot;Use this file when...&quot; preamble, then <code>## Goal</code>, then <code>## Core Rules</code> (or equivalent numbered rules), then domain sub-sections, then <code>## Stop And Ask</code>. <code>heartbeat-scheduling.md</code> follows this pattern correctly. <code>global-configuration.md</code> has the preamble, Goal, and Stop And Ask, but jumps directly into domain sections (Directory Layout, config.toml Schema, etc.) without a Core Rules section. This is a minor structural deviation.</p><p><strong>MEDIUM -- <code>git-policy.md</code> has no &quot;Use this file when...&quot; preamble and no &quot;Goal&quot; section.</strong> It opens with a statement (&quot;MemoryTree must adapt to the host repository&quot;) instead of following the pattern. It does have &quot;Stop And Ask&quot; at the end. This is a pre-existing style choice for this file (it was not newly created), but the update added the &quot;Auto Push&quot; section which follows the file&#39;s existing style, so this is not a regression.</p><p><strong>MEDIUM -- <code>transcript-archive.md</code> has no &quot;Stop And Ask&quot; section.</strong> Most reference files that define behavioral rules include a &quot;Stop And Ask&quot; section. <code>transcript-archive.md</code> has stop-and-ask behavior embedded in its Core Rules (rule 6: &quot;Ask once per repository&quot;) and Git Rules, but does not have a dedicated section. This was pre-existing.</p><p><strong>LOW -- <code>global-configuration.md</code> &quot;Core Rules&quot; omission.</strong> While it has enough domain-specific sections to be self-explanatory, adding a brief &quot;Core Rules&quot; section (e.g., &quot;1. Use <code>~/.memorytree/</code> as the single root for all global state. 2. Never write global state inside a project repository.&quot;) would align with the other reference files.</p><p>---</p><p>## Summary by Severity</p><p>### CRITICAL (2 findings -- must fix before commit)</p><p>1. <strong><code>references/heartbeat-scheduling.md</code> -- no &quot;not yet implemented&quot; disclaimer.</strong> The entire file uses present-tense language (&quot;executes&quot;, &quot;invokes&quot;, &quot;manages&quot;, &quot;exists&quot;) with zero indication that <code>heartbeat.py</code> and <code>memorytree-daemon</code> are unimplemented contracts. This will mislead any reader who reaches this file without first reading SKILL.md or README.md.</p><p>2. <strong><code>references/global-configuration.md</code> -- no &quot;not yet implemented&quot; disclaimer.</strong> Describes <code>~/.memorytree/config.toml</code>, <code>alerts.json</code>, <code>heartbeat.lock</code>, and the directory layout as if they already exist. The heartbeat infrastructure that creates and consumes these artifacts has not been built.</p><p>### HIGH (3 findings -- should fix)</p><p>3. <strong><code>assets/templates/en/agents.md</code> and <code>assets/templates/zh-cn/agents.md</code> -- present-tense heartbeat rules with no guard.</strong> These templates become the user&#39;s <code>AGENTS.md</code>. They instruct the model to suggest <code>memorytree-daemon install</code> and describe heartbeat behavior as active. No disclaimer propagates from SKILL.md or README.md into the generated file.</p><p>4. <strong>README.md -- disclaimer placement.</strong> The &quot;not yet implemented&quot; note on line 96 appears after the daemon install instructions, CLI table, and settings table. It should appear at the start of the &quot;Background Heartbeat&quot; section so readers see it before attempting to use the commands.</p><p>5. <strong>Incomplete coverage of push scenarios in templates vs. SKILL.md.</strong> <code>en/agents.md</code> only mentions push failure; SKILL.md only mentions no-remote skip. Both scenarios are real (defined in <code>git-policy.md</code>). Each location gives an incomplete picture.</p><p>### MEDIUM (4 findings -- nice to fix)</p><p>6. <strong><code>global-configuration.md</code> lacks a &quot;Core Rules&quot; section</strong>, deviating from the reference file style pattern.</p><p>7. <strong><code>transcript-archive.md</code> lacks a dedicated &quot;Stop And Ask&quot; section.</strong> Stop-and-ask behavior is embedded in other rules but not collected into the standard terminal section.</p><p>8. <strong><code>git-policy.md</code> has no &quot;Use this file when...&quot; preamble or &quot;Goal&quot; section.</strong> Pre-existing but worth noting since the file was updated.</p><p>9. <strong>SKILL.md &quot;On Activation&quot; step 5 instructs the model to suggest <code>memorytree-daemon install</code></strong> without guarding for the case where the command does not yet exist. A conditional (&quot;if the daemon script exists on disk&quot;) would prevent the model from suggesting an unavailable command.</p><p>### LOW (2 findings -- nitpick)</p><p>10. <strong><code>global-configuration.md</code> <code>push_failed</code> alert type</strong> could benefit from a &quot;(after retry)&quot; note in the trigger description to connect it with the retry-once policy in <code>git-policy.md</code>.</p><p>11. <strong>README.md duplicates the daemon CLI table</strong> from <code>heartbeat-scheduling.md</code>. Acceptable for a user-facing README, but if the CLI changes, both locations must be updated.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a5b0913dc87d338ef</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a5b0913dc87d338ef</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>6</strong> Messages</span>
+      <span class="transcript-pill"><strong>32</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 03:46:32</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</code></td></tr>
   <tr><td>Messages</td><td>6</td></tr>
   <tr><td>Tool Events</td><td>32</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>master</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">39ab78a37f8742de…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">39ab78a37f8742de...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1039,6 +1062,7 @@ conn.close()
 </code></pre><p>If <code>DEFAULT_HEARTBEAT_INTERVAL</code> were ever changed to <code>&quot;0m&quot;</code> or an invalid value, this would infinitely recurse. Currently safe because the default is <code>&quot;5m&quot;</code>, but the code is fragile. Better to validate the default at module level or use a hardcoded fallback.</p><p><strong>16. <code>heartbeat.py</code> line 47 -- Lock-held alert on normal concurrent execution is noisy</strong></p><p>When a second heartbeat instance finds the lock held, it writes an alert. Since OS schedulers can legitimately overlap (e.g., previous run took longer than the interval), this generates repeated alerts for normal operation. This may be intentional but could be distracting.</p><p><strong>17. <code>recall-session.py</code> lines 92-123 -- <code>_sync_current_project</code> is nearly identical to <code>_process_project</code> in <code>heartbeat.py</code></strong></p><p>Both functions discover files, filter by project, and import. This duplicated logic should ideally be extracted to a shared utility. Not a bug, but a maintainability concern.</p><p><strong>18. <code>_lock_utils.py</code> line 32 -- Lock file written without newline</strong></p><pre><code>path.write_text(str(os.getpid()), encoding=&quot;utf-8&quot;)
 </code></pre><p>Minor inconsistency: no trailing newline. This is fine functionally but is slightly unusual for a text file.</p><p><strong>19. <code>memorytree_daemon.py</code> -- <code>cmd_status</code> function is 32 lines, within limits, but <code>cmd_install</code> is 34 lines</strong></p><p>Both are within the 50-line limit. All functions across all 7 files are within the 50-line guideline. No violations found.</p><p>---</p><p>### Summary</p><p>| Severity | Count | Key Issues |<br>|----------|-------|------------|<br>| CRITICAL | 3 | <code>_python_path()</code> breaks subprocess calls; TOCTOU lock race; SQLite connection leak |<br>| HIGH | 4 | Dict mutation; shell injection in cron; fragile imports; false-positive path matching |<br>| MEDIUM | 6 | TOML escaping on Windows; unvalidated interval; silent exception swallowing; naming inconsistency |<br>| LOW | 6 | No log rotation; recursion edge case; noisy alerts; code duplication |</p><p>The most urgent fix is the <code>_python_path()</code> bug in <code>memorytree_daemon.py</code> -- it will crash every <code>run-once</code> and <code>watch</code> invocation on any system where <code>uv</code> is installed. The lock file race condition is also important for data integrity during concurrent git operations.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

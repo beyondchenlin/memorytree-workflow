@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a65bd01c1f1938ffe</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a65bd01c1f1938ffe</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>2</strong> Messages</span>
+      <span class="transcript-pill"><strong>0</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 13:46:25</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>2</td></tr>
   <tr><td>Tool Events</td><td>0</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">7e1fefc21c876e79…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">7e1fefc21c876e79...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1142,6 +1165,7 @@ return null  // ← no fallback here
 </code></pre><p><code>INSERT INTO transcripts_fts(transcripts_fts) VALUES(&#39;rebuild&#39;)</code> does a full table scan and reindex. For bulk imports this is O(n²). The rebuild should be deferred to after a batch completes, not called per-row. At minimum, expose a separate <code>rebuildFtsIndex(dbPath)</code> function that callers invoke once after a batch.</p><p><strong>[MEDIUM] Race condition on concurrent writes</strong></p><p><code>upsertSearchIndex</code> opens a new <code>Database</code> instance on every call with no connection pooling or locking beyond WAL. WAL handles concurrent readers fine, but two simultaneous writers will serialize via SQLite&#39;s busy timeout (default: 0ms in better-sqlite3, meaning immediate <code>SQLITE_BUSY</code> throw). There&#39;s no <code>db.pragma(&#39;busy_timeout = 5000&#39;)</code> set. Under parallel import this will throw.</p><p><strong>[LOW] <code>existsSync</code> + <code>mkdirSync</code> in <code>openDb</code> is a TOCTOU race</strong></p><p>Minor: between the <code>existsSync</code> check and <code>mkdirSync</code>, another process could create the directory. <code>mkdirSync(dir, { recursive: true })</code> is idempotent and doesn&#39;t throw if the dir exists, so just remove the <code>existsSync</code> guard and call <code>mkdirSync</code> unconditionally.</p><p>---</p><p>## BEST PRACTICES</p><p><strong>[MEDIUM] Prepared statements are not reused across calls</strong></p><p>Every call to <code>upsertSearchIndex</code> and <code>searchTranscripts</code> creates a new <code>Database</code> instance and re-prepares statements. better-sqlite3&#39;s primary performance advantage over sql.js is that prepared statements are compiled once and reused. The current pattern throws away that benefit. A module-level connection cache (keyed by <code>dbPath</code>) with pre-prepared statements would be the idiomatic approach.</p><p><strong>[LOW] <code>CREATE_TABLE_SQL</code> and <code>CREATE_FTS_SQL</code> are re-executed on every upsert</strong></p><p><code>db.exec(CREATE_TABLE_SQL)</code> and <code>db.exec(CREATE_FTS_SQL)</code> run on every call to <code>upsertSearchIndex</code>. SQLite handles <code>IF NOT EXISTS</code> cheaply, but it&#39;s still unnecessary overhead and signals the schema initialization isn&#39;t separated from the data write path.</p><p>---</p><p>## SECURITY</p><p><strong>[MEDIUM] <code>sanitizeFtsQuery</code> strips too aggressively for non-Latin scripts</strong></p><pre><code>return raw.replace(/[^\p{L}\p{N}\s&#39;]/gu, &#39; &#39;).trim()
 </code></pre><p>This is used correctly with <code>\p{L}</code> Unicode categories, so CJK/Arabic/etc. characters pass through. However, the single-quote <code>&#39;</code> is allowed through, and in fts4 <code>MATCH</code> syntax, unbalanced quotes cause a parse error that will throw at the SQLite level. The query should either strip single quotes or wrap the sanitized string in a try/catch at the <code>stmt.all()</code> call site.</p><p><strong>[LOW] No path validation on <code>dbPath</code></strong></p><p><code>dbPath</code> is constructed by callers from <code>globalRoot</code> which comes from config. If config is user-controlled and not validated upstream, a crafted path could write the SQLite file to an arbitrary location. This is low severity given the threat model, but worth noting if <code>globalRoot</code> isn&#39;t validated at config load time.</p><p>---</p><p>## Summary</p><p>The two CRITICAL issues (write op in readonly connection, broken segdir check) will cause runtime failures in production. The HIGH issues around <code>findLatestSession</code> fallback behavior and the per-row FTS rebuild are likely regressions from the sql.js version. Fix those five before shipping.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

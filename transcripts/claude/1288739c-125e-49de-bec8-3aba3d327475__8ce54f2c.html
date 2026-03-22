@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>1288739c-125e-49de-bec8-3aba3d327475</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>1288739c-125e-49de-bec8-3aba3d327475</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>57</strong> Messages</span>
+      <span class="transcript-pill"><strong>152</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-20 07:15:09</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">fix/auto-register-project-on-init-upgrade</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\papaweb</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>1288739c-125e-49de-bec8-3aba3d327475</code></td></tr>
   <tr><td>Messages</td><td>57</td></tr>
   <tr><td>Tool Events</td><td>152</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>fix/auto-register-project-on-init-upgrade</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\papaweb</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">8ce54f2cdeb644e3…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">8ce54f2cdeb644e3...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1317,6 +1340,7 @@ uv run python &quot;C:/Users/ai/.claude/skills/memorytree-workflow/scripts/upgra
   </div>
   <div class="message-body"><p>Review 结果：</p><p><strong>整体评价：fix 正确，无回归风险。</strong></p><p>具体分析：</p><p><strong>1. <code>registerProject</code> 调用正确</strong><br>- 签名是 <code>registerProject(cfg, repoPath, overrides?)</code> — 我们传了 <code>root</code>（已 <code>resolve()</code> 过）和 <code>{ name, locale }</code>，完全匹配<br>- 函数是 append-only：如果路径已存在会直接返回原 config 不做修改，所以重复运行 <code>init</code>/<code>upgrade</code> 是安全的</p><p><strong>2. 错误处理</strong><br>- <code>loadConfig()</code> 内部有 try/catch，失败时返回 <code>defaultConfig()</code>，不会抛出 — 安全<br>- <code>saveConfig()</code> 没有 try/catch，但这和原有的其他调用方（daemon install 等）行为一致，不是新引入的风险</p><p><strong>3. <code>cmd-init.ts</code> 的 <code>normalizeLocale</code> 导入</strong><br>- 原来 cmd-init.ts 没有这个 import，我们新增了 — 函数确实从 <code>../project/locale.js</code> export，正确</p><p><strong>4. 一个潜在问题 — <code>cmd-upgrade.ts</code> 里的注册时机</strong><br>- 当前代码：upgrade 失败（<code>result.state_after === &#39;partial&#39;</code>）时仍然调用了 <code>registerProject</code> + <code>saveConfig</code><br>- 这意味着即使 upgrade 没完全成功，项目也会被注册。但这其实是合理的 — config 里记录路径，heartbeat 只是监控，部分安装的项目也应该被追踪</p><p><strong>5. <code>--force</code> flag 不影响注册逻辑</strong> — <code>registerProject</code> 走的是路径查重，和 <code>--force</code> 无关</p><p><strong>结论</strong>：可以合并，无需修改。</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

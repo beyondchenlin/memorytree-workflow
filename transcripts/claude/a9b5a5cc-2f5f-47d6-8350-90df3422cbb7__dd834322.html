@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a5ac13d36fca58fd4</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a5ac13d36fca58fd4</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>10</strong> Messages</span>
+      <span class="transcript-pill"><strong>42</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 03:46:32</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</code></td></tr>
   <tr><td>Messages</td><td>10</td></tr>
   <tr><td>Tool Events</td><td>42</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>master</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">dd8343228f86f734…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">dd8343228f86f734...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1088,6 +1111,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>- <strong>CRITICAL -- No consecutive failure tracking.</strong> The spec requires tracking consecutive failures across heartbeat runs (3 failures before alerting). No persistent state for this exists anywhere in the codebase. This would require storing failure counts per project in a state file (e.g., <code>~/.memorytree/state.json</code> or within alerts.json).</p><p>- <strong>HIGH -- Config and lock modules don&#39;t log warnings.</strong> <code>_config_utils.py</code> and <code>_lock_utils.py</code> are pure utility modules with no logger. Multiple spec requirements for logging warnings on config fallback and stale lock cleanup are unmet. The logging only happens at the <code>heartbeat.py</code> level, which doesn&#39;t cover cases handled silently inside these modules.</p><p>- <strong>MEDIUM -- <code>status</code> subcommand does not show &quot;last execution result.&quot;</strong> The spec says it should show &quot;last execution result&quot; in addition to registration status. The code only shows registration, lock, and config. No last-run timestamp or exit code is displayed. Showing the last line of the heartbeat log or a stored last-run result would satisfy this.</p><p>- <strong>MEDIUM -- <code>_python_path()</code> returns a string with spaces for <code>uv run python</code>.</strong> On line 342 of <code>memorytree_daemon.py</code>, <code>_python_path()</code> returns <code>f&quot;{uv} run python&quot;</code> as a single string, but it&#39;s used in contexts where it&#39;s passed as the first element of a subprocess list (e.g., in cron line, schtasks <code>/tr</code>, launchd <code>ProgramArguments</code>). For the launchd plist, this puts <code>&quot;uv run python&quot;</code> as a single <code>&lt;string&gt;</code> element in <code>ProgramArguments</code>, which would fail because launchd expects each argument as a separate <code>&lt;string&gt;</code>. Similarly, in <code>cmd_run_once</code> (line 119), <code>subprocess.run([python, str(heartbeat_script)])</code> would try to find an executable named <code>&quot;uv run python&quot;</code> (with spaces) which would fail.</p><p>- <strong>LOW -- <code>recall-session.py</code> uses <code>discover_source_files()</code> without project-scoped narrowing at the OS level.</strong> The spec says &quot;Scan all three client transcript directories for the current project.&quot; The code scans all directories and filters after parsing, which is correct but potentially slow for many transcripts.</p><p>---</p><p>## Summary Table</p><p>| # | Severity | Finding |<br>|---|----------|---------|<br>| 1 | <strong>CRITICAL</strong> | Failure threshold of 3 consecutive failures before alerting is NOT implemented. Alerts fire on every failure. No persistent counter exists. |<br>| 2 | <strong>HIGH</strong> | Malformed/missing config.toml: no warning or error is logged. Spec requires logging. <code>_config_utils.py</code> has no logger. |<br>| 3 | <strong>HIGH</strong> | Invalid individual config field values: no warning logged when falling back to defaults. Spec requires &quot;log a warning.&quot; |<br>| 4 | <strong>MEDIUM</strong> | Stale lock deletion does not log a warning as spec requires. <code>_lock_utils.py</code> has no logger. |<br>| 5 | <strong>MEDIUM</strong> | <code>status</code> subcommand does not show &quot;last execution result&quot; as specified. |<br>| 6 | <strong>MEDIUM</strong> | <code>_python_path()</code> returns <code>&quot;uv run python&quot;</code> as a single string, which breaks <code>subprocess.run([python, ...])</code> calls in <code>cmd_run_once</code>, and breaks launchd plist <code>ProgramArguments</code> (each arg needs its own <code>&lt;string&gt;</code> element). |<br>| 7 | <strong>LOW</strong> | <code>status</code> does not check <code>_is_schtasks_registered()</code> return code robustness or show last run timestamp. |<br>| 8 | <strong>LOW</strong> | <code>recall-session.py</code> SQL query does not filter by <code>client IN (claude, codex, gemini)</code> -- only by project and time. |<br>| 9 | <strong>LOW</strong> | Sensitive scan logs role but not specific line/offset within the transcript. |<br>| 10 | <strong>LOW</strong> | Only one sensitive-pattern alert per transcript due to early return. |</p><p>### Key Actionable Items</p><p>1. <strong>Implement the 3-consecutive-failure threshold</strong> by adding a persistent state file (e.g., <code>~/.memorytree/state.json</code>) that tracks <code>{project: fail_count}</code>. Reset on success, write alert only when count reaches 3.</p><p>2. <strong>Add logging to <code>_config_utils.py</code></strong> -- accept or create a logger, log warnings when fields fall back to defaults, log errors when TOML is malformed.</p><p>3. <strong>Add logging to <code>_lock_utils.py</code></strong> -- log a warning when a stale lock is detected and removed.</p><p>4. <strong>Fix <code>_python_path()</code></strong> -- when <code>uv</code> is found, split into list components instead of a single string, or handle the string-vs-list duality in all callers (cron line, schtasks, launchd plist, subprocess.run).</p><p>5. <strong>Add &quot;last execution result&quot; to <code>cmd_status()</code></strong> -- e.g., read the last few lines of the most recent heartbeat log file.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-codex">codex</span></span>
+      <span class="transcript-pill"><strong>49</strong> Messages</span>
+      <span class="transcript-pill"><strong>190</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-21 02:40:37</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">-</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">d:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-codex">codex</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>019d0e44-18b1-73a1-b169-7151aa72982b</code></td></tr>
   <tr><td>Messages</td><td>49</td></tr>
   <tr><td>Tool Events</td><td>190</td></tr>
-  <tr><td>Branch</td><td><code>—</code></td></tr>
+  <tr><td>Events</td><td>0</td></tr>
+  <tr><td>Branch</td><td><code>-</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">d:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">07070f63e7510ec0…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">07070f63e7510ec0...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1262,6 +1285,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>可以，我赞成，而且这是比 <code>#25</code> 原样合并更好的方案。</p><p>我建议这样拆：</p><p><strong>我的方案</strong><br>- <code>快速安装</code>：默认加入 heartbeat，可以。<br>- <code>高级安装</code>：让用户自己选，也可以。<br>- 但 <code>init / upgrade</code> 本身还是保持“只建文件、不自动接管”。</p><p>这样三层语义会很清楚：</p><p>1. <code>init / upgrade</code><br>只做仓库初始化。<br>意思就是：把 <code>Memory/</code>、<code>AGENTS.md</code> 这些建出来。</p><p>2. <code>快速安装</code><br>一键接入。<br>意思就是：初始化 + 注册到 heartbeat + 必要时安装 scheduler + 跑一次同步。</p><p>3. <code>高级安装</code><br>给用户开关。<br>意思就是：你可以自己决定要不要注册 heartbeat、要不要装 scheduler、要不要开 auto-push、端口多少等。</p><p><strong>为什么我觉得这样最好</strong><br>因为它符合用户直觉：</p><p>- 想先试试的人，只跑 <code>init / upgrade</code><br>- 想马上用完整功能的人，跑 <code>快速安装</code><br>- 想精细控制的人，走 <code>高级安装</code></p><p>这就不会出现现在 <code>#25</code> 的问题：<br>用户明明只想“建个框架”，结果命令偷偷把项目接进后台自动系统了。</p><p><strong>我建议的具体落法</strong><br>最稳的一版是：</p><p>- 保留现在的 <code>memorytree upgrade --root .</code><br>  只负责 scaffold</p><p>- 保留或强化现在的 <code>memorytree daemon quick-start --root .</code><br>  把它定义成“快速安装”<br>  默认加入 heartbeat</p><p>- 再补一个更显式的高级入口，比如：<br>  - <code>memorytree setup --root . --advanced</code><br>  - 或者继续用 <code>memorytree daemon register --root .</code> 配各种参数</p><p><strong>如果按你的思路翻成产品语言</strong><br>可以这样理解：</p><p>- 快速安装 = “帮我都配好，直接能跑”<br>- 高级安装 = “每一步我自己决定”</p><p>这个方向我认为是对的。</p><p><strong>我唯一会提醒的一点</strong><br>我不太建议把名字叫得太像 <code>install</code>，因为现在仓库里已经有 <code>daemon install</code>，它的含义更像“安装系统级定时任务”。  <br>如果再来一个“快速安装”，容易混淆。</p><p>所以我更推荐名字是：</p><p>- <code>quick-start</code><br>- <code>setup</code><br>- <code>onboard</code></p><p>比单纯叫 <code>install</code> 更清楚。</p><p><strong>一句话结论</strong><br>可以改成：</p><p>- <code>快速安装</code> 默认加入 heartbeat<br>- <code>高级安装</code> 让用户自己选<br>- <code>init / upgrade</code> 保持纯初始化，不偷偷注册</p><p>这是我最支持的方案。</p><p>如果你愿意，我下一步可以直接帮你把这套方案整理成：<br>1. 命令设计草案  <br>2. 用户文案  <br>3. 对 <code>#25</code> 应该怎么改的具体实现方案</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

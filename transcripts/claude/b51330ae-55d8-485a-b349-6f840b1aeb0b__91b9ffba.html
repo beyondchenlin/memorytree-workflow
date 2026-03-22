@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a5f1f4ed0e985ca91</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a5f1f4ed0e985ca91</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>5</strong> Messages</span>
+      <span class="transcript-pill"><strong>32</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 00:50:48</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>5</td></tr>
   <tr><td>Tool Events</td><td>32</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">91b9ffbad7a32f8b…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">91b9ffbad7a32f8b...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1018,6 +1041,7 @@ const { cmdRecall } = await import(&#39;../../src/cmd-recall.js&#39;)
   </div>
   <div class="message-body"><p><strong>MEDIUM: <code>process.stdout.write</code> mutation is process-global but files run in separate workers</strong></p><p>Vitest runs each test file in its own worker (thread or fork depending on version). Process-global state mutations inside <code>captureOutput</code> are therefore isolated between files. This is fine for current default settings.</p><p><strong>HIGH: No <code>pool: &#39;forks&#39;</code> or <code>singleThread: true</code> — if vitest config ever adds <code>threads: false</code> or <code>pool: &#39;threads&#39;</code> the global mutation becomes a real cross-test hazard</strong></p><p>The current <code>vitest.config.ts</code> has no pool setting, defaulting to <code>pool: &#39;threads&#39;</code> (worker threads, one per file). Files are isolated. But ports 19871/19872 are OS-level and exist outside the worker boundary — two test files in different workers sharing these ports would race.</p><p><strong>MEDIUM: <code>vi.resetModules()</code> in <code>afterEach</code> of <code>discover.test.ts</code> and <code>recall.test.ts</code> is redundant and potentially confusing</strong></p><p>Calling <code>resetModules</code> in both <code>beforeEach</code> and <code>afterEach</code> provides no additional safety because the next <code>beforeEach</code> will reset again anyway. It adds noise and makes it harder to reason about module state timing.</p><p>---</p><p>## Summary Table</p><p>| # | File | Finding | Severity |<br>|---|------|---------|----------|<br>| 1 | report.test.ts | Servers on ports 19871/19872 never closed; no handle returned by <code>cmdReportServe</code> | CRITICAL |<br>| 2 | report.test.ts | <code>process.exit(1)</code> in <code>EADDRINUSE</code> handler kills test worker silently | HIGH |<br>| 3 | report.test.ts | Hardcoded ports collide in CI parallel matrix | MEDIUM |<br>| 4 | discover/recall/search | <code>vi.doMock</code> post-<code>resetModules</code> is correct but fragile; first test in discover uses static import | HIGH |<br>| 5 | recall.test.ts | <code>recall</code> throwing is not caught; no error-code test for that path | HIGH |<br>| 6 | discover.test.ts | parse-error, import-error, and scope-filter paths untested | HIGH |<br>| 7 | import.test.ts | Empty transcript and malformed JSONL paths untested | MEDIUM |<br>| 8 | report.test.ts | Dynamic <code>import(&#39;@openmnemo/report&#39;)</code> failure path untested | MEDIUM |<br>| 9 | captureOutput | Not safe against async callbacks firing after <code>restore()</code> (server listen event) | HIGH |<br>| 10 | captureOutput | Duplicated across 5 files; only report.test.ts intercepts <code>console.log/error</code> | MEDIUM |<br>| 11 | captureOutput | Buffer argument cast to string silently corrupts output | LOW |<br>| 12 | discover/recall | Redundant <code>vi.resetModules()</code> in both beforeEach and afterEach | MEDIUM |<br>| 13 | search.test.ts | <code>limit</code> boundary values (0, negative) untested | LOW |</p><p>The most urgent issues to fix are items 1 (server leak / no cleanup handle) and 2 (<code>process.exit</code> in test context), which together can cause flaky or permanently hanging test runs in CI.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

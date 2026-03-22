@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>acad61e8-8f09-4b5a-9ef1-4c1c9499ba77</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>acad61e8-8f09-4b5a-9ef1-4c1c9499ba77</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>14</strong> Messages</span>
+      <span class="transcript-pill"><strong>28</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 04:58:57</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>acad61e8-8f09-4b5a-9ef1-4c1c9499ba77</code></td></tr>
   <tr><td>Messages</td><td>14</td></tr>
   <tr><td>Tool Events</td><td>28</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">ca1199382c50706e…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">ca1199382c50706e...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1052,6 +1075,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>好问题，让我分别看看。</p><p>## 多渠道</p><p>OpenMnemo 目前已经有 Webhook 通知能力（飞书/Slack/Discord/Telegram），但只是单向推送。EvoScientist 做的是双向交互——在 Telegram/飞书里直接跟 agent 对话。</p><p>对 OpenMnemo 来说，借鉴的价值点不是&quot;在飞书里聊天&quot;，而是：</p><p>- <strong>多渠道查询</strong>：在飞书/Telegram 里搜索历史对话、查看最新 session 摘要、触发 recall<br>- <strong>通知增强</strong>：当前 webhook 只发&quot;有新 session 导入&quot;，可以加上摘要内容、关键发现、异常告警的富文本卡片</p><p>实现上不复杂。你已经有 <code>sendWebhook()</code> 基础设施，扩展成接收消息 → 调用 search/recall → 回复结果就行。不过这会把 OpenMnemo 从纯 CLI 工具变成一个需要常驻运行的服务，架构复杂度会上一个台阶。</p><p><strong>建议</strong>：先不急着做双向交互，优先把 webhook 通知做得更丰富（带摘要卡片），这个 ROI 最高。</p><p>## 持久化记忆</p><p>这个领域目前几个做法：</p><p>| 项目 | 方式 | 优劣 |<br>|------|------|------|<br>| EvoScientist (EvoMemory) | LangChain checkpointer，agent state 序列化 | 绑定 LangChain 生态，跨 agent 不通用 |<br>| Mem0 | 向量数据库 + LLM 提取记忆片段 | 语义检索强，但记忆质量依赖 LLM 提取准确度 |<br>| Letta (MemGPT) | 分层记忆（core/recall/archival），LLM 自主管理 | 最接近人类记忆模型，但开销大 |<br>| Claude Code | <code>CLAUDE.md</code> + 项目记忆文件 | 简单直接，但纯文本无语义检索 |<br>| <strong>OpenMnemo</strong> | Git + SQLite FTS + clean markdown | 可审计、可版本控制、跨客户端，但目前只索引元数据 |</p><p>说实话，<strong>没有谁做得特别好</strong>。EvoMemory 解决的是单个 agent 的 session 连续性，Mem0 解决的是语义记忆检索，Letta 最有野心但太重。</p><p>OpenMnemo 的独特优势是：<strong>跨客户端 + Git 版本控制 + 可审计</strong>。这是其他方案都没有的。你的短板是搜索只覆盖元数据，不搜索对话内容本身。</p><p><strong>如果要增强 OpenMnemo 的记忆能力，最直接的一步是把 FTS 索引扩展到对话内容</strong>——把 clean markdown 的消息文本也写入 SQLite FTS 表。这样用户就能搜到&quot;上周我跟 Claude 讨论过的那个 authentication bug&quot;，而不只是搜标题和分支名。</p><p>你想先从哪个方向动手？</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

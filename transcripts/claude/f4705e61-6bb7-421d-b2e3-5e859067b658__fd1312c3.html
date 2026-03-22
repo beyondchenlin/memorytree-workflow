@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-ad958c301240ad723</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-ad958c301240ad723</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>16</strong> Messages</span>
+      <span class="transcript-pill"><strong>80</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 05:53:09</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>f4705e61-6bb7-421d-b2e3-5e859067b658</code></td></tr>
   <tr><td>Messages</td><td>16</td></tr>
   <tr><td>Tool Events</td><td>80</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>master</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">fd1312c3dfd3cfde…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">fd1312c3dfd3cfde...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1068,6 +1091,7 @@ sys.path.insert(0, str(SCRIPTS_DIR))
 from _transcript_utils import ...  # Direct module imports
 </code></pre><p><strong>Current Test Structure</strong>:<br>- 76+ total test cases across 4 test files<br>- Focus: Unit tests for transcript parsing (Codex/Claude/Gemini), deduplication, utilities<br>- Use <code>tempfile.TemporaryDirectory()</code> for file I/O testing<br>- No integration tests for end-to-end script flows yet</p><p>### 4. <strong>Scripts (Entry Points &amp; CLI Interfaces)</strong></p><p><strong>Main Scripts</strong> (all executable, use argparse):<br>- <code>init-memorytree.py</code> — Initialize new repo: <code>--root</code>, <code>--project-name</code>, <code>--locale</code>, <code>--date</code>, <code>--time</code>, <code>--force</code><br>- <code>upgrade-memorytree.py</code> — Upgrade partial repo: same args + <code>--format</code> (text/json)<br>- <code>discover-transcripts.py</code> — Scan &amp; discover transcripts: <code>--root</code>, <code>--client</code> (all/codex/claude/gemini), <code>--limit</code>, <code>--scope</code> (current-project/all), <code>--raw-upload-permission</code><br>- <code>import-transcripts.py</code> — Import single transcript: <code>--source</code>, <code>--client</code>, <code>--root</code>, <code>--format</code> (text/json)<br>- <code>heartbeat.py</code> — Background discovery/import/clean/commit/push loop<br>- <code>memorytree_daemon.py</code> — Daemon CLI: <code>install</code>/<code>uninstall</code>/<code>run-once</code>/<code>watch</code>/<code>status</code><br>- <code>recall-session.py</code> — On-demand sync for cross-session context recovery<br>- <code>detect-memorytree-locale.py</code> — Print effective locale for repo</p><p><strong>Internal Modules</strong> (refactored as of 2aea9da):<br>- <code>_transcript_common.py</code> (257L) — Constants, utilities, text extraction<br>- <code>_transcript_parse.py</code> (352L) — Dataclasses + 3-client parsers (Codex/Claude/Gemini)<br>- <code>_transcript_import.py</code> (213L) — Import, cleaning, manifest generation<br>- <code>_transcript_index.py</code> (100L) — SQLite indexing<br>- <code>_transcript_discover.py</code> (100L) — File discovery, project matching<br>- <code>_transcript_utils.py</code> (123L) — <strong>Backward-compatible re-export hub</strong> (new architecture as of latest commit)<br>- <code>_scaffold_utils.py</code>, <code>_config_utils.py</code>, <code>_alert_utils.py</code>, <code>_lock_utils.py</code>, <code>_log_utils.py</code>, <code>_locale_utils.py</code></p><p>### 5. <strong>Git Workflow</strong><br>- <strong>Repository</strong>: https://github.com/beyondchenlin/memorytree-workflow.git<br>- <strong>Current branch</strong>: master<br>- <strong>No protected branches</strong> or branch strategies configured<br>- <strong>Commit style</strong>: Conventional commits (feat, fix, docs, refactor, test)<br>- <strong>Recent activity</strong>: <br>  - Latest: <code>9091b33 feat: deduplicate transcript messages and tool events (P1)</code><br>  - Major refactor: <code>2aea9da refactor: split _transcript_utils.py into 5 focused modules (P1)</code><br>  - <code>.gitignore</code> contains: <code>__pycache__/</code>, <code>*.pyc</code></p><p>### 6. <strong>What E2E Tests Would Need to Exercise</strong></p><p>Based on script CLI interfaces and README:</p><p>1. <strong>Init Flow</strong> (<code>init-memorytree.py</code>):<br>   - Target non-existent repo → scaffold Memory/, AGENTS.md<br>   - Verify directory structure created<br>   - Verify template content rendered (locale handling)</p><p>2. <strong>Upgrade Flow</strong> (<code>upgrade-memorytree.py</code>):<br>   - Partial repo (has Memory/ but missing pieces) → complete it safely<br>   - Detect state before/after<br>   - Verify no overwrites of existing files</p><p>3. <strong>Transcript Discovery</strong> (<code>discover-transcripts.py</code>):<br>   - Mock transcript sources (Codex/Claude/Gemini formats in temp dirs)<br>   - Run discover with <code>--client all</code> → verify all formats parsed<br>   - Filter by <code>--scope current-project</code> vs <code>--scope all</code><br>   - Limit results with <code>--limit</code></p><p>4. <strong>Transcript Import</strong> (<code>import-transcripts.py</code>):<br>   - Single transcript → parse → import to repo + global archive<br>   - Verify idempotence (reimport same transcript → no timestamp change)<br>   - Test deduplication (exact duplicates in parsed output)<br>   - Cross-project transcripts go to global archive only</p><p>5. <strong>Heartbeat Loop</strong> (<code>heartbeat.py</code>):<br>   - Mock project with transcript sources<br>   - Run heartbeat once → verify discover + import + clean + commit + push<br>   - Stale lock detection<br>   - Auto-push behavior (test both enabled/disabled)</p><p>6. <strong>Daemon Management</strong> (<code>memorytree_daemon.py</code>):<br>   - <code>install</code> → register OS scheduler task<br>   - <code>run-once</code> → execute one cycle<br>   - <code>status</code> → verify registration<br>   - <code>uninstall</code> → remove task<br>   - Cross-platform (Linux/macOS/Windows)</p><p>7. <strong>Session Recall</strong> (<code>recall-session.py</code>):<br>   - Sync latest transcripts<br>   - Find most recent session for current project<br>   - Generate continuation summary</p><p>### Key Insights for CI Pipeline</p><p>1. <strong>No external dependencies</strong> — simplifies CI (only Python 3.11+)<br>2. <strong>unittest + tempfile</strong> — standard library, no pytest dependency needed<br>3. <strong>Module-based design</strong> — scripts are importable, testable units<br>4. <strong>Architecture split</strong> — 5 focused modules + re-export layer (good for unit testing)<br>5. <strong>Cross-platform requirement</strong> — Must test on Linux/macOS/Windows for scheduler (cron/launchd/Task Scheduler)<br>6. <strong>~80% coverage target</strong> — stated in TODO.md P1</p><p>### File Paths (Absolute)</p><p><strong>Key Files</strong>:<br>- Repository root: <code>D:\demo1\memorytree-workflow</code><br>- Scripts: <code>D:\demo1\memorytree-workflow\scripts\</code><br>- Tests: <code>D:\demo1\memorytree-workflow\tests\</code><br>- README: <code>D:\demo1\memorytree-workflow\README.md</code><br>- TODO: <code>D:\demo1\memorytree-workflow\TODO.md</code><br>- Test imports module: <code>D:\demo1\memorytree-workflow\scripts\_transcript_utils.py</code> (hub)<br>- Main test file: <code>D:\demo1\memorytree-workflow\tests\test_transcript_utils.py</code></p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

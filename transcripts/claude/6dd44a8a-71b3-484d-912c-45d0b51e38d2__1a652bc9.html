@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a398e404f50c9c503</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a398e404f50c9c503</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>14</strong> Messages</span>
+      <span class="transcript-pill"><strong>74</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-17 08:57:00</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>6dd44a8a-71b3-484d-912c-45d0b51e38d2</code></td></tr>
   <tr><td>Messages</td><td>14</td></tr>
   <tr><td>Tool Events</td><td>74</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">1a652bc96a146715…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">1a652bc96a146715...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1134,6 +1157,7 @@ memorytree import（现有 skill CLI）vs openmnemo import（规划中的 monore
     ← 用户选择&quot;稍后决定&quot;的对话
   </code></pre><p>- 实际目录结构中不存在 00_inbox/<br>- 因此：<br>  1. 无法实现撤销功能（24h 内可撤销）<br>  2. 无法实现低置信度的管理<br>  3. 待处理对话堆积无地可去</p><p><strong>影响</strong>: AI 分类系统的流程图设计完美，但基础设施不完整。用户无处存放&quot;待决&quot;的对话。</p><p><strong>建议</strong>: 创建 Memory/00_inbox/ 目录，并在心跳流程中添加逻辑，自动将置信度 &lt;0.5 的分类结果归入 inbox。</p><p>---</p><p>### <strong>19. 向量检索规划 —— SQLite Vec 扩展的依赖未添加</strong><br><strong>位置</strong>: 技术路线图 §十一 + package.json</p><p><strong>问题</strong>:<br>- 文档规划了向量检索，使用 sqlite-vec 扩展<br>- 但 package.json 中没有添加 sqlite-vec 依赖<br>- 目前使用的是 sql.js（纯 WebAssembly，不支持扩展）</p><p><strong>影响</strong>: 规划到位，但基础设施未准备。向量检索功能遥遥无期。</p><p><strong>建议</strong>: 如果中期目标确实是向量检索，现在就应该添加 sqlite-vec 和相关 embedding 模型依赖（openai / local all-MiniLM）。</p><p>---</p><p>### <strong>20. Windows Task Scheduler 方案支持但缺少测试</strong><br><strong>位置</strong>: packages/cli/src/cmd-daemon.ts + 测试文件</p><p><strong>问题</strong>:<br>- 代码中有 installSchtasks() 实现（Windows Task Scheduler）<br>- 但没有相应的单元测试或集成测试<br>- 无法验证在 Windows 上是否真的能正常工作</p><p><strong>影响</strong>: Windows 用户心跳功能可能存在隐藏问题，但无法被测试发现。</p><p><strong>建议</strong>: 添加 daemon 相关的测试（至少覆盖 Windows/macOS/Linux 三个平台的预期行为）。</p><p>---</p><p>### <strong>21. 技术债：packages/cli/main.ts 缺少 report 子命令</strong><br><strong>位置</strong>: 技术路线图 §九 P0 #3 + packages/cli/src/main.ts</p><p><strong>问题</strong>:<br>- 文档 P0 #3：&quot;packages/cli/main.ts 加 report 子命令&quot;<br>- 实际 main.ts 中只有：init, upgrade, import, discover, locale, recall, daemon<br>- 完全缺少 report 命令</p><p><strong>影响</strong>: 即使 packages/report 迁移完成，用户也无法通过 CLI 触发报告生成。必须有 <code>openmnemo report build</code> 之类的命令。</p><p><strong>建议</strong>: 添加 report 子命令，包括 build、deploy 等选项。</p><p>---</p><p>### <strong>22. 架构文件建议 vs 实际架构不一致</strong><br><strong>位置</strong>: memorytree-vault-architecture_2026-03-16.md vs 技术路线图</p><p><strong>问题</strong>:<br>- memorytree-vault-architecture 文档建议：<br>  - 建立总记忆仓库 (memorytree-vault)<br>  - 每个项目有项目镜像分支 (memorytree/project-name)<br>  - <strong>不应</strong> 把所有项目的全量记忆复制到每个项目仓库<br>  <br>- 但实际的 openmnemo 架构（技术路线图 §四）只是说 Memory/ 目录结构，没有明确提及&quot;总仓库 vs 项目仓库&quot;的两层策略</p><p><strong>影响</strong>: 两份架构文档看起来在讨论不同的系统。不清楚 openmnemo 是否采纳了&quot;总记忆仓库&quot;的设计。</p><p><strong>建议</strong>: 澄清 openmnemo 的最终架构决策：是使用 memorytree-vault 的两层方案，还是保持单一 Memory 目录方案？</p><p>---</p><p>## <strong>LOW 低级别</strong></p><p>### <strong>23. 测试框架隐约期望的功能缺失 — 记忆数据结构</strong><br><strong>位置</strong>: 代码库整体架构</p><p><strong>问题</strong>:<br>- 内存记录中提到 &quot;Knowledge / Goals / Todos / Archive 页&quot; 已实现<br>- 但在 packages 代码中找不到明确的处理这些内容类型的逻辑<br>- 这些功能可能在 memorytree-workflow 中实现，但未迁移</p><p><strong>建议</strong>: 明确说明这些功能是否已在 openmnemo packages 中实现，或者仍在 memorytree-workflow 中。</p><p>---</p><p>### <strong>24. 性能优化：FTS5 索引的增量更新策略</strong><br><strong>位置</strong>: 技术路线图 §七 + 心跳流程</p><p><strong>问题</strong>:<br>- 文档提到&quot;扫描所有仓库的 manifests/ 目录&quot;和&quot;新 session → 解析 clean Markdown&quot;<br>- 但没有说明如何追踪哪些文件已索引、哪些是新增的<br>- 担心每次心跳都重新索引全部文件（性能问题）</p><p><strong>建议</strong>: 在 ManifestEntry 中添加 indexed_at / index_version 字段，支持增量索引。</p><p>---</p><p>### <strong>25. i18n 字段不完整</strong><br><strong>位置</strong>: packages/sync/src/config.ts</p><p><strong>问题</strong>:<br>- 文档 config.toml 中有 <code>locale = &quot;zh-CN&quot;</code> 字段<br>- 但 Config 接口中没有对应的 locale 字段<br>- 因此无法读取、存储用户的语言偏好</p><p><strong>影响</strong>: 低级别但普遍：用户的语言设置无处保存。每次需要重新选择。</p><p><strong>建议</strong>: 添加 locale: string 字段到 Config。</p><p>---</p><p>---</p><p># <strong>总结</strong></p><p>## <strong>按严重性排序的优先修复清单</strong></p><p>| # | 问题 | 严重性 | 所需工作量 | 建议修复时间 |<br>|---|-----|--------|---------|------------|<br>| 11 | PAT 秘钥明文存储 | CRITICAL | 中 (1-2 天) | 立即 |<br>| 13 | packages/report 迁移缺失 | CRITICAL | 高 (2-3 天) | 立即 |<br>| 12 | Config 字段不完整 | CRITICAL | 低 (4 小时) | 今天 |<br>| 6 | packages/report/ 目录未创建 | HIGH | 高 (2-3 天) | 立即 |<br>| 5 | Config 实现与文档不符 | HIGH | 低 (4 小时) | 今天 |<br>| 7 | Client 类型缺少 &#39;doubao&#39; | HIGH | 低 (1 小时) | 今天 |<br>| 1 | ManifestEntry 文档过时 | CRITICAL | 低 (2 小时) | 今天 |<br>| 2 | Doubao 已导入但类型系统不识别 | CRITICAL | 低 (2 小时) | 今天 |<br>| 3 | Onboarding 步骤数不一致 | HIGH | 低 (1 小时) | 本周 |<br>| 4 | Memory/00_inbox 缺失 | MEDIUM | 低 (2 小时) | 本周 |<br>| 14-22 | 其他工程债务 | MEDIUM-LOW | 中-低 | 本周-下周 |</p><p>---</p><p><strong>报告完成于</strong>: 2026-03-17</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

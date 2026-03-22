@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-aeb6189b40963694e</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-aeb6189b40963694e</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>6</strong> Messages</span>
+      <span class="transcript-pill"><strong>14</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 11:15:17</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>2a22e074-e21b-4b9a-8f39-71506e33acaa</code></td></tr>
   <tr><td>Messages</td><td>6</td></tr>
   <tr><td>Tool Events</td><td>14</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">c7b6680ae9f1e642…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">c7b6680ae9f1e642...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1010,6 +1033,7 @@ if [ &quot;$count&quot; -gt 0 ]; then
 </code></pre><p><code>changeset version</code> can also modify:<br>- The root <code>CHANGELOG.md</code> (if the root package is configured for it -- not the case here since <code>private: true</code>, but worth noting).<br>- The root <code>package.json</code> version field -- currently the root has no <code>version</code> field, so this is safe today but fragile if one is added later.<br>- Any workspace <code>package.json</code> files that have internal dependency version bumps (covered by the glob).</p><p>The main gap: if a new package is added to <code>packages/</code> and its directory name contains a space or special character, the unquoted glob <code>packages/*/package.json</code> could break. Low probability but worth quoting. More practically, using <code>git add -A</code> scoped to known paths or <code>git add .changeset/ pnpm-lock.yaml &#39;packages/&#39;</code> would be safer.</p><p>---</p><p><strong>MEDIUM-1: No build/test step before publish</strong></p><p>The publish step (<code>pnpm release</code> which runs <code>pnpm build &amp;&amp; pnpm publish -r ...</code>) does build, but there is no <code>pnpm test</code> or <code>pnpm typecheck</code> gate. The <code>publish.yml</code> manual workflow runs both <code>pnpm typecheck</code> and <code>pnpm test</code> before publishing. The release workflow skips both. If CI on the push passed, this is likely fine, but there is a race: the version commit pushed in the same workflow run has not been CI-validated. The publish runs against the checkout from <em>before</em> the version bump, not the newly pushed commit.</p><p>Recommendation: Add <code>pnpm typecheck &amp;&amp; pnpm test</code> before <code>pnpm release</code>, or restructure so publish runs on the version-bump commit after CI passes.</p><p>---</p><p><strong>MEDIUM-2: <code>workflow_dispatch</code> + <code>push</code> trigger overlap</strong></p><p>Both triggers run the same job. A manual dispatch on <code>main</code> while a push is in-flight will be deduplicated by the concurrency group (one cancels the other). This is probably fine for the intended use case (manual re-run if something failed), but <code>workflow_dispatch</code> does not restrict to <code>main</code> -- it can be triggered on any branch. Running this workflow on a feature branch would attempt to push version commits and publish packages from that branch, which is almost certainly unintended.</p><p>Recommendation: Add a branch guard at the job level:</p><pre><code>if: github.ref == &#39;refs/heads/main&#39;
 </code></pre><p>---</p><p><strong>MEDIUM-3: npm provenance requires <code>id-token: write</code> but publish uses <code>--no-git-checks</code> without <code>--provenance</code></strong></p><p>The workflow declares <code>id-token: write</code> for npm provenance, but the <code>pnpm release</code> script in <code>package.json</code> does not pass <code>--provenance</code>. Compare with <code>publish.yml</code> which explicitly passes <code>--provenance</code>. The permission is granted but unused, meaning published packages from this workflow lack provenance attestation while the manual workflow includes it.</p><p>Recommendation: Add <code>--provenance</code> to the release script or to the <code>pnpm release</code> command in the workflow.</p><p>---</p><p><strong>LOW-1: Commit message <code>&quot;chore: release&quot;</code> is generic</strong></p><p>If you ever want to use the commit message as a loop guard (recommended above), a more distinctive message like <code>&quot;chore: release [skip ci]&quot;</code> or <code>&quot;chore(release): version packages&quot;</code> would be easier to match and would also prevent CI from running on the version-bump commit (saving CI minutes).</p><p>---</p><p><strong>LOW-2: No error handling on <code>git push</code></strong></p><p>If the push on line 56 fails (e.g., branch protection, network issue), the step fails and the workflow stops -- which is correct. But there is no retry or notification. For a release workflow, a Slack/Discord notification on failure would be good practice.</p><p>---</p><p>Summary of findings by severity:</p><p>| Severity | Count | Key Issue |<br>|----------|-------|-----------|<br>| CRITICAL | 1 | <code>cancel-in-progress</code> can cancel the workflow before publish if re-trigger suppression fails |<br>| HIGH | 2 | Changeset detection fragility; <code>git add</code> list incompleteness |<br>| MEDIUM | 3 | No test gate before publish; <code>workflow_dispatch</code> not branch-guarded; <code>--provenance</code> missing |<br>| LOW | 2 | Generic commit message; no push failure notification |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

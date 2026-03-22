@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a6eca62064d142d3c</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a6eca62064d142d3c</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>9</strong> Messages</span>
+      <span class="transcript-pill"><strong>52</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 14:34:12</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>9</td></tr>
   <tr><td>Tool Events</td><td>52</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">79d9fefbd0ca55dc…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">79d9fefbd0ca55dc...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1022,6 +1045,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>Now let me compile the final findings from my comprehensive review.</p><p>## End-to-End Flow Review: OpenMnemo Project</p><p>I&#39;ve traced the complete data flow from CLI invocation through search results. Here are my findings:</p><p>---</p><p>### CRITICAL ISSUES</p><p><strong>1. ManifestEntry Schema Mismatch — CRITICAL</strong><br>- <strong>File</strong>: <code>packages/types/src/index.ts</code> (lines 29-53)<br>- <strong>Issue</strong>: ManifestEntry defines <code>cleaning_mode: string</code> and <code>repo_mirror_enabled: boolean</code> (lines 49-50)<br>- <strong>File</strong>: <code>packages/core/src/transcript/db.ts</code> (lines 24-51)<br>- <strong>Issue</strong>: DB schema does NOT include these two columns in <code>ALL_COLUMNS</code> or <code>CREATE_TABLE_SQL</code><br>- <strong>Impact</strong>: When <code>upsertSearchIndex()</code> is called in <code>import.ts</code> line 109, it passes a manifest with <code>cleaning_mode</code> and <code>repo_mirror_enabled</code>, but the DB schema has no columns for them. The upsert will silently drop these fields (line 291-295 in db.ts maps undefined values to empty strings).<br>- <strong>Severity</strong>: CRITICAL — Data loss on import; schema is incomplete</p><p><strong>2. searchRecall() Exported but Never Used — HIGH</strong><br>- <strong>File</strong>: <code>packages/core/src/index.ts</code> (line 87)<br>- <strong>File</strong>: <code>packages/core/src/recall/recall.ts</code> (lines 297-312)<br>- <strong>Issue</strong>: <code>searchRecall()</code> is exported from core but NOT imported or used anywhere in the CLI<br>- <strong>File</strong>: <code>packages/cli/src/cmd-search.ts</code> uses <code>searchTranscripts()</code> directly (line 29), not <code>searchRecall()</code><br>- <strong>Impact</strong>: The three-layer search strategy (commit_layer → metadata → content) is implemented but unreachable from CLI. Users cannot access the layered search feature.<br>- <strong>Severity</strong>: HIGH — Feature is dead code; CLI search bypasses the intended architecture</p><p><strong>3. formatRecallText() Export Mismatch — HIGH</strong><br>- <strong>File</strong>: <code>packages/core/src/index.ts</code> (line 92)<br>- <strong>Issue</strong>: Exports <code>formatText as formatRecallText</code> from recall.ts<br>- <strong>File</strong>: <code>packages/cli/src/cmd-recall.ts</code> (line 9)<br>- <strong>Issue</strong>: Imports <code>formatRecallText</code> and uses it (line 31)<br>- <strong>Status</strong>: This one is actually wired correctly ✓</p><p>---</p><p>### HIGH PRIORITY ISSUES</p><p><strong>4. DB Schema Missing Fields — HIGH</strong><br>- <strong>File</strong>: <code>packages/core/src/transcript/db.ts</code><br>- <strong>Issue</strong>: <code>cleaning_mode</code> and <code>repo_mirror_enabled</code> are in ManifestEntry but not in DB schema<br>- <strong>Consequence</strong>: These fields cannot be searched or indexed; they&#39;re lost on upsert<br>- <strong>Severity</strong>: HIGH — Schema incompleteness</p><p><strong>5. Config System Not Connected to Storage Factory — MEDIUM</strong><br>- <strong>File</strong>: <code>packages/sync/src/config.ts</code> (lines 32-49)<br>- <strong>File</strong>: <code>packages/core/src/storage/factory.ts</code> (lines 9-18)<br>- <strong>Issue</strong>: Config has <code>vector_backend</code>, <code>graph_backend</code>, <code>embedding_model</code>, <code>embedding_dims</code> fields, but storage factory doesn&#39;t consume them<br>- <strong>Impact</strong>: Config is loaded but not passed to factory functions; vector/graph backends are hardcoded or throw &quot;not implemented&quot; errors<br>- <strong>Severity</strong>: MEDIUM — Future-proofing issue; currently non-functional features</p><p>---</p><p>### MEDIUM PRIORITY ISSUES</p><p><strong>6. searchRecall() Layer 1 Returns Empty — MEDIUM (By Design)</strong><br>- <strong>File</strong>: <code>packages/core/src/recall/recall.ts</code> (lines 293-296)<br>- <strong>Issue</strong>: Layer 1 (commit_layer search) intentionally returns empty until task 1.2 populates commit_layer<br>- <strong>Status</strong>: This is documented as intentional; not a bug<br>- <strong>Severity</strong>: MEDIUM — Architectural placeholder; working as designed</p><p><strong>7. Import Error Handling Non-Fatal — LOW</strong><br>- <strong>File</strong>: <code>packages/core/src/transcript/import.ts</code> (lines 106-112)<br>- <strong>Issue</strong>: Search index upsert failures are silently caught and ignored<br>- <strong>Impact</strong>: If DB write fails, import succeeds but transcript is not searchable<br>- <strong>Severity</strong>: LOW — Graceful degradation; import completes even if indexing fails</p><p>---</p><p>### VERIFIED CORRECT FLOWS</p><p>✓ <strong>CLI → recall command</strong> wires correctly to <code>recall()</code> function  <br>✓ <strong>CLI → search command</strong> wires to <code>searchTranscripts()</code> (though not the layered version)  <br>✓ <strong>import.ts</strong> correctly populates <code>content</code> and <code>commit_layer</code> fields (lines 107-109)  <br>✓ <strong>import.ts</strong> correctly populates all ManifestEntry fields except the two missing DB columns  <br>✓ <strong>DB schema</strong> has all required columns for search (title, cwd, branch, content, commit_layer)  <br>✓ <strong>FTS index</strong> is properly rebuilt after upsert  <br>✓ <strong>Config system</strong> loads and validates correctly</p><p>---</p><p>### SUMMARY OF BROKEN LINKS</p><p>| File | Issue | Severity |<br>|------|-------|----------|<br>| <code>packages/types/src/index.ts</code> + <code>packages/core/src/transcript/db.ts</code> | Schema mismatch: <code>cleaning_mode</code>, <code>repo_mirror_enabled</code> missing from DB | CRITICAL |<br>| <code>packages/cli/src/cmd-search.ts</code> | Uses <code>searchTranscripts()</code> instead of <code>searchRecall()</code> | HIGH |<br>| <code>packages/core/src/storage/factory.ts</code> | Config fields not consumed by factory | MEDIUM |</p><p>The data flow is mostly intact, but the schema incompleteness and unused layered search feature represent significant architectural gaps.</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>c3e099e8-857a-4c20-814d-1770518fc86e</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>c3e099e8-857a-4c20-814d-1770518fc86e</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>15</strong> Messages</span>
+      <span class="transcript-pill"><strong>50</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 08:47:43</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>c3e099e8-857a-4c20-814d-1770518fc86e</code></td></tr>
   <tr><td>Messages</td><td>15</td></tr>
   <tr><td>Tool Events</td><td>50</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">dd6f88fe8baa1b5c…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">dd6f88fe8baa1b5c...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1074,6 +1097,7 @@ LLM 提取实体/关系/事实
 memory.search() 返回
 </code></pre><p>### 四层记忆结构</p><p>| 层级 | 范围 | 用途 |<br>|------|------|------|<br>| Conversation | 当前轮次 | 对话上下文 |<br>| Session | 短期任务 | 自动过期，用 session_id 隔离 |<br>| User | 长期个人化 | 偏好/习惯，用 user_id 持久化 |<br>| Organization | 跨 agent 共享 | 团队/多 agent 共享上下文 |</p><p>### 记忆写入流程</p><p>1. <code>memory.add()</code> 调用 → LLM 提取关键事实/决策/偏好<br>2. 与已有记忆做冲突检测（去重 + 新信息覆盖旧信息）<br>3. 同时写入向量库（embedding）+ 图库（节点/边）</p><p>### 图记忆的价值</p><p>图库解决了向量库的一个核心弱点：<strong>多实体关系模糊</strong>。比如&quot;张三在 A 项目里说过 B&quot;，向量检索可能把张三、A项目、B混在一起，图库能精确追踪&quot;谁说了什么、关于什么&quot;。</p><p>---</p><p>## 对 OpenMnemo 的直接启示</p><p>Mem0 和 OpenMnemo 的差异化很清晰：</p><p>| 维度 | Mem0 | OpenMnemo 的机会 |<br>|------|------|----------------|<br>| 数据来源 | API 调用写入 | <strong>自动归档</strong>，用户无需手动写入 |<br>| 存储 | 云端托管为主 | <strong>Git + 自托管</strong>，数据主权 |<br>| 版本历史 | 无 | <strong>Git commit 关联</strong>，可追溯 |<br>| 跨客户端 | 无 | Claude/Codex/Gemini/Doubao 全支持 |</p><p><strong>技术上可以借鉴的点：</strong></p><p>1. <strong>双存储模式</strong>：sqlite-vec（向量）+ 现有 SQLite FTS（全文）并行，检索时合并排序——这比单纯 FTS 强很多<br>2. <strong>LLM 提取层</strong>：heartbeat 同步时，用轻量模型（Haiku）从对话里提取关键事实存向量，不需要存全文 embedding<br>3. <strong>四层 user_id/session_id 隔离</strong>：Phase 2 协作层可以直接参考这个设计</p><p><strong>建议更新 goal_v002 的非目标</strong>：把&quot;不做向量数据库&quot;改成&quot;Phase 0 不做，Phase 1 引入 sqlite-vec&quot;，现在你们已经明确要做向量化了。</p><p>要我帮你更新 goal 和 todo 文件吗？</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

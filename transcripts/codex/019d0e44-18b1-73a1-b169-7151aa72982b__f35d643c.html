@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>rollout-2026-03-21T10-40-37-019d0e44-18b1-73a1-b169-7151aa72982b</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-codex">codex</span></span>
+      <span class="transcript-pill"><strong>42</strong> Messages</span>
+      <span class="transcript-pill"><strong>188</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-21 02:40:37</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">-</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">d:\demo1\memorytree-workflow</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-codex">codex</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>019d0e44-18b1-73a1-b169-7151aa72982b</code></td></tr>
   <tr><td>Messages</td><td>42</td></tr>
   <tr><td>Tool Events</td><td>188</td></tr>
-  <tr><td>Branch</td><td><code>—</code></td></tr>
+  <tr><td>Events</td><td>0</td></tr>
+  <tr><td>Branch</td><td><code>-</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">d:\demo1\memorytree-workflow</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">f35d643c839a3e6c…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">f35d643c839a3e6c...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1220,6 +1243,7 @@ pre.mermaid {
   </div>
   <div class="message-body"><p>批判性判断的话，我会这样定：</p><p>- <code>#21</code> 建议直接关掉。<br>- <code>#25</code> 不建议原样合并，建议 <code>request changes</code>，保留问题、重做实现。</p><p><strong>为什么 <code>#21</code> 该关</strong><br>- 它最初解决的是两件事：把 <code>report serve</code> 默认端口改成 <code>10010</code>，再加一个 <code>report_port</code> 配置字段。<br>- 但当前 <code>main</code> 已经做得更完整了，不只是“默认 10010”，而是会从配置里按项目解析端口。证据在 [main.ts](d:/demo1/memorytree-workflow/src/cli/main.ts#L221) 和 [config.ts](d:/demo1/memorytree-workflow/src/heartbeat/config.ts#L295)。<br>- 它现在还是 <code>CONFLICTING</code>，CI 也红，而且从功能上看已经被主干 supersede 了。继续救这个 PR，性价比很低。</p><p><strong>为什么 <code>#25</code> 不该直接合</strong><br>- 它解决的问题是真的：<code>init/upgrade</code> 后项目不会自动写进 <code>~/.memorytree/config.toml</code>，用户还得再手动注册。<br>- 但它把 <code>init/upgrade</code> 从“仓库脚手架命令”变成了“会改用户全局状态的命令”。而当前文档是把这两步分开的，见 [README.md](d:/demo1/memorytree-workflow/README.md#L415) 和 [README.md](d:/demo1/memorytree-workflow/README.md#L428)。<br>- 这不是纯体验优化，它会改产品语义。用户只想 scaffold 仓库，不一定等于他想把这个仓库加入 heartbeat 管理。<br>- 更实际的风险是：如果机器上的 scheduler 已经装好了，auto-register 之后，这个仓库就进入 heartbeat 的候选集合了。即便它暂时不一定会在 repo 里 commit，也已经不是“只初始化文件”了。<br>- 它还给 <code>init/upgrade</code> 增加了一个新的全局失败路径：repo 文件已经写好了，但 <code>~/.memorytree/config.toml</code> 写失败时，命令会变成半成功状态。<br>- 还有测试问题。现在的 <code>init/upgrade</code> 单测直接调 <code>cmdInit/cmdUpgrade</code>，并没有隔离 HOME，见 [init-upgrade.test.ts](d:/demo1/memorytree-workflow/tests/cli/init-upgrade.test.ts#L20) 和 [init-upgrade.test.ts](d:/demo1/memorytree-workflow/tests/cli/init-upgrade.test.ts#L41)。<code>#25</code> 合进去后，这组测试会开始真实碰 <code>~/.memorytree/config.toml</code>，但 PR 本身没补对应测试或隔离。<br>- 它还会模糊掉一些当前“先 quick-start 再用”的引导，比如 [cmd-caddy.ts](d:/demo1/memorytree-workflow/src/cli/cmd-caddy.ts#L16) 现在明确要求项目先在 config 里注册。</p><p><strong>我的结论</strong><br>- <code>#21</code>: 关掉，理由是“已被主干更完整实现取代”。<br>- <code>#25</code>: 不关，但不直接 merge。更合理的是改成以下任一方案：<br>- 给 <code>init/upgrade</code> 加显式开关，比如 <code>--register-project</code><br>- 或保留自动注册，但改成 best-effort，不让全局配置写失败反过来把 init/upgrade 弄成半崩状态<br>- 再补一组 HOME 隔离测试和 README 说明</p><p>如果你愿意，我下一步可以直接帮你写两段内容：<br>1. 给 <code>#25</code> 的 review comment  <br>2. 给 <code>#21</code> 的关闭说明</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

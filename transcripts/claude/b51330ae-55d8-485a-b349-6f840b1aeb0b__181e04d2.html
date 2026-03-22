@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a0bd28199ccdffae4</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a0bd28199ccdffae4</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>18</strong> Messages</span>
+      <span class="transcript-pill"><strong>52</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 02:08:22</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>18</td></tr>
   <tr><td>Tool Events</td><td>52</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">181e04d23bd7ff01…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">181e04d23bd7ff01...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1081,6 +1104,7 @@ pre.mermaid {
   }
   </code></pre><p>- <strong>Analysis</strong>: The check uses <code>sep</code> (platform-aware: <code>\</code> on Windows, <code>/</code> on Unix), which correctly handles cross-platform path containment. However, on Windows with symbolic links, this could theoretically be bypassed. Mitigation: <code>path.resolve()</code> is called on the root, which normalizes paths and resolves symlinks to absolute paths.<br>- <strong>Status</strong>: LOW - symlink attacks would require write access to the serve directory, which is already an admin/user privilege boundary. The code is reasonably safe.<br>- <strong>Recommendation</strong>: No action required. The check is standard practice for file serving.</p><p>### CORRECTNESS &amp; SAFETY VERIFICATION</p><p><strong>✓ FTS4 Implementation (<code>db.ts</code>)</strong><br>- Content table pattern: <code>content=&#39;transcripts&#39;</code> - CORRECT standard FTS4 pattern<br>- JOIN semantics: <code>docid=t.rowid</code> - CORRECT, guaranteed by SQLite&#39;s FTS4<br>- Lazy rebuild logic: Checks <code>transcripts_fts_segdir</code> table count to detect empty FTS - CORRECT<br>- <code>sanitizeFtsQuery()</code> function: Comprehensive Unicode-aware sanitization removes all FTS4 metacharacters (<code>&quot;</code>, <code>*</code>, <code>(</code>, <code>)</code>, <code>-</code>, etc.) - SECURE<br>- UPSERT implementation: Composite PK (client, project, session_id, raw_sha256), WAL mode, rebuild after write - CORRECT</p><p><strong>✓ Barrel Exports (<code>core/src/index.ts</code>)</strong><br>- All three search functions correctly exported: <code>sanitizeFtsQuery</code>, <code>searchTranscripts</code>, <code>SearchResult</code><br>- No missing exports identified</p><p><strong>✓ CLI Search Command (<code>cmd-search.ts</code>)</strong><br>- Query validation: Empty query properly rejected with error code 1 - CORRECT<br>- globalRoot fallback to <code>defaultGlobalTranscriptRoot()</code> - CORRECT<br>- Output formats (text/json): Both implemented - CORRECT<br>- Error handling: searchTranscripts exceptions caught and logged - CORRECT</p><p><strong>✓ CLI Report Commands (<code>cmd-report.ts</code>)</strong><br>- <code>createReportServer()</code> properly extracted as testable unit - CORRECT<br>- Path containment check uses <code>sep</code> for cross-platform compatibility - CORRECT<br>- MIME types include: <code>.html</code>, <code>.css</code>, <code>.js</code>, <code>.json</code>, <code>.svg</code>, <code>.ico</code> - COMPLETE for typical report files<br>- Directory traversal protection: Checks both <code>startsWith(root + sep)</code> and <code>filePath !== root</code> - CORRECT<br>- 404/403 error responses - CORRECT<br>- Stream error handling: <code>.on(&#39;error&#39;)</code> destroys response on stream failure - CORRECT</p><p><strong>✓ Command Registration (<code>main.ts</code> lines 140-275)</strong><br>- Search command: <code>--query</code> (required), <code>--global-root</code>, <code>--limit</code> (default 20), <code>--format</code> (text/json) - CORRECT<br>- Recall command: <code>--root</code>, <code>--project-name</code>, <code>--global-root</code>, <code>--activation-time</code>, <code>--format</code> - CORRECT<br>- Report build: <code>--root</code>, <code>--output</code>, <code>--no-ai</code>, <code>--model</code>, <code>--locale</code>, <code>--report-base-url</code> - CORRECT<br>- Report serve: <code>--dir</code>, <code>--port</code> - CORRECT<br>- Option forwarding: All options correctly passed to command handlers - CORRECT</p><p><strong>✓ Test Infrastructure</strong><br>- <code>captureOutput()</code> helper in <code>capture.ts</code>: Properly mocks <code>process.stdout.write</code>, <code>process.stderr.write</code>, <code>console.log</code>, <code>console.error</code>, and provides <code>restore()</code> - CORRECT<br>- Mock pattern: All CLI tests use <code>vi.doMock()</code> with dynamic import pattern - CORRECT and isolates tests<br>- Server cleanup in <code>report.test.ts</code>: Proper <code>server.close()</code> in afterEach with promise - CORRECT<br>- Mock <code>MOCK_RECALL_RESULT</code> interface matches <code>RecallResult</code> structure - VERIFIED</p><p><strong>✓ Database Tests (<code>core/tests/transcript/db.test.ts</code>)</strong><br>- 20 comprehensive tests covering:<br>  - DB creation, upsert semantics, schema validation (18 columns)<br>  - Multiple record insertion, PK enforcement<br>  - FTS4 search by title and cwd, limit parameter, result field validation<br>  - Sanitization of FTS queries including Unicode preservation<br>- All tests passing - CORRECT</p><p>### CODE QUALITY OBSERVATIONS</p><p><strong>Strengths:</strong><br>- Comprehensive error handling throughout CLI commands<br>- Cross-platform path handling (Windows + Unix)<br>- Proper resource cleanup (DB close, server shutdown, stream error handling)<br>- Well-organized mock patterns in tests<br>- Unicode-aware string sanitization<br>- Lazy rebuild optimization for FTS4 legacy database compatibility<br>- Type safety with TypeScript interface exports<br>- Contentless FTS4 table design reduces database file size</p><p><strong>Minor Observations:</strong><br>- Report server MIME type map is adequate but could be extended for future formats (<code>.woff2</code>, <code>.webp</code> if needed)<br>- No explicit rate limiting on the report HTTP server (but this is acceptable for file serving within Memory/)</p><p>### TEST COVERAGE<br>- <strong>602 tests passing</strong> across all packages<br>- Core: 255 tests (8 files)<br>- CLI: 122 tests (9 files)<br>- Report: 196 tests (15 files)<br>- Sync: 71 tests (5 files)<br>- Key areas covered: search, recall, import, discover, daemon, report build/serve</p><p>### FINAL ASSESSMENT<br><strong>Status: APPROVED FOR MERGE</strong></p><p>All critical functionality is correctly implemented. The FTS4 search, CLI command dispatch, file serving security, and test infrastructure are all production-ready. No blocking issues identified.</p><p>### Files Reviewed<br>- <code>/D:/demo1/openmnemo/packages/core/src/transcript/db.ts</code><br>- <code>/D:/demo1/openmnemo/packages/core/src/index.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/src/cmd-search.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/src/cmd-report.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/src/cmd-recall.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/src/main.ts</code> (lines 140-275)<br>- <code>/D:/demo1/openmnemo/packages/cli/tests/helpers/capture.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/tests/cli/search.test.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/tests/cli/recall.test.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/tests/cli/report.test.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/tests/cli/import.test.ts</code><br>- <code>/D:/demo1/openmnemo/packages/cli/tests/cli/discover.test.ts</code><br>- <code>/D:/demo1/openmnemo/packages/core/tests/transcript/db.test.ts</code></p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

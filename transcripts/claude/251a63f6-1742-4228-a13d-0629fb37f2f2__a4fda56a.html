@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a29ddfe5832390c51</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a29ddfe5832390c51</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>5</strong> Messages</span>
+      <span class="transcript-pill"><strong>94</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-16 15:53:34</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>251a63f6-1742-4228-a13d-0629fb37f2f2</code></td></tr>
   <tr><td>Messages</td><td>5</td></tr>
   <tr><td>Tool Events</td><td>94</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">a4fda56a03af5aba…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">a4fda56a03af5aba...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1033,6 +1056,7 @@ seen.set(base, count + 1)
 </code></pre><p>The default is to render the button unless <code>readerMode</code> is explicitly set to <code>false</code>. The dashboard and search pages emit the button even though they have no prose content to read. This is cosmetic but slightly misleading UX.</p><p>---</p><p>#### L5 — <code>rss.ts</code>: Missing <code>&lt;atom:self&gt;</code> link — RSS best practice violation</p><p>File: <code>src/report/render/rss.ts</code></p><p>The feed declares <code>xmlns:atom</code> namespace but never emits an <code>&lt;atom:link rel=&quot;self&quot;&gt;</code> element, which is required by the Atom extension for feed validators and feed autodiscovery. This will cause Atom-aware validators to warn. Not a functional bug.</p><p>---</p><p>#### L6 — <code>tags.ts</code>: <code>renderTagBadges</code> is exported from <code>tags.ts</code> but also re-exported via <code>build.ts</code> import</p><p>File: <code>src/report/build.ts</code>, line 36</p><pre><code>import { getTags, renderTagBadges } from &#39;./tags.js&#39;
 </code></pre><p><code>renderTagBadges</code> is imported in <code>build.ts</code> but never used there — <code>transcript-list.ts</code> imports it directly from <code>tags.ts</code>. This is a dead import in <code>build.ts</code>.</p><p>---</p><p>#### L7 — <code>search.ts</code>: <code>project</code> field is always set in <code>SearchIndexEntry</code> but can be empty string <code>&#39;&#39;</code> after <code>lastPathSegment</code></p><p>As discussed in M3, when <code>m.project</code> is empty and <code>m.cwd</code> is <code>&#39;/&#39;</code>, <code>lastPathSegment</code> returns <code>&#39;&#39;</code>. Then the search index entry has <code>project: &#39;&#39;</code> (not <code>&#39;unknown&#39;</code> because <code>&#39;&#39; || &#39;unknown&#39;</code> short-circuits to <code>&#39;unknown&#39;</code> — actually this does work correctly). Rechecked: <code>&#39;&#39; || &#39;unknown&#39;</code> = <code>&#39;unknown&#39;</code>, so this path is safe. Withdraw — not actually an issue.</p><p>---</p><p>### Test Coverage Gaps</p><p>| Area | Coverage Status |<br>|---|---|<br>| <code>markdown.ts</code> callout rendering | <strong>Missing</strong> — no test for <code>&gt; [!note]</code>, <code>&gt; [!warning]</code>, etc. |<br>| <code>markdown.ts</code> mermaid block detection (<code>hasMermaidBlocks</code>) | <strong>Missing</strong> — not tested at all |<br>| <code>markdown.ts</code> <code>applyInline</code> link with <code>javascript:</code> href | <strong>Missing</strong> — no XSS regression test |<br>| <code>search.ts</code> filter dropdowns (client + project) | <strong>Missing</strong> — <code>renderSearchPage</code> tests do not assert dropdown HTML |<br>| <code>build.ts</code> <code>feed.xml</code> is created | <strong>Missing</strong> — integration test checks HTML files but not <code>feed.xml</code> |<br>| <code>build.ts</code> <code>reportBaseUrl</code> passed through to RSS | <strong>Missing</strong> |<br>| <code>config.ts</code> <code>report_base_url</code> field | <strong>Missing</strong> — not tested in <code>config.test.ts</code> |<br>| <code>tags.ts</code> malformed cache JSON (corrupted file) | Partially covered — <code>readTagCache</code> has try/catch but no explicit test |<br>| <code>toc.ts</code> heading with inline HTML (<code><strong>bold</strong></code> in heading text) | <strong>Missing</strong> — <code>injectHeadingIds</code> not tested with inline-formatted headings |</p><p>---</p><p>### Summary Table</p><p>| ID | Severity | File | Issue |<br>|---|---|---|---|<br>| H1 | HIGH | <code>markdown.ts</code> | <code>applyInline</code> emits <code>javascript:</code> hrefs without scheme validation |<br>| H2 | HIGH | <code>toc.ts</code> | <code>injectHeadingIds</code> regex <code>[^&lt;]*</code> fails for headings with inline HTML markup |<br>| H3 | HIGH | <code>tags.ts</code> | No upper bound on individual tag string length |<br>| M2 | MEDIUM | <code>rss.ts</code> | <code>toRfc2822</code> does not check <code>isNaN</code> on <code>Invalid Date</code> — produces malformed <code>&lt;pubDate&gt;</code> |<br>| M3 | MEDIUM | <code>search.ts</code> | <code>m.cwd = &#39;.&#39;</code> produces <code>&#39;.&#39;</code> as a project filter option |<br>| M4 | MEDIUM | <code>layout.ts</code> | Dual-signature <code>htmlShell</code> is fragile for future callers |<br>| M5 | MEDIUM | <code>tags.ts</code> | Concurrent cache writes are not atomic |<br>| M6 | MEDIUM | <code>build.test.ts</code> | Test passes <code>pdf: false</code> which is not in <code>BuildReportOptions</code> — strict type error |<br>| L3 | LOW | <code>cmd-report.ts</code> | <code>existsSync</code> + <code>statSync</code> TOCTOU race in serve handler |<br>| L4 | LOW | <code>layout.ts</code> | Reader Mode button rendered on non-prose pages |<br>| L5 | LOW | <code>rss.ts</code> | Missing <code>&lt;atom:link rel=&quot;self&quot;&gt;</code> — RSS validator warning |<br>| L6 | LOW | <code>build.ts</code> | <code>renderTagBadges</code> imported but never used |<br>| L1 | LOW | <code>markdown.ts</code> | Front matter skip only fires on line 0 — BOM/whitespace breaks it |</p><p>### No Issues Found In</p><p>- <code>breadcrumb.ts</code> — HTML escaping, aria attributes, and edge cases are all correct<br>- <code>css.ts</code> — Pure CSS, no logic, complete and well-organized<br>- <code>heartbeat.ts</code> — <code>reportBaseUrl</code> correctly passed from config<br>- <code>config.ts</code> — <code>report_base_url</code> correctly added to <code>Config</code>, parsed, defaulted, and saved<br>- <code>main.ts</code> — <code>--locale</code> and <code>--report-base-url</code> flags wired correctly<br>- <code>rss.ts</code> <code>xmlEsc</code> — Covers all five XML special characters including <code>&#39;</code>, which <code>escHtml</code> misses</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

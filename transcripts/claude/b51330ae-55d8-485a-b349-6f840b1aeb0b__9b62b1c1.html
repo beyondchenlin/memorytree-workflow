@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a2ecb8e984e1beec8</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a2ecb8e984e1beec8</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>4</strong> Messages</span>
+      <span class="transcript-pill"><strong>14</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 00:41:34</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>b51330ae-55d8-485a-b349-6f840b1aeb0b</code></td></tr>
   <tr><td>Messages</td><td>4</td></tr>
   <tr><td>Tool Events</td><td>14</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">9b62b1c182a2da20…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">9b62b1c182a2da20...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1006,6 +1029,7 @@ expect(parsed.messages[1]!.text).toBe(&#39;CRLF response here&#39;)
 </code></pre><p>would make the contract explicit.</p><p><strong>Severity for MEDIUM-4</strong>: MEDIUM — missing explicit path-type assertion, relying on <code>join(repoRoot, ...)</code> working even if an absolute path is accidentally returned.</p><p>---</p><p><strong>[MEDIUM-5] No Chinese text round-trip assertion in the Doubao test&#39;s SQLite query</strong></p><p>Test line 271 correctly asserts:</p><pre><code>expect(rows[0]!.values[0]).toEqual([&#39;doubao&#39;, &#39;38416801786598914&#39;, &#39;TypeScript 最佳实践&#39;])
 </code></pre><p>This verifies that the Chinese title is stored and retrieved correctly from SQLite. Good. However, the message bodies (<code>可选链</code>, <code>?.</code>) are not verified in SQLite (not stored there — only title/session are indexed), and the clean markdown assertion at line 261-262 only checks <code>toContain(&#39;可选链&#39;)</code> and <code>toContain(&#39;?.&#39;)</code>, which is adequate.</p><p>No gap here. The Chinese text handling is adequately covered.</p><p>---</p><p>### LOW</p><p><strong>[LOW-1] Gemini test missing <code>cleanContent</code> assertion for tool event content</strong></p><p>The Codex end-to-end test asserts <code>cleanContent.toContain(&#39;read_file&#39;)</code> (line 78) for tool events. The Gemini test verifies <code>tool_events.length &gt;= 1</code> and <code>tool_events[0].summary.toContain(&#39;read_file&#39;)</code>, but does <strong>not</strong> verify that the tool event summary appears in the clean markdown output. A <code>toContain(&#39;read_file&#39;)</code> on <code>cleanContent</code> would complete the round-trip.</p><p><strong>[LOW-2] Gemini JSONL format not tested</strong></p><p>The parser handles <code>.jsonl</code> extension differently (parse.ts lines 295-298): it calls <code>loadJsonl(filePath)</code> instead of <code>JSON.parse(readFileSync(...))</code>. The test only exercises the <code>.json</code> branch. A JSONL Gemini format test is absent.</p><p><strong>[LOW-3] Doubao test does not verify <code>global_raw_path</code> is absolute</strong></p><p>The review task asked about <code>global_clean_path</code> being absolute. Test line 258 uses <code>manifest.global_clean_path</code> directly with <code>readFileSync</code> (no <code>join</code>), implicitly asserting it is absolute. This works correctly. For completeness, an explicit assertion like <code>expect(path.isAbsolute(manifest.global_clean_path)).toBe(true)</code> would document the contract.</p><p><strong>[LOW-4] The <code>&#39;Platform: 豆包&#39;</code> header line is not tested for graceful skipping</strong></p><p>The non-CRLF Doubao fixture includes <code>&#39;Platform: 豆包&#39;</code> (line 218). The parser has no explicit handling for <code>Platform:</code> — it simply falls through the <code>if</code> chain without matching, so it is silently ignored. This is fine, but no test asserts that a file <strong>without</strong> <code>Platform:</code> also parses correctly (the CRLF fixture does implicitly test this).</p><p>---</p><p>## Summary Table</p><p>| ID | Severity | Description |<br>|----|----------|-------------|<br>| CRITICAL-1 | CRITICAL | <code>started_at</code> assertion uses naive ISO (no Z) — documents inconsistent behavior vs all other parsers; will break if parser is normalized |<br>| CRITICAL-2 | CRITICAL | Gemini slug test comment claims to test parent-dir logic but cwd branch is hit first; the Gemini-specific path is never exercised |<br>| HIGH-1 | HIGH | <code>global_clean_path</code> (absolute) vs <code>repo_clean_path</code> (relative) contract not made explicit in new tests |<br>| HIGH-2 | HIGH | Gemini tool events asserted with <code>&gt;= 1</code> instead of exact count — hides potential double-counting bugs |<br>| HIGH-3 | HIGH | Doubao session_id extraction not tested with URL containing query string or fragment |<br>| MEDIUM-2 | MEDIUM | CRLF fixture missing <code>Platform:</code> and <code>Messages:</code> headers — slightly unrealistic |<br>| MEDIUM-4 | MEDIUM | No explicit assertion that <code>repo_clean_path</code> is relative (not absolute) |<br>| LOW-1 | LOW | Gemini tool event not verified in clean markdown output |<br>| LOW-2 | LOW | Gemini JSONL format branch not tested at all |<br>| LOW-3 | LOW | <code>global_clean_path</code> absoluteness not explicitly asserted |<br>| LOW-4 | LOW | <code>Platform:</code> header skip behavior not directly asserted |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>

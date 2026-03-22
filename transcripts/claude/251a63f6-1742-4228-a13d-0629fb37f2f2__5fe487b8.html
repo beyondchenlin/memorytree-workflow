@@ -952,9 +952,29 @@ pre.mermaid {
 <div class="main-content">
   <div class="container">
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
-<div class="page-header">
-  <h1>agent-a714d47e34a96ed86</h1>
-</div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a714d47e34a96ed86</h1>
+    <p class="transcript-subtitle">Structured conversation replay with messages, tool activity, reasoning markers, and system context.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>4</strong> Messages</span>
+      <span class="transcript-pill"><strong>40</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>0</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-16 13:15:06</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
 <table class="meta-table card">
 <tbody>
   <tr><td>Client</td><td><span class="badge badge-claude">claude</span></td></tr>
@@ -962,11 +982,14 @@ pre.mermaid {
   <tr><td>Session ID</td><td><code>251a63f6-1742-4228-a13d-0629fb37f2f2</code></td></tr>
   <tr><td>Messages</td><td>4</td></tr>
   <tr><td>Tool Events</td><td>40</td></tr>
+  <tr><td>Events</td><td>0</td></tr>
   <tr><td>Branch</td><td><code>main</code></td></tr>
   <tr><td>Working Dir</td><td><code style="font-size:0.8rem">D:\demo1\openmnemo</code></td></tr>
-  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">5fe487b864821110…</code></td></tr>
+  <tr><td>SHA-256</td><td><code style="font-size:0.75rem">5fe487b864821110...</code></td></tr>
 </tbody>
 </table>
+
+
 <h2 style="margin-top:1.5rem">Messages</h2>
 <div class="messages"><div class="message message-user">
   <div class="message-header">
@@ -1021,6 +1044,7 @@ await Promise.all(summaryPromises)         // 一个失败 → 全部中断
 loop();
 </code></pre><p><code>tick()</code> 内部在 <code>ALPHA &lt; ALPHA_MIN</code> 时 <code>return</code>（不更新），但 <code>draw()</code> 仍然每帧调用。稳定后每帧无效重绘，在有数百节点的页面上（<code>MAX_NODES = 500</code>）会持续消耗 GPU/CPU。<strong>建议</strong>在 <code>ALPHA &lt; ALPHA_MIN</code> 且无拖拽/悬停时停止 <code>requestAnimationFrame</code>，事件触发时再恢复。</p><p>---</p><p>## 总体评级</p><p><strong>🟠 HIGH</strong></p><p>没有发现会直接导致远端代码执行的已知完整利用链，但存在一个 <strong>CRITICAL 级别</strong>的命令注入向量（<code>branch</code> 字段注入 shell 命令）以及两个 <strong>HIGH 级别</strong>的安全问题（popover XSS、SSRF）。这些问题的可利用前提是攻击者能控制 <code>config.toml</code>，这在单用户本地工具场景下风险偏低，但在多用户或远程配置场景下则是严重隐患。</p><p>---</p><p>## 进入第二阶段的建议</p><p><strong>不建议直接进入第二阶段</strong>，需先处理以下阻塞项：</p><p>| 优先级 | 任务 |<br>|--------|------|<br>| P0 | <code>github-pages.ts</code>：使用 <code>spawnSync</code> 数组参数替代 shell 字符串拼接，或在 <code>config.ts</code> 层对 <code>gh_pages_branch</code> 做严格白名单校验 |<br>| P0 | <code>layout.ts</code>：将 <code>popover.innerHTML</code> 改为 DOM 节点构造（<code>textContent</code>），消除 XSS 路径 |<br>| P1 | <code>webhook.ts</code>：强制 <code>https:</code> 协议，拒绝 RFC 1918 内网地址 |<br>| P1 | <code>build.ts</code>：为每个 <code>summaryPromises</code> 任务包裹 <code>try/catch</code> 实现错误隔离 |<br>| P1 | <code>webhook.test.ts</code>：mock <code>node:https</code>，补充 payload 结构断言 |<br>| P2 | <code>graph.ts</code>：补充 <code>\u2028</code>/<code>\u2029</code> 转义，为动画 loop 添加休眠逻辑 |</p></div>
 </div></div>
+</div>
   </div>
 </div>
 </body>
