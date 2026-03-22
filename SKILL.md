@@ -15,7 +15,7 @@ When this skill is invoked, immediately perform these steps without waiting for 
 2. Check `~/.memorytree/alerts.json`. If pending alerts exist, display them to the user before proceeding.
 3. If `not-installed`: run `memorytree init` to scaffold the workspace, then report what was created.
 4. If `partial`: run `memorytree upgrade` to add missing pieces, then report what was added.
-5. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next. If `memorytree daemon status` shows the heartbeat is not registered, ask the user for their preferred heartbeat interval, auto_push preference, and scope, then offer to run `memorytree daemon install`. Use plain-text questions compatible with all AI assistants, not client-specific UI components.
+5. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next. If `memorytree daemon status` shows the heartbeat is not registered, ask the user whether they want the recommended current-repository setup via `memorytree daemon quick-start --root <repo>` or only a machine-level scheduler restore via `memorytree daemon install --interval 5m --auto-push true`. Use `memorytree daemon register` only when they explicitly want custom branch, interval, report-port, or worktree settings. Use plain-text questions compatible with all AI assistants, not client-specific UI components.
 
 Do not stop after detection to ask whether you should proceed. Act on the result immediately.
 
@@ -112,4 +112,4 @@ Do not stop after detection to ask whether you should proceed. Act on the result
 - `references/heartbeat-scheduling.md`: background heartbeat architecture, daemon CLI, and execution flow.
 - `references/global-configuration.md`: `~/.memorytree/` directory layout, `config.toml` schema, and `alerts.json` format.
 - `assets/templates/en/` and `assets/templates/zh-cn/`: seed files for English and Simplified Chinese initialization.
-- CLI commands: `memorytree init`, `memorytree upgrade`, `memorytree import`, `memorytree discover`, `memorytree locale`, `memorytree recall`, `memorytree daemon install|uninstall|run-once|watch|status`.
+- CLI commands: `memorytree init`, `memorytree upgrade`, `memorytree import`, `memorytree discover`, `memorytree locale`, `memorytree recall`, `memorytree daemon install|uninstall|run-once|watch|status|quick-start|register`.
