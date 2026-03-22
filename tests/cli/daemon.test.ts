@@ -12,6 +12,10 @@ import {
   writeVbsLauncher,
 } from '../../src/cli/cmd-daemon.js'
 
+function normalizeDriveLetterPathForAssertion(filePath: string): string {
+  return filePath.replace(/\\/g, '/').replace(/^\/(?=[A-Za-z]:\/)/, '')
+}
+
 // ---------------------------------------------------------------------------
 // heartbeatScriptPath
 // ---------------------------------------------------------------------------
@@ -31,12 +35,12 @@ describe('heartbeatScriptPath', () => {
 describe('fallbackHeartbeatScriptPath', () => {
   it('resolves dist-side bundled modules back to dist/cli.js', () => {
     const scriptPath = fallbackHeartbeatScriptPath('file:///D:/demo1/memorytree-workflow/dist/cmd-daemon-Q5EUSPRF.js')
-    expect(scriptPath.replace(/\\/g, '/')).toBe('D:/demo1/memorytree-workflow/dist/cli.js')
+    expect(normalizeDriveLetterPathForAssertion(scriptPath)).toBe('D:/demo1/memorytree-workflow/dist/cli.js')
   })
 
   it('resolves source modules back to repository dist/cli.js', () => {
     const scriptPath = fallbackHeartbeatScriptPath('file:///D:/demo1/memorytree-workflow/src/cli/cmd-daemon.ts')
-    expect(scriptPath.replace(/\\/g, '/')).toBe('D:/demo1/memorytree-workflow/dist/cli.js')
+    expect(normalizeDriveLetterPathForAssertion(scriptPath)).toBe('D:/demo1/memorytree-workflow/dist/cli.js')
   })
 })
 
