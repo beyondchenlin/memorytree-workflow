@@ -52,42 +52,49 @@ That model lets MemoryTree keep your main development flow clean while still imp
 
 ### Install as a skill
 
-Claude Code:
+Install the skill once on your machine, then use it from any repository.
 
-```bash
-git clone https://github.com/beyondchenlin/memorytree-workflow ~/.claude/skills/memorytree-workflow
-cd ~/.claude/skills/memorytree-workflow
+You need Node.js 20 or newer.
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/beyondchenlin/memorytree-workflow "$env:USERPROFILE\.codex\skills\memorytree-workflow"
+cd "$env:USERPROFILE\.codex\skills\memorytree-workflow"
 npm install
 npm run build
+npm link
 ```
 
-Codex:
+macOS:
 
 ```bash
 git clone https://github.com/beyondchenlin/memorytree-workflow ~/.codex/skills/memorytree-workflow
 cd ~/.codex/skills/memorytree-workflow
 npm install
 npm run build
-```
-
-Windows PowerShell (Codex):
-
-```powershell
-git clone https://github.com/beyondchenlin/memorytree-workflow.git `
-  $env:USERPROFILE\.codex\skills\memorytree-workflow
-
-cd $env:USERPROFILE\.codex\skills\memorytree-workflow
-npm install
-npm run build
-```
-
-If your installer expects a skill path, use the repository root. `SKILL.md` lives at the top level.
-
-Optional: expose the CLI as `memorytree` in your shell:
-
-```bash
 npm link
 ```
+
+Ubuntu:
+
+```bash
+git clone https://github.com/beyondchenlin/memorytree-workflow ~/.codex/skills/memorytree-workflow
+cd ~/.codex/skills/memorytree-workflow
+npm install
+npm run build
+npm link
+```
+
+If you use Claude Code, replace `.codex` with `.claude` in the path above. If your skill installer expects a local path instead of a git URL, point it at the repository root. `SKILL.md` lives at the top level.
+
+After the skill is linked, open any target repository and run:
+
+```bash
+memorytree daemon quick-start --root .
+```
+
+That `quick-start` command is the same on Windows, macOS, and Ubuntu.
 
 ### Use the skill
 
@@ -300,6 +307,8 @@ memorytree daemon install --interval 5m --auto-push true
 memorytree daemon register --root . --branch memorytree-docs --heartbeat-interval 10m --auto-push false --generate-report true --report-port 10010
 memorytree daemon run-once --root . --force
 ```
+
+`memorytree daemon install` is the machine-level step, while `memorytree daemon quick-start --root .` is the one-command repository setup. Both are cross-platform; only the initial skill installation differs by OS.
 
 The heartbeat now drives both transcript import and cache-mirror refresh timing. `refresh_interval` is no longer part of the runtime or config surface.
 
