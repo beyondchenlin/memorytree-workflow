@@ -473,6 +473,18 @@ Current validation shape:
 - CI runs on Node.js 20, 22, and 24 across Linux, macOS, and Windows
 - The repository includes focused unit coverage for transcript parsing/import, project upgrade, report rendering, heartbeat orchestration, and Caddy management
 - The E2E workflow runs the CLI end-to-end on Node.js 20 across Linux, macOS, and Windows
+- Both GitHub Actions workflows also support manual `workflow_dispatch` reruns when you want an on-demand cross-platform check before or after a merge
+
+Current cross-platform E2E coverage includes:
+
+- transcript import, discover, recall, and report build/serve
+- dedicated worktree registration plus immediate `daemon run-once` execution
+- de-tracked development directories staying clean while cache mirrors refresh from the worktree
+- snapshot commits when no new transcripts are imported but synced context changes
+- raw transcript mirror policy checks for approved vs. unapproved uploads
+- ignored `AGENTS.md` and `Memory/**` paths still being committed correctly on the dedicated MemoryTree branch
+- branch-safety behavior on non-MemoryTree branches
+- report deployment and webhook failure tolerance
 
 ## Reference Docs
 
