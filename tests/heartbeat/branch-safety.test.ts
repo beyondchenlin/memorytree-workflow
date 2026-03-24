@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   transcriptMatchesRepo: vi.fn(),
   defaultGlobalTranscriptRoot: vi.fn(),
   importTranscript: vi.fn(),
+  buildReport: vi.fn(),
   transcriptHasContent: vi.fn(),
   parseTranscript: vi.fn(),
   slugify: vi.fn(),
@@ -33,6 +34,10 @@ vi.mock('../../src/transcript/discover.js', () => ({
 vi.mock('../../src/transcript/import.js', () => ({
   importTranscript: mocks.importTranscript,
   transcriptHasContent: mocks.transcriptHasContent,
+}))
+
+vi.mock('../../src/report/build.js', () => ({
+  buildReport: mocks.buildReport,
 }))
 
 vi.mock('../../src/transcript/parse.js', () => ({
@@ -107,6 +112,7 @@ beforeEach(() => {
   mocks.transcriptHasContent.mockReturnValue(true)
   mocks.parseTranscript.mockReturnValue(makeTranscript())
   mocks.importTranscript.mockResolvedValue({})
+  mocks.buildReport.mockResolvedValue(undefined)
   mocks.slugify.mockReturnValue('demo-project')
   mocks.loadConfig.mockReturnValue({})
   mocks.acquireLock.mockReturnValue(true)
@@ -177,6 +183,48 @@ describe('processProject branch safety', () => {
     )
     expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(transcripts): import 1 transcript(s)')
     expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'push')
+  })
+
+  it('builds the report before committing imported transcripts on a memorytree branch', async () => {
+    mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
+      if (args[0] === 'rev-parse') return 'memorytree/transcripts\n'
+      if (args[0] === 'status') {
+        return [
+          ' M Memory/06_transcripts/clean/codex/2024/01/file.md',
+          '?? Memory/06_transcripts/manifests/codex/2024/01/file.json',
+        ].join('\n')
+      }
+      return ''
+    })
+
+    await processProject({ auto_push: false, generate_report: true } as never, 'D:/repo', 'demo-project')
+
+    expect(mocks.buildReport).toHaveBeenCalledTimes(1)
+    const commitCallIndex = mocks.git.mock.calls.findIndex(([, ...args]) => args[0] === 'commit')
+    expect(commitCallIndex).toBeGreaterThanOrEqual(0)
+    const buildOrder = mocks.buildReport.mock.invocationCallOrder[0]!
+    const commitOrder = mocks.git.mock.invocationCallOrder[commitCallIndex]!
+    expect(buildOrder).toBeLessThan(commitOrder)
+  })
+
+  it('commits a snapshot when no new transcripts were imported but context changed', async () => {
+    mocks.discoverSourceFiles.mockReturnValue([])
+    mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
+      if (args[0] === 'rev-parse') return 'memorytree/transcripts\n'
+      if (args[0] === 'status') return ' M Memory/02_todos/todo_v001_001_20260317.md\n'
+      return ''
+    })
+
+    await processProject({ auto_push: false, generate_report: false } as never, 'D:/repo', 'demo-project')
+
+    expect(mocks.importTranscript).not.toHaveBeenCalled()
+    expect(mocks.git).toHaveBeenCalledWith(
+      'D:/repo',
+      'add',
+      '--',
+      'Memory/02_todos/todo_v001_001_20260317.md',
+    )
+    expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(snapshot): heartbeat sync')
   })
 })
 

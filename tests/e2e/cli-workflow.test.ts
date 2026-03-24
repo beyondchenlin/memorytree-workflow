@@ -582,6 +582,85 @@ describe('CLI E2E', () => {
     expect(existsSync(join(repoRoot, 'Memory', '07_reports', 'index.html'))).toBe(true)
   })
 
+  it('creates a snapshot commit when no new transcripts are imported but context changes', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade for snapshot heartbeat')
+
+    const registerResult = runCli([
+      'daemon',
+      'register',
+      '--root', repoRoot,
+      '--quick-start',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(registerResult, 'memorytree daemon register for snapshot heartbeat')
+
+    const transcriptPath = writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'heartbeat-snapshot-seed',
+    })
+
+    const firstResult = runCli([
+      'daemon',
+      'run-once',
+      '--root', repoRoot,
+      '--force',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(firstResult, 'memorytree daemon run-once snapshot seed')
+    rmSync(transcriptPath, { force: true })
+
+    const todoDir = join(repoRoot, 'Memory', '02_todos')
+    const todoName = readdirSync(todoDir).find(name => name.endsWith('.md'))
+    expect(todoName).toBeTruthy()
+    const todoPath = join(todoDir, todoName!)
+    writeFileSync(
+      todoPath,
+      readFileSync(todoPath, 'utf-8') + '\n- Snapshot heartbeat verification.\n',
+      'utf-8',
+    )
+
+    const secondResult = runCli([
+      'daemon',
+      'run-once',
+      '--root', repoRoot,
+      '--force',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(secondResult, 'memorytree daemon run-once snapshot follow-up')
+
+    const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
+    const subjects = runGit(['log', '-2', '--pretty=%s'], worktreePath).stdout.trim().split(/\r?\n/)
+    expect(subjects[0]).toBe('memorytree(snapshot): heartbeat sync')
+    expect(subjects[1]).toBe('memorytree(transcripts): import 1 transcript(s)')
+    expect(readFileSync(join(worktreePath, 'Memory', '02_todos', todoName!), 'utf-8')).toContain(
+      'Snapshot heartbeat verification.',
+    )
+    expect(readFileSync(join(repoRoot, 'Memory', '07_reports', 'todos', 'index.html'), 'utf-8')).toContain(
+      'Snapshot heartbeat verification.',
+    )
+  })
+
   it('runs heartbeat end-to-end on a dedicated memorytree branch and commits imports', () => {
     expect(existsSync(cliPath)).toBe(true)
     initGitRepo(repoRoot, 'memorytree/e2e')

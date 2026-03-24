@@ -230,14 +230,8 @@ export async function processProject(
 
   if (importedCount === 0) {
     logger.info(`[${projectName}] No new transcripts to import.`)
-    return
-  }
-
-  logger.info(`[${projectName}] Imported ${importedCount} transcript(s).`)
-  if (mirrorToRepo) {
-    gitCommitAndPush({ auto_push: autoPush }, projectPath, projectName, importedCount)
   } else {
-    logger.info(`[${projectName}] Skipped repo-local commit/push on branch '${branch}'.`)
+    logger.info(`[${projectName}] Imported ${importedCount} transcript(s).`)
   }
 
   if (generateReport) {
@@ -260,6 +254,12 @@ export async function processProject(
       logger.warn(`[${projectName}] Report generation failed: ${String(err)}`)
       // Never propagate — report failure must not abort heartbeat cycle
     }
+  }
+
+  if (mirrorToRepo) {
+    gitCommitAndPush({ auto_push: autoPush }, projectPath, projectName, importedCount)
+  } else {
+    logger.info(`[${projectName}] Skipped repo-local commit/push on branch '${branch}'.`)
   }
 }
 
@@ -294,13 +294,13 @@ export function gitCommitAndPush(
   config: Pick<Config, 'auto_push'>,
   projectPath: string,
   projectName: string,
-  count: number,
+  importedCount: number,
 ): void {
   const logger = getLogger()
 
   const changedPaths = changedMemoryPaths(projectPath)
   if (changedPaths.length === 0) {
-    logger.info(`[${projectName}] No git changes in Memory/.`)
+    logger.info(`[${projectName}] No git changes in managed MemoryTree content.`)
     return
   }
 
@@ -310,9 +310,17 @@ export function gitCommitAndPush(
     return
   }
 
+  const commitMessage = importedCount > 0
+    ? `memorytree(transcripts): import ${importedCount} transcript(s)`
+    : 'memorytree(snapshot): heartbeat sync'
+
   git(projectPath, 'add', '--', ...stageablePaths)
-  git(projectPath, 'commit', '-m', `memorytree(transcripts): import ${count} transcript(s)`)
-  logger.info(`[${projectName}] Committed ${count} transcript import(s).`)
+  git(projectPath, 'commit', '-m', commitMessage)
+  if (importedCount > 0) {
+    logger.info(`[${projectName}] Committed ${importedCount} transcript import(s).`)
+  } else {
+    logger.info(`[${projectName}] Committed heartbeat snapshot.`)
+  }
 
   if (!config.auto_push) {
     logger.info(`[${projectName}] auto_push disabled, skipping push.`)
