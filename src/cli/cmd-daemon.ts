@@ -37,7 +37,6 @@ import { execCommand } from '../utils/exec.js'
 const TASK_NAME = 'MemoryTree Heartbeat'
 const LAUNCHD_LABEL = 'com.memorytree.heartbeat'
 const QUICK_START_HEARTBEAT_INTERVAL = '5m'
-const QUICK_START_REFRESH_INTERVAL = '30m'
 
 // ---------------------------------------------------------------------------
 // Subcommands
@@ -142,7 +141,6 @@ export function cmdRegisterProject(options: {
   branch?: string
   quickStart?: boolean
   heartbeatInterval?: string
-  refreshInterval?: string
   autoPush?: string
   generateReport?: string
   reportPort?: string
@@ -168,9 +166,6 @@ export function cmdRegisterProject(options: {
   const heartbeatInterval = options.quickStart
     ? existingProject?.heartbeat_interval ?? QUICK_START_HEARTBEAT_INTERVAL
     : options.heartbeatInterval ?? existingProject?.heartbeat_interval ?? config.heartbeat_interval
-  const refreshInterval = options.quickStart
-    ? existingProject?.refresh_interval ?? QUICK_START_REFRESH_INTERVAL
-    : options.refreshInterval ?? existingProject?.refresh_interval ?? QUICK_START_REFRESH_INTERVAL
   const autoPush = options.quickStart
     ? existingProject?.auto_push ?? true
     : parseOptionalBoolean(options.autoPush) ?? existingProject?.auto_push ?? config.auto_push
@@ -200,7 +195,6 @@ export function cmdRegisterProject(options: {
       : existingProject?.memory_path ?? defaultProjectWorktreePath(root),
     memory_branch: requestedBranch,
     heartbeat_interval: heartbeatInterval,
-    refresh_interval: refreshInterval,
     auto_push: autoPush,
     generate_report: generateReport,
     report_port: reportPort,
@@ -230,7 +224,6 @@ export function cmdRegisterProject(options: {
   process.stdout.write(`Memory path: ${project.memory_path}\n`)
   process.stdout.write(`Memory branch: ${project.memory_branch}\n`)
   process.stdout.write(`Heartbeat interval: ${project.heartbeat_interval}\n`)
-  process.stdout.write(`Development cache sync interval (compat): ${project.refresh_interval}\n`)
   process.stdout.write(`Auto-push: ${project.auto_push}\n`)
   process.stdout.write(`Generate report: ${project.generate_report}\n`)
   process.stdout.write(`Raw upload permission: ${project.raw_upload_permission}\n`)

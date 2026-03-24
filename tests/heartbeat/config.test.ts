@@ -29,9 +29,7 @@ import {
   memorytreeRoot,
   findProjectForPath,
   noteProjectHeartbeatRun,
-  noteProjectRefreshRun,
   projectIsDue,
-  projectRefreshIsDue,
   resolveReportPort,
   resolveReportExposure,
 } from '../../src/heartbeat/config.js'
@@ -157,14 +155,12 @@ describe('loadConfig', () => {
         'memory_branch = "memorytree-custom"',
         'name = "project-a"',
         'heartbeat_interval = "15m"',
-        'refresh_interval = "45m"',
         'auto_push = false',
         'generate_report = true',
         'report_port = 18080',
         'report_exposure = "lan"',
         'raw_upload_permission = "approved"',
         'last_heartbeat_at = "2026-03-19T10:00:00Z"',
-        'last_refresh_at = "2026-03-19T10:15:00Z"',
         '',
       ].join('\n'),
     )
@@ -173,7 +169,6 @@ describe('loadConfig', () => {
     expect(cfg.heartbeat_interval).toBe('5m')
     expect(cfg.projects).toHaveLength(1)
     expect(cfg.projects[0]!.heartbeat_interval).toBe('15m')
-    expect(cfg.projects[0]!.refresh_interval).toBe('45m')
     expect(cfg.projects[0]!.memory_branch).toBe('memorytree-custom')
     expect(cfg.projects[0]!.auto_push).toBe(false)
     expect(cfg.projects[0]!.generate_report).toBe(true)
@@ -181,7 +176,27 @@ describe('loadConfig', () => {
     expect(cfg.projects[0]!.report_exposure).toBe('lan')
     expect(cfg.projects[0]!.raw_upload_permission).toBe('approved')
     expect(cfg.projects[0]!.last_heartbeat_at).toBe('2026-03-19T10:00:00Z')
-    expect(cfg.projects[0]!.last_refresh_at).toBe('2026-03-19T10:15:00Z')
+  })
+
+  it('ignores legacy refresh fields from older TOML files', () => {
+    const path = configPath()
+    mkdirSync(join(tmpDir, '.memorytree'), { recursive: true })
+    writeFileSync(
+      path,
+      [
+        '[[projects]]',
+        'path = "/home/user/project-a"',
+        'name = "project-a"',
+        'refresh_interval = "45m"',
+        'last_refresh_at = "2026-03-19T10:15:00Z"',
+        '',
+      ].join('\n'),
+    )
+
+    const cfg = loadConfig()
+    expect(cfg.projects).toHaveLength(1)
+    expect('refresh_interval' in (cfg.projects[0]! as Record<string, unknown>)).toBe(false)
+    expect('last_refresh_at' in (cfg.projects[0]! as Record<string, unknown>)).toBe(false)
   })
 })
 
@@ -253,7 +268,6 @@ describe('saveConfig', () => {
         memory_path: '/home/user/.memorytree/worktrees/project-a',
         memory_branch: 'memorytree',
         heartbeat_interval: '5m',
-        refresh_interval: '30m',
         auto_push: true,
         generate_report: true,
         ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -266,7 +280,6 @@ describe('saveConfig', () => {
         report_exposure: 'local',
         raw_upload_permission: 'denied',
         last_heartbeat_at: '',
-        last_refresh_at: '',
       }],
       generate_report: false,
       ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -412,14 +425,12 @@ describe('upsertProject', () => {
     const initial = registerProject(loadConfig(), tmpDir)
     const updated = upsertProject(initial, tmpDir, {
       heartbeat_interval: '15m',
-      refresh_interval: '45m',
       auto_push: false,
       generate_report: true,
     })
 
     expect(updated.projects).toHaveLength(1)
     expect(updated.projects[0]!.heartbeat_interval).toBe('15m')
-    expect(updated.projects[0]!.refresh_interval).toBe('45m')
     expect(updated.projects[0]!.auto_push).toBe(false)
     expect(updated.projects[0]!.generate_report).toBe(true)
   })
@@ -797,7 +808,6 @@ describe('project path helpers', () => {
           memory_path: '/workspace/.memorytree/worktrees/app',
           memory_branch: DEFAULT_MEMORY_BRANCH,
           heartbeat_interval: '5m',
-          refresh_interval: '30m',
           auto_push: true,
           generate_report: false,
           ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -808,7 +818,6 @@ describe('project path helpers', () => {
           report_base_url: '',
           report_port: 19090,
           last_heartbeat_at: '',
-          last_refresh_at: '',
         },
       ],
       generate_report: false,
@@ -840,7 +849,6 @@ describe('project path helpers', () => {
           memory_path: '/workspace/.memorytree/worktrees/app',
           memory_branch: DEFAULT_MEMORY_BRANCH,
           heartbeat_interval: '5m',
-          refresh_interval: '30m',
           auto_push: true,
           generate_report: false,
           ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -852,7 +860,6 @@ describe('project path helpers', () => {
           report_port: 19090,
           report_exposure: 'lan',
           last_heartbeat_at: '',
-          last_refresh_at: '',
         },
       ],
       generate_report: false,
@@ -899,25 +906,5 @@ describe('project scheduling helpers', () => {
 
     expect(updated.projects[0]!.last_heartbeat_at).toBe('')
     expect(updated.projects[1]!.last_heartbeat_at).toBe('2026-03-19T10:30:00Z')
-  })
-
-  it('projectRefreshIsDue returns false when refresh interval has not elapsed yet', () => {
-    const project = registerProject(loadConfig(), '/workspace/app').projects[0]!
-    const updated = {
-      ...project,
-      last_refresh_at: '2026-03-19T10:00:00Z',
-    }
-    expect(projectRefreshIsDue(updated, new Date('2026-03-19T10:29:59Z'))).toBe(false)
-  })
-
-  it('noteProjectRefreshRun updates only the targeted project refresh timestamp', () => {
-    const cfg1 = registerProject(loadConfig(), '/workspace/app-a')
-    const cfg2 = registerProject(cfg1, '/workspace/app-b')
-    const target = cfg2.projects[0]!
-
-    const updated = noteProjectRefreshRun(cfg2, target.id, '2026-03-19T10:30:00Z')
-
-    expect(updated.projects[0]!.last_refresh_at).toBe('2026-03-19T10:30:00Z')
-    expect(updated.projects[1]!.last_refresh_at).toBe('')
   })
 })

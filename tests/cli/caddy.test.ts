@@ -35,7 +35,6 @@ describe('cmdCaddyEnable', () => {
       memory_path: '/memorytree/worktrees/repo',
       memory_branch: 'memorytree',
       heartbeat_interval: '5m',
-      refresh_interval: '30m',
       auto_push: true,
       generate_report: true,
       ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -47,7 +46,6 @@ describe('cmdCaddyEnable', () => {
       report_port: 10010,
       report_exposure: 'lan',
       last_heartbeat_at: '',
-      last_refresh_at: '',
     }
 
     vi.doMock('../../src/heartbeat/config.js', () => ({
@@ -160,7 +158,6 @@ describe('cmdCaddyStatus', () => {
       memory_path: '/memorytree/worktrees/repo',
       memory_branch: 'memorytree',
       heartbeat_interval: '5m',
-      refresh_interval: '30m',
       auto_push: true,
       generate_report: true,
       ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -172,7 +169,6 @@ describe('cmdCaddyStatus', () => {
       report_port: 10010,
       report_exposure: 'local',
       last_heartbeat_at: '',
-      last_refresh_at: '',
     }
 
     vi.doMock('../../src/heartbeat/config.js', () => ({

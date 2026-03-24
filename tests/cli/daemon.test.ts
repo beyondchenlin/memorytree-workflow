@@ -155,7 +155,6 @@ describe('cmdRegisterProject', () => {
           memory_path: '/memorytree/worktrees/repo',
           memory_branch: 'memorytree',
           heartbeat_interval: '5m',
-          refresh_interval: '30m',
           auto_push: true,
           generate_report: true,
           ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -166,7 +165,6 @@ describe('cmdRegisterProject', () => {
           report_base_url: '',
           report_port: 10010,
           last_heartbeat_at: '',
-          last_refresh_at: '',
         },
       ],
     }
@@ -297,7 +295,6 @@ describe('cmdRegisterProject', () => {
           memory_path: '/memorytree/worktrees/repo',
           memory_branch: 'memorytree',
           heartbeat_interval: '5m',
-          refresh_interval: '30m',
           auto_push: true,
           generate_report: true,
           ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -308,7 +305,6 @@ describe('cmdRegisterProject', () => {
           report_base_url: '',
           report_port: 10010,
           last_heartbeat_at: '',
-          last_refresh_at: '',
         },
       ],
     }
@@ -374,7 +370,6 @@ describe('cmdRegisterProject', () => {
       memory_path: '/memorytree/custom-worktree',
       memory_branch: 'custom-memorytree',
       heartbeat_interval: '15m',
-      refresh_interval: '45m',
       auto_push: false,
       generate_report: false,
       ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -385,7 +380,6 @@ describe('cmdRegisterProject', () => {
       report_base_url: '',
       report_port: 12000,
       last_heartbeat_at: '',
-      last_refresh_at: '',
     }
     const currentConfig = {
       heartbeat_interval: '9m',
@@ -450,7 +444,6 @@ describe('cmdRegisterProject', () => {
           memory_path: '/memorytree/custom-worktree',
           memory_branch: 'custom-memorytree',
           heartbeat_interval: '15m',
-          refresh_interval: '45m',
           auto_push: false,
           generate_report: false,
           report_port: 12000,
@@ -459,7 +452,6 @@ describe('cmdRegisterProject', () => {
     })
     expect(stdoutChunks.join('')).toContain('Memory branch: custom-memorytree')
     expect(stdoutChunks.join('')).toContain('Heartbeat interval: 15m')
-    expect(stdoutChunks.join('')).toContain('Development cache sync interval (compat): 45m')
     expect(stdoutChunks.join('')).toContain('Auto-push: false')
     expect(stdoutChunks.join('')).toContain('Generate report: false')
     expect(stdoutChunks.join('')).toContain('Upstream configured: skipped (auto_push disabled)')
@@ -517,7 +509,6 @@ describe('cmdQuickStart', () => {
           memory_path: '/memorytree/worktrees/repo',
           memory_branch: 'memorytree',
           heartbeat_interval: '5m',
-          refresh_interval: '30m',
           auto_push: true,
           generate_report: true,
           ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -528,7 +519,6 @@ describe('cmdQuickStart', () => {
           report_base_url: '',
           report_port: 10010,
           last_heartbeat_at: '',
-          last_refresh_at: '',
         },
       ],
     }
@@ -659,7 +649,6 @@ describe('cmdQuickStart', () => {
             memory_path: '/memorytree/worktrees/repo',
             memory_branch: 'memorytree',
             heartbeat_interval: '5m',
-            refresh_interval: '30m',
             auto_push: true,
             generate_report: true,
             ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -670,7 +659,6 @@ describe('cmdQuickStart', () => {
             report_base_url: '',
             report_port: 10010,
             last_heartbeat_at: '',
-            last_refresh_at: '',
           },
         ],
       }),
@@ -744,7 +732,6 @@ describe('cmdQuickStart', () => {
           memory_path: '/memorytree/worktrees/repo',
           memory_branch: 'memorytree',
           heartbeat_interval: '5m',
-          refresh_interval: '30m',
           auto_push: true,
           generate_report: true,
           ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -755,7 +742,6 @@ describe('cmdQuickStart', () => {
           report_base_url: '',
           report_port: 10010,
           last_heartbeat_at: '',
-          last_refresh_at: '',
         },
       ],
     }
@@ -834,7 +820,7 @@ describe('cmdQuickStart', () => {
 })
 
 // ---------------------------------------------------------------------------
-// cmdStatus â€?tested via dynamic import with mocks set before import
+// cmdStatus tested via dynamic import with mocks set before import
 // ---------------------------------------------------------------------------
 
 describe('cmdStatus', () => {
@@ -983,7 +969,7 @@ describe('isSchtasksRegistered', () => {
 })
 
 // ---------------------------------------------------------------------------
-// cmdInstall â€?test saveConfig is called with overrides
+// cmdInstall test saveConfig is called with overrides
 // ---------------------------------------------------------------------------
 
 describe('cmdInstall', () => {
@@ -1028,7 +1014,7 @@ describe('cmdInstall', () => {
 })
 
 // ---------------------------------------------------------------------------
-// cmdUninstall â€?lightweight test
+// cmdUninstall lightweight test
 // ---------------------------------------------------------------------------
 
 describe('cmdUninstall', () => {
