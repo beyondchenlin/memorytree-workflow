@@ -708,6 +708,61 @@ describe('CLI E2E', () => {
     expect(listFiles(join(homeDir, '.memorytree', 'transcripts', 'index')).length).toBeGreaterThan(0)
   })
 
+  it('commits managed content on a memorytree branch even after AGENTS.md and Memory/** are ignored', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'memorytree/e2e')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade (ignored managed paths)')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'Memory/07_reports/\n', 'utf-8')
+    commitAll(repoRoot, 'chore: scaffold memorytree workspace')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'AGENTS.md\nMemory/**\n', 'utf-8')
+    assertSuccess(runGit(['rm', '--cached', 'AGENTS.md'], repoRoot), 'git rm --cached AGENTS.md')
+    assertSuccess(runGit(['rm', '--cached', '-r', 'Memory'], repoRoot), 'git rm --cached Memory')
+    assertSuccess(runGit(['add', '.gitignore'], repoRoot), 'git add .gitignore for managed de-track')
+    assertSuccess(runGit(['commit', '-m', 'chore: de-track managed cache'], repoRoot), 'git commit managed de-track')
+    expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('')
+
+    writeConfig(homeDir, {
+      projectPath: repoRoot,
+      autoPush: false,
+      generateReport: true,
+    })
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'memorytree/e2e',
+      stem: 'heartbeat-ignored-managed',
+    })
+
+    const result = runCli(['daemon', 'run-once'], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once (ignored managed paths)')
+
+    expect(runGit(['log', '-1', '--pretty=%s'], repoRoot).stdout.trim()).toBe(
+      'memorytree(transcripts): import 1 transcript(s)',
+    )
+    const changedFiles = runGit(['show', '--name-only', '--pretty=', 'HEAD'], repoRoot).stdout
+    expect(changedFiles).toContain('AGENTS.md')
+    expect(changedFiles).toContain('Memory/02_todos/')
+    expect(changedFiles).toContain('Memory/06_transcripts/manifests/')
+    expect(changedFiles).not.toContain('Memory/06_transcripts/raw/')
+  })
+
   it('keeps repository branches clean during heartbeat on non-memorytree branches', () => {
     expect(existsSync(cliPath)).toBe(true)
     initGitRepo(repoRoot, 'main')

@@ -25,7 +25,7 @@ import { acquireLock, releaseLock } from './lock.js'
 import { resetFailureCount, writeAlert, writeAlertWithThreshold } from './alert.js'
 import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
-import { syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
+import { MANAGED_REPO_PATHS, syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
 import { collectExtraManifestDirs } from '../report/extra-manifests.js'
 import {
   ensureBranchUpstream,
@@ -298,7 +298,7 @@ export function gitCommitAndPush(
 ): void {
   const logger = getLogger()
 
-  const changedPaths = changedMemoryPaths(projectPath)
+  const changedPaths = changedManagedPaths(projectPath)
   if (changedPaths.length === 0) {
     logger.info(`[${projectName}] No git changes in managed MemoryTree content.`)
     return
@@ -314,7 +314,7 @@ export function gitCommitAndPush(
     ? `memorytree(transcripts): import ${importedCount} transcript(s)`
     : 'memorytree(snapshot): heartbeat sync'
 
-  git(projectPath, 'add', '--', ...stageablePaths)
+  git(projectPath, 'add', '-A', '-f', '--', ...stageablePaths)
   git(projectPath, 'commit', '-m', commitMessage)
   if (importedCount > 0) {
     logger.info(`[${projectName}] Committed ${importedCount} transcript import(s).`)
@@ -376,14 +376,12 @@ export function isDedicatedMemorytreeBranch(
   return isProjectMemoryBranch(branch, project)
 }
 
-export function changedMemoryPaths(projectPath: string): string[] {
-  const status = git(projectPath, 'status', '--porcelain', '--untracked-files=all', '--', 'Memory/')
+export function changedManagedPaths(projectPath: string): string[] {
   const seen = new Set<string>()
   const paths: string[] = []
 
-  for (const rawLine of status.split(/\r?\n/)) {
-    const path = statusLinePath(rawLine)
-    if (path === null || seen.has(path)) continue
+  for (const path of collectChangedManagedPaths(projectPath)) {
+    if (seen.has(path)) continue
     seen.add(path)
     paths.push(path)
   }
@@ -395,19 +393,6 @@ export function isRepoRawTranscriptPath(path: string): boolean {
   return path.replace(/\\/g, '/').startsWith(RAW_TRANSCRIPT_PREFIX)
 }
 
-function statusLinePath(line: string): string | null {
-  if (line.length < 4) return null
-
-  const rawPath = line.slice(3).trim()
-  if (!rawPath) return null
-
-  const path = rawPath.includes(' -> ')
-    ? rawPath.slice(rawPath.lastIndexOf(' -> ') + 4)
-    : rawPath
-
-  return unquotePath(path)
-}
-
 function unquotePath(path: string): string {
   if (!(path.startsWith('"') && path.endsWith('"'))) return path
 
@@ -415,4 +400,34 @@ function unquotePath(path: string): string {
     .slice(1, -1)
     .replace(/\\"/g, '"')
     .replace(/\\\\/g, '\\')
+}
+
+function collectChangedManagedPaths(projectPath: string): string[] {
+  return [
+    ...gitPathLines(projectPath, 'diff', '--name-only', '--', ...MANAGED_REPO_PATHS),
+    ...gitPathLines(projectPath, 'diff', '--cached', '--name-only', '--', ...MANAGED_REPO_PATHS),
+    ...gitPathLines(projectPath, 'ls-files', '--others', '--exclude-standard', '--', ...MANAGED_REPO_PATHS),
+    ...gitPathLines(
+      projectPath,
+      'ls-files',
+      '--others',
+      '--ignored',
+      '--exclude-standard',
+      '--',
+      ...MANAGED_REPO_PATHS,
+    ),
+  ]
+}
+
+function gitPathLines(projectPath: string, ...args: string[]): string[] {
+  const output = git(projectPath, ...args)
+  const paths: string[] = []
+
+  for (const rawLine of output.split(/\r?\n/)) {
+    const path = unquotePath(rawLine.trim())
+    if (!path) continue
+    paths.push(path)
+  }
+
+  return paths
 }

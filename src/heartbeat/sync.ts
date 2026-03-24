@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path'
 
 import type { ProjectEntry } from './config.js'
 
-const DEV_TO_MEMORY_PATHS = [
+export const DEV_TO_MEMORY_PATHS = [
   'AGENTS.md',
   'Memory/01_goals',
   'Memory/02_todos',
@@ -12,9 +12,14 @@ const DEV_TO_MEMORY_PATHS = [
   'Memory/05_archive',
 ] as const
 
-const MEMORY_TO_DEV_PATHS = [
+export const MEMORY_TO_DEV_PATHS = [
   'Memory/06_transcripts',
   'Memory/07_reports',
+] as const
+
+export const MANAGED_REPO_PATHS = [
+  ...DEV_TO_MEMORY_PATHS,
+  ...MEMORY_TO_DEV_PATHS,
 ] as const
 
 export interface SyncStats {

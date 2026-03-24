@@ -159,13 +159,15 @@ describe('processProject branch safety', () => {
   it('allows repo-local commit and push when already on a memorytree/* branch', async () => {
     mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
       if (args[0] === 'rev-parse') return 'memorytree/transcripts\n'
-      if (args[0] === 'status') {
+      if (args[0] === 'diff') {
         return [
-          ' M Memory/06_transcripts/clean/codex/2024/01/file.md',
-          '?? Memory/06_transcripts/manifests/codex/2024/01/file.json',
-          '?? Memory/06_transcripts/raw/codex/2024/01/file.jsonl',
+          'Memory/06_transcripts/clean/codex/2024/01/file.md',
         ].join('\n')
       }
+      if (args[0] === 'ls-files' && args.includes('--ignored')) {
+        return 'Memory/06_transcripts/raw/codex/2024/01/file.jsonl\n'
+      }
+      if (args[0] === 'ls-files') return 'Memory/06_transcripts/manifests/codex/2024/01/file.json\n'
       if (args[0] === 'remote') return 'origin\n'
       return ''
     })
@@ -177,6 +179,8 @@ describe('processProject branch safety', () => {
     expect(mocks.git).toHaveBeenCalledWith(
       'D:/repo',
       'add',
+      '-A',
+      '-f',
       '--',
       'Memory/06_transcripts/clean/codex/2024/01/file.md',
       'Memory/06_transcripts/manifests/codex/2024/01/file.json',
@@ -188,12 +192,12 @@ describe('processProject branch safety', () => {
   it('builds the report before committing imported transcripts on a memorytree branch', async () => {
     mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
       if (args[0] === 'rev-parse') return 'memorytree/transcripts\n'
-      if (args[0] === 'status') {
+      if (args[0] === 'diff') {
         return [
-          ' M Memory/06_transcripts/clean/codex/2024/01/file.md',
-          '?? Memory/06_transcripts/manifests/codex/2024/01/file.json',
+          'Memory/06_transcripts/clean/codex/2024/01/file.md',
         ].join('\n')
       }
+      if (args[0] === 'ls-files') return 'Memory/06_transcripts/manifests/codex/2024/01/file.json\n'
       return ''
     })
 
@@ -211,7 +215,7 @@ describe('processProject branch safety', () => {
     mocks.discoverSourceFiles.mockReturnValue([])
     mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
       if (args[0] === 'rev-parse') return 'memorytree/transcripts\n'
-      if (args[0] === 'status') return ' M Memory/02_todos/todo_v001_001_20260317.md\n'
+      if (args[0] === 'diff') return 'Memory/02_todos/todo_v001_001_20260317.md\n'
       return ''
     })
 
@@ -221,8 +225,32 @@ describe('processProject branch safety', () => {
     expect(mocks.git).toHaveBeenCalledWith(
       'D:/repo',
       'add',
+      '-A',
+      '-f',
       '--',
       'Memory/02_todos/todo_v001_001_20260317.md',
+    )
+    expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(snapshot): heartbeat sync')
+  })
+
+  it('commits AGENTS.md changes on a memorytree branch', async () => {
+    mocks.discoverSourceFiles.mockReturnValue([])
+    mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
+      if (args[0] === 'rev-parse') return 'memorytree/transcripts\n'
+      if (args[0] === 'diff') return 'AGENTS.md\n'
+      return ''
+    })
+
+    await processProject({ auto_push: false, generate_report: false } as never, 'D:/repo', 'demo-project')
+
+    expect(mocks.importTranscript).not.toHaveBeenCalled()
+    expect(mocks.git).toHaveBeenCalledWith(
+      'D:/repo',
+      'add',
+      '-A',
+      '-f',
+      '--',
+      'AGENTS.md',
     )
     expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(snapshot): heartbeat sync')
   })
@@ -231,7 +259,9 @@ describe('processProject branch safety', () => {
 describe('gitCommitAndPush raw transcript staging', () => {
   it('skips commit when only raw transcript mirror files changed', () => {
     mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
-      if (args[0] === 'status') return '?? Memory/06_transcripts/raw/codex/2024/01/file.jsonl\n'
+      if (args[0] === 'ls-files' && args.includes('--ignored')) {
+        return 'Memory/06_transcripts/raw/codex/2024/01/file.jsonl\n'
+      }
       if (args[0] === 'remote') return 'origin\n'
       return ''
     })
@@ -240,11 +270,19 @@ describe('gitCommitAndPush raw transcript staging', () => {
 
     expect(mocks.git).toHaveBeenCalledWith(
       'D:/repo',
-      'status',
-      '--porcelain',
-      '--untracked-files=all',
+      'ls-files',
+      '--others',
+      '--ignored',
+      '--exclude-standard',
       '--',
-      'Memory/',
+      'AGENTS.md',
+      'Memory/01_goals',
+      'Memory/02_todos',
+      'Memory/03_chat_logs',
+      'Memory/04_knowledge',
+      'Memory/05_archive',
+      'Memory/06_transcripts',
+      'Memory/07_reports',
     )
     expect(mocks.git).not.toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(transcripts): import 1 transcript(s)')
     expect(mocks.git).not.toHaveBeenCalledWith('D:/repo', 'push')
