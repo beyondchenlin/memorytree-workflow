@@ -333,10 +333,15 @@ Keep `refresh_interval` available only as a compatibility field for older config
 
 The current implementation now exposes two concrete entry points for this design:
 
-1. `memorytree daemon register --root <repo> --quick-start`
+1. `memorytree daemon quick-start --root <repo>`
 2. `memorytree daemon register --root <repo> --heartbeat-interval <x> --auto-push <true|false> --generate-report <true|false> --branch <name>`
 
-What `daemon register` now does:
+What the current CLI flow now does:
+
+- `daemon quick-start` installs or normalizes the scheduler cadence, registers the repository with the recommended single-source defaults, and runs one immediate sync
+- `daemon register` remains the advanced path when the user wants to choose branch, cadence, raw transcript permission, report port, or worktree settings explicitly
+
+What the registration flow now does:
 
 - registers or updates the project in `~/.memorytree/config.toml`
 - writes both `development_path` and `memory_path`
@@ -352,6 +357,23 @@ The current implementation also extends manual execution:
 - `memorytree daemon run-once --root <repo> --force`
 
 That command targets the matching project directly, bypasses due checks, and runs the worktree-backed sync-and-heartbeat flow immediately.
+
+## Current Validation Coverage
+
+The current repository state now has explicit cross-platform automation support for this rollout:
+
+- `.github/workflows/ci.yml` runs typecheck, lint, build, unit tests, and CLI smoke checks on Node.js 20, 22, and 24 across Linux, macOS, and Windows
+- `.github/workflows/e2e.yml` runs the black-box CLI workflow on Node.js 20 across Linux, macOS, and Windows
+- both workflows also expose `workflow_dispatch` so the full matrix can be rerun on demand during rollout or release checks
+
+The E2E matrix covers the single-source model paths that matter most for this upgrade:
+
+- worktree registration and immediate heartbeat execution
+- transcript import plus report generation flowing back into development-directory cache mirrors
+- de-tracked development branches remaining clean while cache mirrors refresh
+- snapshot commits when no new transcript is imported but context changes
+- raw transcript approval gating
+- managed-path commits still working after `AGENTS.md` and `Memory/**` are ignored on the development branch
 
 ## Risks And Guardrails
 
