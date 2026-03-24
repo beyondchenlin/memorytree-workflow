@@ -16,6 +16,17 @@ function normalizeDriveLetterPathForAssertion(filePath: string): string {
   return filePath.replace(/\\/g, '/').replace(/^\/(?=[A-Za-z]:\/)/, '')
 }
 
+function mockNormalizeRawUploadPermission(
+  value: unknown,
+  fallback: 'not-set' | 'approved' | 'denied',
+): 'not-set' | 'approved' | 'denied' {
+  if (typeof value !== 'string') return fallback
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'approved' || normalized === 'denied' || normalized === 'not-set'
+    ? normalized
+    : fallback
+}
+
 // ---------------------------------------------------------------------------
 // heartbeatScriptPath
 // ---------------------------------------------------------------------------
@@ -57,6 +68,8 @@ describe('cmdRunOnce', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '5m',
@@ -160,6 +173,8 @@ describe('cmdRegisterProject', () => {
 
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '9m',
@@ -210,6 +225,8 @@ describe('cmdRegisterProject', () => {
   it('rejects branch override in quick start mode', async () => {
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '9m',
@@ -298,6 +315,8 @@ describe('cmdRegisterProject', () => {
 
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '9m',
@@ -386,6 +405,8 @@ describe('cmdRegisterProject', () => {
 
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => currentConfig,
       saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
@@ -520,6 +541,8 @@ describe('cmdQuickStart', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '9m',
@@ -611,6 +634,8 @@ describe('cmdQuickStart', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => currentConfig,
       saveConfig: (cfg: typeof currentConfig) => {
@@ -746,6 +771,8 @@ describe('cmdQuickStart', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '9m',
@@ -807,7 +834,7 @@ describe('cmdQuickStart', () => {
 })
 
 // ---------------------------------------------------------------------------
-// cmdStatus â€” tested via dynamic import with mocks set before import
+// cmdStatus â€?tested via dynamic import with mocks set before import
 // ---------------------------------------------------------------------------
 
 describe('cmdStatus', () => {
@@ -834,6 +861,8 @@ describe('cmdStatus', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '5m',
@@ -862,6 +891,8 @@ describe('cmdStatus', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({
         heartbeat_interval: '5m',
@@ -899,6 +930,8 @@ describe('isCronRegistered', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({ heartbeat_interval: '5m', auto_push: true, projects: [], watch_dirs: [], log_level: 'info' }),
       intervalToSeconds: () => 300,
@@ -933,6 +966,8 @@ describe('isSchtasksRegistered', () => {
     }))
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       configPath: () => '/nonexistent/config.toml',
       loadConfig: () => ({ heartbeat_interval: '5m', auto_push: true, projects: [], watch_dirs: [], log_level: 'info' }),
       intervalToSeconds: () => 300,
@@ -948,7 +983,7 @@ describe('isSchtasksRegistered', () => {
 })
 
 // ---------------------------------------------------------------------------
-// cmdInstall â€” test saveConfig is called with overrides
+// cmdInstall â€?test saveConfig is called with overrides
 // ---------------------------------------------------------------------------
 
 describe('cmdInstall', () => {
@@ -961,6 +996,8 @@ describe('cmdInstall', () => {
     const savedConfigs: unknown[] = []
     vi.doMock('../../src/heartbeat/config.js', () => ({
       DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
       loadConfig: () => ({
         heartbeat_interval: '5m',
         auto_push: true,
@@ -991,7 +1028,7 @@ describe('cmdInstall', () => {
 })
 
 // ---------------------------------------------------------------------------
-// cmdUninstall â€” lightweight test
+// cmdUninstall â€?lightweight test
 // ---------------------------------------------------------------------------
 
 describe('cmdUninstall', () => {
@@ -1085,3 +1122,4 @@ describe('writeVbsLauncher', () => {
     expect(p).toContain('heartbeat-launcher.vbs')
   })
 })
+

@@ -11,10 +11,12 @@ import { fileURLToPath } from 'node:url'
 
 import {
   DEFAULT_MEMORY_BRANCH,
+  DEFAULT_RAW_UPLOAD_PERMISSION,
   configPath,
   findProjectForPath,
   intervalToSeconds,
   loadConfig,
+  normalizeRawUploadPermission,
   saveConfig,
   upsertProject,
 } from '../heartbeat/config.js'
@@ -144,6 +146,7 @@ export function cmdRegisterProject(options: {
   autoPush?: string
   generateReport?: string
   reportPort?: string
+  rawUploadPermission?: string
 }): number {
   const root = resolve(options.root)
   const config = loadConfig()
@@ -174,6 +177,15 @@ export function cmdRegisterProject(options: {
   const generateReport = options.quickStart
     ? existingProject?.generate_report ?? true
     : parseOptionalBoolean(options.generateReport) ?? existingProject?.generate_report ?? config.generate_report
+  const rawUploadPermission = options.quickStart
+    ? existingProject?.raw_upload_permission ?? DEFAULT_RAW_UPLOAD_PERMISSION
+    : options.rawUploadPermission !== undefined
+      ? parseRawUploadPermissionOption(options.rawUploadPermission)
+      : existingProject?.raw_upload_permission ?? DEFAULT_RAW_UPLOAD_PERMISSION
+  if (rawUploadPermission === null) {
+    process.stderr.write('Invalid raw upload permission. Use not-set, approved, or denied.\n')
+    return 1
+  }
 
   const requestedPort = options.reportPort ? parseInt(options.reportPort, 10) : NaN
   const reportPort = Number.isInteger(requestedPort) && requestedPort > 0 && requestedPort <= 65535
@@ -192,6 +204,7 @@ export function cmdRegisterProject(options: {
     auto_push: autoPush,
     generate_report: generateReport,
     report_port: reportPort,
+    raw_upload_permission: rawUploadPermission,
   })
 
   const project = findProjectForPath(updated, root)
@@ -220,6 +233,7 @@ export function cmdRegisterProject(options: {
   process.stdout.write(`Refresh interval: ${project.refresh_interval}\n`)
   process.stdout.write(`Auto-push: ${project.auto_push}\n`)
   process.stdout.write(`Generate report: ${project.generate_report}\n`)
+  process.stdout.write(`Raw upload permission: ${project.raw_upload_permission}\n`)
   process.stdout.write(`Worktree branch: ${worktree.branch}\n`)
   process.stdout.write(`Worktree created: ${worktree.created ? 'yes' : 'no'}\n`)
   if (upstreamError) {
@@ -232,6 +246,13 @@ export function cmdRegisterProject(options: {
     process.stdout.write(`Upstream configured: ${upstream.created ? 'yes' : 'already'} (${upstream.remote}/${worktree.branch})\n`)
   }
   return upstreamError ? 1 : 0
+}
+
+function parseRawUploadPermissionOption(value: string): 'not-set' | 'approved' | 'denied' | null {
+  const normalized = normalizeRawUploadPermission(value, DEFAULT_RAW_UPLOAD_PERMISSION)
+  return normalized === DEFAULT_RAW_UPLOAD_PERMISSION && value.trim().toLowerCase() !== DEFAULT_RAW_UPLOAD_PERMISSION
+    ? null
+    : normalized
 }
 
 export async function cmdQuickStart(options: {

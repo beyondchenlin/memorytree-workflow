@@ -9,7 +9,7 @@ import { importTranscript, transcriptHasContent } from '../transcript/import.js'
 import { parseTranscript } from '../transcript/parse.js'
 import { slugify } from '../transcript/common.js'
 import { defaultGlobalTranscriptRoot } from '../transcript/discover.js'
-import type { Config, ProjectEntry } from './config.js'
+import type { Config, ProjectEntry, RawUploadPermission } from './config.js'
 import {
   findProjectForPath,
   loadConfig,
@@ -195,6 +195,7 @@ export async function processProject(
   const cname = project?.cname ?? config.cname ?? ''
   const webhookUrl = project?.webhook_url ?? config.webhook_url ?? ''
   const reportBaseUrl = project?.report_base_url ?? config.report_base_url ?? ''
+  const rawUploadPermission = project?.raw_upload_permission ?? 'not-set'
 
   if (!mirrorToRepo) {
     logger.warn(
@@ -221,7 +222,7 @@ export async function processProject(
     scanSensitive(parsed, projectPath)
 
     try {
-      await importTranscript(parsed, projectPath, globalRoot, repoSlug, 'not-set', mirrorToRepo)
+      await importTranscript(parsed, projectPath, globalRoot, repoSlug, rawUploadPermission, mirrorToRepo)
       importedCount++
     } catch {
       logger.exception(`Failed to import transcript: ${source}`)
@@ -257,7 +258,7 @@ export async function processProject(
   }
 
   if (mirrorToRepo) {
-    gitCommitAndPush({ auto_push: autoPush }, projectPath, projectName, importedCount)
+    gitCommitAndPush({ auto_push: autoPush }, projectPath, projectName, importedCount, rawUploadPermission)
   } else {
     logger.info(`[${projectName}] Skipped repo-local commit/push on branch '${branch}'.`)
   }
@@ -295,6 +296,7 @@ export function gitCommitAndPush(
   projectPath: string,
   projectName: string,
   importedCount: number,
+  rawUploadPermission: RawUploadPermission = 'not-set',
 ): void {
   const logger = getLogger()
 
@@ -304,9 +306,9 @@ export function gitCommitAndPush(
     return
   }
 
-  const stageablePaths = changedPaths.filter(path => !isRepoRawTranscriptPath(path))
+  const stageablePaths = changedPaths.filter(path => shouldStageManagedPath(path, rawUploadPermission))
   if (stageablePaths.length === 0) {
-    logger.info(`[${projectName}] Only raw transcript mirror changes detected; skipping commit.`)
+    logger.info(`[${projectName}] Only raw transcript mirror changes detected without approval; skipping commit.`)
     return
   }
 
@@ -391,6 +393,14 @@ export function changedManagedPaths(projectPath: string): string[] {
 
 export function isRepoRawTranscriptPath(path: string): boolean {
   return path.replace(/\\/g, '/').startsWith(RAW_TRANSCRIPT_PREFIX)
+}
+
+function shouldStageManagedPath(path: string, rawUploadPermission: RawUploadPermission): boolean {
+  if (!isRepoRawTranscriptPath(path)) {
+    return true
+  }
+
+  return rawUploadPermission === 'approved'
 }
 
 function unquotePath(path: string): string {
