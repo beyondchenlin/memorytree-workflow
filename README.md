@@ -112,6 +112,7 @@ memorytree caddy enable --root .
 ```
 
 Quick Start keeps the dedicated `memorytree` branch as the shared source of truth and refreshes `AGENTS.md` plus `Memory/**` back into your development directory as local cache mirrors.
+Its recommended defaults are `memorytree`, `heartbeat_interval = "5m"`, `auto_push = true`, `generate_report = true`, and `raw_upload_permission = "not-set"`, so raw transcript mirror commits stay disabled until you explicitly approve them.
 
 Useful day-to-day commands:
 
@@ -289,6 +290,7 @@ memorytree daemon quick-start --root .
 Use this as the quick-install path when you want the current repository to join heartbeat with the recommended defaults.
 
 Quick Start keeps the dedicated `memorytree` branch as the shared source of truth and treats your development directory as a local cache mirror.
+Its recommended defaults are `memorytree`, `heartbeat_interval = "5m"`, `auto_push = true`, `generate_report = true`, and `raw_upload_permission = "not-set"`.
 
 If you want more control, install the machine scheduler once and then register each repository with your own branch, heartbeat cadence, and report settings:
 
@@ -377,6 +379,7 @@ memory_branch = "memorytree"
 heartbeat_interval = "5m"
 auto_push = true
 generate_report = true
+raw_upload_permission = "not-set"
 locale = "en"
 gh_pages_branch = "gh-pages"
 report_base_url = "https://memory.example.com"
@@ -393,6 +396,7 @@ Fields that matter most:
 | `memory_branch` | The branch reserved for MemoryTree automation |
 | `heartbeat_interval` | Per-project heartbeat cadence |
 | `generate_report` | Whether heartbeat should build `Memory/07_reports` after transcript imports |
+| `raw_upload_permission` | Whether repo-local raw transcript mirrors may be auto-committed: `not-set`, `approved`, or `denied` |
 | `gh_pages_branch` | Branch used for report publishing when configured |
 | `report_base_url` | Base URL for RSS and OG metadata |
 | `report_port` | Default local report port for this project |
