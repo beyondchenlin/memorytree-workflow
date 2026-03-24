@@ -111,6 +111,8 @@ memorytree daemon quick-start --root .
 memorytree caddy enable --root .
 ```
 
+Quick Start keeps the dedicated `memorytree` branch as the shared source of truth and refreshes `AGENTS.md` plus `Memory/**` back into your development directory as local cache mirrors.
+
 Useful day-to-day commands:
 
 ```bash
@@ -123,16 +125,16 @@ memorytree daemon run-once --root . --force
 
 ## Architecture
 
-MemoryTree now runs as a worktree-aware system, not just a single-folder transcript importer:
+MemoryTree now runs as a worktree-aware single-source system, not just a single-folder transcript importer:
 
 ```text
-Development repository
+Development repository (local cache mirror)
   AGENTS.md
-  Memory/01_goals ... Memory/05_archive
+  Memory/01_goals ... Memory/07_reports
         |
         | sync active context into
         v
-Dedicated MemoryTree worktree
+Dedicated MemoryTree worktree (shared source of truth)
   isolated memorytree branch
   Memory/06_transcripts
   Memory/07_reports
@@ -150,7 +152,7 @@ Global archive ~/.memorytree/
   caddy/
 ```
 
-The heartbeat copies active project context from the development directory into the dedicated worktree, processes transcript imports there, and then syncs transcript/report outputs back into the development directory.
+The dedicated MemoryTree branch is the only Git-backed shared memory source. The development directory is a local cache mirror: heartbeat copies active context into the dedicated worktree, processes transcript imports there, and then syncs refreshed transcript/report outputs back into the directory you are actively using.
 
 ### Per-repository layout
 
@@ -201,7 +203,7 @@ Shared state lives under `~/.memorytree/`:
 | Workspace scaffolding | `init` and `upgrade` create `Memory/` plus `AGENTS.md` without overwriting stronger existing repo policy |
 | Transcript archive | `discover` scans default client stores, while `import` handles explicit transcript files and mirrors matching sessions into the repo |
 | Session recall | `recall` runs an on-demand sync and returns the latest prior session for the current repository across clients |
-| Worktree-backed heartbeat | `daemon register` and `daemon quick-start` create an isolated MemoryTree worktree, schedule runs, and keep context/output in sync |
+| Worktree-backed heartbeat | `daemon register` and `daemon quick-start` create an isolated MemoryTree worktree, schedule runs, and keep the shared memory branch plus development cache mirrors in sync |
 | Report generation | `report build` creates a multi-page static site with transcripts, goals, todos, knowledge, archive, projects, graph, search, tags, and RSS |
 | Managed local hosting | `caddy enable|disable|status` writes project-scoped Caddy fragments for long-running local report hosting |
 | Git safety | Automatic repo-local commits stay confined to MemoryTree branches and skip raw transcript mirrors until raw uploads are approved |
@@ -286,13 +288,17 @@ memorytree daemon quick-start --root .
 
 Use this as the quick-install path when you want the current repository to join heartbeat with the recommended defaults.
 
-If you want more control, install the machine scheduler once and then register each repository with your own branch, interval, and report settings:
+Quick Start keeps the dedicated `memorytree` branch as the shared source of truth and treats your development directory as a local cache mirror.
+
+If you want more control, install the machine scheduler once and then register each repository with your own branch, heartbeat cadence, and report settings:
 
 ```bash
 memorytree daemon install --interval 5m --auto-push true
-memorytree daemon register --root . --branch memorytree-docs --heartbeat-interval 10m --refresh-interval 30m --auto-push false --generate-report true --report-port 10010
+memorytree daemon register --root . --branch memorytree-docs --heartbeat-interval 10m --auto-push false --generate-report true --report-port 10010
 memorytree daemon run-once --root . --force
 ```
+
+`refresh_interval` remains available as a compatibility field for cache-mirror sync behavior, but it is no longer part of the core setup story for new repositories.
 
 Current execution flow:
 
@@ -303,8 +309,8 @@ Acquire lock
   -> ensure dedicated MemoryTree worktree
   -> sync AGENTS.md + active Memory context into the worktree
   -> discover and import matching transcripts
+  -> build/update Memory/07_reports when report generation is enabled
   -> commit/push Memory-only changes on the MemoryTree branch when allowed
-  -> build Memory/07_reports when report generation is enabled and the run imported new transcripts
   -> sync transcripts and reports back to the development directory
   -> release lock
 ```
@@ -369,6 +375,7 @@ development_path = "/path/to/repo"
 memory_path = "/path/to/.memorytree/worktrees/my-repo"
 memory_branch = "memorytree"
 heartbeat_interval = "5m"
+# compatibility only: cache-mirror sync cadence
 refresh_interval = "30m"
 auto_push = true
 generate_report = true
@@ -387,7 +394,6 @@ Fields that matter most:
 | `memory_path` | The dedicated MemoryTree worktree used by the heartbeat |
 | `memory_branch` | The branch reserved for MemoryTree automation |
 | `heartbeat_interval` | Per-project heartbeat cadence |
-| `refresh_interval` | How often transcript/report outputs sync back to the development directory |
 | `generate_report` | Whether heartbeat should build `Memory/07_reports` after transcript imports |
 | `gh_pages_branch` | Branch used for report publishing when configured |
 | `report_base_url` | Base URL for RSS and OG metadata |
@@ -395,6 +401,9 @@ Fields that matter most:
 | `report_exposure` | `local` or `lan` exposure for managed Caddy hosting |
 
 `path` is still preserved for compatibility, but the worktree-aware flow is driven by `development_path` and `memory_path`.
+
+Compatibility field:
+- `refresh_interval` still exists for older setups and fine-grained cache-mirror sync tuning, but new users do not need to reason about it to use the single-source memory model.
 
 ## Git Safety
 
@@ -428,7 +437,7 @@ All commands are available through `node dist/cli.js <subcommand> ...`, or `memo
 | `memorytree caddy disable` | Remove the current project's managed Caddy fragment and reload Caddy |
 | `memorytree caddy status` | Show whether the current project is connected to MemoryTree-managed Caddy |
 | `memorytree daemon install` | Register the machine-level heartbeat scheduler |
-| `memorytree daemon quick-start` | Quick install: connect the repository to heartbeat with the recommended defaults |
+| `memorytree daemon quick-start` | Quick install: connect the repository to heartbeat with the shared memory branch + local cache mirror defaults |
 | `memorytree daemon register` | Advanced heartbeat setup with custom per-project settings |
 | `memorytree daemon uninstall` | Remove the scheduled heartbeat task |
 | `memorytree daemon run-once` | Execute one heartbeat cycle immediately |
@@ -471,6 +480,7 @@ Current validation shape:
 |---|---|
 | [SKILL.md](SKILL.md) | Skill entry point and behavioral contract |
 | [docs/memorytree-skill-features-and-startup.md](docs/memorytree-skill-features-and-startup.md) | Chinese walkthrough of the skill layers and startup flow |
+| [docs/记忆分支单一真源两阶段改造方案.md](docs/记忆分支单一真源两阶段改造方案.md) | Two-phase proposal for making `memorytree` the only shared memory source and turning the development directory into a local cache mirror |
 | [docs/worktree-heartbeat-upgrade-plan.md](docs/worktree-heartbeat-upgrade-plan.md) | Worktree-based heartbeat design and rollout notes |
 | [docs/caddy-auto-management-design.md](docs/caddy-auto-management-design.md) | Design notes for managed Caddy support |
 | [references/project-detection.md](references/project-detection.md) | Install-state detection |

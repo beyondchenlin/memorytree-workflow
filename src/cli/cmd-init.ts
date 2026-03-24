@@ -80,4 +80,8 @@ function writeHeartbeatNextStep(root: string): void {
   process.stdout.write('This command did not register heartbeat or modify ~/.memorytree/config.toml.\n')
   process.stdout.write('If you want the default heartbeat setup for this repository, run:\n')
   process.stdout.write(`  memorytree daemon quick-start --root ${displayRoot}\n`)
+  process.stdout.write(
+    'Heartbeat keeps the dedicated MemoryTree branch as the shared source of truth ' +
+    'and refreshes this repository directory as a local cache mirror.\n',
+  )
 }

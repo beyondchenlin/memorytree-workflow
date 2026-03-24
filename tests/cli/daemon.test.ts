@@ -459,7 +459,7 @@ describe('cmdRegisterProject', () => {
     })
     expect(stdoutChunks.join('')).toContain('Memory branch: custom-memorytree')
     expect(stdoutChunks.join('')).toContain('Heartbeat interval: 15m')
-    expect(stdoutChunks.join('')).toContain('Refresh interval: 45m')
+    expect(stdoutChunks.join('')).toContain('Development cache sync interval (compat): 45m')
     expect(stdoutChunks.join('')).toContain('Auto-push: false')
     expect(stdoutChunks.join('')).toContain('Generate report: false')
     expect(stdoutChunks.join('')).toContain('Upstream configured: skipped (auto_push disabled)')
@@ -1122,4 +1122,5 @@ describe('writeVbsLauncher', () => {
     expect(p).toContain('heartbeat-launcher.vbs')
   })
 })
+
 

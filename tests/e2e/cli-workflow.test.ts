@@ -408,15 +408,19 @@ describe('CLI E2E', () => {
     assertSuccess(quickStartHelp, 'memorytree daemon quick-start --help')
     expect(quickStartHelp.stdout).toContain('memorytree daemon quick-start --root .')
     expect(quickStartHelp.stdout).toContain('default first-time setup path')
+    expect(quickStartHelp.stdout).toContain('shared source of truth')
+    expect(quickStartHelp.stdout).toContain('local cache mirror')
     expect(quickStartHelp.stdout).toContain('Raw transcript mirror commits stay disabled until you explicitly approve them later.')
 
     const registerHelp = runCli(['daemon', 'register', '--help'])
     assertSuccess(registerHelp, 'memorytree daemon register --help')
     expect(registerHelp.stdout).toContain('Recommended defaults for the current repository:')
     expect(registerHelp.stdout).toContain('Advanced setup with custom values:')
-    expect(registerHelp.stdout).toContain('choose the branch, intervals, auto_push, raw transcript permission, report port, or worktree path yourself')
+    expect(registerHelp.stdout).toContain('choose the branch, heartbeat cadence, auto_push, raw transcript permission, report port, or worktree path yourself')
     expect(registerHelp.stdout).toContain('memorytree daemon register --root . --quick-start')
+    expect(registerHelp.stdout).toContain('Compatibility note: --refresh-interval only tunes how often cache mirrors are copied back to the development directory.')
     expect(registerHelp.stdout).toContain('--raw-upload-permission <perm>')
+    expect(registerHelp.stdout).not.toContain('30m refresh')
   })
 
   it('shows that init and upgrade do not register heartbeat by themselves', () => {
