@@ -363,7 +363,8 @@ describe('CLI E2E', () => {
     expect(result.stdout).toContain('Scenario examples:')
     expect(result.stdout).toContain('memorytree daemon quick-start --root .')
     expect(result.stdout).toContain('memorytree daemon install --interval 5m --auto-push true')
-    expect(result.stdout).toContain('memorytree daemon register --root . --quick-start')
+    expect(result.stdout).toContain('memorytree daemon register --root .')
+    expect(result.stdout).not.toContain('memorytree daemon register --root . --quick-start')
     expect(result.stdout).toContain('memorytree daemon run-once --root . --force')
   })
 

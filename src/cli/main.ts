@@ -313,11 +313,11 @@ const daemonHelpExamples = [
   '  First time on this machine:',
   '    memorytree daemon install --interval 5m --auto-push true',
   '  First time for the current repository:',
-  '    memorytree daemon register --root . --quick-start',
+  '    memorytree daemon quick-start --root .',
   '  Run now without waiting:',
   '    memorytree daemon run-once --root . --force',
-  '  One-command setup for the current repository:',
-  '    memorytree daemon quick-start --root .',
+  '  Advanced setup for the current repository:',
+  '    memorytree daemon register --root .',
 ].join('\n')
 
 const daemon = program

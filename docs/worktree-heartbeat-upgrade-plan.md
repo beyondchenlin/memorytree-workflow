@@ -133,9 +133,9 @@ This is directory-level synchronization, not branch-level merge automation.
 
 To avoid conflicts, each file group has only one source of truth.
 
-#### Development Directory Is Source Of Truth
+#### Development Directory Provides Active Context
 
-These files should be pushed from the development directory into the memory worktree before heartbeat runs:
+For these paths, the latest user-edited version starts in the development directory and is copied into the memory worktree before heartbeat runs:
 
 - `AGENTS.md`
 - `Memory/01_goals/**`
@@ -146,9 +146,9 @@ These files should be pushed from the development directory into the memory work
 
 Reason:
 
-These files reflect user-confirmed project context and active session state.
+These files reflect user-confirmed project context and active session state before heartbeat imports transcripts or rebuilds reports.
 
-#### Memory Worktree Is Source Of Truth
+#### Dedicated MemoryTree Branch Is Shared Git Source Of Truth
 
 These files should be copied from the memory worktree back into the development directory after heartbeat runs:
 
@@ -157,7 +157,7 @@ These files should be copied from the memory worktree back into the development 
 
 Reason:
 
-These files are the direct products of heartbeat-driven transcript import and report generation.
+These files are the direct products of heartbeat-driven transcript import and report generation, and their committed shared-memory version lives on the dedicated MemoryTree branch.
 
 ### Visibility And Commit Semantics
 
