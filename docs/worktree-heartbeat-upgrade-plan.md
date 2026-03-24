@@ -161,11 +161,15 @@ These files are the direct products of heartbeat-driven transcript import and re
 
 ### Visibility And Commit Semantics
 
-When `Memory/06_transcripts/**` and `Memory/07_reports/**` are copied back into the development directory, they are expected to be visible to the user there.
+When `Memory/06_transcripts/**` and `Memory/07_reports/**` are copied back into the development directory, they are expected to remain visible to the user there.
 
-`Memory/06_transcripts/**` is also expected to be committable from the development directory when the user decides that those files belong in the current branch.
+Those files are local cache mirrors by default, not the shared Git source of truth.
 
-This is an intentional product behavior, not a synchronization accident.
+The intended steady state is:
+
+- the dedicated `memorytree` branch carries the committed shared-memory version
+- the development directory keeps readable local mirrors for search, recall, and continuation
+- normal development branches may ignore or de-track those mirrors from everyday commits
 
 The only explicit exception remains any raw-transcript path that the repository policy keeps out of automatic staging until the user approves uploads.
 
@@ -183,8 +187,8 @@ Recommended default behavior:
 
 1. One global heartbeat task runs on a short fixed interval.
 2. Each project decides independently whether its own heartbeat interval has elapsed, for example `5m`.
-3. A development-directory refresh runs on a slower per-project interval, for example `30m`.
-4. That refresh copies the latest `Memory/06_transcripts/**` and `Memory/07_reports/**` from the memory worktree into the development directory.
+3. Each successful project run copies the latest `Memory/06_transcripts/**` and `Memory/07_reports/**` from the memory worktree back into the development directory.
+4. `refresh_interval` may remain in older configurations as a compatibility field for cache-mirror sync behavior, but it is no longer part of the core product story.
 
 This allows the user to see current MemoryTree data locally without running heartbeat in the development directory.
 
@@ -221,7 +225,7 @@ The development directory must not:
 
 All GitHub upload behavior for the development directory remains under the user's existing branch logic.
 
-Files copied back into the development directory may appear in `git status`, and that is expected.
+Files copied back into the development directory are expected to remain locally readable. In the single-source model they may be ignored or de-tracked from normal development branches.
 
 ## Onboarding Flow
 
@@ -244,18 +248,19 @@ Recommended defaults:
 
 - global scheduler already installed or installed once during activation
 - project heartbeat interval: `5m`
-- project development-directory refresh interval: `30m`
 - project `auto_push = true`
 - project `generate_report = true`
 - project memory branch: `memorytree`
 - worktree-backed heartbeat enabled
+- development directory treated as a local cache mirror
+- `refresh_interval` kept only as a compatibility field when older configs still carry it
 
 ### Detailed Settings
 
 The user may customize:
 
 - project heartbeat interval
-- project development-directory refresh interval
+- project development-directory refresh interval (compatibility only)
 - project auto-push behavior
 - project report generation
 - project report publishing settings
@@ -272,7 +277,7 @@ Add explicit configuration for:
 - development directory path
 - memory worktree path
 - project heartbeat interval
-- project development-directory refresh interval
+- project development-directory refresh interval (compatibility only)
 - project sync mode flags
 - project auto-push and report settings
 - per-project report publishing settings
@@ -320,16 +325,16 @@ Wire manual heartbeat execution so it always:
 2. runs heartbeat there
 3. syncs outputs back to the invoking development directory
 
-### Phase 5: Background Refresh
+### Phase 5: Compatibility Refresh
 
-Add a scheduled refresh path that copies worktree outputs back into the development directory on a slower cadence than heartbeat.
+Keep `refresh_interval` available only as a compatibility field for older configurations that still separate cache-mirror sync timing from heartbeat cadence.
 
 ## Current CLI Surface
 
 The current implementation now exposes two concrete entry points for this design:
 
 1. `memorytree daemon register --root <repo> --quick-start`
-2. `memorytree daemon register --root <repo> --heartbeat-interval <x> --refresh-interval <y> --auto-push <true|false> --generate-report <true|false> --branch <name>`
+2. `memorytree daemon register --root <repo> --heartbeat-interval <x> --auto-push <true|false> --generate-report <true|false> --branch <name>`
 
 What `daemon register` now does:
 
@@ -340,6 +345,7 @@ What `daemon register` now does:
 - ensures the worktree is on the configured branch
 - uses `memorytree` for Quick Start by default, while detailed settings may override the branch name
 - auto-configures the first upstream binding when `auto_push` is enabled and a remote exists
+- treats the development directory as a local cache mirror instead of a second shared source of truth
 
 The current implementation also extends manual execution:
 

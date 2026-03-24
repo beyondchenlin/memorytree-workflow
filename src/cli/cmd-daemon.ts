@@ -230,7 +230,7 @@ export function cmdRegisterProject(options: {
   process.stdout.write(`Memory path: ${project.memory_path}\n`)
   process.stdout.write(`Memory branch: ${project.memory_branch}\n`)
   process.stdout.write(`Heartbeat interval: ${project.heartbeat_interval}\n`)
-  process.stdout.write(`Refresh interval: ${project.refresh_interval}\n`)
+  process.stdout.write(`Development cache sync interval (compat): ${project.refresh_interval}\n`)
   process.stdout.write(`Auto-push: ${project.auto_push}\n`)
   process.stdout.write(`Generate report: ${project.generate_report}\n`)
   process.stdout.write(`Raw upload permission: ${project.raw_upload_permission}\n`)
@@ -268,7 +268,7 @@ export async function cmdQuickStart(options: {
     ? config.heartbeat_interval
     : formatIntervalSeconds(schedulerIntervalSeconds)
 
-  process.stdout.write('Quick Start: prepare scheduler, register this repository, and run one sync now.\n')
+  process.stdout.write('Quick Start: prepare scheduler, register this repository in the single-source memory flow, and run one sync now.\n')
 
   if (!isHeartbeatRegistered()) {
     process.stdout.write('Step 1/3: installing heartbeat scheduler with recommended defaults.\n')

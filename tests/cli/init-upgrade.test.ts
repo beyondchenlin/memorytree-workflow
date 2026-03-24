@@ -42,6 +42,8 @@ describe('cmdInit', () => {
     expect(output).toContain('Initialized MemoryTree files in:')
     expect(output).toContain('did not register heartbeat')
     expect(output).toContain('memorytree daemon quick-start --root')
+    expect(output).toContain('shared source of truth')
+    expect(output).toContain('local cache mirror')
   })
 })
 
@@ -71,6 +73,8 @@ describe('cmdUpgrade', () => {
     expect(errorOutput).toContain('This command updated repository files only.')
     expect(errorOutput).toContain('did not register heartbeat')
     expect(errorOutput).toContain('memorytree daemon quick-start --root')
+    expect(errorOutput).toContain('shared source of truth')
+    expect(errorOutput).toContain('local cache mirror')
   })
 
   it('writes scaffolded content from the expected template set and prints the heartbeat next step in text mode', () => {
@@ -95,5 +99,7 @@ describe('cmdUpgrade', () => {
     expect(output).toContain('This command updated repository files only.')
     expect(output).toContain('did not register heartbeat')
     expect(output).toContain('memorytree daemon quick-start --root')
+    expect(output).toContain('shared source of truth')
+    expect(output).toContain('local cache mirror')
   })
 })
