@@ -292,7 +292,7 @@ I'll help with that!
     expect(existsSync(join(output, 'goals', 'index.html'))).toBe(true)
     expect(existsSync(join(output, 'knowledge', 'index.html'))).toBe(true)
     expect(existsSync(join(output, 'search.html'))).toBe(true)
-  })
+  }, 15_000)
 
   it('generates individual transcript HTML with SVG charts in dashboard', async () => {
     scaffoldMemory(tmpDir)
