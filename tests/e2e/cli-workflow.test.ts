@@ -585,6 +585,66 @@ describe('CLI E2E', () => {
     expect(existsSync(join(repoRoot, 'Memory', '07_reports', 'index.html'))).toBe(true)
   })
 
+  it('keeps a de-tracked development branch clean while heartbeat refreshes cache mirrors from the worktree', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'main')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade for de-tracked worktree heartbeat')
+
+    commitAll(repoRoot, 'chore: scaffold memorytree workspace')
+    detrackManagedCache(repoRoot)
+    expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('')
+
+    const registerResult = runCli([
+      'daemon',
+      'register',
+      '--root', repoRoot,
+      '--quick-start',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(registerResult, 'memorytree daemon register for de-tracked worktree heartbeat')
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'main',
+      stem: 'heartbeat-detracked-worktree-sync',
+    })
+
+    const result = runCli([
+      'daemon',
+      'run-once',
+      '--root', repoRoot,
+      '--force',
+    ], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once via de-tracked worktree')
+
+    const worktreePath = join(homeDir, '.memorytree', 'worktrees', 'repo')
+    expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree')
+    expect(runGit(['log', '-1', '--pretty=%s'], worktreePath).stdout.trim()).toBe(
+      'memorytree(transcripts): import 1 transcript(s)',
+    )
+    expect(existsSync(join(repoRoot, 'AGENTS.md'))).toBe(true)
+    expect(listFiles(join(repoRoot, 'Memory', '06_transcripts', 'manifests')).length).toBe(1)
+    expect(existsSync(join(repoRoot, 'Memory', '07_reports', 'index.html'))).toBe(true)
+    expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('')
+  })
+
   it('creates a snapshot commit when no new transcripts are imported but context changes', () => {
     expect(existsSync(cliPath)).toBe(true)
     initGitRepo(repoRoot, 'main')
@@ -819,12 +879,7 @@ describe('CLI E2E', () => {
 
     writeFileSync(join(repoRoot, '.gitignore'), 'Memory/07_reports/\n', 'utf-8')
     commitAll(repoRoot, 'chore: scaffold memorytree workspace')
-
-    writeFileSync(join(repoRoot, '.gitignore'), 'AGENTS.md\nMemory/**\n', 'utf-8')
-    assertSuccess(runGit(['rm', '--cached', 'AGENTS.md'], repoRoot), 'git rm --cached AGENTS.md')
-    assertSuccess(runGit(['rm', '--cached', '-r', 'Memory'], repoRoot), 'git rm --cached Memory')
-    assertSuccess(runGit(['add', '.gitignore'], repoRoot), 'git add .gitignore for managed de-track')
-    assertSuccess(runGit(['commit', '-m', 'chore: de-track managed cache'], repoRoot), 'git commit managed de-track')
+    detrackManagedCache(repoRoot)
     expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('')
 
     writeConfig(homeDir, {
@@ -1120,6 +1175,27 @@ function initBareRemote(root: string): void {
 function commitAll(root: string, message: string): void {
   assertSuccess(runGit(['add', '.'], root), 'git add .')
   assertSuccess(runGit(['commit', '-m', message], root), `git commit ${message}`)
+}
+
+function detrackManagedCache(root: string): void {
+  const gitignorePath = join(root, '.gitignore')
+  const existing = existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf-8') : ''
+  const lines = existing
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .filter(Boolean)
+
+  for (const entry of ['AGENTS.md', 'Memory/**']) {
+    if (!lines.includes(entry)) {
+      lines.push(entry)
+    }
+  }
+
+  writeFileSync(gitignorePath, `${lines.join('\n')}\n`, 'utf-8')
+  assertSuccess(runGit(['rm', '--cached', 'AGENTS.md'], root), 'git rm --cached AGENTS.md')
+  assertSuccess(runGit(['rm', '--cached', '-r', 'Memory'], root), 'git rm --cached Memory')
+  assertSuccess(runGit(['add', '.gitignore'], root), 'git add .gitignore for managed de-track')
+  assertSuccess(runGit(['commit', '-m', 'chore: de-track managed cache'], root), 'git commit managed de-track')
 }
 
 function writeConfig(
