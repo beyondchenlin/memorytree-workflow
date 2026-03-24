@@ -96,6 +96,48 @@ memorytree daemon quick-start --root .
 
 That `quick-start` command is the same on Windows, macOS, and Ubuntu.
 
+End-to-end examples:
+
+Windows PowerShell:
+
+```powershell
+cd C:\Users\ai\.codex\skills\memorytree-workflow
+npm install
+npm run build
+npm link
+
+cd C:\path\to\your-project
+memorytree daemon quick-start --root .
+```
+
+macOS:
+
+```bash
+cd ~/.codex/skills/memorytree-workflow
+npm install
+npm run build
+npm link
+
+cd ~/path/to/your-project
+memorytree daemon quick-start --root .
+```
+
+Ubuntu:
+
+```bash
+cd ~/.codex/skills/memorytree-workflow
+npm install
+npm run build
+npm link
+
+cd ~/path/to/your-project
+memorytree daemon quick-start --root .
+```
+
+Notes:
+- Do not run `quick-start` inside the skill repository unless you intentionally want to register the skill repository itself.
+- `--root` must include a value such as `.` or an absolute path. `memorytree daemon quick-start --root` is incomplete and will fail.
+
 If the shell says `memorytree` is not recognized, the skill is not on your PATH yet. Go back to the skill repository and run `npm link` again, then retry the command.
 
 Quick check:
