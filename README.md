@@ -111,7 +111,7 @@ memorytree daemon quick-start --root .
 memorytree caddy enable --root .
 ```
 
-Quick Start keeps the dedicated `memorytree` branch as the shared source of truth and refreshes `AGENTS.md` plus `Memory/**` back into your development directory as local cache mirrors.
+Quick Start keeps the dedicated `memorytree` branch as the shared source of truth and refreshes `AGENTS.md` plus `Memory/01_goals` through `Memory/05_archive` into your development directory as local cache mirrors, while `Memory/06_transcripts` and `Memory/07_reports` flow back from the memory worktree.
 Its recommended defaults are `memorytree`, `heartbeat_interval = "5m"`, `auto_push = true`, `generate_report = true`, and `raw_upload_permission = "not-set"`, so raw transcript mirror commits stay disabled until you explicitly approve them.
 
 Useful day-to-day commands:
@@ -131,7 +131,7 @@ MemoryTree now runs as a worktree-aware single-source system, not just a single-
 ```text
 Development repository (local cache mirror)
   AGENTS.md
-  Memory/01_goals ... Memory/07_reports
+  Memory/01_goals ... Memory/05_archive
         |
         | sync active context into
         v
@@ -153,7 +153,7 @@ Global archive ~/.memorytree/
   caddy/
 ```
 
-The dedicated MemoryTree branch is the only Git-backed shared memory source. The development directory is a local cache mirror: heartbeat copies active context into the dedicated worktree, processes transcript imports there, and then syncs refreshed transcript/report outputs back into the directory you are actively using.
+The dedicated MemoryTree branch is the only Git-backed shared memory source. The development directory is a local cache mirror for `AGENTS.md` plus `Memory/01_goals` through `Memory/05_archive`: heartbeat copies that active context into the dedicated worktree, processes transcript imports there, and then syncs refreshed `Memory/06_transcripts` and `Memory/07_reports` back into the directory you are actively using.
 
 ### Per-repository layout
 
@@ -171,8 +171,9 @@ Memory/
     clean/
     manifests/
     raw/
-  07_reports/
 ```
+
+`Memory/07_reports/` is generated later by `memorytree report build`.
 
 ### Global layout
 
@@ -309,11 +310,11 @@ Acquire lock
   -> load config
   -> select due projects
   -> ensure dedicated MemoryTree worktree
-  -> sync AGENTS.md + active Memory context into the worktree
+  -> sync AGENTS.md + Memory/01_goals through Memory/05_archive into the worktree
   -> discover and import matching transcripts
   -> build/update Memory/07_reports when report generation is enabled
-  -> commit/push Memory-only changes on the MemoryTree branch when allowed
-  -> sync transcripts and reports back to the development directory
+  -> commit/push Memory/01-05 changes on the MemoryTree branch when allowed
+  -> sync Memory/06_transcripts and Memory/07_reports back to the development directory
   -> release lock
 ```
 
