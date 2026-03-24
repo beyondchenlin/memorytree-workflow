@@ -419,7 +419,6 @@ describe('CLI E2E', () => {
     expect(registerHelp.stdout).toContain('Advanced setup with custom values:')
     expect(registerHelp.stdout).toContain('choose the branch, heartbeat cadence, auto_push, raw transcript permission, report port, or worktree path yourself')
     expect(registerHelp.stdout).toContain('memorytree daemon register --root . --quick-start')
-    expect(registerHelp.stdout).toContain('Compatibility note: --refresh-interval only tunes how often cache mirrors are copied back to the development directory.')
     expect(registerHelp.stdout).toContain('--raw-upload-permission <perm>')
     expect(registerHelp.stdout).not.toContain('30m refresh')
   })
@@ -462,7 +461,6 @@ describe('CLI E2E', () => {
     expect(configText).toContain(`memory_path = "${escapeToml(toPosix(worktreePath))}"`)
     expect(configText).toContain('memory_branch = "memorytree"')
     expect(configText).toContain('heartbeat_interval = "5m"')
-    expect(configText).toContain('refresh_interval = "30m"')
     expect(configText).toContain('raw_upload_permission = "not-set"')
     expect(configText).toContain('generate_report = true')
     expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree')
@@ -479,7 +477,6 @@ describe('CLI E2E', () => {
       '--root', repoRoot,
       '--branch', 'memorytree-custom',
       '--heartbeat-interval', '15m',
-      '--refresh-interval', '45m',
       '--auto-push', 'false',
       '--generate-report', 'true',
     ], {
@@ -504,7 +501,6 @@ describe('CLI E2E', () => {
       '--root', repoRoot,
       '--branch', 'memorytree-custom',
       '--heartbeat-interval', '15m',
-      '--refresh-interval', '45m',
       '--auto-push', 'false',
       '--generate-report', 'false',
       '--report-port', '12000',
@@ -529,7 +525,6 @@ describe('CLI E2E', () => {
     const configText = readFileSync(join(homeDir, '.memorytree', 'config.toml'), 'utf-8')
     expect(configText).toContain('memory_branch = "memorytree-custom"')
     expect(configText).toContain('heartbeat_interval = "15m"')
-    expect(configText).toContain('refresh_interval = "45m"')
     expect(configText).toContain('auto_push = false')
     expect(configText).toContain('generate_report = false')
     expect(configText).toContain('report_port = 12000')

@@ -152,7 +152,6 @@ describe('loadManagedCaddyStatus', () => {
       memory_path: '/memorytree/worktrees/demo-project',
       memory_branch: 'memorytree',
       heartbeat_interval: '5m',
-      refresh_interval: '30m',
       auto_push: true,
       generate_report: true,
       ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -164,7 +163,6 @@ describe('loadManagedCaddyStatus', () => {
       report_port: 10010,
       report_exposure: 'lan',
       last_heartbeat_at: '',
-      last_refresh_at: '',
     })
 
     expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:2019/config/', {

@@ -298,7 +298,7 @@ memorytree daemon register --root . --branch memorytree-docs --heartbeat-interva
 memorytree daemon run-once --root . --force
 ```
 
-`refresh_interval` remains available as a compatibility field for cache-mirror sync behavior, but it is no longer part of the core setup story for new repositories.
+The heartbeat now drives both transcript import and cache-mirror refresh timing. `refresh_interval` is no longer part of the runtime or config surface.
 
 Current execution flow:
 
@@ -375,8 +375,6 @@ development_path = "/path/to/repo"
 memory_path = "/path/to/.memorytree/worktrees/my-repo"
 memory_branch = "memorytree"
 heartbeat_interval = "5m"
-# compatibility only: cache-mirror sync cadence
-refresh_interval = "30m"
 auto_push = true
 generate_report = true
 locale = "en"
@@ -401,9 +399,6 @@ Fields that matter most:
 | `report_exposure` | `local` or `lan` exposure for managed Caddy hosting |
 
 `path` is still preserved for compatibility, but the worktree-aware flow is driven by `development_path` and `memory_path`.
-
-Compatibility field:
-- `refresh_interval` still exists for older setups and fine-grained cache-mirror sync tuning, but new users do not need to reason about it to use the single-source memory model.
 
 ## Git Safety
 

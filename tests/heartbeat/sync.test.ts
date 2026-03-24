@@ -83,7 +83,6 @@ function makeProject(devPath: string, memPath: string): ProjectEntry {
     memory_path: memPath,
     memory_branch: 'memorytree',
     heartbeat_interval: '5m',
-    refresh_interval: '30m',
     auto_push: true,
     generate_report: true,
     ai_summary_model: 'claude-haiku-4-5-20251001',
@@ -94,6 +93,5 @@ function makeProject(devPath: string, memPath: string): ProjectEntry {
     report_base_url: '',
     report_port: 10010,
     last_heartbeat_at: '',
-    last_refresh_at: '',
   }
 }

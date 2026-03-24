@@ -14,11 +14,9 @@ import {
   findProjectForPath,
   loadConfig,
   noteProjectHeartbeatRun,
-  noteProjectRefreshRun,
   projectDisplayName,
   projectExecutionPath,
   projectIsDue,
-  projectRefreshIsDue,
   saveConfig,
 } from './config.js'
 import { acquireLock, releaseLock } from './lock.js'
@@ -109,9 +107,8 @@ export async function runHeartbeat(config: Config, options: HeartbeatRunOptions 
     const projectName = projectDisplayName(entry)
     const projectPath = resolve(projectExecutionPath(entry))
     const heartbeatDue = options.force === true || projectIsDue(entry, now)
-    const refreshDue = options.force === true || projectRefreshIsDue(entry, now)
 
-    if (!heartbeatDue && !refreshDue) {
+    if (!heartbeatDue) {
       logger.debug(`[${projectName}] Not due yet, skipping.`)
       continue
     }
@@ -127,31 +124,25 @@ export async function runHeartbeat(config: Config, options: HeartbeatRunOptions 
         logger.info(`[${projectName}] Created worktree on branch '${worktree.branch}'.`)
       }
 
-      if (heartbeatDue) {
-        const contextSync = syncProjectContextToMemory(entry)
-        if (!contextSync.skipped) {
-          logger.info(
-            `[${projectName}] Synced context to ${worktree.branch} ` +
-            `(copied ${contextSync.copied}, deleted ${contextSync.deleted}).`,
-          )
-        }
-
-        const extraManifestDirs = collectExtraManifestDirs(projectPath)
-        await processProject(config, projectPath, projectName, entry, extraManifestDirs)
-        nextConfig = noteProjectHeartbeatRun(nextConfig, entry.id, runTimestamp)
-        configChanged = true
+      const contextSync = syncProjectContextToMemory(entry)
+      if (!contextSync.skipped) {
+        logger.info(
+          `[${projectName}] Synced context to ${worktree.branch} ` +
+          `(copied ${contextSync.copied}, deleted ${contextSync.deleted}).`,
+        )
       }
 
-      if (heartbeatDue || refreshDue) {
-        const outputSync = syncProjectOutputsToDevelopment(entry)
-        if (!outputSync.skipped) {
-          logger.info(
-            `[${projectName}] Synced outputs back to development directory ` +
-            `(copied ${outputSync.copied}, deleted ${outputSync.deleted}).`,
-          )
-        }
-        nextConfig = noteProjectRefreshRun(nextConfig, entry.id, runTimestamp)
-        configChanged = true
+      const extraManifestDirs = collectExtraManifestDirs(projectPath)
+      await processProject(config, projectPath, projectName, entry, extraManifestDirs)
+      nextConfig = noteProjectHeartbeatRun(nextConfig, entry.id, runTimestamp)
+      configChanged = true
+
+      const outputSync = syncProjectOutputsToDevelopment(entry)
+      if (!outputSync.skipped) {
+        logger.info(
+          `[${projectName}] Synced outputs back to development directory ` +
+          `(copied ${outputSync.copied}, deleted ${outputSync.deleted}).`,
+        )
       }
     } catch (err: unknown) {
       logger.exception(`Error processing project: ${projectPath}`, err)

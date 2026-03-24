@@ -16,7 +16,6 @@ import { toPosixPath } from '../utils/path.js'
 // ---------------------------------------------------------------------------
 
 const DEFAULT_HEARTBEAT_INTERVAL = '5m'
-const DEFAULT_REFRESH_INTERVAL = '30m'
 export const DEFAULT_MEMORY_BRANCH = 'memorytree'
 const DEFAULT_AUTO_PUSH = true
 const DEFAULT_LOG_LEVEL = 'info'
@@ -47,7 +46,6 @@ export interface ProjectEntry {
   readonly memory_path: string
   readonly memory_branch: string
   readonly heartbeat_interval: string
-  readonly refresh_interval: string
   readonly auto_push: boolean
   readonly generate_report: boolean
   readonly ai_summary_model: string
@@ -60,7 +58,6 @@ export interface ProjectEntry {
   readonly report_exposure: ReportExposure
   readonly raw_upload_permission: RawUploadPermission
   readonly last_heartbeat_at: string
-  readonly last_refresh_at: string
 }
 
 export interface Config {
@@ -160,7 +157,6 @@ export function saveConfig(cfg: Config): void {
     lines.push(`memory_path = ${tomlString(project.memory_path)}`)
     lines.push(`memory_branch = ${tomlString(project.memory_branch)}`)
     lines.push(`heartbeat_interval = ${tomlString(project.heartbeat_interval)}`)
-    lines.push(`refresh_interval = ${tomlString(project.refresh_interval)}`)
     lines.push(`auto_push = ${project.auto_push ? 'true' : 'false'}`)
     lines.push(`generate_report = ${project.generate_report ? 'true' : 'false'}`)
     lines.push(`ai_summary_model = ${tomlString(project.ai_summary_model)}`)
@@ -174,9 +170,6 @@ export function saveConfig(cfg: Config): void {
     lines.push(`raw_upload_permission = ${tomlString(project.raw_upload_permission)}`)
     if (project.last_heartbeat_at) {
       lines.push(`last_heartbeat_at = ${tomlString(project.last_heartbeat_at)}`)
-    }
-    if (project.last_refresh_at) {
-      lines.push(`last_refresh_at = ${tomlString(project.last_refresh_at)}`)
     }
     lines.push('')
   }
@@ -227,7 +220,6 @@ export function registerProject(
   if (overrides.name !== undefined) projectInput.name = overrides.name
   if (overrides.id !== undefined) projectInput.id = overrides.id
   if (overrides.heartbeat_interval !== undefined) projectInput.heartbeat_interval = overrides.heartbeat_interval
-  if (overrides.refresh_interval !== undefined) projectInput.refresh_interval = overrides.refresh_interval
   if (overrides.memory_branch !== undefined) projectInput.memory_branch = overrides.memory_branch
   if (overrides.auto_push !== undefined) projectInput.auto_push = overrides.auto_push
   if (overrides.generate_report !== undefined) projectInput.generate_report = overrides.generate_report
@@ -325,16 +317,6 @@ export function projectIsDue(project: ProjectEntry, now: Date = new Date()): boo
   return now.getTime() - lastRunMs >= dueAfterMs
 }
 
-export function projectRefreshIsDue(project: ProjectEntry, now: Date = new Date()): boolean {
-  if (!project.last_refresh_at) return true
-
-  const lastRefreshMs = Date.parse(project.last_refresh_at)
-  if (!Number.isFinite(lastRefreshMs)) return true
-
-  const dueAfterMs = intervalToSeconds(project.refresh_interval) * 1000
-  return now.getTime() - lastRefreshMs >= dueAfterMs
-}
-
 export function noteProjectHeartbeatRun(config: Config, projectId: string, at: string): Config {
   const normalized = normalizeConfig(config)
   return {
@@ -342,18 +324,6 @@ export function noteProjectHeartbeatRun(config: Config, projectId: string, at: s
     projects: normalized.projects.map(project => (
       project.id === projectId
         ? { ...project, last_heartbeat_at: at }
-        : project
-    )),
-  }
-}
-
-export function noteProjectRefreshRun(config: Config, projectId: string, at: string): Config {
-  const normalized = normalizeConfig(config)
-  return {
-    ...normalized,
-    projects: normalized.projects.map(project => (
-      project.id === projectId
-        ? { ...project, last_refresh_at: at }
         : project
     )),
   }
@@ -528,7 +498,6 @@ function normalizeProjectEntry(project: ProjectLike, cfg: Config): ProjectEntry 
     memory_path: resolvedMemoryPath,
     memory_branch: nonEmptyString(project.memory_branch, DEFAULT_MEMORY_BRANCH),
     heartbeat_interval: isValidInterval(project.heartbeat_interval ?? '') ? project.heartbeat_interval! : cfg.heartbeat_interval,
-    refresh_interval: isValidInterval(project.refresh_interval ?? '') ? project.refresh_interval! : DEFAULT_REFRESH_INTERVAL,
     auto_push: typeof project.auto_push === 'boolean' ? project.auto_push : cfg.auto_push,
     generate_report: typeof project.generate_report === 'boolean' ? project.generate_report : cfg.generate_report,
     ai_summary_model: nonEmptyString(project.ai_summary_model, cfg.ai_summary_model),
@@ -544,7 +513,6 @@ function normalizeProjectEntry(project: ProjectLike, cfg: Config): ProjectEntry 
       DEFAULT_RAW_UPLOAD_PERMISSION,
     ),
     last_heartbeat_at: isValidIsoTimestamp(project.last_heartbeat_at) ? project.last_heartbeat_at : '',
-    last_refresh_at: isValidIsoTimestamp(project.last_refresh_at) ? project.last_refresh_at : '',
   }
 }
 

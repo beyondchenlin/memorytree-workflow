@@ -421,7 +421,6 @@ daemon
   .option('--quick-start', 'Use the recommended single-source defaults: memorytree branch, 5m heartbeat, auto_push=true, generate_report=true, raw_upload_permission=not-set')
   .option('--branch <name>', 'Detailed setup only: override the dedicated MemoryTree branch name (default: memorytree)')
   .option('--heartbeat-interval <interval>', 'Per-project heartbeat interval (e.g. 5m)')
-  .option('--refresh-interval <interval>', 'Compatibility only: override the development-cache mirror sync cadence')
   .option('--auto-push <bool>', 'Per-project auto_push value (true/false)')
   .option('--generate-report <bool>', 'Per-project generate_report value (true/false)')
   .option('--report-port <n>', 'Per-project local report port')
@@ -435,7 +434,6 @@ daemon
     '    memorytree daemon register --root . --branch memorytree-docs --heartbeat-interval 10m --auto-push false --generate-report true --report-port 10010 --raw-upload-permission approved',
     '',
     'Use this command when you want to choose the branch, heartbeat cadence, auto_push, raw transcript permission, report port, or worktree path yourself.',
-    'Compatibility note: --refresh-interval only tunes how often cache mirrors are copied back to the development directory.',
   ].join('\n'))
   .action(async (opts) => {
     const { cmdRegisterProject } = await import('./cmd-daemon.js')
@@ -446,7 +444,6 @@ daemon
       branch: opts.branch,
       quickStart: opts.quickStart ?? false,
       heartbeatInterval: opts.heartbeatInterval,
-      refreshInterval: opts.refreshInterval,
       autoPush: opts.autoPush,
       generateReport: opts.generateReport,
       reportPort: opts.reportPort,

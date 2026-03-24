@@ -188,7 +188,7 @@ Recommended default behavior:
 1. One global heartbeat task runs on a short fixed interval.
 2. Each project decides independently whether its own heartbeat interval has elapsed, for example `5m`.
 3. Each successful project run copies the latest `Memory/06_transcripts/**` and `Memory/07_reports/**` from the memory worktree back into the development directory.
-4. `refresh_interval` may remain in older configurations as a compatibility field for cache-mirror sync behavior, but it is no longer part of the core product story.
+4. Output sync now follows the heartbeat cadence directly, so there is no separate `refresh_interval` runtime setting to manage.
 
 This allows the user to see current MemoryTree data locally without running heartbeat in the development directory.
 
@@ -253,14 +253,12 @@ Recommended defaults:
 - project memory branch: `memorytree`
 - worktree-backed heartbeat enabled
 - development directory treated as a local cache mirror
-- `refresh_interval` kept only as a compatibility field when older configs still carry it
 
 ### Detailed Settings
 
 The user may customize:
 
 - project heartbeat interval
-- project development-directory refresh interval (compatibility only)
 - project auto-push behavior
 - project report generation
 - project report publishing settings
@@ -277,7 +275,6 @@ Add explicit configuration for:
 - development directory path
 - memory worktree path
 - project heartbeat interval
-- project development-directory refresh interval (compatibility only)
 - project sync mode flags
 - project auto-push and report settings
 - per-project report publishing settings
@@ -294,7 +291,6 @@ development_path = "D:/demo1/memorytree-workflow"
 memory_path = "C:/Users/ai/.memorytree/worktrees/memorytree-workflow"
 memory_branch = "memorytree"
 heartbeat_interval = "5m"
-refresh_interval = "30m"
 auto_push = true
 generate_report = true
 report_port = 10010
@@ -325,9 +321,9 @@ Wire manual heartbeat execution so it always:
 2. runs heartbeat there
 3. syncs outputs back to the invoking development directory
 
-### Phase 5: Compatibility Refresh
+### Phase 5: Runtime Simplification
 
-Keep `refresh_interval` available only as a compatibility field for older configurations that still separate cache-mirror sync timing from heartbeat cadence.
+Remove `refresh_interval` from the runtime, CLI, and persisted project configuration so heartbeat cadence is the only scheduler users need to reason about.
 
 ## Current CLI Surface
 
