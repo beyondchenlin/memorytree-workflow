@@ -59,6 +59,20 @@ When `auto_push = false`:
 
 Rationale: project memory is a user asset. Local-only storage risks data loss from hardware failure or accidental deletion. Automatic push to a remote provides a durable backup.
 
+## Historical Exposure Boundary
+
+- The single-source rollout is future-facing by default. De-tracked cache mirrors and raw-upload approval rules reduce future exposure, but they do not rewrite older Git history.
+- Do not rewrite history or force-push by default just because older commits once tracked `AGENTS.md` or `Memory/**`.
+- If older reachable history is confirmed to contain live credentials, regulated personal data, or other content that must be purged, treat it as a security or compliance incident rather than routine MemoryTree cleanup.
+
+Recommended incident order:
+
+1. Revoke or rotate exposed credentials first.
+2. Pause new MemoryTree pushes or PRs that would continue spreading the affected mirror paths.
+3. Assess the full reachability scope: protected branches, open branches, tags, releases, workflow artifacts, and known forks.
+4. Rewrite history only with repository-owner approval and coordinated collaborator communication.
+5. After cleanup, re-check `.gitignore`, de-track state, and raw transcript upload policy so the same exposure path does not reopen.
+
 ## Commit Guidance
 
 - Keep the title concise and specific.

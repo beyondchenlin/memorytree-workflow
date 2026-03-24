@@ -375,6 +375,32 @@ The E2E matrix covers the single-source model paths that matter most for this up
 - raw transcript approval gating
 - managed-path commits still working after `AGENTS.md` and `Memory/**` are ignored on the development branch
 
+## Historical Exposure Decision
+
+The single-source rollout is future-facing by default. It reduces new exposure, but it does not erase older Git history automatically.
+
+Current repository assessment on March 24, 2026:
+
+- `main` history already contains 10 commits that touched `AGENTS.md` or `Memory/**`
+- `main` history already contains 2 commits that touched `Memory/06_transcripts/raw/**`
+- across all reachable refs, `AGENTS.md` or `Memory/**` appear in 66 commits
+- history grep over `AGENTS.md`, `Memory/06_transcripts/raw/**`, and `Memory/06_transcripts/full/**` does produce many sensitive-pattern hits
+- those hits are still heuristic only; they include examples, review text, and planning notes, so they are not by themselves proof of live credentials
+
+Current decision:
+
+- do not rewrite Git history by default as part of this rollout
+- keep the current controls focused on future exposure reduction: de-tracked cache mirrors, raw-upload approval, and dedicated MemoryTree branch isolation
+- switch to a dedicated incident-response cleanup only if older history is confirmed to contain live credentials, regulated personal data, or other content that must be purged
+
+Recommended incident order when that threshold is met:
+
+1. revoke or rotate exposed credentials first
+2. pause new MemoryTree pushes or PRs that would keep spreading the affected mirror paths
+3. assess reachability across `main`, open branches, tags, releases, workflow artifacts, and known forks
+4. rewrite history only with repository-owner approval and coordinated collaborator communication
+5. re-check `.gitignore`, de-track state, and raw transcript upload policy after cleanup so the same exposure path does not reopen
+
 ## Risks And Guardrails
 
 ### Risk: Conflicting Edits
