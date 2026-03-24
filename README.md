@@ -96,6 +96,22 @@ memorytree daemon quick-start --root .
 
 That `quick-start` command is the same on Windows, macOS, and Ubuntu.
 
+If the shell says `memorytree` is not recognized, the skill is not on your PATH yet. Go back to the skill repository and run `npm link` again, then retry the command.
+
+Quick check:
+
+Windows PowerShell:
+
+```powershell
+Get-Command memorytree
+```
+
+macOS / Ubuntu:
+
+```bash
+command -v memorytree
+```
+
 ### Use the skill
 
 In Claude Code, run:
@@ -309,6 +325,8 @@ memorytree daemon run-once --root . --force
 ```
 
 `memorytree daemon install` is the machine-level step, while `memorytree daemon quick-start --root .` is the one-command repository setup. Both are cross-platform; only the initial skill installation differs by OS.
+
+If `memorytree` is missing in a fresh shell, fix the skill installation first and then rerun `quick-start`.
 
 The heartbeat now drives both transcript import and cache-mirror refresh timing. `refresh_interval` is no longer part of the runtime or config surface.
 
