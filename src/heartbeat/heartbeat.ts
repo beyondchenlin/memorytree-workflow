@@ -9,7 +9,7 @@ import { importTranscript, transcriptHasContent } from '../transcript/import.js'
 import { parseTranscript } from '../transcript/parse.js'
 import { slugify } from '../transcript/common.js'
 import { defaultGlobalTranscriptRoot } from '../transcript/discover.js'
-import type { Config, ProjectEntry } from './config.js'
+import type { Config, ProjectEntry, RawUploadPermission } from './config.js'
 import {
   findProjectForPath,
   loadConfig,
@@ -25,7 +25,7 @@ import { acquireLock, releaseLock } from './lock.js'
 import { resetFailureCount, writeAlert, writeAlertWithThreshold } from './alert.js'
 import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
-import { syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
+import { MANAGED_REPO_PATHS, syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
 import { collectExtraManifestDirs } from '../report/extra-manifests.js'
 import {
   ensureBranchUpstream,
@@ -195,6 +195,7 @@ export async function processProject(
   const cname = project?.cname ?? config.cname ?? ''
   const webhookUrl = project?.webhook_url ?? config.webhook_url ?? ''
   const reportBaseUrl = project?.report_base_url ?? config.report_base_url ?? ''
+  const rawUploadPermission = project?.raw_upload_permission ?? 'not-set'
 
   if (!mirrorToRepo) {
     logger.warn(
@@ -221,7 +222,7 @@ export async function processProject(
     scanSensitive(parsed, projectPath)
 
     try {
-      await importTranscript(parsed, projectPath, globalRoot, repoSlug, 'not-set', mirrorToRepo)
+      await importTranscript(parsed, projectPath, globalRoot, repoSlug, rawUploadPermission, mirrorToRepo)
       importedCount++
     } catch {
       logger.exception(`Failed to import transcript: ${source}`)
@@ -257,7 +258,7 @@ export async function processProject(
   }
 
   if (mirrorToRepo) {
-    gitCommitAndPush({ auto_push: autoPush }, projectPath, projectName, importedCount)
+    gitCommitAndPush({ auto_push: autoPush }, projectPath, projectName, importedCount, rawUploadPermission)
   } else {
     logger.info(`[${projectName}] Skipped repo-local commit/push on branch '${branch}'.`)
   }
@@ -295,18 +296,19 @@ export function gitCommitAndPush(
   projectPath: string,
   projectName: string,
   importedCount: number,
+  rawUploadPermission: RawUploadPermission = 'not-set',
 ): void {
   const logger = getLogger()
 
-  const changedPaths = changedMemoryPaths(projectPath)
+  const changedPaths = changedManagedPaths(projectPath)
   if (changedPaths.length === 0) {
     logger.info(`[${projectName}] No git changes in managed MemoryTree content.`)
     return
   }
 
-  const stageablePaths = changedPaths.filter(path => !isRepoRawTranscriptPath(path))
+  const stageablePaths = changedPaths.filter(path => shouldStageManagedPath(path, rawUploadPermission))
   if (stageablePaths.length === 0) {
-    logger.info(`[${projectName}] Only raw transcript mirror changes detected; skipping commit.`)
+    logger.info(`[${projectName}] Only raw transcript mirror changes detected without approval; skipping commit.`)
     return
   }
 
@@ -314,7 +316,7 @@ export function gitCommitAndPush(
     ? `memorytree(transcripts): import ${importedCount} transcript(s)`
     : 'memorytree(snapshot): heartbeat sync'
 
-  git(projectPath, 'add', '--', ...stageablePaths)
+  git(projectPath, 'add', '-A', '-f', '--', ...stageablePaths)
   git(projectPath, 'commit', '-m', commitMessage)
   if (importedCount > 0) {
     logger.info(`[${projectName}] Committed ${importedCount} transcript import(s).`)
@@ -376,14 +378,12 @@ export function isDedicatedMemorytreeBranch(
   return isProjectMemoryBranch(branch, project)
 }
 
-export function changedMemoryPaths(projectPath: string): string[] {
-  const status = git(projectPath, 'status', '--porcelain', '--untracked-files=all', '--', 'Memory/')
+export function changedManagedPaths(projectPath: string): string[] {
   const seen = new Set<string>()
   const paths: string[] = []
 
-  for (const rawLine of status.split(/\r?\n/)) {
-    const path = statusLinePath(rawLine)
-    if (path === null || seen.has(path)) continue
+  for (const path of collectChangedManagedPaths(projectPath)) {
+    if (seen.has(path)) continue
     seen.add(path)
     paths.push(path)
   }
@@ -395,17 +395,12 @@ export function isRepoRawTranscriptPath(path: string): boolean {
   return path.replace(/\\/g, '/').startsWith(RAW_TRANSCRIPT_PREFIX)
 }
 
-function statusLinePath(line: string): string | null {
-  if (line.length < 4) return null
+function shouldStageManagedPath(path: string, rawUploadPermission: RawUploadPermission): boolean {
+  if (!isRepoRawTranscriptPath(path)) {
+    return true
+  }
 
-  const rawPath = line.slice(3).trim()
-  if (!rawPath) return null
-
-  const path = rawPath.includes(' -> ')
-    ? rawPath.slice(rawPath.lastIndexOf(' -> ') + 4)
-    : rawPath
-
-  return unquotePath(path)
+  return rawUploadPermission === 'approved'
 }
 
 function unquotePath(path: string): string {
@@ -415,4 +410,34 @@ function unquotePath(path: string): string {
     .slice(1, -1)
     .replace(/\\"/g, '"')
     .replace(/\\\\/g, '\\')
+}
+
+function collectChangedManagedPaths(projectPath: string): string[] {
+  return [
+    ...gitPathLines(projectPath, 'diff', '--name-only', '--', ...MANAGED_REPO_PATHS),
+    ...gitPathLines(projectPath, 'diff', '--cached', '--name-only', '--', ...MANAGED_REPO_PATHS),
+    ...gitPathLines(projectPath, 'ls-files', '--others', '--exclude-standard', '--', ...MANAGED_REPO_PATHS),
+    ...gitPathLines(
+      projectPath,
+      'ls-files',
+      '--others',
+      '--ignored',
+      '--exclude-standard',
+      '--',
+      ...MANAGED_REPO_PATHS,
+    ),
+  ]
+}
+
+function gitPathLines(projectPath: string, ...args: string[]): string[] {
+  const output = git(projectPath, ...args)
+  const paths: string[] = []
+
+  for (const rawLine of output.split(/\r?\n/)) {
+    const path = unquotePath(rawLine.trim())
+    if (!path) continue
+    paths.push(path)
+  }
+
+  return paths
 }

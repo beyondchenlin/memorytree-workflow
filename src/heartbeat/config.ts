@@ -29,6 +29,7 @@ const DEFAULT_WEBHOOK_URL = ''
 const DEFAULT_REPORT_BASE_URL = ''
 const DEFAULT_REPORT_PORT = 10010
 const DEFAULT_REPORT_EXPOSURE = 'local'
+export const DEFAULT_RAW_UPLOAD_PERMISSION = 'not-set'
 const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(['debug', 'info', 'warn', 'error'])
 
 // ---------------------------------------------------------------------------
@@ -36,6 +37,7 @@ const VALID_LOG_LEVELS: ReadonlySet<string> = new Set(['debug', 'info', 'warn', 
 // ---------------------------------------------------------------------------
 
 export type ReportExposure = 'local' | 'lan'
+export type RawUploadPermission = 'not-set' | 'approved' | 'denied'
 
 export interface ProjectEntry {
   readonly id: string
@@ -56,6 +58,7 @@ export interface ProjectEntry {
   readonly report_base_url: string
   readonly report_port: number
   readonly report_exposure: ReportExposure
+  readonly raw_upload_permission: RawUploadPermission
   readonly last_heartbeat_at: string
   readonly last_refresh_at: string
 }
@@ -168,6 +171,7 @@ export function saveConfig(cfg: Config): void {
     lines.push(`report_base_url = ${tomlString(project.report_base_url)}`)
     lines.push(`report_port = ${project.report_port}`)
     lines.push(`report_exposure = ${tomlString(project.report_exposure)}`)
+    lines.push(`raw_upload_permission = ${tomlString(project.raw_upload_permission)}`)
     if (project.last_heartbeat_at) {
       lines.push(`last_heartbeat_at = ${tomlString(project.last_heartbeat_at)}`)
     }
@@ -235,6 +239,7 @@ export function registerProject(
   if (overrides.report_base_url !== undefined) projectInput.report_base_url = overrides.report_base_url
   if (overrides.report_port !== undefined) projectInput.report_port = overrides.report_port
   if (overrides.report_exposure !== undefined) projectInput.report_exposure = overrides.report_exposure
+  if (overrides.raw_upload_permission !== undefined) projectInput.raw_upload_permission = overrides.raw_upload_permission
   if (overrides.last_heartbeat_at !== undefined) projectInput.last_heartbeat_at = overrides.last_heartbeat_at
 
   const project = normalizeProjectEntry(projectInput as ProjectLike, normalized)
@@ -534,6 +539,10 @@ function normalizeProjectEntry(project: ProjectLike, cfg: Config): ProjectEntry 
     report_base_url: stringOrDefault(project.report_base_url, cfg.report_base_url),
     report_port: isValidPort(project.report_port) ? project.report_port : cfg.report_port,
     report_exposure: normalizeReportExposure(project.report_exposure, cfg.report_exposure),
+    raw_upload_permission: normalizeRawUploadPermission(
+      project.raw_upload_permission,
+      DEFAULT_RAW_UPLOAD_PERMISSION,
+    ),
     last_heartbeat_at: isValidIsoTimestamp(project.last_heartbeat_at) ? project.last_heartbeat_at : '',
     last_refresh_at: isValidIsoTimestamp(project.last_refresh_at) ? project.last_refresh_at : '',
   }
@@ -556,6 +565,14 @@ function normalizeReportExposure(value: unknown, fallback: ReportExposure): Repo
   if (typeof value !== 'string') return fallback
   const normalized = value.trim().toLowerCase()
   return normalized === 'lan' ? 'lan' : normalized === 'local' ? 'local' : fallback
+}
+
+export function normalizeRawUploadPermission(value: unknown, fallback: RawUploadPermission): RawUploadPermission {
+  if (typeof value !== 'string') return fallback
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'approved' || normalized === 'denied' || normalized === 'not-set'
+    ? normalized
+    : fallback
 }
 
 function isValidIsoTimestamp(value: unknown): value is string {

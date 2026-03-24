@@ -408,13 +408,15 @@ describe('CLI E2E', () => {
     assertSuccess(quickStartHelp, 'memorytree daemon quick-start --help')
     expect(quickStartHelp.stdout).toContain('memorytree daemon quick-start --root .')
     expect(quickStartHelp.stdout).toContain('default first-time setup path')
+    expect(quickStartHelp.stdout).toContain('Raw transcript mirror commits stay disabled until you explicitly approve them later.')
 
     const registerHelp = runCli(['daemon', 'register', '--help'])
     assertSuccess(registerHelp, 'memorytree daemon register --help')
     expect(registerHelp.stdout).toContain('Recommended defaults for the current repository:')
     expect(registerHelp.stdout).toContain('Advanced setup with custom values:')
-    expect(registerHelp.stdout).toContain('choose the branch, intervals, auto_push, report port, or worktree path yourself')
+    expect(registerHelp.stdout).toContain('choose the branch, intervals, auto_push, raw transcript permission, report port, or worktree path yourself')
     expect(registerHelp.stdout).toContain('memorytree daemon register --root . --quick-start')
+    expect(registerHelp.stdout).toContain('--raw-upload-permission <perm>')
   })
 
   it('shows that init and upgrade do not register heartbeat by themselves', () => {
@@ -456,6 +458,7 @@ describe('CLI E2E', () => {
     expect(configText).toContain('memory_branch = "memorytree"')
     expect(configText).toContain('heartbeat_interval = "5m"')
     expect(configText).toContain('refresh_interval = "30m"')
+    expect(configText).toContain('raw_upload_permission = "not-set"')
     expect(configText).toContain('generate_report = true')
     expect(runGit(['rev-parse', '--abbrev-ref', 'HEAD'], worktreePath).stdout.trim()).toBe('memorytree')
     expect(runGitDir(['rev-parse', 'memorytree'], bareRemote).status).toBe(0)
@@ -706,6 +709,151 @@ describe('CLI E2E', () => {
     expect(existsSync(join(repoRoot, 'Memory', '07_reports', 'index.html'))).toBe(true)
     expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('?? Memory/06_transcripts/raw/')
     expect(listFiles(join(homeDir, '.memorytree', 'transcripts', 'index')).length).toBeGreaterThan(0)
+  })
+
+  it('keeps repo raw transcript mirrors unstaged when raw upload permission is not approved', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'memorytree/e2e')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade (raw permission off)')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'Memory/07_reports/\n', 'utf-8')
+    commitAll(repoRoot, 'chore: scaffold memorytree workspace')
+
+    writeConfig(homeDir, {
+      projectPath: repoRoot,
+      autoPush: false,
+      generateReport: true,
+      rawUploadPermission: 'not-set',
+    })
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'memorytree/e2e',
+      stem: 'heartbeat-raw-off',
+    })
+
+    const result = runCli(['daemon', 'run-once'], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once (raw permission off)')
+
+    const changedFiles = runGit(['show', '--name-only', '--pretty=', 'HEAD'], repoRoot).stdout
+    expect(changedFiles).toContain('Memory/06_transcripts/manifests/')
+    expect(changedFiles).not.toContain('Memory/06_transcripts/raw/')
+    expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('?? Memory/06_transcripts/raw/')
+  })
+
+  it('commits repo raw transcript mirrors when raw upload permission is approved', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'memorytree/e2e')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade (raw permission approved)')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'Memory/07_reports/\n', 'utf-8')
+    commitAll(repoRoot, 'chore: scaffold memorytree workspace')
+
+    writeConfig(homeDir, {
+      projectPath: repoRoot,
+      autoPush: false,
+      generateReport: true,
+      rawUploadPermission: 'approved',
+    })
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'memorytree/e2e',
+      stem: 'heartbeat-raw-approved',
+    })
+
+    const result = runCli(['daemon', 'run-once'], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once (raw permission approved)')
+
+    const changedFiles = runGit(['show', '--name-only', '--pretty=', 'HEAD'], repoRoot).stdout
+    expect(changedFiles).toContain('Memory/06_transcripts/manifests/')
+    expect(changedFiles).toContain('Memory/06_transcripts/raw/')
+    expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('')
+  })
+
+  it('commits managed content on a memorytree branch even after AGENTS.md and Memory/** are ignored', () => {
+    expect(existsSync(cliPath)).toBe(true)
+    initGitRepo(repoRoot, 'memorytree/e2e')
+
+    const upgradeResult = runCli([
+      'upgrade',
+      '--root', repoRoot,
+      '--project-name', 'repo',
+      '--goal-summary', 'Build durable memory workflows.',
+      '--locale', 'en',
+      '--date', '2026-03-17',
+      '--time', '10:30',
+      '--format', 'json',
+    ])
+    assertSuccess(upgradeResult, 'memorytree upgrade (ignored managed paths)')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'Memory/07_reports/\n', 'utf-8')
+    commitAll(repoRoot, 'chore: scaffold memorytree workspace')
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'AGENTS.md\nMemory/**\n', 'utf-8')
+    assertSuccess(runGit(['rm', '--cached', 'AGENTS.md'], repoRoot), 'git rm --cached AGENTS.md')
+    assertSuccess(runGit(['rm', '--cached', '-r', 'Memory'], repoRoot), 'git rm --cached Memory')
+    assertSuccess(runGit(['add', '.gitignore'], repoRoot), 'git add .gitignore for managed de-track')
+    assertSuccess(runGit(['commit', '-m', 'chore: de-track managed cache'], repoRoot), 'git commit managed de-track')
+    expect(runGit(['status', '--short'], repoRoot).stdout.trim()).toBe('')
+
+    writeConfig(homeDir, {
+      projectPath: repoRoot,
+      autoPush: false,
+      generateReport: true,
+    })
+
+    writeCodexTranscript({
+      homeDir,
+      repoPath: repoRoot,
+      branch: 'memorytree/e2e',
+      stem: 'heartbeat-ignored-managed',
+    })
+
+    const result = runCli(['daemon', 'run-once'], {
+      cwd: repoRoot,
+      env: isolatedEnv(homeDir),
+    })
+    assertSuccess(result, 'memorytree daemon run-once (ignored managed paths)')
+
+    expect(runGit(['log', '-1', '--pretty=%s'], repoRoot).stdout.trim()).toBe(
+      'memorytree(transcripts): import 1 transcript(s)',
+    )
+    const changedFiles = runGit(['show', '--name-only', '--pretty=', 'HEAD'], repoRoot).stdout
+    expect(changedFiles).toContain('AGENTS.md')
+    expect(changedFiles).toContain('Memory/02_todos/')
+    expect(changedFiles).toContain('Memory/06_transcripts/manifests/')
+    expect(changedFiles).not.toContain('Memory/06_transcripts/raw/')
   })
 
   it('keeps repository branches clean during heartbeat on non-memorytree branches', () => {
@@ -985,6 +1133,7 @@ function writeConfig(
     webhookUrl?: string
     reportBaseUrl?: string
     reportPort?: number
+    rawUploadPermission?: 'not-set' | 'approved' | 'denied'
   },
 ): void {
   const configDir = join(homePath, '.memorytree')
@@ -1007,6 +1156,7 @@ function writeConfig(
     '[[projects]]',
     `path = "${escapeToml(toPosix(options.projectPath))}"`,
     'name = "repo"',
+    `raw_upload_permission = "${escapeToml(options.rawUploadPermission ?? 'not-set')}"`,
     '',
   ].join('\n')
 

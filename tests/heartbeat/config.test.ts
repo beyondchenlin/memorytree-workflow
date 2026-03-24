@@ -162,6 +162,7 @@ describe('loadConfig', () => {
         'generate_report = true',
         'report_port = 18080',
         'report_exposure = "lan"',
+        'raw_upload_permission = "approved"',
         'last_heartbeat_at = "2026-03-19T10:00:00Z"',
         'last_refresh_at = "2026-03-19T10:15:00Z"',
         '',
@@ -178,6 +179,7 @@ describe('loadConfig', () => {
     expect(cfg.projects[0]!.generate_report).toBe(true)
     expect(cfg.projects[0]!.report_port).toBe(18080)
     expect(cfg.projects[0]!.report_exposure).toBe('lan')
+    expect(cfg.projects[0]!.raw_upload_permission).toBe('approved')
     expect(cfg.projects[0]!.last_heartbeat_at).toBe('2026-03-19T10:00:00Z')
     expect(cfg.projects[0]!.last_refresh_at).toBe('2026-03-19T10:15:00Z')
   })
@@ -236,6 +238,50 @@ describe('saveConfig', () => {
     expect(text).toContain('auto_push = true')
     expect(text).toContain('report_port = 10010')
     expect(text).not.toContain('[[projects]]')
+  })
+
+  it('roundtrips project raw upload permission', () => {
+    saveConfig({
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      projects: [{
+        path: '/home/user/project-a',
+        name: 'project-a',
+        development_path: '/home/user/project-a',
+        memory_path: '/home/user/.memorytree/worktrees/project-a',
+        memory_branch: 'memorytree',
+        heartbeat_interval: '5m',
+        refresh_interval: '30m',
+        auto_push: true,
+        generate_report: true,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+        report_exposure: 'local',
+        raw_upload_permission: 'denied',
+        last_heartbeat_at: '',
+        last_refresh_at: '',
+      }],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      report_exposure: 'local',
+    })
+
+    const loaded = loadConfig()
+    expect(loaded.projects[0]!.raw_upload_permission).toBe('denied')
+    expect(readFileSync(configPath(), 'utf-8')).toContain('raw_upload_permission = "denied"')
   })
 })
 
@@ -356,6 +402,7 @@ describe('registerProject', () => {
     expect(updated.projects[0]!.report_base_url).toBe('https://example.com/memory')
     expect(updated.projects[0]!.report_port).toBe(18181)
     expect(updated.projects[0]!.report_exposure).toBe('local')
+    expect(updated.projects[0]!.raw_upload_permission).toBe('not-set')
     expect(updated.projects[0]!.memory_branch).toBe(DEFAULT_MEMORY_BRANCH)
   })
 })
