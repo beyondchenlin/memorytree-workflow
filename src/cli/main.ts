@@ -401,6 +401,7 @@ daemon
     '  memorytree daemon quick-start --root .',
     '',
     'This is the default first-time setup path when you want heartbeat for the current repository.',
+    'Raw transcript mirror commits stay disabled until you explicitly approve them later.',
   ].join('\n'))
   .action(async (opts) => {
     const { cmdQuickStart } = await import('./cmd-daemon.js')
@@ -416,22 +417,23 @@ daemon
   .option('--root <path>', 'Development directory to register', '.')
   .option('--name <name>', 'Project display name')
   .option('--worktree <path>', 'Override the dedicated MemoryTree worktree path')
-  .option('--quick-start', 'Use the recommended defaults: 5m heartbeat, 30m refresh, auto_push=true, generate_report=true')
+  .option('--quick-start', 'Use the recommended defaults: 5m heartbeat, 30m refresh, auto_push=true, generate_report=true, raw_upload_permission=not-set')
   .option('--branch <name>', 'Detailed setup only: override the dedicated MemoryTree branch name (default: memorytree)')
   .option('--heartbeat-interval <interval>', 'Per-project heartbeat interval (e.g. 5m)')
   .option('--refresh-interval <interval>', 'Per-project refresh interval for copying outputs back')
   .option('--auto-push <bool>', 'Per-project auto_push value (true/false)')
   .option('--generate-report <bool>', 'Per-project generate_report value (true/false)')
   .option('--report-port <n>', 'Per-project local report port')
+  .option('--raw-upload-permission <perm>', 'Per-project raw transcript mirror commit permission: not-set, approved, or denied')
   .addHelpText('after', [
     '',
     'Examples:',
     '  Recommended defaults for the current repository:',
     '    memorytree daemon register --root . --quick-start',
     '  Advanced setup with custom values:',
-    '    memorytree daemon register --root . --heartbeat-interval 10m --refresh-interval 30m --auto-push true --generate-report true',
+    '    memorytree daemon register --root . --heartbeat-interval 10m --refresh-interval 30m --auto-push true --generate-report true --raw-upload-permission approved',
     '',
-    'Use this command when you want to choose the branch, intervals, auto_push, report port, or worktree path yourself.',
+    'Use this command when you want to choose the branch, intervals, auto_push, raw transcript permission, report port, or worktree path yourself.',
   ].join('\n'))
   .action(async (opts) => {
     const { cmdRegisterProject } = await import('./cmd-daemon.js')
@@ -446,6 +448,7 @@ daemon
       autoPush: opts.autoPush,
       generateReport: opts.generateReport,
       reportPort: opts.reportPort,
+      rawUploadPermission: opts.rawUploadPermission,
     })
   })
 
