@@ -212,16 +212,12 @@ export function describePushRemote(projectPath: string, remoteName?: string): Pu
     fetchUrl: fetchUrl || null,
     pushUrl: pushUrl || null,
     transport,
-    fallbackUrls: collectFallbackPushUrls(pushUrl, fetchUrl),
+    fallbackUrls: collectFallbackPushUrls(pushUrl),
   }
 }
 
 export function resolvePushRemote(projectPath: string): string | null {
-  const remotes = git(projectPath, 'remote')
-    .split(/\r?\n/)
-    .map(remote => remote.trim())
-    .filter(Boolean)
-
+  const remotes = listRemoteNames(projectPath)
   if (remotes.length === 0) {
     return null
   }
@@ -284,8 +280,9 @@ function resolveTrackingRemote(projectPath: string): string | null {
     return null
   }
 
-  const slashIndex = upstream.indexOf('/')
-  return slashIndex <= 0 ? null : upstream.slice(0, slashIndex)
+  const remotes = listRemoteNames(projectPath)
+    .sort((left, right) => right.length - left.length)
+  return remotes.find(remote => upstream === remote || upstream.startsWith(`${remote}/`)) ?? null
 }
 
 function pushToResolvedRemote(
@@ -352,12 +349,13 @@ function detectPushTransport(url: string): PushTransport {
   return 'other'
 }
 
-function collectFallbackPushUrls(pushUrl: string, fetchUrl: string): string[] {
-  const candidates = [
-    fetchUrl,
-    ...alternateTransportUrls(pushUrl),
-    ...alternateTransportUrls(fetchUrl),
-  ]
+function collectFallbackPushUrls(pushUrl: string): string[] {
+  const repo = parseGitHubRepo(pushUrl)
+  if (repo === null) {
+    return []
+  }
+
+  const candidates = alternateTransportUrls(repo)
 
   const seen = new Set<string>()
   const normalizedPrimary = normalizeComparableUrl(pushUrl)
@@ -379,12 +377,7 @@ function collectFallbackPushUrls(pushUrl: string, fetchUrl: string): string[] {
   return fallbackUrls
 }
 
-function alternateTransportUrls(url: string): string[] {
-  const repo = parseGitHubRepo(url)
-  if (repo === null) {
-    return []
-  }
-
+function alternateTransportUrls(repo: { owner: string; repo: string }): string[] {
   const httpsUrl = `https://github.com/${repo.owner}/${repo.repo}.git`
   const sshUrl = `ssh://git@ssh.github.com:443/${repo.owner}/${repo.repo}.git`
 
@@ -506,6 +499,13 @@ function redactRemoteUrlsInText(value: string): string {
 
 function normalizeComparableUrl(value: string): string {
   return value.trim().replace(/\/+$/, '').toLowerCase()
+}
+
+function listRemoteNames(projectPath: string): string[] {
+  return git(projectPath, 'remote')
+    .split(/\r?\n/)
+    .map(remote => remote.trim())
+    .filter(Boolean)
 }
 
 function branchExists(repoRoot: string, branch: string): boolean {

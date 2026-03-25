@@ -194,6 +194,67 @@ describe('ensureBranchUpstream', () => {
     })
   })
 
+  it('does not use a different fetch mirror as the fallback push target', async () => {
+    vi.doMock('../../src/utils/exec.js', () => ({
+      git: (cwd: string, ...args: string[]) => {
+        if (cwd !== developmentPath) {
+          throw new Error(`Unexpected cwd: ${cwd}`)
+        }
+        if (args[0] === 'remote') {
+          return 'origin\n'
+        }
+        if (args[0] === 'push' && args[1] === '-u' && args[2] === 'origin' && args[3] === 'memorytree') {
+          const error = new Error('Command failed: git push -u origin memorytree')
+          Object.assign(error, {
+            stderr: 'Host key verification failed.\nfatal: Could not read from remote repository.\n',
+          })
+          throw error
+        }
+        throw new Error(`Unexpected git call: ${args.join(' ')}`)
+      },
+      execCommand: (_command: string, args: string[], options?: { cwd?: string; allowFailure?: boolean }) => {
+        if (options?.cwd !== developmentPath) {
+          throw new Error(`Unexpected cwd: ${options?.cwd}`)
+        }
+        if (args[0] === 'remote' && args[1] === 'get-url' && args[2] === 'origin') {
+          return 'https://github.com/example/read-mirror.git\n'
+        }
+        if (args[0] === 'remote' && args[1] === 'get-url' && args[2] === '--push' && args[3] === 'origin') {
+          return 'git@github.com:example/write-repo.git\n'
+        }
+        if (args[0] === 'rev-parse' && args[1] === '--abbrev-ref' && args[2] === '--symbolic-full-name') {
+          return ''
+        }
+        if (
+          args[0] === '-c'
+          && args[1] === 'remote.origin.pushurl=https://github.com/example/write-repo.git'
+          && args[2] === 'push'
+          && args[3] === '-u'
+          && args[4] === 'origin'
+          && args[5] === 'memorytree'
+        ) {
+          return ''
+        }
+        if (args[0] === '-c') {
+          throw new Error(`Unexpected fallback push target: ${args[1]}`)
+        }
+        throw new Error(`Unexpected execCommand call: ${args.join(' ')}`)
+      },
+    }))
+
+    const { ensureBranchUpstream } = await import('../../src/heartbeat/worktree.js')
+
+    const result = ensureBranchUpstream(developmentPath, 'memorytree')
+
+    expect(result).toEqual({
+      remote: 'origin',
+      created: true,
+      pushUrl: 'https://github.com/example/write-repo.git',
+      transport: 'https',
+      usedFallback: true,
+    })
+  })
+
   it('reports both the primary and fallback push failures when fallback also fails', async () => {
     vi.doMock('../../src/utils/exec.js', () => ({
       git: (cwd: string, ...args: string[]) => {
@@ -355,5 +416,51 @@ describe('pushBranchToRemote', () => {
     })
     expect(gitMock).toHaveBeenCalledWith(developmentPath, 'push')
     expect(gitMock).not.toHaveBeenCalledWith(developmentPath, 'push', 'origin', 'memorytree')
+  })
+
+  it('resolves tracking remotes whose names contain slashes', async () => {
+    const gitMock = vi.fn((cwd: string, ...args: string[]) => {
+      if (cwd !== developmentPath) {
+        throw new Error(`Unexpected cwd: ${cwd}`)
+      }
+      if (args[0] === 'push') {
+        return ''
+      }
+      if (args[0] === 'remote') {
+        return 'foo\nfoo/bar\n'
+      }
+      throw new Error(`Unexpected git call: ${args.join(' ')}`)
+    })
+
+    vi.doMock('../../src/utils/exec.js', () => ({
+      git: gitMock,
+      execCommand: (_command: string, args: string[], options?: { cwd?: string; allowFailure?: boolean }) => {
+        if (options?.cwd !== developmentPath) {
+          throw new Error(`Unexpected cwd: ${options?.cwd}`)
+        }
+        if (args[0] === 'rev-parse' && args[1] === '--abbrev-ref' && args[2] === '--symbolic-full-name') {
+          return 'foo/bar/memorytree-remote\n'
+        }
+        if (args[0] === 'remote' && args[1] === 'get-url' && args[2] === 'foo/bar') {
+          return 'https://github.com/example/repo.git\n'
+        }
+        if (args[0] === 'remote' && args[1] === 'get-url' && args[2] === '--push' && args[3] === 'foo/bar') {
+          return 'https://github.com/example/repo.git\n'
+        }
+        throw new Error(`Unexpected execCommand call: ${args.join(' ')}`)
+      },
+    }))
+
+    const { pushBranchToRemote } = await import('../../src/heartbeat/worktree.js')
+
+    const result = pushBranchToRemote(developmentPath, 'memorytree')
+
+    expect(result).toEqual({
+      remote: 'foo/bar',
+      pushUrl: 'https://github.com/example/repo.git',
+      transport: 'https',
+      usedFallback: false,
+    })
+    expect(gitMock).toHaveBeenCalledWith(developmentPath, 'push')
   })
 })
