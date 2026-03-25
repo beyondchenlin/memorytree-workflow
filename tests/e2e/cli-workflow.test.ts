@@ -423,6 +423,17 @@ describe('CLI E2E', () => {
     expect(registerHelp.stdout).not.toContain('30m refresh')
   })
 
+  it('shows doctor help with direct node fallback guidance', () => {
+    expect(existsSync(cliPath)).toBe(true)
+
+    const doctorHelp = runCli(['doctor', '--help'])
+    assertSuccess(doctorHelp, 'memorytree doctor --help')
+    expect(doctorHelp.stdout).toContain('Inspect the installed MemoryTree command path')
+    expect(doctorHelp.stdout).toContain('memorytree doctor')
+    expect(doctorHelp.stdout).toContain('node dist/cli.js doctor')
+    expect(doctorHelp.stdout).toContain('node dist/cli.js daemon quick-start --root <target-repo>')
+  })
+
   it('shows that init and upgrade do not register heartbeat by themselves', () => {
     expect(existsSync(cliPath)).toBe(true)
 

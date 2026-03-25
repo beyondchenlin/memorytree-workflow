@@ -207,24 +207,29 @@ Quick check:
 Windows PowerShell:
 
 ```powershell
-Get-Command memorytree
+node dist/cli.js doctor
+Get-Command memorytree -All
 ```
 
 macOS / Ubuntu:
 
 ```bash
-command -v memorytree
+node dist/cli.js doctor
+which -a memorytree
 ```
 
 ### Option 2: Run from source locally
 
-Use this when you want to work on the repository itself or run the CLI without installing a global link.
+Use this when you want to work on the skill repository itself while targeting another repo, or run the CLI without installing a global link.
 
 ```bash
 npm install
 npm run build
-node dist/cli.js daemon quick-start --root .
+node dist/cli.js doctor
+node dist/cli.js daemon quick-start --root /path/to/target-repo
 ```
+
+This is also the safe fallback path when the global `memorytree` command is missing or resolves to the wrong executable.
 
 ### Update
 
@@ -241,6 +246,38 @@ git clean -fd
 npm install
 npm run build
 npm link
+```
+
+### Troubleshooting command resolution
+
+If `memorytree` exits immediately, prints nothing, or appears to run the wrong program:
+
+1. Run the built-in doctor from the skill repository:
+
+```bash
+node dist/cli.js doctor
+```
+
+2. If doctor reports that the first resolved `memorytree` path is missing, zero-byte, or inside an unrelated install directory such as Microsoft VS Code, use the direct fallback immediately:
+
+```bash
+node dist/cli.js daemon quick-start --root /path/to/target-repo
+```
+
+3. If you expect a global command afterwards, rerun `npm link` from the skill root and repeat the quick check:
+
+Windows PowerShell:
+
+```powershell
+node dist/cli.js doctor
+Get-Command memorytree -All
+```
+
+macOS / Ubuntu:
+
+```bash
+node dist/cli.js doctor
+which -a memorytree
 ```
 
 Codex:
