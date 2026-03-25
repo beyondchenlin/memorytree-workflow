@@ -94,6 +94,8 @@ Open the repository you want to manage and run:
 memorytree daemon quick-start --root .
 ```
 
+Here, `memorytree` is the CLI command name installed by `npm link`, not your repository name or a file name. `--root .` means "use the current directory as the repository root"; replace `.` with another path only if you want to register a different repository.
+
 Recommended defaults:
 
 - `memory_branch = "memorytree"`
