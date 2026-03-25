@@ -577,13 +577,16 @@ Current cross-platform E2E coverage includes:
 
 ## Update
 
-If the skill directory already exists, update it with the commands below instead of running `git clone` again.
+If the skill directory already exists, update it with the commands below instead of running `git clone` again. These commands force the local checkout to match the latest remote `main` branch and discard local uncommitted changes in the skill directory.
 
 Claude Code:
 
 ```bash
 cd ~/.claude/skills/memorytree-workflow
-git pull --ff-only
+git fetch origin
+git switch main
+git reset --hard origin/main
+git clean -fd
 npm install
 npm run build
 npm link
@@ -593,7 +596,10 @@ Codex:
 
 ```bash
 cd ~/.codex/skills/memorytree-workflow
-git pull --ff-only
+git fetch origin
+git switch main
+git reset --hard origin/main
+git clean -fd
 npm install
 npm run build
 npm link
