@@ -228,13 +228,16 @@ node dist/cli.js daemon quick-start --root .
 
 ### Update
 
-If the skill directory already exists, update it with the commands below instead of running `git clone` again.
+If the skill directory already exists, update it with the commands below instead of running `git clone` again. These commands force the local checkout to match the latest remote `main` branch and discard local uncommitted changes in the skill directory.
 
 Claude Code:
 
 ```bash
 cd ~/.claude/skills/memorytree-workflow
-git pull
+git fetch origin
+git switch main
+git reset --hard origin/main
+git clean -fd
 npm install
 npm run build
 npm link
@@ -244,7 +247,10 @@ Codex:
 
 ```bash
 cd ~/.codex/skills/memorytree-workflow
-git pull
+git fetch origin
+git switch main
+git reset --hard origin/main
+git clean -fd
 npm install
 npm run build
 npm link
@@ -296,7 +302,7 @@ memorytree daemon run-once --root . --force
 
 ### How do I update an installed skill?
 
-Use the commands in [Installation](#installation) under `Update`.
+Use the commands in [Installation](#installation) under `Update`. For this repository, the documented update flow is a forced reset to the latest remote `main`.
 
 ## Running Tests
 
