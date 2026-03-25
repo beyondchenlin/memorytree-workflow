@@ -451,4 +451,24 @@ daemon
     })
   })
 
+program
+  .command('doctor')
+  .description('Inspect the installed MemoryTree command path and suggest a safe fallback when PATH is unhealthy')
+  .option('--format <format>', 'Output format: text or json', 'text')
+  .addHelpText('after', [
+    '',
+    'Examples:',
+    '  memorytree doctor',
+    '  node dist/cli.js doctor',
+    '  node dist/cli.js daemon quick-start --root <target-repo>',
+    '',
+    'Use this when memorytree does not start, prints nothing, or seems to resolve to the wrong executable.',
+  ].join('\n'))
+  .action(async (opts) => {
+    const { cmdDoctor } = await import('./cmd-doctor.js')
+    process.exitCode = cmdDoctor({
+      format: opts.format,
+    })
+  })
+
 program.parse()
