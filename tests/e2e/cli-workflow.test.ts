@@ -1192,9 +1192,14 @@ function detrackManagedCache(root: string): void {
   }
 
   writeFileSync(gitignorePath, `${lines.join('\n')}\n`, 'utf-8')
-  assertSuccess(runGit(['rm', '--cached', 'AGENTS.md'], root), 'git rm --cached AGENTS.md')
-  assertSuccess(runGit(['rm', '--cached', '-r', 'Memory'], root), 'git rm --cached Memory')
+  assertSuccess(runGit(['rm', '--cached', '--ignore-unmatch', 'AGENTS.md'], root), 'git rm --cached AGENTS.md')
+  assertSuccess(runGit(['rm', '--cached', '--ignore-unmatch', '-r', 'Memory'], root), 'git rm --cached Memory')
   assertSuccess(runGit(['add', '.gitignore'], root), 'git add .gitignore for managed de-track')
+  const pending = runGit(['status', '--short'], root)
+  assertSuccess(pending, 'git status after managed de-track')
+  if (!pending.stdout.trim()) {
+    return
+  }
   assertSuccess(runGit(['commit', '-m', 'chore: de-track managed cache'], root), 'git commit managed de-track')
 }
 
