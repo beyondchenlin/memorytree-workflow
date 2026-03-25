@@ -154,6 +154,44 @@ macOS / Ubuntu:
 command -v memorytree
 ```
 
+When you troubleshoot install or update issues, first confirm which checkout your shell is actually running. On Windows, `Get-Command memorytree` shows the linked command entry point; on macOS and Ubuntu, use `command -v memorytree`.
+
+### Update an existing skill checkout
+
+`git clone` creates a new checkout. It does not update an existing non-empty skill directory.
+
+If `~/.codex/skills/memorytree-workflow` or `~/.claude/skills/memorytree-workflow` already exists, this command will fail and leave the existing checkout unchanged:
+
+```bash
+git clone https://github.com/beyondchenlin/memorytree-workflow ~/.codex/skills/memorytree-workflow
+```
+
+Also note that `npm install`, `npm run build`, and `npm link` only rebuild or relink the files that are already on disk. They do not fetch newer commits from GitHub.
+
+Recommended update flow for an existing checkout:
+
+```bash
+cd ~/.codex/skills/memorytree-workflow
+git status --short
+git pull --ff-only
+npm install
+npm run build
+npm link
+```
+
+If `git status --short` shows local changes, handle them intentionally before `git pull`. Commit them, stash them, or clean them up first. Building from a dirty working tree can produce a mixed "half-new half-old" CLI state where some behavior reflects older commits and some behavior reflects local uncommitted edits.
+
+If you want a completely fresh reinstall, remove or rename the existing skill directory first, then clone again:
+
+```bash
+mv ~/.codex/skills/memorytree-workflow ~/.codex/skills/memorytree-workflow.bak
+git clone https://github.com/beyondchenlin/memorytree-workflow ~/.codex/skills/memorytree-workflow
+cd ~/.codex/skills/memorytree-workflow
+npm install
+npm run build
+npm link
+```
+
 ### Use the skill
 
 In Claude Code, run:
@@ -581,7 +619,8 @@ Claude Code:
 
 ```bash
 cd ~/.claude/skills/memorytree-workflow
-git pull
+git status --short
+git pull --ff-only
 npm install
 npm run build
 ```
@@ -590,9 +629,19 @@ Codex:
 
 ```bash
 cd ~/.codex/skills/memorytree-workflow
-git pull
+git status --short
+git pull --ff-only
 npm install
 npm run build
+```
+
+If `git status --short` is not empty, your local skill checkout has uncommitted changes. `git pull` may refuse to update, or you may rebuild a mixed local state. Resolve those edits before rebuilding.
+
+Re-run `npm link` after rebuilding when you want to refresh the globally linked `memorytree` command explicitly:
+
+```bash
+cd ~/.codex/skills/memorytree-workflow
+npm link
 ```
 
 ## Requirements
