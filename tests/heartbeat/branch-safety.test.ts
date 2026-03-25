@@ -287,4 +287,27 @@ describe('gitCommitAndPush raw transcript staging', () => {
     expect(mocks.git).not.toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(transcripts): import 1 transcript(s)')
     expect(mocks.git).not.toHaveBeenCalledWith('D:/repo', 'push')
   })
+
+  it('splits large staging sets across multiple git add calls', () => {
+    const manyPaths = Array.from({ length: 220 }, (_, index) =>
+      `Memory/06_transcripts/clean/codex/2024/01/session-${String(index).padStart(3, '0')}-` +
+      `${'x'.repeat(40)}.md`,
+    )
+
+    mocks.git.mockImplementation((_cwd: string, ...args: string[]) => {
+      if (args[0] === 'ls-files' && !args.includes('--ignored')) {
+        return manyPaths.join('\n') + '\n'
+      }
+      return ''
+    })
+
+    gitCommitAndPush({ auto_push: false } as never, 'D:/repo', 'demo-project', 0)
+
+    const addCalls = mocks.git.mock.calls.filter((call): call is [string, ...string[]] => call[1] === 'add')
+    expect(addCalls.length).toBeGreaterThan(1)
+
+    const stagedPaths = addCalls.flatMap(call => call.slice(5))
+    expect(stagedPaths).toEqual(manyPaths)
+    expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(snapshot): heartbeat sync')
+  })
 })

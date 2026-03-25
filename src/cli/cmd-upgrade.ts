@@ -9,6 +9,7 @@ import { resolve } from 'node:path'
 import { normalizeLocale } from '../project/locale.js'
 import { buildDatetime, resolveTemplateDir } from '../project/scaffold.js'
 import { upgrade, formatResultText } from '../project/upgrade.js'
+import { ensureManagedGitignore, type GitignoreEnsureResult } from '../project/scaffold.js'
 import { resolveSkillRoot } from '../utils/path.js'
 
 export interface UpgradeOptions {
@@ -43,23 +44,26 @@ export function cmdUpgrade(options: UpgradeOptions): number {
     options.projectName,
     dt,
   )
+  const gitignoreResult = ensureManagedGitignore(root)
 
   if (options.format === 'json') {
     process.stdout.write(JSON.stringify(result) + '\n')
-    writeHeartbeatNextStep(root, process.stderr)
+    writeHeartbeatNextStep(root, gitignoreResult, process.stderr)
   } else {
     process.stdout.write(formatResultText(result) + '\n')
-    writeHeartbeatNextStep(root)
+    writeHeartbeatNextStep(root, gitignoreResult)
   }
   return 0
 }
 
 function writeHeartbeatNextStep(
   root: string,
+  gitignoreResult: GitignoreEnsureResult | null,
   stream: Pick<NodeJS.WriteStream, 'write'> = process.stdout,
 ): void {
   const displayRoot = root.includes(' ') ? `"${root}"` : root
   stream.write('This command updated repository files only.\n')
+  writeGitignoreStatus(stream, gitignoreResult)
   stream.write('It did not register heartbeat or modify ~/.memorytree/config.toml.\n')
   stream.write('If you want the default heartbeat setup for this repository, run:\n')
   stream.write(`  memorytree daemon quick-start --root ${displayRoot}\n`)
@@ -67,4 +71,16 @@ function writeHeartbeatNextStep(
     'Heartbeat keeps the dedicated MemoryTree branch as the shared source of truth ' +
     'and refreshes this repository directory as a local cache mirror.\n',
   )
+}
+
+function writeGitignoreStatus(
+  stream: Pick<NodeJS.WriteStream, 'write'>,
+  result: GitignoreEnsureResult | null,
+): void {
+  if (result === null) return
+  if (result.changed) {
+    stream.write(`.gitignore updated: ${result.added.join(', ')}\n`)
+    return
+  }
+  stream.write('.gitignore already contains managed MemoryTree entries.\n')
 }

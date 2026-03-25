@@ -49,6 +49,7 @@ const SENSITIVE_PATTERNS: readonly RegExp[] = [
 ]
 
 const RAW_TRANSCRIPT_PREFIX = 'Memory/06_transcripts/raw/'
+const MAX_GIT_ADD_PATH_CHARS = 12_000
 
 // ---------------------------------------------------------------------------
 // Main entry point
@@ -307,7 +308,7 @@ export function gitCommitAndPush(
     ? `memorytree(transcripts): import ${importedCount} transcript(s)`
     : 'memorytree(snapshot): heartbeat sync'
 
-  git(projectPath, 'add', '-A', '-f', '--', ...stageablePaths)
+  stageManagedPaths(projectPath, stageablePaths)
   git(projectPath, 'commit', '-m', commitMessage)
   if (importedCount > 0) {
     logger.info(`[${projectName}] Committed ${importedCount} transcript import(s).`)
@@ -418,6 +419,27 @@ function collectChangedManagedPaths(projectPath: string): string[] {
       ...MANAGED_REPO_PATHS,
     ),
   ]
+}
+
+function stageManagedPaths(projectPath: string, stageablePaths: readonly string[]): void {
+  let batch: string[] = []
+  let batchChars = 0
+
+  for (const path of stageablePaths) {
+    const pathChars = path.length + 1
+    if (batch.length > 0 && batchChars + pathChars > MAX_GIT_ADD_PATH_CHARS) {
+      git(projectPath, 'add', '-A', '-f', '--', ...batch)
+      batch = []
+      batchChars = 0
+    }
+
+    batch.push(path)
+    batchChars += pathChars
+  }
+
+  if (batch.length > 0) {
+    git(projectPath, 'add', '-A', '-f', '--', ...batch)
+  }
 }
 
 function gitPathLines(projectPath: string, ...args: string[]): string[] {

@@ -21,6 +21,18 @@ export const MEMORY_DIRS: readonly string[] = [
   'Memory/05_archive',
 ]
 
+export const MANAGED_GITIGNORE_ENTRIES: readonly string[] = [
+  'AGENTS.md',
+  'Memory/**',
+  'memory/**',
+] as const
+
+export interface GitignoreEnsureResult {
+  readonly path: string
+  readonly added: readonly string[]
+  readonly changed: boolean
+}
+
 export const CONTENT_POLICY_SOURCE_PATTERNS: readonly string[] = [
   'CONTRIBUTING',
   'CONTRIBUTING.md',
@@ -251,6 +263,52 @@ export function writeTemplate(
   return true
 }
 
+export function ensureGitignoreEntries(root: string, entries: readonly string[]): GitignoreEnsureResult | null {
+  if (!existsSync(root) || !isDirectory(root)) return null
+
+  const gitignorePath = join(root, '.gitignore')
+  let existing = ''
+  if (existsSync(gitignorePath)) {
+    try {
+      existing = readFileSync(gitignorePath, 'utf-8')
+    } catch {
+      return null
+    }
+  }
+
+  const lines = existing.replace(/\r\n/g, '\n').split('\n')
+  if (lines.length > 0 && lines[lines.length - 1] === '') {
+    lines.pop()
+  }
+
+  const seen = new Set(lines.map(line => line.trim()))
+  const added: string[] = []
+  let changed = false
+
+  for (const entry of entries) {
+    const normalized = entry.trim()
+    if (!normalized || seen.has(normalized)) continue
+    lines.push(entry)
+    seen.add(normalized)
+    added.push(entry)
+    changed = true
+  }
+
+  if (changed) {
+    writeFileSync(gitignorePath, `${lines.join('\n')}\n`, 'utf-8')
+  }
+
+  return {
+    path: gitignorePath,
+    added,
+    changed,
+  }
+}
+
+export function ensureManagedGitignore(root: string): GitignoreEnsureResult | null {
+  return ensureGitignoreEntries(root, MANAGED_GITIGNORE_ENTRIES)
+}
+
 // ---------------------------------------------------------------------------
 // Scaffold paths
 // ---------------------------------------------------------------------------
@@ -377,4 +435,8 @@ export function scaffoldContentFiles(
 
 function isFile(p: string): boolean {
   try { return statSync(p).isFile() } catch { return false }
+}
+
+function isDirectory(p: string): boolean {
+  try { return statSync(p).isDirectory() } catch { return false }
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { readFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { readFileSync, existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -218,6 +218,103 @@ describe('cmdRegisterProject', () => {
     expect(savedConfigs).toHaveLength(1)
     expect(stdoutChunks.join('')).toContain('Worktree branch: memorytree')
     expect(stdoutChunks.join('')).toContain('Upstream configured: yes (origin/memorytree)')
+  })
+
+  it('ensures managed MemoryTree ignore entries in the development repo root', async () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), 'memorytree-daemon-repo-'))
+    const savedConfigs: unknown[] = []
+    const upserted = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      projects: [
+        {
+          id: 'repo',
+          path: '/memorytree/worktrees/repo',
+          name: 'repo',
+          development_path: repoRoot,
+          memory_path: '/memorytree/worktrees/repo',
+          memory_branch: 'memorytree',
+          heartbeat_interval: '5m',
+          auto_push: true,
+          generate_report: true,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 10010,
+          last_heartbeat_at: '',
+        },
+      ],
+    }
+
+    writeFileSync(join(repoRoot, '.gitignore'), 'node_modules/\n', 'utf-8')
+
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: false,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: () => 300,
+      findProjectForPath: () => upserted.projects[0],
+      upsertProject: () => upserted,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdRegisterProject({
+      root: repoRoot,
+      quickStart: true,
+    })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).toHaveLength(1)
+    const gitignore = readFileSync(join(repoRoot, '.gitignore'), 'utf-8')
+    expect(gitignore).toContain('node_modules/')
+    expect(gitignore).toContain('AGENTS.md')
+    expect(gitignore).toContain('Memory/**')
+    expect(gitignore).toContain('memory/**')
+    expect(stdoutChunks.join('')).toContain('.gitignore updated:')
+    rmSync(repoRoot, { recursive: true, force: true })
   })
 
   it('rejects branch override in quick start mode', async () => {

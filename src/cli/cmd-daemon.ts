@@ -29,6 +29,7 @@ import {
   isValidWorktreeBranchName,
 } from '../heartbeat/worktree.js'
 import { execCommand } from '../utils/exec.js'
+import { ensureManagedGitignore } from '../project/scaffold.js'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -209,6 +210,7 @@ export function cmdRegisterProject(options: {
 
   const worktree = ensureProjectWorktree(project)
   saveConfig(updated)
+  const gitignoreResult = ensureManagedGitignore(root)
   let upstream: ReturnType<typeof ensureBranchUpstream> | null = null
   let upstreamError = ''
   if (project.auto_push) {
@@ -229,6 +231,13 @@ export function cmdRegisterProject(options: {
   process.stdout.write(`Raw upload permission: ${project.raw_upload_permission}\n`)
   process.stdout.write(`Worktree branch: ${worktree.branch}\n`)
   process.stdout.write(`Worktree created: ${worktree.created ? 'yes' : 'no'}\n`)
+  if (gitignoreResult !== null) {
+    if (gitignoreResult.changed) {
+      process.stdout.write(`.gitignore updated: ${gitignoreResult.added.join(', ')}\n`)
+    } else {
+      process.stdout.write('.gitignore already contains managed MemoryTree entries.\n')
+    }
+  }
   if (upstreamError) {
     process.stderr.write(`Upstream configured: failed (${upstreamError})\n`)
   } else if (upstream === null) {

@@ -9,6 +9,8 @@ import { resolve, join } from 'node:path'
 import {
   buildDatetime,
   createMemoryDirs,
+  ensureManagedGitignore,
+  type GitignoreEnsureResult,
   findExternalPolicySources,
   resolveScaffoldPaths,
   resolveTemplateDir,
@@ -69,14 +71,16 @@ export function cmdInit(options: InitOptions): number {
   const paths = resolveScaffoldPaths(root, dt)
   scaffoldContentFiles(paths, templates, options.goalSummary, options.projectName, options.force)
   writeTemplate(join(templates, 'agents.md'), agentsPath, options.force, {})
-  writeHeartbeatNextStep(root)
+  const gitignoreResult = ensureManagedGitignore(root)
+  writeHeartbeatNextStep(root, gitignoreResult)
 
   return 0
 }
 
-function writeHeartbeatNextStep(root: string): void {
+function writeHeartbeatNextStep(root: string, gitignoreResult: GitignoreEnsureResult | null): void {
   const displayRoot = root.includes(' ') ? `"${root}"` : root
   process.stdout.write(`Initialized MemoryTree files in: ${root}\n`)
+  writeGitignoreStatus(process.stdout, gitignoreResult)
   process.stdout.write('This command did not register heartbeat or modify ~/.memorytree/config.toml.\n')
   process.stdout.write('If you want the default heartbeat setup for this repository, run:\n')
   process.stdout.write(`  memorytree daemon quick-start --root ${displayRoot}\n`)
@@ -84,4 +88,16 @@ function writeHeartbeatNextStep(root: string): void {
     'Heartbeat keeps the dedicated MemoryTree branch as the shared source of truth ' +
     'and refreshes this repository directory as a local cache mirror.\n',
   )
+}
+
+function writeGitignoreStatus(
+  stream: Pick<NodeJS.WriteStream, 'write'>,
+  result: GitignoreEnsureResult | null,
+): void {
+  if (result === null) return
+  if (result.changed) {
+    stream.write(`.gitignore updated: ${result.added.join(', ')}\n`)
+    return
+  }
+  stream.write('.gitignore already contains managed MemoryTree entries.\n')
 }
