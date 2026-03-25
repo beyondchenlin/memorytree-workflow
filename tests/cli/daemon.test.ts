@@ -87,11 +87,19 @@ describe('cmdRunOnce', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -198,11 +206,19 @@ describe('cmdRegisterProject', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -217,7 +233,212 @@ describe('cmdRegisterProject', () => {
     expect(result).toBe(0)
     expect(savedConfigs).toHaveLength(1)
     expect(stdoutChunks.join('')).toContain('Worktree branch: memorytree')
+    expect(stdoutChunks.join('')).toContain('Push remote: origin')
+    expect(stdoutChunks.join('')).toContain('Push URL: https://github.com/example/repo.git')
     expect(stdoutChunks.join('')).toContain('Upstream configured: yes (origin/memorytree)')
+  })
+
+  it('reports when upstream setup succeeds via a fallback push URL', async () => {
+    const savedConfigs: unknown[] = []
+    const upserted = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      projects: [
+        {
+          id: 'repo',
+          path: '/memorytree/worktrees/repo',
+          name: 'repo',
+          development_path: '/repo',
+          memory_path: '/memorytree/worktrees/repo',
+          memory_branch: 'memorytree',
+          heartbeat_interval: '5m',
+          auto_push: true,
+          generate_report: true,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 10010,
+          last_heartbeat_at: '',
+        },
+      ],
+    }
+
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: false,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: () => 300,
+      findProjectForPath: () => upserted.projects[0],
+      upsertProject: () => upserted,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'ssh://git@ssh.github.com:443/example/repo.git',
+        pushUrl: 'ssh://git@ssh.github.com:443/example/repo.git',
+        transport: 'ssh',
+        fallbackUrls: ['https://github.com/example/repo.git'],
+      }),
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({
+        remote: 'origin',
+        created: true,
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        usedFallback: true,
+      }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdRegisterProject({
+      root: '/repo',
+      quickStart: true,
+    })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).toHaveLength(1)
+    expect(stdoutChunks.join('')).toContain('Push URL: ssh://git@ssh.github.com:443/example/repo.git')
+    expect(stdoutChunks.join('')).toContain('Push fallback used: https://github.com/example/repo.git')
+    expect(stderrChunks.join('')).toBe('')
+  })
+
+  it('redacts credentials in CLI push URL output', async () => {
+    const savedConfigs: unknown[] = []
+    const upserted = {
+      heartbeat_interval: '5m',
+      auto_push: true,
+      log_level: 'info',
+      watch_dirs: [],
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+      projects: [
+        {
+          id: 'repo',
+          path: '/memorytree/worktrees/repo',
+          name: 'repo',
+          development_path: '/repo',
+          memory_path: '/memorytree/worktrees/repo',
+          memory_branch: 'memorytree',
+          heartbeat_interval: '5m',
+          auto_push: true,
+          generate_report: true,
+          ai_summary_model: 'claude-haiku-4-5-20251001',
+          locale: 'en',
+          gh_pages_branch: '',
+          cname: '',
+          webhook_url: '',
+          report_base_url: '',
+          report_port: 10010,
+          last_heartbeat_at: '',
+        },
+      ],
+    }
+
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '9m',
+        auto_push: false,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+        generate_report: false,
+        ai_summary_model: 'claude-haiku-4-5-20251001',
+        locale: 'en',
+        gh_pages_branch: '',
+        cname: '',
+        webhook_url: '',
+        report_base_url: '',
+        report_port: 10010,
+      }),
+      saveConfig: (cfg: unknown) => { savedConfigs.push(cfg) },
+      intervalToSeconds: () => 300,
+      findProjectForPath: () => upserted.projects[0],
+      upsertProject: () => upserted,
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://x-access-token:super-secret-token@github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value === null
+        ? null
+        : value.replace('x-access-token:super-secret-token@', 'x-access-token:***@'),
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: () => '',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdRegisterProject({
+      root: '/repo',
+      quickStart: true,
+    })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).toHaveLength(1)
+    expect(stdoutChunks.join('')).toContain('Push URL: https://x-access-token:***@github.com/example/repo.git')
+    expect(stdoutChunks.join('')).not.toContain('super-secret-token')
   })
 
   it('ensures managed MemoryTree ignore entries in the development repo root', async () => {
@@ -290,11 +511,19 @@ describe('cmdRegisterProject', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -347,11 +576,19 @@ describe('cmdRegisterProject', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -435,11 +672,19 @@ describe('cmdRegisterProject', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'ssh://git@ssh.github.com:443/example/repo.git',
+        pushUrl: 'ssh://git@ssh.github.com:443/example/repo.git',
+        transport: 'ssh',
+        fallbackUrls: ['https://github.com/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => { throw new Error('push rejected') },
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -517,11 +762,19 @@ describe('cmdRegisterProject', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'custom-memorytree', created: false }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: () => '',
@@ -659,11 +912,19 @@ describe('cmdQuickStart', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: (command: string, args: string[]) => {
@@ -764,11 +1025,19 @@ describe('cmdQuickStart', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: (command: string, args: string[]) => {
@@ -881,11 +1150,19 @@ describe('cmdQuickStart', () => {
       readLockPid: () => null,
     }))
     vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
       defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
       defaultProjectWorktreeBranch: () => 'memorytree',
       ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
       ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
       isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
     }))
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: (command: string, args: string[]) => {

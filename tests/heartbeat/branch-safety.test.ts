@@ -21,6 +21,7 @@ const mocks = vi.hoisted(() => ({
   ensureBranchUpstream: vi.fn(),
   hasTrackingUpstream: vi.fn(),
   isProjectMemoryBranch: vi.fn(),
+  pushBranchToRemote: vi.fn(),
   git: vi.fn(),
   toPosixPath: vi.fn(),
 }))
@@ -73,6 +74,8 @@ vi.mock('../../src/heartbeat/worktree.js', () => ({
   ensureProjectWorktree: vi.fn(),
   hasTrackingUpstream: mocks.hasTrackingUpstream,
   isProjectMemoryBranch: mocks.isProjectMemoryBranch,
+  pushBranchToRemote: mocks.pushBranchToRemote,
+  redactRemoteUrl: (value: string | null) => value,
 }))
 
 vi.mock('../../src/utils/exec.js', () => ({
@@ -118,6 +121,12 @@ beforeEach(() => {
   mocks.acquireLock.mockReturnValue(true)
   mocks.toPosixPath.mockImplementation((value: string) => value)
   mocks.ensureBranchUpstream.mockReturnValue({ remote: 'origin', created: true })
+  mocks.pushBranchToRemote.mockReturnValue({
+    remote: 'origin',
+    pushUrl: 'https://github.com/example/repo.git',
+    transport: 'https',
+    usedFallback: false,
+  })
   mocks.hasTrackingUpstream.mockReturnValue(true)
   mocks.isProjectMemoryBranch.mockImplementation((branch: string) => (
     branch === 'memorytree' || branch.startsWith('memorytree/')
@@ -186,7 +195,7 @@ describe('processProject branch safety', () => {
       'Memory/06_transcripts/manifests/codex/2024/01/file.json',
     )
     expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'commit', '-m', 'memorytree(transcripts): import 1 transcript(s)')
-    expect(mocks.git).toHaveBeenCalledWith('D:/repo', 'push')
+    expect(mocks.pushBranchToRemote).toHaveBeenCalledWith('D:/repo', 'memorytree/transcripts')
   })
 
   it('builds the report before committing imported transcripts on a memorytree branch', async () => {
