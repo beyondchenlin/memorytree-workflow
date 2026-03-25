@@ -22,11 +22,13 @@ import {
 } from '../heartbeat/config.js'
 import { readLockPid } from '../heartbeat/lock.js'
 import {
+  describePushRemote,
   defaultProjectWorktreePath,
   defaultProjectWorktreeBranch,
   ensureBranchUpstream,
   ensureProjectWorktree,
   isValidWorktreeBranchName,
+  redactRemoteUrl,
 } from '../heartbeat/worktree.js'
 import { execCommand } from '../utils/exec.js'
 import { ensureManagedGitignore } from '../project/scaffold.js'
@@ -211,6 +213,7 @@ export function cmdRegisterProject(options: {
   const worktree = ensureProjectWorktree(project)
   saveConfig(updated)
   const gitignoreResult = ensureManagedGitignore(root)
+  const pushRemote = describePushRemote(project.memory_path)
   let upstream: ReturnType<typeof ensureBranchUpstream> | null = null
   let upstreamError = ''
   if (project.auto_push) {
@@ -231,6 +234,10 @@ export function cmdRegisterProject(options: {
   process.stdout.write(`Raw upload permission: ${project.raw_upload_permission}\n`)
   process.stdout.write(`Worktree branch: ${worktree.branch}\n`)
   process.stdout.write(`Worktree created: ${worktree.created ? 'yes' : 'no'}\n`)
+  process.stdout.write(`Push remote: ${pushRemote.remote ?? 'none'}\n`)
+  if (pushRemote.pushUrl !== null) {
+    process.stdout.write(`Push URL: ${redactRemoteUrl(pushRemote.pushUrl)}\n`)
+  }
   if (gitignoreResult !== null) {
     if (gitignoreResult.changed) {
       process.stdout.write(`.gitignore updated: ${gitignoreResult.added.join(', ')}\n`)
@@ -246,6 +253,9 @@ export function cmdRegisterProject(options: {
     process.stdout.write('Upstream configured: no remote available\n')
   } else {
     process.stdout.write(`Upstream configured: ${upstream.created ? 'yes' : 'already'} (${upstream.remote}/${worktree.branch})\n`)
+    if (upstream.usedFallback && upstream.pushUrl !== null) {
+      process.stdout.write(`Push fallback used: ${redactRemoteUrl(upstream.pushUrl)}\n`)
+    }
   }
   return upstreamError ? 1 : 0
 }

@@ -30,6 +30,8 @@ import {
   ensureProjectWorktree,
   hasTrackingUpstream,
   isProjectMemoryBranch,
+  pushBranchToRemote,
+  redactRemoteUrl,
 } from './worktree.js'
 import { git } from '../utils/exec.js'
 import { toPosixPath } from '../utils/path.js'
@@ -344,13 +346,22 @@ export function tryPush(projectPath: string, projectName: string): boolean {
   try {
     const branch = currentBranch(projectPath)
     if (hasTrackingUpstream(projectPath)) {
-      git(projectPath, 'push')
+      const pushed = pushBranchToRemote(projectPath, branch)
+      if (pushed.remote === null) {
+        return false
+      }
+      if (pushed.usedFallback && pushed.pushUrl !== null) {
+        getLogger().info(`[${projectName}] Pushed successfully via fallback ${redactRemoteUrl(pushed.pushUrl)}.`)
+      }
     } else {
       const upstream = ensureBranchUpstream(projectPath, branch)
       if (upstream.remote === null) {
         return false
       }
-      getLogger().info(`[${projectName}] Configured upstream ${upstream.remote}/${branch}.`)
+      const fallbackNote = upstream.usedFallback && upstream.pushUrl !== null
+        ? ` via fallback ${redactRemoteUrl(upstream.pushUrl)}`
+        : ''
+      getLogger().info(`[${projectName}] Configured upstream ${upstream.remote}/${branch}${fallbackNote}.`)
     }
     getLogger().info(`[${projectName}] Pushed successfully.`)
     return true
