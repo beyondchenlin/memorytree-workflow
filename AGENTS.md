@@ -36,5 +36,5 @@
 - The model only writes chat log summaries and updates goals and todos during interactive sessions.
 - If `~/.memorytree/alerts.json` contains pending notifications, display them at the start of the session.
 - If `memorytree-daemon` is available but not registered on this machine, ask the user for their preferred settings and offer to run `memorytree-daemon install`.
-- When the user asks to see their most recent conversation, trigger an on-demand sync for the current project, locate the latest session across all clients (Claude Code, Codex, Gemini CLI), and generate a continuation summary.
+- When the user asks to see their most recent conversation, trigger an on-demand sync for the current project, locate the latest session across all clients, and generate a continuation summary.
 - All interactive prompts must use plain-text questions. Do not rely on client-specific UI components.

@@ -1,0 +1,3605 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>f3b32b9b-fcef-44f6-a73b-1ba30f14a777 — MemoryTree</title>
+<meta property="og:title" content="f3b32b9b-fcef-44f6-a73b-1ba30f14a777">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>f3b32b9b-fcef-44f6-a73b-1ba30f14a777</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>7</strong> Messages</span>
+      <span class="transcript-pill"><strong>28</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>35</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-20 09:24:12</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">f3b32b9b-fcef-44f6-a73b-1ba30f14a777</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\memorytree-workflow</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">8648bf58987684ca...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">35</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">7</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">28</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>7</strong> dialog</span>
+    <span class="transcript-pill"><strong>28</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>7</strong> Messages</span>
+          <span class="transcript-pill"><strong>28</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>35 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user &lt;ide_opened_file&gt;The user opened the file d:\demo1\memorytree-workflow\vitest.e2e.config.ts in the IDE. This may or may not be related to the current task.&lt;/ide_opened_file&gt; http://127.0.0.1:10010/projects/index.html 这里显示只有一个项目啊 ￼ ￼ 已处理 1m 45s ￼ 原因很简单：http://127.0.0.1:10010/projects/index.html 这个页面，不是“全局 heartbeat 已注册项目列表”，而是“当前这个报告站点里的项目页”。 现在 10010 上挂的是当前仓库这一个站点，Caddy 配置已经写死到 d-demo1-memorytree-workflow-d-d..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">09:24:12</span>
+    </div>
+    <p class="event-preview">&lt;ide_opened_file&gt;The user opened the file d:\demo1\memorytree-workflow\vitest.e2e.config.ts in the IDE. This may or may not be related to the current task.&lt;/ide_opened_file&gt; http://127.0.0.1:10010/projects/index.html ...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>&lt;ide_opened_file&gt;The user opened the file d:\demo1\memorytree-workflow\vitest.e2e.config.ts in the IDE. This may or may not be related to the current task.&lt;/ide_opened_file&gt;</p><p>http://127.0.0.1:10010/projects/index.html   这里显示只有一个项目啊<br>￼<br>￼<br>已处理 1m 45s<br>￼<br>原因很简单：http://127.0.0.1:10010/projects/index.html 这个页面，不是“全局 heartbeat 已注册项目列表”，而是“当前这个报告站点里的项目页”。<br>现在 10010 上挂的是当前仓库这一个站点，Caddy 配置已经写死到 d-demo1-memorytree-workflow-d-demo1-memorytree-workflow.caddy (line 7) 和 d-demo1-memorytree-workflow-d-demo1-memorytree-workflow.caddy (line 10)，根目录就是 Memory/07_reports。<br>而这个 projects 页的生成逻辑，在 projects.ts (line 22) 里是从“当前报告加载到的 manifests”来算的；具体数据源是 build.ts (line 78) 和 build.ts (line 252)，只会读当前仓库下面的 Memory/06_transcripts/manifests。然后它再按 cwd 的最后一段分组，在 projects.ts (line 13) 和 projects.ts (line 35) 这里做，所以最后只显示出 memorytree-workflow 这 1 个项目。<br>所以：<br>• daemon status 里的 Projects: 3 = 机器级 heartbeat 当前注册了 3 个项目<br>• 10010/projects/index.html 里的 1 project(s) = 当前这个被 Caddy 暴露出来的单仓库报告里，只统计到了 1 个项目<br>这不是异常，按现在实现来说是正常现象。<br>如果你想，我下一步可以帮你做两种之一：<br>• 给 papaweb 也单独挂一个本地网页入口<br>• 设计一个“全局 3 项目总览页”，把注册的项目都汇总到一个页面里<br>￼<br>逻辑不对把  这个地址不应该是全局项目的地址吗  请公允的判断一下<br>￼<br>￼<br>公允地说：你的直觉是有道理的，这里现在有“概念混淆”。<br>结论分两层：<br>1. 按当前代码实现来看，http://127.0.0.1:10010/projects/index.html 不是全局项目页，而是“当前这个仓库报告站点里的 projects 页”。<br>原因很明确：<br>• Caddy 现在把 10010 只指向了当前仓库的 Memory/07_reports；配置见 d-demo1-memorytree-workflow-d-demo1-memorytree-workflow.caddy (line 7) 和 d-demo1-memorytree-workflow-d-demo1-memorytree-workflow.caddy (line 10)<br>• 报告构建时只读取当前仓库下的 transcript manifests，见 build.ts (line 78) 和 build.ts (line 252)<br>• projects 页只是把这些 manifests 再按 cwd 末段分组，见 projects.ts (line 22) 和 projects.ts (line 35)<br>2. 但按产品理解和命名体验来看，你说“逻辑不对”也是成立的。<br>因为：<br>• heartbeat 是全局注册的，daemon status 里看到的是 3 个项目<br>• 页面名字却叫 Projects<br>• 用户很自然会理解成“全局项目列表”<br>• 实际上它显示的是“当前站点里出现过的项目分组”<br>所以我的公允判断是：<br>• 代码行为本身是自洽的，不是运行 bug<br>• 但产品语义和页面命名是有问题的，至少是明显误导<br>• 如果产品目标是“机器级 MemoryTree 总览”，那这个页面现在确实不对<br>• 如果产品目标只是“单仓库报告站点”，那实现没错，但 Projects 这个名字偏大，容易让人误会<br>我更倾向于把它定性为“产品/信息架构问题”，不是底层故障。<br>比较合理的改法有两种：<br>• 保守改法：把这个页改名成 Workspaces / Transcript Sources / Session Groups，明确它不是全局项目注册页<br>• 正向改法：新增一个真正的全局项目总览页，读取 ~/.memorytree/config.toml 或全局索引，把 3 个注册项目都列出来<br>如果你愿意，我下一步可以直接帮你做一次 review 结论文档，或者直接动手把这个逻辑改正确。<br>￼<br>我们要正向改发，这个端口应该是全局项目    这样才能体系出这个skill 建立web服务价值<br>￼<br>￼<br>￼<br>我先把现有“报告生成 + Caddy 暴露 + heartbeat 项目注册”这三条链路串起来看清楚，然后直接把 10010 改成真正的全局项目入口方案。重点会放在两件事：全局首页的数据来源，以及每个项目报告怎么被统一挂到这个入口下面。<br>已运行 rg -n &quot;renderProjects|buildReport|caddy|ManagedCaddy|report_port|projects/index.html|config.toml|loadConfig|ProjectEntry|global&quot; src tests -S<br>￼<br>Shell<br>$ rg -n &quot;renderProjects|buildReport|caddy|ManagedCaddy|report_port|projects/index.html|config.toml|loadConfig|ProjectEntry|global&quot; src tests -S<br>￼<br>Using Node v20.20.1<br>Using Node v20.20.1<br>src\types\transcript.ts:41:  global_raw_path: string<br>src\types\transcript.ts:42:  global_clean_path: string<br>src\types\transcript.ts:43:  global_manifest_path: string<br>tests\transcript\integration.test.ts:14:  let globalRoot: string<br>tests\transcript\integration.test.ts:19:    globalRoot = join(tmpDir, &#39;global&#39;)<br>tests\transcript\integration.test.ts:53:    const manifest = await importTranscript(parsed, repoRoot, globalRoot, slug, &#39;none&#39;, true)<br>tests\transcript\integration.test.ts:64:    // 6. Verify raw file copied to repo + global<br>tests\transcript\integration.test.ts:88:    const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)<br>tests\transcript\integration.test.ts:98:    const eventLogPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)<br>tests\transcript\integration.test.ts:111:    const first = await importTranscript(parsed, repoRoot, globalRoot, &#39;proj&#39;, &#39;none&#39;)<br>tests\transcript\integration.test.ts:112:    const second = await importTranscript(parsed, repoRoot, globalRoot, &#39;proj&#39;, &#39;none&#39;)<br>tests\transcript\integration.test.ts:130:    const manifest = await importTranscript(parsed, repoRoot, globalRoot, &#39;test-proj&#39;, &#39;none&#39;)<br>tests\transcript\import.test.ts:52:    global_raw_path: &#39;/home/user/.memorytree/transcripts/raw/codex/test-project/2024/06/test__abcdef12.jsonl&#39;,<br>tests\transcript\import.test.ts:53:    global_clean_path: &#39;/home/user/.memorytree/transcripts/clean/codex/test-project/2024/06/test__abcdef12.md&#39;,<br>tests\transcript\import.test.ts:54:    global_manifest_path: &#39;/home/user/.memorytree/transcripts/index/manifests/codex/test-project/2024/06/test__abcdef12.json&#39;,<br>tests\transcript\import.test.ts:265:  let globalRoot: string<br>tests\transcript\import.test.ts:270:    globalRoot = join(tmpDir, &#39;global&#39;)<br>tests\transcript\import.test.ts:281:    const result = await importTranscript(parsed, repoRoot, globalRoot, &#39;my-project&#39;, &#39;none&#39;, true)<br>tests\transcript\import.test.ts:301:    const result = await importTranscript(parsed, repoRoot, globalRoot, &#39;my-project&#39;, &#39;none&#39;, false)<br>tests\transcript\import.test.ts:314:    const first = await importTranscript(parsed, repoRoot, globalRoot, &#39;my-project&#39;, &#39;none&#39;)<br>tests\transcript\import.test.ts:318:    const second = await importTranscript(parsed, repoRoot, globalRoot, &#39;my-project&#39;, &#39;none&#39;)<br>tests\transcript\db.test.ts:28:    global_raw_path: &#39;/global/raw/file.jsonl&#39;,<br>tests\transcript\db.test.ts:29:    global_clean_path: &#39;/global/clean/file.md&#39;,<br>tests\transcript\db.test.ts:151:        &#39;global_raw_path&#39;, &#39;global_clean_path&#39;,<br>src\transcript\import.ts:24:  globalRoot: string,<br>src\transcript\import.ts:45:  const globalRawPath = join(globalRoot, &#39;raw&#39;, parsed.client, projectSlug, yearToken, monthToken, <code>${artifactStem}${sourceSuffix}</code>)<br>src\transcript\import.ts:46:  const globalCleanPath = join(globalRoot, &#39;clean&#39;, parsed.client, projectSlug, yearToken, monthToken, <code>${artifactStem}.md</code>)<br>src\transcript\import.ts:47:  const globalManifestPath = join(globalRoot, &#39;index&#39;, &#39;manifests&#39;, parsed.client, projectSlug, yearToken, monthToken, <code>${artifactStem}.json</code>)<br>src\transcript\import.ts:48:  const globalEventLogPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)<br>src\transcript\import.ts:49:  const globalDbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)<br>src\transcript\import.ts:51:  for (const p of [globalRawPath, globalCleanPath, globalManifestPath, globalEventLogPath, globalDbPath]) {<br>src\transcript\import.ts:63:  copyFile(parsed.source_path, globalRawPath)<br>src\transcript\import.ts:80:    global_raw_path: toPosixPath(globalRawPath),<br>src\transcript\import.ts:81:    global_clean_path: toPosixPath(globalCleanPath),<br>src\transcript\import.ts:82:    global_manifest_path: toPosixPath(globalManifestPath),<br>src\transcript\import.ts:89:  const existingGlobalManifest = loadJson(globalManifestPath)<br>src\transcript\import.ts:95:  writeCleanMarkdown(parsed, manifest, globalCleanPath)<br>src\transcript\import.ts:101:  writeJson(globalManifestPath, manifestRecord)<br>src\transcript\import.ts:103:    appendJsonl(globalEventLogPath, manifestRecord)<br>src\transcript\import.ts:105:  await upsertSearchIndex(globalDbPath, manifest)<br>tests\caddy\manager.test.ts:22:} from &#39;../../src/caddy/manager.js&#39;<br>tests\caddy\manager.test.ts:26:  tmpHome = mkdtempSync(join(tmpdir(), &#39;memorytree-caddy-test-&#39;))<br>tests\caddy\manager.test.ts:34:  it(&#39;stores the managed config tree under ~/.memorytree/caddy&#39;, () =&gt; {<br>tests\caddy\manager.test.ts:39:    expect(paths.fragmentPath).toContain(join(&#39;.memorytree&#39;, &#39;caddy&#39;, &#39;sites&#39;))<br>tests\caddy\manager.test.ts:40:    expect(paths.fragmentPath).toMatch(/demo-project\.caddy$/)<br>tests\caddy\manager.test.ts:49:    expect(text).toContain(&#39;import sites/*.caddy&#39;)<br>tests\caddy\manager.test.ts:59:      report_port: 10010,<br>tests\caddy\manager.test.ts:64:    expect(text).toContain(&#39;# report_port: 10010&#39;)<br>tests\caddy\manager.test.ts:76:      report_port: 12000,<br>tests\caddy\manager.test.ts:89:    writeFileSync(join(paths.sitesDir, &#39;other-project.caddy&#39;), [<br>tests\caddy\manager.test.ts:91:      &#39;# report_port: 10010&#39;,<br>tests\caddy\manager.test.ts:103:      &#39;# report_port: 10010&#39;,<br>tests\caddy\manager.test.ts:113:    expect(managedCaddyStartCommand()).toContain(&#39;caddy run --config&#39;)<br>src\transcript\db.ts:2: * Transcript search index — SQLite upsert for the global transcript catalog.<br>src\transcript\db.ts:45:  &#39;global_raw_path&#39;,<br>src\transcript\db.ts:46:  &#39;global_clean_path&#39;,<br>src\transcript\db.ts:73:    global_raw_path     TEXT    NOT NULL,<br>src\transcript\db.ts:74:    global_clean_path   TEXT    NOT NULL,<br>tests\e2e\cli-workflow.test.ts:42:let globalRoot: string<br>tests\e2e\cli-workflow.test.ts:50:  globalRoot = join(sandboxRoot, &#39;global&#39;)<br>tests\e2e\cli-workflow.test.ts:107:      &#39;--global-root&#39;, globalRoot,<br>tests\e2e\cli-workflow.test.ts:117:    expect(existsSync(String(imported[&#39;global_manifest_path&#39;]))).toBe(true)<br>tests\e2e\cli-workflow.test.ts:163:      &#39;--global-root&#39;, globalRoot,<br>tests\e2e\cli-workflow.test.ts:173:    expect(currentPayload[&#39;global_only_count&#39;]).toBe(0)<br>tests\e2e\cli-workflow.test.ts:183:      &#39;--global-root&#39;, globalRoot,<br>tests\e2e\cli-workflow.test.ts:193:    expect(allPayload[&#39;global_only_count&#39;]).toBe(1)<br>tests\e2e\cli-workflow.test.ts:195:    expect(listFiles(join(globalRoot, &#39;index&#39;, &#39;manifests&#39;)).length).toBe(2)<br>tests\e2e\cli-workflow.test.ts:227:      &#39;--global-root&#39;, globalRoot,<br>tests\e2e\cli-workflow.test.ts:241:    expect(existsSync(String(payload[&#39;global_clean_path&#39;] ?? &#39;&#39;))).toBe(true)<br>tests\e2e\cli-workflow.test.ts:261:      &#39;--global-root&#39;, globalRoot,<br>tests\e2e\cli-workflow.test.ts:299:  it(&#39;uses report_port from global config when report serve omits --port&#39;, async () =&gt; {<br>tests\e2e\cli-workflow.test.ts:316:      &#39;--global-root&#39;, globalRoot,<br>tests\e2e\cli-workflow.test.ts:368:  it(&#39;shows caddy-first report help and keeps report serve as fallback&#39;, () =&gt; {<br>tests\e2e\cli-workflow.test.ts:390:    const caddyHelp = runCli([&#39;caddy&#39;, &#39;--help&#39;])<br>tests\e2e\cli-workflow.test.ts:391:    assertSuccess(caddyHelp, &#39;memorytree caddy --help&#39;)<br>tests\e2e\cli-workflow.test.ts:392:    expect(caddyHelp.stdout).toContain(&#39;Manage MemoryTree-owned Caddy config&#39;)<br>tests\e2e\cli-workflow.test.ts:393:    expect(caddyHelp.stdout).toContain(&#39;memorytree caddy enable --root .&#39;)<br>tests\e2e\cli-workflow.test.ts:394:    expect(caddyHelp.stdout).toContain(&#39;memorytree caddy status --root .&#39;)<br>tests\e2e\cli-workflow.test.ts:395:    expect(caddyHelp.stdout).toContain(&#39;memorytree caddy disable --root .&#39;)<br>tests\e2e\cli-workflow.test.ts:397:    const enableHelp = runCli([&#39;caddy&#39;, &#39;enable&#39;, &#39;--help&#39;])<br>tests\e2e\cli-workflow.test.ts:398:    assertSuccess(enableHelp, &#39;memorytree caddy enable --help&#39;)<br>tests\e2e\cli-workflow.test.ts:435:    const configText = readFileSync(join(homeDir, &#39;.memorytree&#39;, &#39;config.toml&#39;), &#39;utf-8&#39;)<br>tests\e2e\cli-workflow.test.ts:466:    const configText = readFileSync(join(homeDir, &#39;.memorytree&#39;, &#39;config.toml&#39;), &#39;utf-8&#39;)<br>tests\e2e\cli-workflow.test.ts:503:    const configText = readFileSync(join(homeDir, &#39;.memorytree&#39;, &#39;config.toml&#39;), &#39;utf-8&#39;)<br>tests\e2e\cli-workflow.test.ts:509:    expect(configText).toContain(&#39;report_port = 12000&#39;)<br>tests\e2e\cli-workflow.test.ts:629:      stem: &#39;heartbeat-global-only&#39;,<br>tests\e2e\cli-workflow.test.ts:907:    <code>report_port = ${String(options.reportPort ?? 10010)}</code>,<br>tests\e2e\cli-workflow.test.ts:916:  writeFileSync(join(configDir, &#39;config.toml&#39;), configToml, &#39;utf-8&#39;)<br>tests\cli\daemon.test.ts:43:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:44:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:118:      report_port: 10010,<br>tests\cli\daemon.test.ts:137:          report_port: 10010,<br>tests\cli\daemon.test.ts:146:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:147:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:160:        report_port: 10010,<br>tests\cli\daemon.test.ts:196:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:197:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:210:        report_port: 10010,<br>tests\cli\daemon.test.ts:256:      report_port: 10010,<br>tests\cli\daemon.test.ts:275:          report_port: 10010,<br>tests\cli\daemon.test.ts:284:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:285:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:298:        report_port: 10010,<br>tests\cli\daemon.test.ts:350:      report_port: 12000,<br>tests\cli\daemon.test.ts:367:      report_port: 10010,<br>tests\cli\daemon.test.ts:372:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:373:      loadConfig: () =&gt; currentConfig,<br>tests\cli\daemon.test.ts:418:          report_port: 12000,<br>tests\cli\daemon.test.ts:472:      report_port: 10010,<br>tests\cli\daemon.test.ts:491:          report_port: 10010,<br>tests\cli\daemon.test.ts:506:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:507:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:520:        report_port: 10010,<br>tests\cli\daemon.test.ts:583:      report_port: 10010,<br>tests\cli\daemon.test.ts:597:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:598:      loadConfig: () =&gt; currentConfig,<br>tests\cli\daemon.test.ts:629:            report_port: 10010,<br>tests\cli\daemon.test.ts:695:      report_port: 10010,<br>tests\cli\daemon.test.ts:714:          report_port: 10010,<br>tests\cli\daemon.test.ts:732:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:733:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:746:        report_port: 10010,<br>tests\cli\daemon.test.ts:820:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:821:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:848:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:849:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:885:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:886:      loadConfig: () =&gt; ({ heartbeat_interval: &#39;5m&#39;, auto_push: true, projects: [], watch_dirs: [], log_level: &#39;info&#39; }),<br>tests\cli\daemon.test.ts:919:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\cli\daemon.test.ts:920:      loadConfig: () =&gt; ({ heartbeat_interval: &#39;5m&#39;, auto_push: true, projects: [], watch_dirs: [], log_level: &#39;info&#39; }),<br>tests\cli\daemon.test.ts:947:      loadConfig: () =&gt; ({<br>tests\cli\daemon.test.ts:956:      configPath: () =&gt; &#39;/nonexistent/config.toml&#39;,<br>tests\recall\recall.test.ts:169:      global_clean_path: &#39;/tmp/clean.md&#39;,<br>tests\recall\recall.test.ts:206:      global_clean_path: &#39;/tmp/clean.md&#39;,<br>src\recall\recall.ts:35:  global_clean_path?: string<br>src\recall\recall.ts:46:  globalRootOverride: string,<br>src\recall\recall.ts:51:  const globalRoot = globalRootOverride ? resolve(globalRootOverride) : defaultGlobalTranscriptRoot()<br>src\recall\recall.ts:54:  const imported = await syncCurrentProject(resolvedRoot, repoSlug, globalRoot)<br>src\recall\recall.ts:56:  const session = await findLatestSession(globalRoot, resolvedRoot, repoSlug, effectiveActivation)<br>src\recall\recall.ts:68:  const cleanPath = String(session[&#39;global_clean_path&#39;] ?? &#39;&#39;)<br>src\recall\recall.ts:91:    global_clean_path: cleanPath,<br>src\recall\recall.ts:100:export async function syncCurrentProject(root: string, repoSlug: string, globalRoot: string): Promise&lt;number&gt; {<br>src\recall\recall.ts:116:      await importTranscript(parsed, root, globalRoot, repoSlug, &#39;not-set&#39;, true)<br>src\recall\recall.ts:131:  globalRoot: string,<br>src\recall\recall.ts:136:  const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)<br>src\recall\recall.ts:138:    return findLatestFromJsonl(globalRoot, root, repoSlug, activationTime)<br>src\recall\recall.ts:171:    return findLatestFromJsonl(globalRoot, root, repoSlug, activationTime)<br>src\recall\recall.ts:182:  globalRoot: string,<br>src\recall\recall.ts:187:  const jsonlPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)<br>src\recall\recall.ts:274:    <code>clean_transcript: ${payload.global_clean_path ?? &#39;&#39;}</code>,<br>tests\cli\caddy.test.ts:47:      report_port: 10010,<br>tests\cli\caddy.test.ts:54:      loadConfig: () =&gt; ({ projects: [project] }),<br>tests\cli\caddy.test.ts:57:    vi.doMock(&#39;../../src/caddy/manager.js&#39;, () =&gt; ({<br>tests\cli\caddy.test.ts:58:      enableManagedCaddy: () =&gt; ({<br>tests\cli\caddy.test.ts:59:        mainConfigPath: &#39;/home/.memorytree/caddy/Caddyfile&#39;,<br>tests\cli\caddy.test.ts:60:        fragmentPath: &#39;/home/.memorytree/caddy/sites/repo.caddy&#39;,<br>tests\cli\caddy.test.ts:65:      disableManagedCaddy: () =&gt; ({<br>tests\cli\caddy.test.ts:73:      loadManagedCaddyStatus: async () =&gt; ({<br>tests\cli\caddy.test.ts:87:      managedCaddyStartCommand: () =&gt; &#39;caddy run --config &quot;/home/.memorytree/caddy/Caddyfile&quot; --adapter caddyfile&#39;,<br>tests\cli\caddy.test.ts:90:    const mod = await import(&#39;../../src/cli/cmd-caddy.js&#39;)<br>tests\cli\caddy.test.ts:104:      loadConfig: () =&gt; ({ projects: [] }),<br>tests\cli\caddy.test.ts:107:    vi.doMock(&#39;../../src/caddy/manager.js&#39;, () =&gt; ({<br>tests\cli\caddy.test.ts:108:      enableManagedCaddy: () =&gt; ({}),<br>tests\cli\caddy.test.ts:109:      disableManagedCaddy: () =&gt; ({}),<br>tests\cli\caddy.test.ts:111:      loadManagedCaddyStatus: async () =&gt; ({<br>tests\cli\caddy.test.ts:125:      managedCaddyStartCommand: () =&gt; &#39;caddy run --config &quot;/home/.memorytree/caddy/Caddyfile&quot; --adapter caddyfile&#39;,<br>tests\cli\caddy.test.ts:128:    const mod = await import(&#39;../../src/cli/cmd-caddy.js&#39;)<br>tests\cli\caddy.test.ts:132:    expect(stderrChunks.join(&#39;&#39;)).toContain(&#39;Project not found in ~/.memorytree/config.toml&#39;)<br>tests\cli\caddy.test.ts:172:      report_port: 10010,<br>tests\cli\caddy.test.ts:179:      loadConfig: () =&gt; ({ projects: [project] }),<br>tests\cli\caddy.test.ts:182:    vi.doMock(&#39;../../src/caddy/manager.js&#39;, () =&gt; ({<br>tests\cli\caddy.test.ts:183:      enableManagedCaddy: () =&gt; ({}),<br>tests\cli\caddy.test.ts:184:      disableManagedCaddy: () =&gt; ({}),<br>tests\cli\caddy.test.ts:186:      loadManagedCaddyStatus: async () =&gt; ({<br>tests\cli\caddy.test.ts:190:        mainConfigPath: &#39;/home/.memorytree/caddy/Caddyfile&#39;,<br>tests\cli\caddy.test.ts:192:        fragmentPath: &#39;/home/.memorytree/caddy/sites/repo.caddy&#39;,<br>tests\cli\caddy.test.ts:200:      managedCaddyStartCommand: () =&gt; &#39;caddy run --config &quot;/home/.memorytree/caddy/Caddyfile&quot; --adapter caddyfile&#39;,<br>tests\cli\caddy.test.ts:203:    const mod = await import(&#39;../../src/cli/cmd-caddy.js&#39;)<br>tests\cli\caddy.test.ts:211:    expect(output).toContain(&#39;Managed start command: caddy run --config&#39;)<br>src\report\build.ts:28:import { renderProjects } from &#39;./render/projects.js&#39;<br>src\report\build.ts:46:export async function buildReport(options: BuildReportOptions): Promise&lt;void&gt; {<br>src\report\build.ts:202:    renderProjects(manifests, t),<br>src\report\build.ts:301:    : m.global_clean_path<br>src\report\build.ts:425:  const cleanPath = m.repo_clean_path || m.global_clean_path || &#39;&#39;<br>src\report\build.ts:434:  if (m.global_raw_path) {<br>src\report\build.ts:435:    return m.global_raw_path<br>src\caddy\manager.ts:5:import { memorytreeRoot, type ProjectEntry } from &#39;../heartbeat/config.js&#39;<br>src\caddy\manager.ts:11:export interface ManagedCaddyPaths {<br>src\caddy\manager.ts:18:export interface ManagedCaddyStatus {<br>src\caddy\manager.ts:27:  readonly exposure: ProjectEntry[&#39;report_exposure&#39;]<br>src\caddy\manager.ts:33:export interface ManagedCaddyEnableResult {<br>src\caddy\manager.ts:41:export function managedCaddyPaths(projectId: string): ManagedCaddyPaths {<br>src\caddy\manager.ts:42:  const rootDir = resolve(memorytreeRoot(), &#39;caddy&#39;)<br>src\caddy\manager.ts:48:    fragmentPath: resolve(sitesDir, <code>${projectId}.caddy</code>),<br>src\caddy\manager.ts:52:export function projectReportDir(project: Pick&lt;ProjectEntry, &#39;development_path&#39;&gt;): string {<br>src\caddy\manager.ts:63:    &#39;import sites/*.caddy&#39;,<br>src\caddy\manager.ts:69:  project: Pick&lt;ProjectEntry, &#39;id&#39; | &#39;name&#39; | &#39;report_port&#39; | &#39;report_exposure&#39;&gt;,<br>src\caddy\manager.ts:76:    <code># report_port: ${String(project.report_port)}</code>,<br>src\caddy\manager.ts:79:    managedSiteAddress(project.report_port, project.report_exposure),<br>src\caddy\manager.ts:96:    execCommand(&#39;caddy&#39;, [&#39;version&#39;])<br>src\caddy\manager.ts:108:    if (!entry.endsWith(&#39;.caddy&#39;)) continue<br>src\caddy\manager.ts:113:    const portMatch = text.match(/^# report_port:\s<em>(\d+)\s</em>$/m)<br>src\caddy\manager.ts:120:    return projectMatch?.[1]?.trim() || entry.replace(/\.caddy$/i, &#39;&#39;)<br>src\caddy\manager.ts:126:export function enableManagedCaddy(project: ProjectEntry): ManagedCaddyEnableResult {<br>src\caddy\manager.ts:128:  const conflictProjectId = findManagedPortConflict(project.id, project.report_port)<br>src\caddy\manager.ts:131:      <code>Port ${String(project.report_port)} is already used by another managed Caddy site (${conflictProjectId}). </code> +<br>src\caddy\manager.ts:132:      &#39;Change this project\&#39;s report_port first, then rerun the command.&#39;,<br>src\caddy\manager.ts:144:  validateManagedCaddyConfig(paths.mainConfigPath)<br>src\caddy\manager.ts:146:    reloadManagedCaddy(paths.mainConfigPath)<br>src\caddy\manager.ts:158:    localUrls: localUrlsForProject(project.report_port),<br>src\caddy\manager.ts:159:    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),<br>src\caddy\manager.ts:163:export function disableManagedCaddy(project: Pick&lt;ProjectEntry, &#39;id&#39; | &#39;report_port&#39; | &#39;report_exposure&#39;&gt;): ManagedCaddyEnableResult {<br>src\caddy\manager.ts:170:    validateManagedCaddyConfig(paths.mainConfigPath)<br>src\caddy\manager.ts:172:      reloadManagedCaddy(paths.mainConfigPath)<br>src\caddy\manager.ts:185:    localUrls: localUrlsForProject(project.report_port),<br>src\caddy\manager.ts:186:    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),<br>src\caddy\manager.ts:190:export async function loadManagedCaddyStatus(project: ProjectEntry): Promise&lt;ManagedCaddyStatus&gt; {<br>src\caddy\manager.ts:200:    const managedConfigText = adaptManagedCaddyConfig(paths.mainConfigPath)<br>src\caddy\manager.ts:212:    port: project.report_port,<br>src\caddy\manager.ts:215:    localUrls: localUrlsForProject(project.report_port),<br>src\caddy\manager.ts:216:    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),<br>src\caddy\manager.ts:222:  return <code>caddy run --config &quot;${mainConfigPath}&quot; --adapter caddyfile</code><br>src\caddy\manager.ts:225:function managedSiteAddress(reportPort: number, exposure: ProjectEntry[&#39;report_exposure&#39;]): string {<br>src\caddy\manager.ts:244:function validateManagedCaddyConfig(mainConfigPath: string): void {<br>src\caddy\manager.ts:245:  execCommand(&#39;caddy&#39;, [&#39;adapt&#39;, &#39;--config&#39;, mainConfigPath, &#39;--adapter&#39;, &#39;caddyfile&#39;, &#39;--validate&#39;], {<br>src\caddy\manager.ts:250:function reloadManagedCaddy(mainConfigPath: string): void {<br>src\caddy\manager.ts:251:  execCommand(&#39;caddy&#39;, [&#39;reload&#39;, &#39;--config&#39;, mainConfigPath, &#39;--adapter&#39;, &#39;caddyfile&#39;])<br>src\caddy\manager.ts:254:function adaptManagedCaddyConfig(mainConfigPath: string): string {<br>src\caddy\manager.ts:255:  return execCommand(&#39;caddy&#39;, [&#39;adapt&#39;, &#39;--config&#39;, mainConfigPath, &#39;--adapter&#39;, &#39;caddyfile&#39;])<br>src\caddy\manager.ts:300:  exposure: ProjectEntry[&#39;report_exposure&#39;],<br>tests\heartbeat\config.test.ts:23:  loadConfig,<br>tests\heartbeat\config.test.ts:62:  it(&#39;configPath returns &lt;home&gt;/.memorytree/config.toml&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:64:    expect(path).toContain(&#39;config.toml&#39;)<br>tests\heartbeat\config.test.ts:70:// loadConfig<br>tests\heartbeat\config.test.ts:73:describe(&#39;loadConfig&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:75:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:92:        &#39;report_port = 12345&#39;,<br>tests\heartbeat\config.test.ts:103:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:107:    expect(cfg.report_port).toBe(12345)<br>tests\heartbeat\config.test.ts:120:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:123:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:132:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:136:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:141:  it(&#39;hydrates project-level overrides from TOML while keeping global defaults&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:150:        &#39;report_port = 10010&#39;,<br>tests\heartbeat\config.test.ts:163:        &#39;report_port = 18080&#39;,<br>tests\heartbeat\config.test.ts:171:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:179:    expect(cfg.projects[0]!.report_port).toBe(18080)<br>tests\heartbeat\config.test.ts:203:      report_port: 10010,<br>tests\heartbeat\config.test.ts:207:    const loaded = loadConfig()<br>tests\heartbeat\config.test.ts:218:    expect(loaded.report_port).toBe(original.report_port)<br>tests\heartbeat\config.test.ts:237:    expect(text).toContain(&#39;report_port = 10010&#39;)<br>tests\heartbeat\config.test.ts:332:  it(&#39;copies global behavior defaults into a newly registered project&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:346:      report_port: 18181,<br>tests\heartbeat\config.test.ts:357:    expect(updated.projects[0]!.report_port).toBe(18181)<br>tests\heartbeat\config.test.ts:365:    const initial = registerProject(loadConfig(), tmpDir)<br>tests\heartbeat\config.test.ts:381:    const initial = registerProject(loadConfig(), tmpDir)<br>tests\heartbeat\config.test.ts:396:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:408:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:417:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:425:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:446:    const loaded = loadConfig()<br>tests\heartbeat\config.test.ts:458:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:463:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:468:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:473:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:490:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:501:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:509:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:513:  it(&#39;round-trips all 4 fields via saveConfig/loadConfig&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:530:    const loaded = loadConfig()<br>tests\heartbeat\config.test.ts:541:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:552:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:560:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:568:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:576:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:580:  it(&#39;round-trips via saveConfig/loadConfig&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:597:    const loaded = loadConfig()<br>tests\heartbeat\config.test.ts:603:// New field: report_port<br>tests\heartbeat\config.test.ts:606:describe(&#39;report_port field&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:608:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:609:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:612:  it(&#39;parses report_port from TOML&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:615:    writeFileSync(path, &#39;report_port = 18080\n&#39;)<br>tests\heartbeat\config.test.ts:616:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:617:    expect(cfg.report_port).toBe(18080)<br>tests\heartbeat\config.test.ts:624:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:625:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:631:    writeFileSync(path, &#39;report_port = &quot;bad&quot;\n&#39;)<br>tests\heartbeat\config.test.ts:632:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:633:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:639:    writeFileSync(path, &#39;report_port = 0\n&#39;)<br>tests\heartbeat\config.test.ts:640:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:641:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:647:    writeFileSync(path, &#39;report_port = 10010.5\n&#39;)<br>tests\heartbeat\config.test.ts:648:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:649:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:655:    writeFileSync(path, &#39;report_port = 70000\n&#39;)<br>tests\heartbeat\config.test.ts:656:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:657:    expect(cfg.report_port).toBe(10010)<br>tests\heartbeat\config.test.ts:660:  it(&#39;round-trips via saveConfig/loadConfig&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:674:      report_port: 18080,<br>tests\heartbeat\config.test.ts:678:    const loaded = loadConfig()<br>tests\heartbeat\config.test.ts:679:    expect(loaded.report_port).toBe(18080)<br>tests\heartbeat\config.test.ts:685:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:693:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:701:    const cfg = loadConfig()<br>tests\heartbeat\config.test.ts:705:  it(&#39;round-trips via saveConfig/loadConfig&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:719:      report_port: 18080,<br>tests\heartbeat\config.test.ts:724:    const loaded = loadConfig()<br>tests\heartbeat\config.test.ts:731:    const cfg = registerProject(loadConfig(), &#39;/workspace/app&#39;)<br>tests\heartbeat\config.test.ts:738:  it(&#39;resolveReportPort prefers the matching project port over the global default&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:762:          report_port: 19090,<br>tests\heartbeat\config.test.ts:774:      report_port: 10010,<br>tests\heartbeat\config.test.ts:781:  it(&#39;resolveReportExposure prefers the matching project exposure over the global default&#39;, () =&gt; {<br>tests\heartbeat\config.test.ts:805:          report_port: 19090,<br>tests\heartbeat\config.test.ts:818:      report_port: 10010,<br>tests\heartbeat\config.test.ts:829:    const project = registerProject(loadConfig(), &#39;/workspace/app&#39;).projects[0]!<br>tests\heartbeat\config.test.ts:838:    const project = registerProject(loadConfig(), &#39;/workspace/app&#39;).projects[0]!<br>tests\heartbeat\config.test.ts:847:    const cfg1 = registerProject(loadConfig(), &#39;/workspace/app-a&#39;)<br>tests\heartbeat\config.test.ts:858:    const project = registerProject(loadConfig(), &#39;/workspace/app&#39;).projects[0]!<br>tests\heartbeat\config.test.ts:867:    const cfg1 = registerProject(loadConfig(), &#39;/workspace/app-a&#39;)<br>tests\heartbeat\sync.test.ts:11:import type { ProjectEntry } from &#39;../../src/heartbeat/config.js&#39;<br>tests\heartbeat\sync.test.ts:77:function makeProject(devPath: string, memPath: string): ProjectEntry {<br>tests\heartbeat\sync.test.ts:95:    report_port: 10010,<br>src\report\render\layout.ts:171:    { id: &#39;projects&#39;, icon: &#39;📁&#39;, labelKey: &#39;projects&#39;, href: <code>${p}projects/index.html</code> },<br>src\report\render\layout.ts:231:  const cleanPath = m.repo_clean_path || m.global_clean_path || &#39;&#39;<br>src\heartbeat\worktree.ts:5:import type { ProjectEntry } from &#39;./config.js&#39;<br>src\heartbeat\worktree.ts:27:export function resolveProjectWorktreeBranch(project: Pick&lt;ProjectEntry, &#39;memory_branch&#39;&gt;): string {<br>src\heartbeat\worktree.ts:34:export function ensureProjectWorktree(project: ProjectEntry): WorktreeStatus {<br>src\heartbeat\worktree.ts:131:  project?: Pick&lt;ProjectEntry, &#39;memory_branch&#39;&gt;,<br>src\report\render\projects.ts:22:export function renderProjects(manifests: ManifestEntry[], t?: Translations): string {<br>src\report\render\links.ts:26:    const cleanPath = m.repo_clean_path || m.global_clean_path<br>src\report\render\links.ts:92:  if (m.global_clean_path) {<br>src\report\render\links.ts:93:    return m.global_clean_path<br>tests\report\build.test.ts:13:import { buildReport, ensureGitignore, parseMessagesFromMarkdown } from &#39;../../src/report/build.js&#39;<br>tests\report\build.test.ts:108:// buildReport integration test<br>tests\report\build.test.ts:111:describe(&#39;buildReport&#39;, () =&gt; {<br>tests\report\build.test.ts:132:      global_raw_path: &#39;&#39;,<br>tests\report\build.test.ts:133:      global_clean_path: &#39;&#39;,<br>tests\report\build.test.ts:134:      global_manifest_path: &#39;&#39;,<br>tests\report\build.test.ts:175:    await buildReport({<br>tests\report\build.test.ts:192:    await buildReport({ root: tmpDir, output, noAi: true })<br>tests\report\build.test.ts:209:    await buildReport({ root: tmpDir, output, noAi: true })<br>tests\report\build.test.ts:223:    await buildReport({ root: tmpDir, output, noAi: true })<br>tests\report\build.test.ts:236:    await buildReport({ root: tmpDir, output, noAi: true })<br>tests\report\build.test.ts:251:      buildReport({ root: tmpDir, output, noAi: true }),<br>src\heartbeat\sync.ts:4:import type { ProjectEntry } from &#39;./config.js&#39;<br>src\heartbeat\sync.ts:26:export function projectUsesIsolatedMemoryPath(project: ProjectEntry): boolean {<br>src\heartbeat\sync.ts:30:export function syncProjectContextToMemory(project: ProjectEntry): SyncStats {<br>src\heartbeat\sync.ts:38:export function syncProjectOutputsToDevelopment(project: ProjectEntry): SyncStats {<br>tests\heartbeat\branch-safety.test.ts:12:  loadConfig: vi.fn(),<br>tests\heartbeat\branch-safety.test.ts:47:  loadConfig: mocks.loadConfig,<br>tests\heartbeat\branch-safety.test.ts:111:  mocks.loadConfig.mockReturnValue({})<br>tests\heartbeat\branch-safety.test.ts:140:  it(&#39;imports to global archive only when the current branch is not memorytree/*&#39;, async () =&gt; {<br>tests\report\render\graph.test.ts:25:    global_raw_path: &#39;&#39;,<br>tests\report\render\graph.test.ts:26:    global_clean_path: &#39;&#39;,<br>tests\report\render\graph.test.ts:27:    global_manifest_path: &#39;&#39;,<br>tests\report\render\search.test.ts:23:    global_raw_path: &#39;&#39;,<br>tests\report\render\search.test.ts:24:    global_clean_path: &#39;&#39;,<br>tests\report\render\search.test.ts:25:    global_manifest_path: &#39;&#39;,<br>tests\report\stats.test.ts:28:    global_raw_path: &#39;&#39;,<br>tests\report\stats.test.ts:29:    global_clean_path: &#39;&#39;,<br>tests\report\stats.test.ts:30:    global_manifest_path: &#39;&#39;,<br>tests\report\render\rss.test.ts:18:    global_raw_path: &#39;&#39;,<br>tests\report\render\rss.test.ts:19:    global_clean_path: &#39;&#39;,<br>tests\report\render\rss.test.ts:20:    global_manifest_path: &#39;&#39;,<br>tests\report\render\projects.test.ts:3:import { extractProject, renderProjects } from &#39;../../../src/report/render/projects.js&#39;<br>tests\report\render\projects.test.ts:59:    global_raw_path: &#39;&#39;,<br>tests\report\render\projects.test.ts:60:    global_clean_path: &#39;&#39;,<br>tests\report\render\projects.test.ts:61:    global_manifest_path: &#39;&#39;,<br>tests\report\render\projects.test.ts:74:// renderProjects — grouping<br>tests\report\render\projects.test.ts:77:describe(&#39;renderProjects — grouping&#39;, () =&gt; {<br>tests\report\render\projects.test.ts:84:    const html = renderProjects(manifests)<br>tests\report\render\projects.test.ts:98:    const html = renderProjects(manifests)<br>tests\report\render\projects.test.ts:104:    const html = renderProjects([])<br>tests\report\render\projects.test.ts:110:    const html = renderProjects(manifests)<br>tests\report\render\projects.test.ts:119:    const html = renderProjects(manifests)<br>tests\report\render\projects.test.ts:125:    const html = renderProjects([], en)<br>tests\report\render\projects.test.ts:131:    const html = renderProjects([], zhCN)<br>tests\report\render\projects.test.ts:141:    const html = renderProjects(manifests)<br>src\cli\cmd-discover.ts:20:  globalRoot: string<br>src\cli\cmd-discover.ts:34:  const globalRoot = options.globalRoot ? resolve(options.globalRoot) : defaultGlobalTranscriptRoot()<br>src\cli\cmd-discover.ts:74:        globalRoot,<br>src\cli\cmd-discover.ts:99:    global_only_count: results.filter(r =&gt; !r[&#39;matches_current_repo&#39;]).length,<br>src\cli\cmd-discover.ts:122:    <code>global_only_count: ${payload[&#39;global_only_count&#39;] ?? 0}</code>,<br>src\heartbeat\config.ts:2: * Load, validate, and manage ~/.memorytree/config.toml.<br>src\heartbeat\config.ts:40:export interface ProjectEntry {<br>src\heartbeat\config.ts:57:  readonly report_port: number<br>src\heartbeat\config.ts:66:  readonly projects: readonly ProjectEntry[]<br>src\heartbeat\config.ts:78:  readonly report_port: number<br>src\heartbeat\config.ts:83:type ProjectLike = Partial&lt;ProjectEntry&gt; &amp; {<br>src\heartbeat\config.ts:99:  return resolve(memorytreeRoot(), &#39;config.toml&#39;)<br>src\heartbeat\config.ts:106:export function loadConfig(): Config {<br>src\heartbeat\config.ts:139:    <code>report_port = ${normalized.report_port}</code>,<br>src\heartbeat\config.ts:169:    lines.push(<code>report_port = ${project.report_port}</code>)<br>src\heartbeat\config.ts:236:  if (overrides.report_port !== undefined) projectInput.report_port = overrides.report_port<br>src\heartbeat\config.ts:240:  const project = normalizeProjectEntry(projectInput as ProjectLike, normalized)<br>src\heartbeat\config.ts:260:  const project = normalizeProjectEntry({<br>src\heartbeat\config.ts:277:export function findProjectForPath(config: Config, candidatePath: string): ProjectEntry | null {<br>src\heartbeat\config.ts:279:  let bestMatch: ProjectEntry | null = null<br>src\heartbeat\config.ts:297:  return project?.report_port ?? config.report_port<br>src\heartbeat\config.ts:305:export function projectExecutionPath(project: ProjectEntry): string {<br>src\heartbeat\config.ts:309:export function projectDisplayName(project: ProjectEntry): string {<br>src\heartbeat\config.ts:313:export function projectIsDue(project: ProjectEntry, now: Date = new Date()): boolean {<br>src\heartbeat\config.ts:323:export function projectRefreshIsDue(project: ProjectEntry, now: Date = new Date()): boolean {<br>src\heartbeat\config.ts:375:    report_port: DEFAULT_REPORT_PORT,<br>src\heartbeat\config.ts:432:  const reportPort = isValidPort(raw[&#39;report_port&#39;])<br>src\heartbeat\config.ts:433:    ? raw[&#39;report_port&#39;]<br>src\heartbeat\config.ts:450:    report_port: reportPort,<br>src\heartbeat\config.ts:454:  const projects: ProjectEntry[] = []<br>src\heartbeat\config.ts:460:        const normalized = normalizeProjectEntry(entry as ProjectLike, cfg)<br>src\heartbeat\config.ts:488:    report_port: isValidPort(cfg.report_port) ? cfg.report_port : DEFAULT_REPORT_PORT,<br>src\heartbeat\config.ts:492:  const projects = cfg.projects.map(project =&gt; normalizeProjectEntry(project, normalizedBase))<br>src\heartbeat\config.ts:499:function normalizeProjectEntry(project: ProjectLike, cfg: Config): ProjectEntry {<br>src\heartbeat\config.ts:535:    report_port: isValidPort(project.report_port) ? project.report_port : cfg.report_port,<br>src\heartbeat\config.ts:606:function projectRoots(project: ProjectEntry): string[] {<br>src\heartbeat\config.ts:614:function projectContainsPath(project: ProjectEntry, candidatePath: string): boolean {<br>tests\report\render\links.test.ts:41:    global_raw_path: &#39;&#39;,<br>tests\report\render\links.test.ts:42:    global_clean_path: &#39;&#39;,<br>tests\report\render\links.test.ts:43:    global_manifest_path: &#39;&#39;,<br>src\cli\cmd-import.ts:19:  globalRoot: string<br>src\cli\cmd-import.ts:39:  const globalRoot = options.globalRoot ? resolve(options.globalRoot) : defaultGlobalTranscriptRoot()<br>src\cli\cmd-import.ts:54:    globalRoot,<br>src\cli\cmd-import.ts:88:    <code>global_raw_path: ${result[&#39;global_raw_path&#39;] ?? &#39;&#39;}</code>,<br>src\cli\cmd-import.ts:89:    <code>global_clean_path: ${result[&#39;global_clean_path&#39;] ?? &#39;&#39;}</code>,<br>src\cli\cmd-daemon.ts:16:  loadConfig,<br>src\cli\cmd-daemon.ts:44:  let config = loadConfig()<br>src\cli\cmd-daemon.ts:82:  const config = loadConfig()<br>src\cli\cmd-daemon.ts:116:    const config = loadConfig()<br>src\cli\cmd-daemon.ts:148:  const config = loadConfig()<br>src\cli\cmd-daemon.ts:180:    : existingProject?.report_port ?? config.report_port<br>src\cli\cmd-daemon.ts:193:    report_port: reportPort,<br>src\cli\cmd-daemon.ts:241:  const config = loadConfig()<br>src\heartbeat\heartbeat.ts:12:import type { Config, ProjectEntry } from &#39;./config.js&#39;<br>src\heartbeat\heartbeat.ts:15:  loadConfig,<br>src\heartbeat\heartbeat.ts:64:  const config = loadConfig()<br>src\heartbeat\heartbeat.ts:70:    writeAlert(&#39;global&#39;, &#39;lock_held&#39;, &#39;Heartbeat exited: another instance held the lock.&#39;)<br>src\heartbeat\heartbeat.ts:90:    logger.info(&#39;No projects registered in config.toml. Nothing to do.&#39;)<br>src\heartbeat\heartbeat.ts:180:  project?: ProjectEntry,<br>src\heartbeat\heartbeat.ts:184:  const globalRoot = defaultGlobalTranscriptRoot()<br>src\heartbeat\heartbeat.ts:199:      &#39;Importing to the global archive only.&#39;,<br>src\heartbeat\heartbeat.ts:221:      await importTranscript(parsed, projectPath, globalRoot, repoSlug, &#39;not-set&#39;, mirrorToRepo)<br>src\heartbeat\heartbeat.ts:242:      const { buildReport } = await import(&#39;../report/build.js&#39;)<br>src\heartbeat\heartbeat.ts:243:      await buildReport({<br>src\heartbeat\heartbeat.ts:362:  project?: Pick&lt;ProjectEntry, &#39;memory_branch&#39;&gt;,<br>src\cli\cmd-caddy.ts:3:import { findProjectForPath, loadConfig, type ProjectEntry } from &#39;../heartbeat/config.js&#39;<br>src\cli\cmd-caddy.ts:5:  disableManagedCaddy,<br>src\cli\cmd-caddy.ts:6:  enableManagedCaddy,<br>src\cli\cmd-caddy.ts:8:  loadManagedCaddyStatus,<br>src\cli\cmd-caddy.ts:10:} from &#39;../caddy/manager.js&#39;<br>src\cli\cmd-caddy.ts:16:      &#39;Project not found in ~/.memorytree/config.toml. Run <code>memorytree daemon quick-start --root .</code> first.\n&#39;,<br>src\cli\cmd-caddy.ts:27:    const result = enableManagedCaddy(project)<br>src\cli\cmd-caddy.ts:29:    process.stdout.write(<code>Port: ${String(project.report_port)}\n</code>)<br>src\cli\cmd-caddy.ts:51:      &#39;Project not found in ~/.memorytree/config.toml. Run <code>memorytree daemon quick-start --root .</code> first.\n&#39;,<br>src\cli\cmd-caddy.ts:62:    const result = disableManagedCaddy(project)<br>src\cli\cmd-caddy.ts:77:      &#39;Project not found in ~/.memorytree/config.toml. Run <code>memorytree daemon quick-start --root .</code> first.\n&#39;,<br>src\cli\cmd-caddy.ts:82:  const status = await loadManagedCaddyStatus(project)<br>src\cli\cmd-caddy.ts:104:function resolveProject(root: string): ProjectEntry | null {<br>src\cli\cmd-caddy.ts:105:  const config = loadConfig()<br>src\cli\cmd-recall.ts:14:  globalRoot: string<br>src\cli\cmd-recall.ts:26:  const result = await recall(root, options.projectName, options.globalRoot, options.activationTime)<br>src\cli\cmd-report.ts:23:  const { buildReport } = await import(&#39;../report/build.js&#39;)<br>src\cli\cmd-report.ts:33:    await buildReport(buildOptions)<br>src\cli\main.ts:77:  .option(&#39;--global-root &lt;path&gt;&#39;, &#39;Override global transcript root&#39;)<br>src\cli\main.ts:88:      globalRoot: opts.globalRoot ?? &#39;&#39;,<br>src\cli\main.ts:104:  .option(&#39;--global-root &lt;path&gt;&#39;, &#39;Override global transcript root&#39;)<br>src\cli\main.ts:115:      globalRoot: opts.globalRoot ?? &#39;&#39;,<br>src\cli\main.ts:146:  .option(&#39;--global-root &lt;path&gt;&#39;, &#39;Override global transcript root&#39;)<br>src\cli\main.ts:154:      globalRoot: opts.globalRoot ?? &#39;&#39;,<br>src\cli\main.ts:221:  .option(&#39;--port &lt;n&gt;&#39;, &#39;Port to listen on (default: ~/.memorytree/config.toml report_port or 10010)&#39;)<br>src\cli\main.ts:230:    const [{ cmdReportServe }, { loadConfig, resolveReportPort }] = await Promise.all([<br>src\cli\main.ts:236:    const config = loadConfig()<br>src\cli\main.ts:247:const caddy = program<br>src\cli\main.ts:248:  .command(&#39;caddy&#39;)<br>src\cli\main.ts:254:    &#39;    memorytree caddy enable --root .&#39;,<br>src\cli\main.ts:256:    &#39;    memorytree caddy status --root .&#39;,<br>src\cli\main.ts:258:    &#39;    memorytree caddy disable --root .&#39;,<br>src\cli\main.ts:261:caddy<br>src\cli\main.ts:266:    const { cmdCaddyEnable } = await import(&#39;./cmd-caddy.js&#39;)<br>src\cli\main.ts:272:caddy<br>src\cli\main.ts:277:    const { cmdCaddyDisable } = await import(&#39;./cmd-caddy.js&#39;)<br>src\cli\main.ts:283:caddy<br>src\cli\main.ts:288:    const { cmdCaddyStatus } = await import(&#39;./cmd-caddy.js&#39;)<br>￼<br>￼<br>成功<br>已运行 Get-Content -Raw &#39;src\caddy\manager.ts&#39;<br>￼<br>Shell<br>$ Get-Content -Raw &#39;src\caddy\manager.ts<br>￼<br>[output truncated]<br>/utils/exec.js&#39;</p><p>const CADDY_ADMIN_URL = &#39;http://127.0.0.1:2019&#39;</p><p>export interface ManagedCaddyPaths {<br>  readonly rootDir: string<br>  readonly sitesDir: string<br>  readonly mainConfigPath: string<br>  readonly fragmentPath: string<br>}</p><p>export interface ManagedCaddyStatus {<br>  readonly installed: boolean<br>  readonly running: boolean<br>  readonly usingManagedConfig: boolean | null<br>  readonly mainConfigPath: string<br>  readonly mainConfigExists: boolean<br>  readonly fragmentPath: string<br>  readonly fragmentExists: boolean<br>  readonly port: number<br>  readonly exposure: ProjectEntry[&#39;report_exposure&#39;]<br>  readonly reportDir: string<br>  readonly localUrls: readonly string[]<br>  readonly lanUrls: readonly string[]<br>}</p><p>export interface ManagedCaddyEnableResult {<br>  readonly mainConfigPath: string<br>  readonly fragmentPath: string<br>  readonly reportDir: string<br>  readonly localUrls: readonly string[]<br>  readonly lanUrls: readonly string[]<br>}</p><p>export function managedCaddyPaths(projectId: string): ManagedCaddyPaths {<br>  const rootDir = resolve(memorytreeRoot(), &#39;caddy&#39;)<br>  const sitesDir = resolve(rootDir, &#39;sites&#39;)<br>  return {<br>    rootDir,<br>    sitesDir,<br>    mainConfigPath: resolve(rootDir, &#39;Caddyfile&#39;),<br>    fragmentPath: resolve(sitesDir, <code>${projectId}.caddy</code>),<br>  }<br>}</p><p>export function projectReportDir(project: Pick&lt;ProjectEntry, &#39;development_path&#39;&gt;): string {<br>  return resolve(project.development_path, &#39;Memory&#39;, &#39;07_reports&#39;)<br>}</p><p>export function renderManagedMainCaddyfile(): string {<br>  return [<br>    &#39;# Managed by MemoryTree. Do not edit by hand.&#39;,<br>    &#39;{&#39;,<br>    &#39;  auto_https off&#39;,<br>    &#39;}&#39;,<br>    &#39;&#39;,<br>    &#39;import sites/*.caddy&#39;,<br>    &#39;&#39;,<br>  ].join(&#39;\n&#39;)<br>}</p><p>export function renderManagedProjectFragment(<br>  project: Pick&lt;ProjectEntry, &#39;id&#39; | &#39;name&#39; | &#39;report_port&#39; | &#39;report_exposure&#39;&gt;,<br>  reportDir: string,<br>): string {<br>  const lines = [<br>    &#39;# Managed by MemoryTree. Do not edit by hand.&#39;,<br>    <code># project_id: ${project.id}</code>,<br>    <code># project_name: ${project.name}</code>,<br>    <code># report_port: ${String(project.report_port)}</code>,<br>    <code># report_exposure: ${project.report_exposure}</code>,<br>    &#39;&#39;,<br>    managedSiteAddress(project.report_port, project.report_exposure),<br>    &#39;{&#39;,<br>  ]</p><p>if (project.report_exposure === &#39;local&#39;) {<br>    lines.push(&#39;  bind 127.0.0.1 [::1]&#39;)<br>  }</p><p>lines.push(<code>  root * ${quoteForCaddyPath(reportDir)}</code>)<br>  lines.push(&#39;  file_server&#39;)<br>  lines.push(&#39;}&#39;)<br>  lines.push(&#39;&#39;)<br>  return lines.join(&#39;\n&#39;)<br>}</p><p>export function isCaddyInstalled(): boolean {<br>  try {<br>    execCommand(&#39;caddy&#39;, [&#39;version&#39;])<br>    return true<br>  } catch {<br>    return false<br>  }<br>}</p><p>export function findManagedPortConflict(projectId: string, reportPort: number): string | null {<br>  const { sitesDir, fragmentPath } = managedCaddyPaths(projectId)<br>  if (!existsSync(sitesDir)) return null</p><p>for (const entry of readdirSync(sitesDir)) {<br>    if (!entry.endsWith(&#39;.caddy&#39;)) continue<br>    const currentPath = resolve(sitesDir, entry)<br>    if (currentPath === fragmentPath) continue</p><p>const text = readFileSync(currentPath, &#39;utf-8&#39;)<br>    const portMatch = text.match(/^# report_port:\s<em>(\d+)\s</em>$/m)<br>    if (!portMatch) continue</p><p>const currentPort = parseInt(portMatch[1]!, 10)<br>    if (currentPort !== reportPort) continue</p><p>const projectMatch = text.match(/^# project_id:\s<em>(.+)\s</em>$/m)<br>    return projectMatch?.[1]?.trim() || entry.replace(/\.caddy$/i, &#39;&#39;)<br>  }</p><p>return null<br>}</p><p>export function enableManagedCaddy(project: ProjectEntry): ManagedCaddyEnableResult {<br>  const paths = managedCaddyPaths(project.id)<br>  const conflictProjectId = findManagedPortConflict(project.id, project.report_port)<br>  if (conflictProjectId !== null) {<br>    throw new Error(<br>      <code>Port ${String(project.report_port)} is already used by another managed Caddy site (${conflictProjectId}). </code> +<br>      &#39;Change this project\&#39;s report_port first, then rerun the command.&#39;,<br>    )<br>  }</p><p>mkdirSync(paths.rootDir, { recursive: true })<br>  mkdirSync(paths.sitesDir, { recursive: true })</p><p>const reportDir = projectReportDir(project)<br>  mkdirSync(reportDir, { recursive: true })</p><p>writeTextIfChanged(paths.mainConfigPath, renderManagedMainCaddyfile())<br>  writeTextIfChanged(paths.fragmentPath, renderManagedProjectFragment(project, reportDir))<br>  validateManagedCaddyConfig(paths.mainConfigPath)<br>  try {<br>    reloadManagedCaddy(paths.mainConfigPath)<br>  } catch (error: unknown) {<br>    throw new Error(<br>      <code>Caddy config files were updated, but reload failed. ${formatExecError(error)} </code> +<br>      <code>Start Caddy with: ${managedCaddyStartCommand()}</code>,<br>    )<br>  }</p><p>return {<br>    mainConfigPath: paths.mainConfigPath,<br>    fragmentPath: paths.fragmentPath,<br>    reportDir,<br>    localUrls: localUrlsForProject(project.report_port),<br>    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),<br>  }<br>}</p><p>export function disableManagedCaddy(project: Pick&lt;ProjectEntry, &#39;id&#39; | &#39;report_port&#39; | &#39;report_exposure&#39;&gt;): ManagedCaddyEnableResult {<br>  const paths = managedCaddyPaths(project.id)<br>  if (existsSync(paths.fragmentPath)) {<br>    rmSync(paths.fragmentPath, { force: true })<br>  }</p><p>if (existsSync(paths.mainConfigPath)) {<br>    validateManagedCaddyConfig(paths.mainConfigPath)<br>    try {<br>      reloadManagedCaddy(paths.mainConfigPath)<br>    } catch (error: unknown) {<br>      throw new Error(<br>        <code>The project fragment was removed, but Caddy reload failed. ${formatExecError(error)} </code> +<br>        <code>Start Caddy with: ${managedCaddyStartCommand()}</code>,<br>      )<br>    }<br>  }</p><p>return {<br>    mainConfigPath: paths.mainConfigPath,<br>    fragmentPath: paths.fragmentPath,<br>    reportDir: &#39;&#39;,<br>    localUrls: localUrlsForProject(project.report_port),<br>    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),<br>  }<br>}</p><p>export async function loadManagedCaddyStatus(project: ProjectEntry): Promise&lt;ManagedCaddyStatus&gt; {<br>  const paths = managedCaddyPaths(project.id)<br>  const installed = isCaddyInstalled()<br>  const mainConfigExists = existsSync(paths.mainConfigPath)<br>  const fragmentExists = existsSync(paths.fragmentPath)<br>  const runningConfigText = installed ? await fetchRunningCaddyConfigText() : null<br>  const running = runningConfigText !== null</p><p>let usingManagedConfig: boolean | null = null<br>  if (installed &amp;&amp; running &amp;&amp; mainConfigExists) {<br>    const managedConfigText = adaptManagedCaddyConfig(paths.mainConfigPath)<br>    usingManagedConfig = stableJsonFromText(managedConfigText) === stableJsonFromText(runningConfigText)<br>  }</p><p>return {<br>    installed,<br>    running,<br>    usingManagedConfig,<br>    mainConfigPath: paths.mainConfigPath,<br>    mainConfigExists,<br>    fragmentPath: paths.fragmentPath,<br>    fragmentExists,<br>    port: project.report_port,<br>    exposure: project.report_exposure,<br>    reportDir: projectReportDir(project),<br>    localUrls: localUrlsForProject(project.report_port),<br>    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),<br>  }<br>}</p><p>export function managedCaddyStartCommand(): string {<br>  const mainConfigPath = managedCaddyPaths(&#39;placeholder&#39;).mainConfigPath<br>  return <code>caddy run --config &quot;${mainConfigPath}&quot; --adapter caddyfile</code><br>}</p><p>function managedSiteAddress(reportPort: number, exposure: ProjectEntry[&#39;report_exposure&#39;]): string {<br>  if (exposure === &#39;lan&#39;) {<br>    return <code>http://:${String(reportPort)}</code><br>  }<br>  return <code>http://127.0.0.1:${String(reportPort)}, http://localhost:${String(reportPort)}</code><br>}</p><p>function quoteForCaddyPath(value: string): string {<br>  const normalized = toPosixPath(resolve(value)).replace(/&quot;/g, &#39;\\&quot;&#39;)<br>  return <code>&quot;${normalized}&quot;</code><br>}</p><p>function writeTextIfChanged(path: string, content: string): void {<br>  if (existsSync(path) &amp;&amp; readFileSync(path, &#39;utf-8&#39;) === content) {<br>    return<br>  }<br>  writeFileSync(path, content, &#39;utf-8&#39;)<br>}</p><p>function validateManagedCaddyConfig(mainConfigPath: string): void {<br>  execCommand(&#39;caddy&#39;,</p><p>[Message truncated - exceeded 50,000 character limit]</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me read the key files to understand the full picture before designing the solution." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="message-body"><p>Let me read the key files to understand the full picture before designing the solution.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_e93782189d434e9e8b325ebd Read input={&quot;file_path&quot;:&quot;src/report/render/projects.ts&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_e93782189d434e9e8b325ebd</span>
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/report/render/projects.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/report/render/projects.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_96275b9c36fd40b0b8ecc768 Read input={&quot;file_path&quot;:&quot;src/report/build.ts&quot;,&quot;limit&quot;:80}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_96275b9c36fd40b0b8ecc768</span>
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/report/build.ts&quot;,&quot;limit&quot;:80}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/report/build.ts&quot;,
+  &quot;limit&quot;: 80
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_e93782189d434e9e8b325ebd Read output=1→/** 2→ * Projects page: groups sessions by their working directory (last segment). 3→ */ 4→ 5→import type { ManifestEntry } from &#39;../../types/transcript.js&#39; 6→import type { Tr..." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_e93782189d434e9e8b325ebd</span>
+      
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Projects page: groups sessions by their working directory (last segment). 3→ */ 4→ 5→import type { ManifestEntry } from &#39;../../types/transcript.js&#39; 6→import type { Tr...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Projects page: groups sessions by their working directory (last segment).
+     3→ */
+     4→
+     5→import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+     6→import type { Translations } from &#39;../i18n/types.js&#39;
+     7→import { clientBadge, escHtml, htmlShell, renderNav } from &#39;./layout.js&#39;
+     8→
+     9→// ---------------------------------------------------------------------------
+    10→// Project extraction
+    11→// ---------------------------------------------------------------------------
+    12→
+    13→export function extractProject(cwd: string): string {
+    14→  if (!cwd) return &#39;unknown&#39;
+    15→  return cwd.split(/[/\\]/).filter(Boolean).at(-1) ?? &#39;unknown&#39;
+    16→}
+    17→
+    18→// ---------------------------------------------------------------------------
+    19→// Projects page
+    20→// ---------------------------------------------------------------------------
+    21→
+    22→export function renderProjects(manifests: ManifestEntry[], t?: Translations): string {
+    23→  const nav = renderNav(&#39;projects&#39;, 1, t)
+    24→  const title = t?.projects.title ?? &#39;Projects&#39;
+    25→
+    26→  if (manifests.length === 0) {
+    27→    const content = `&lt;div class=&quot;page-header&quot;&gt;
+    28→  &lt;h1&gt;${escHtml(title)}&lt;/h1&gt;
+    29→  &lt;p class=&quot;subtitle&quot;&gt;${escHtml(t?.projects.noProjects ?? &#39;No projects found.&#39;)}&lt;/p&gt;
+    30→&lt;/div&gt;`
+    31→    return htmlShell(title, content, nav)
+    32→  }
+    33→
+    34→  // Group by project name
+    35→  const projectMap = new Map&lt;string, ManifestEntry[]&gt;()
+    36→  for (const m of manifests) {
+    37→    const proj = extractProject(m.cwd)
+    38→    const group = projectMap.get(proj)
+    39→    if (group) {
+    40→      group.push(m)
+    41→    } else {
+    42→      projectMap.set(proj, [m])
+    43→    }
+    44→  }
+    45→
+    46→  // Sort by session count desc
+    47→  const sorted = [...projectMap.entries()].sort((a, b) =&gt; b[1].length - a[1].length)
+    48→
+    49→  const sessionLabel = t?.projects.sessions ?? &#39;sessions&#39;
+    50→
+    51→  const cards = sorted.map(([name, sessions]) =&gt; {
+    52→    const count = sessions.length
+    53→    const lastActive = sessions
+    54→      .map(s =&gt; s.started_at)
+    55→      .sort()
+    56→      .at(-1)
+    57→      ?.slice(0, 10) ?? &#39;—&#39;
+    58→
+    59→    const clients = [...new Set(sessions.map(s =&gt; s.client))]
+    60→    const badges = clients.map(c =&gt; clientBadge(c)).join(&#39; &#39;)
+    61→
+    62→    return `&lt;div class=&quot;project-card&quot;&gt;
+    63→  &lt;div class=&quot;project-card-name&quot;&gt;${escHtml(name)}&lt;/div&gt;
+    64→  &lt;div class=&quot;project-card-meta&quot;&gt;
+    65→    ${count} ${escHtml(sessionLabel)} · last active ${escHtml(lastActive)}
+    66→  &lt;/div&gt;
+    67→  &lt;div class=&quot;project-card-clients&quot;&gt;${badges}&lt;/div&gt;
+    68→&lt;/div&gt;`
+    69→  }).join(&#39;\n&#39;)
+    70→
+    71→  const content = `&lt;div class=&quot;page-header&quot;&gt;
+    72→  &lt;h1&gt;${escHtml(title)}&lt;/h1&gt;
+    73→  &lt;p class=&quot;subtitle&quot;&gt;${sorted.length} project(s)&lt;/p&gt;
+    74→&lt;/div&gt;
+    75→&lt;div class=&quot;project-grid&quot;&gt;
+    76→${cards}
+    77→&lt;/div&gt;`
+    78→
+    79→  return htmlShell(title, content, nav)
+    80→}
+    81→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_96275b9c36fd40b0b8ecc768 Read output=1→/** 2→ * Report build orchestrator. 3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/. 4→ */ 5→ 6→import { 7→ existsSync, 8→ mkdirSync, 9→ readdirS..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_96275b9c36fd40b0b8ecc768</span>
+      
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Report build orchestrator. 3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/. 4→ */ 5→ 6→import { 7→ existsSync, 8→ mkdirSync, 9→ readdirS...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Report build orchestrator.
+     3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/.
+     4→ */
+     5→
+     6→import {
+     7→  existsSync,
+     8→  mkdirSync,
+     9→  readdirSync,
+    10→  readFileSync,
+    11→  writeFileSync,
+    12→  appendFileSync,
+    13→  rmSync,
+    14→} from &#39;node:fs&#39;
+    15→import { basename, dirname, join } from &#39;node:path&#39;
+    16→
+    17→import type { BuildReportOptions } from &#39;../types/report.js&#39;
+    18→import type { ManifestEntry } from &#39;../types/transcript.js&#39;
+    19→import { computeStats, extractToolNames, accumulateToolCounts } from &#39;./stats.js&#39;
+    20→import { renderDashboard } from &#39;./render/dashboard.js&#39;
+    21→import { renderTranscriptList } from &#39;./render/transcript-list.js&#39;
+    22→import { renderTranscript } from &#39;./render/transcript.js&#39;
+    23→import type { RenderedMessage } from &#39;./render/transcript.js&#39;
+    24→import { renderKnowledge } from &#39;./render/knowledge.js&#39;
+    25→import { renderGoals } from &#39;./render/goals.js&#39;
+    26→import { renderTodos } from &#39;./render/todos.js&#39;
+    27→import { renderArchive } from &#39;./render/archive.js&#39;
+    28→import { renderProjects } from &#39;./render/projects.js&#39;
+    29→import { renderGraph } from &#39;./render/graph.js&#39;
+    30→import { buildSearchIndex, renderSearchPage } from &#39;./render/search.js&#39;
+    31→import { buildLinkGraph } from &#39;./render/links.js&#39;
+    32→import { renderRssFeed } from &#39;./render/rss.js&#39;
+    33→import { getSummary } from &#39;./summarize.js&#39;
+    34→import type { SummaryOptions } from &#39;./summarize.js&#39;
+    35→import { getTags } from &#39;./tags.js&#39;
+    36→import { loadLocale } from &#39;./i18n/index.js&#39;
+    37→import type { Translations } from &#39;./i18n/types.js&#39;
+    38→import { getLogger } from &#39;../heartbeat/log.js&#39;
+    39→
+    40→const DEFAULT_MODEL = &#39;claude-haiku-4-5-20251001&#39;
+    41→
+    42→// ---------------------------------------------------------------------------
+    43→// Main entry point
+    44→// ---------------------------------------------------------------------------
+    45→
+    46→export async function buildReport(options: BuildReportOptions): Promise&lt;void&gt; {
+    47→  const { root, output } = options
+    48→  const noAi = options.noAi ?? false
+    49→  const model = options.model ?? DEFAULT_MODEL
+    50→  const locale = options.locale ?? &#39;en&#39;
+    51→  const ghPagesBranch = options.ghPagesBranch ?? &#39;&#39;
+    52→  const cname = options.cname ?? &#39;&#39;
+    53→  const webhookUrl = options.webhookUrl ?? &#39;&#39;
+    54→  const newSessionIds = options.newSessionIds ?? []
+    55→  const reportBaseUrl = options.reportBaseUrl ?? &#39;&#39;
+    56→
+    57→  // Cache lives outside the gitignored output dir so it survives rm -rf
+    58→  const cacheDir = join(root, &#39;Memory&#39;, &#39;.report-cache&#39;)
+    59→
+    60→  // Load translations
+    61→  const t: Translations = loadLocale(locale)
+    62→
+    63→  clearOutputDir(output)
+    64→
+    65→  // Ensure output dirs exist
+    66→  mkdirSync(output, { recursive: true })
+    67→  mkdirSync(join(output, &#39;transcripts&#39;), { recursive: true })
+    68→  mkdirSync(join(output, &#39;goals&#39;), { recursive: true })
+    69→  mkdirSync(join(output, &#39;knowledge&#39;), { recursive: true })
+    70→  mkdirSync(join(output, &#39;todos&#39;), { recursive: true })
+    71→  mkdirSync(join(output, &#39;archive&#39;), { recursive: true })
+    72→  mkdirSync(join(output, &#39;projects&#39;), { recursive: true })
+    73→  mkdirSync(cacheDir, { recursive: true })
+    74→
+    75→  // Ensure Memory/07_reports is gitignored
+    76→  ensureGitignore(root, &#39;Memory/07_reports/&#39;)
+    77→
+    78→  // Load all manifests
+    79→  const manifests = loadManifests(root)
+    80→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_289c2c4a3f6449188fe467e4 Read input={&quot;file_path&quot;:&quot;src/heartbeat/config.ts&quot;,&quot;limit&quot;:100}" id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_289c2c4a3f6449188fe467e4</span>
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/heartbeat/config.ts&quot;,&quot;limit&quot;:100}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/heartbeat/config.ts&quot;,
+  &quot;limit&quot;: 100
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_29ddd8f1ee264a4f814e340b Bash input={&quot;command&quot;:&quot;cat ~/.memorytree/config.toml 2&gt;/dev/null || echo &#39;(no config.toml found)&#39;&quot;,&quot;description&quot;:&quot;Read actual global config&quot;}" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_29ddd8f1ee264a4f814e340b</span>
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;cat ~/.memorytree/config.toml 2&gt;/dev/null || echo &#39;(no config.toml found)&#39;&quot;,&quot;description&quot;:&quot;Read actual global config&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;cat ~/.memorytree/config.toml 2&gt;/dev/null || echo &#39;(no config.toml found)&#39;&quot;,
+  &quot;description&quot;: &quot;Read actual global config&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_289c2c4a3f6449188fe467e4 Read output=1→/** 2→ * Load, validate, and manage ~/.memorytree/config.toml. 3→ * Port of scripts/_config_utils.py 4→ */ 5→ 6→import { existsSync, mkdirSync, readFileSync, writeFileSync } f..." id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_289c2c4a3f6449188fe467e4</span>
+      
+      <span class="timeline-time">09:24:48</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Load, validate, and manage ~/.memorytree/config.toml. 3→ * Port of scripts/_config_utils.py 4→ */ 5→ 6→import { existsSync, mkdirSync, readFileSync, writeFileSync } f...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Load, validate, and manage ~/.memorytree/config.toml.
+     3→ * Port of scripts/_config_utils.py
+     4→ */
+     5→
+     6→import { existsSync, mkdirSync, readFileSync, writeFileSync } from &#39;node:fs&#39;
+     7→import { homedir } from &#39;node:os&#39;
+     8→import { basename, dirname, resolve } from &#39;node:path&#39;
+     9→
+    10→import { parse as parseToml } from &#39;smol-toml&#39;
+    11→
+    12→import { toPosixPath } from &#39;../utils/path.js&#39;
+    13→
+    14→// ---------------------------------------------------------------------------
+    15→// Constants
+    16→// ---------------------------------------------------------------------------
+    17→
+    18→const DEFAULT_HEARTBEAT_INTERVAL = &#39;5m&#39;
+    19→const DEFAULT_REFRESH_INTERVAL = &#39;30m&#39;
+    20→export const DEFAULT_MEMORY_BRANCH = &#39;memorytree&#39;
+    21→const DEFAULT_AUTO_PUSH = true
+    22→const DEFAULT_LOG_LEVEL = &#39;info&#39;
+    23→const DEFAULT_GENERATE_REPORT = false
+    24→const DEFAULT_AI_SUMMARY_MODEL = &#39;claude-haiku-4-5-20251001&#39;
+    25→const DEFAULT_LOCALE = &#39;en&#39;
+    26→const DEFAULT_GH_PAGES_BRANCH = &#39;&#39;
+    27→const DEFAULT_CNAME = &#39;&#39;
+    28→const DEFAULT_WEBHOOK_URL = &#39;&#39;
+    29→const DEFAULT_REPORT_BASE_URL = &#39;&#39;
+    30→const DEFAULT_REPORT_PORT = 10010
+    31→const DEFAULT_REPORT_EXPOSURE = &#39;local&#39;
+    32→const VALID_LOG_LEVELS: ReadonlySet&lt;string&gt; = new Set([&#39;debug&#39;, &#39;info&#39;, &#39;warn&#39;, &#39;error&#39;])
+    33→
+    34→// ---------------------------------------------------------------------------
+    35→// Types
+    36→// ---------------------------------------------------------------------------
+    37→
+    38→export type ReportExposure = &#39;local&#39; | &#39;lan&#39;
+    39→
+    40→export interface ProjectEntry {
+    41→  readonly id: string
+    42→  readonly path: string
+    43→  readonly name: string
+    44→  readonly development_path: string
+    45→  readonly memory_path: string
+    46→  readonly memory_branch: string
+    47→  readonly heartbeat_interval: string
+    48→  readonly refresh_interval: string
+    49→  readonly auto_push: boolean
+    50→  readonly generate_report: boolean
+    51→  readonly ai_summary_model: string
+    52→  readonly locale: string
+    53→  readonly gh_pages_branch: string
+    54→  readonly cname: string
+    55→  readonly webhook_url: string
+    56→  readonly report_base_url: string
+    57→  readonly report_port: number
+    58→  readonly report_exposure: ReportExposure
+    59→  readonly last_heartbeat_at: string
+    60→  readonly last_refresh_at: string
+    61→}
+    62→
+    63→export interface Config {
+    64→  readonly heartbeat_interval: string
+    65→  readonly watch_dirs: readonly string[]
+    66→  readonly projects: readonly ProjectEntry[]
+    67→  readonly auto_push: boolean
+    68→  readonly log_level: string
+    69→  readonly generate_report: boolean
+    70→  readonly ai_summary_model: string
+    71→  readonly locale: string
+    72→  readonly gh_pages_branch: string
+    73→  readonly cname: string
+    74→  readonly webhook_url: string
+    75→  /** Base URL for RSS/OG meta (e.g. &#39;https://memory.example.com&#39;). Empty = skip. */
+    76→  readonly report_base_url: string
+    77→  /** Port for the report HTTP server. Default: 10010. */
+    78→  readonly report_port: number
+    79→  /** Exposure for local report hosting. Default: local. */
+    80→  readonly report_exposure: ReportExposure
+    81→}
+    82→
+    83→type ProjectLike = Partial&lt;ProjectEntry&gt; &amp; {
+    84→  readonly path?: string
+    85→  readonly name?: string
+    86→  readonly development_path?: string
+    87→  readonly memory_path?: string
+    88→}
+    89→
+    90→// ---------------------------------------------------------------------------
+    91→// Path helpers
+    92→// ---------------------------------------------------------------------------
+    93→
+    94→export function memorytreeRoot(): string {
+    95→  return resolve(homedir(), &#39;.memorytree&#39;)
+    96→}
+    97→
+    98→export function configPath(): string {
+    99→  return resolve(memorytreeRoot(), &#39;config.toml&#39;)
+   100→}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_29ddd8f1ee264a4f814e340b Bash output=heartbeat_interval = &quot;5m&quot; auto_push = true log_level = &quot;info&quot; generate_report = false ai_summary_model = &quot;claude-haiku-4-5-20251001&quot; locale = &quot;en&quot; gh_pages_branch = &quot;&quot; cname = &quot;..." id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_29ddd8f1ee264a4f814e340b</span>
+      
+      <span class="timeline-time">09:24:55</span>
+    </div>
+    <div class="timeline-title">Bash output=heartbeat_interval = &quot;5m&quot; auto_push = true log_level = &quot;info&quot; generate_report = false ai_summary_model = &quot;claude-haiku-4-5-20251001&quot; locale = &quot;en&quot; gh_pages_branch = &quot;&quot; cname = &quot;...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>heartbeat_interval = &quot;5m&quot;
+auto_push = true
+log_level = &quot;info&quot;
+generate_report = false
+ai_summary_model = &quot;claude-haiku-4-5-20251001&quot;
+locale = &quot;en&quot;
+gh_pages_branch = &quot;&quot;
+cname = &quot;&quot;
+webhook_url = &quot;&quot;
+report_base_url = &quot;&quot;
+report_port = 10010
+report_exposure = &quot;local&quot;
+watch_dirs = []
+
+[[projects]]
+id = &quot;c-users-ai-memorytree-worktrees-openmnemo-c-users-ai-memorytree-worktrees-openmnemo&quot;
+path = &quot;C:/Users/ai/.memorytree/worktrees/openmnemo&quot;
+name = &quot;openmnemo&quot;
+development_path = &quot;C:/Users/ai/.memorytree/worktrees/openmnemo&quot;
+memory_path = &quot;C:/Users/ai/.memorytree/worktrees/openmnemo&quot;
+memory_branch = &quot;memorytree&quot;
+heartbeat_interval = &quot;5m&quot;
+refresh_interval = &quot;30m&quot;
+auto_push = true
+generate_report = false
+ai_summary_model = &quot;claude-haiku-4-5-20251001&quot;
+locale = &quot;en&quot;
+gh_pages_branch = &quot;&quot;
+cname = &quot;&quot;
+webhook_url = &quot;&quot;
+report_base_url = &quot;&quot;
+report_port = 10010
+report_exposure = &quot;local&quot;
+last_heartbeat_at = &quot;2026-03-20T09:21:01.255Z&quot;
+last_refresh_at = &quot;2026-03-20T09:21:01.255Z&quot;
+
+[[projects]]
+id = &quot;d-demo1-memorytree-workflow-d-demo1-memorytree-workflow&quot;
+path = &quot;C:/Users/ai/.memorytree/worktrees/memorytree-workflow-active&quot;
+name = &quot;memorytree-workflow&quot;
+development_path = &quot;D:/demo1/memorytree-workflow&quot;
+memory_path = &quot;C:/Users/ai/.memorytree/worktrees/memorytree-workflow-active&quot;
+memory_branch = &quot;memorytree&quot;
+heartbeat_interval = &quot;5m&quot;
+refresh_interval = &quot;30m&quot;
+auto_push = true
+generate_report = true
+ai_summary_model = &quot;claude-haiku-4-5-20251001&quot;
+locale = &quot;en&quot;
+gh_pages_branch = &quot;&quot;
+cname = &quot;&quot;
+webhook_url = &quot;&quot;
+report_base_url = &quot;&quot;
+report_port = 10010
+report_exposure = &quot;local&quot;
+last_heartbeat_at = &quot;2026-03-20T09:21:01.255Z&quot;
+last_refresh_at = &quot;2026-03-20T09:21:01.255Z&quot;
+
+[[projects]]
+id = &quot;d-demo1-papaweb&quot;
+path = &quot;D:/demo1/papaweb&quot;
+name = &quot;papaweb&quot;
+development_path = &quot;D:/demo1/papaweb&quot;
+memory_path = &quot;D:/demo1/papaweb&quot;
+memory_branch = &quot;dev&quot;
+heartbeat_interval = &quot;5m&quot;
+refresh_interval = &quot;30m&quot;
+auto_push = true
+generate_report = true
+ai_summary_model = &quot;claude-haiku-4-5-20251001&quot;
+locale = &quot;zh-cn&quot;
+gh_pages_branch = &quot;&quot;
+cname = &quot;&quot;
+webhook_url = &quot;&quot;
+report_base_url = &quot;&quot;
+report_port = 10010
+report_exposure = &quot;local&quot;
+last_heartbeat_at = &quot;2026-03-20T09:21:01.255Z&quot;
+last_refresh_at = &quot;2026-03-20T09:21:01.255Z&quot;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me read more context before implementing." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#11</span>
+      
+      <span class="timeline-time">09:25:56</span>
+    </div>
+    <div class="message-body"><p>Let me read more context before implementing.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_700527e8c1e140d38a97d0fa Bash input={&quot;command&quot;:&quot;cat ~/.memorytree/caddy/sites/*.caddy 2&gt;/dev/null || echo &#39;(no caddy fragments)&#39;&quot;,&quot;description&quot;:&quot;Show current caddy fragments&quot;}" id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_700527e8c1e140d38a97d0fa</span>
+      <span class="timeline-time">09:25:56</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;cat ~/.memorytree/caddy/sites/*.caddy 2&gt;/dev/null || echo &#39;(no caddy fragments)&#39;&quot;,&quot;description&quot;:&quot;Show current caddy fragments&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;cat ~/.memorytree/caddy/sites/*.caddy 2&gt;/dev/null || echo &#39;(no caddy fragments)&#39;&quot;,
+  &quot;description&quot;: &quot;Show current caddy fragments&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_b980618d9ef84decaa5724a7 Read input={&quot;file_path&quot;:&quot;src/cli/main.ts&quot;,&quot;limit&quot;:60,&quot;offset&quot;:240}" id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_b980618d9ef84decaa5724a7</span>
+      <span class="timeline-time">09:25:56</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/cli/main.ts&quot;,&quot;limit&quot;:60,&quot;offset&quot;:240}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/cli/main.ts&quot;,
+  &quot;limit&quot;: 60,
+  &quot;offset&quot;: 240
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_bb22908c0425479fac7e984b Read input={&quot;file_path&quot;:&quot;src/cli/cmd-caddy.ts&quot;}" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_bb22908c0425479fac7e984b</span>
+      <span class="timeline-time">09:25:56</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/cli/cmd-caddy.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/cli/cmd-caddy.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_700527e8c1e140d38a97d0fa Bash output=# Managed by MemoryTree. Do not edit by hand. # project_id: d-demo1-memorytree-workflow-d-demo1-memorytree-workflow # project_name: memorytree-workflow # report_port: 10010 # re..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_700527e8c1e140d38a97d0fa</span>
+      
+      <span class="timeline-time">09:26:18</span>
+    </div>
+    <div class="timeline-title">Bash output=# Managed by MemoryTree. Do not edit by hand. # project_id: d-demo1-memorytree-workflow-d-demo1-memorytree-workflow # project_name: memorytree-workflow # report_port: 10010 # re...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Managed by MemoryTree. Do not edit by hand.
+# project_id: d-demo1-memorytree-workflow-d-demo1-memorytree-workflow
+# project_name: memorytree-workflow
+# report_port: 10010
+# report_exposure: local
+
+http://127.0.0.1:10010, http://localhost:10010
+{
+  bind 127.0.0.1 [::1]
+  root * &quot;D:/demo1/memorytree-workflow/Memory/07_reports&quot;
+  file_server
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_b980618d9ef84decaa5724a7 Read output=240→ ? requestedPort 241→ : resolveReportPort(config, resolvedDir), 242→ }) 243→ }) 244→ 245→// ── daemon ──────────────────────────────────────────────────────────────── 246→ 2..." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_b980618d9ef84decaa5724a7</span>
+      
+      <span class="timeline-time">09:26:18</span>
+    </div>
+    <div class="timeline-title">Read output=240→ ? requestedPort 241→ : resolveReportPort(config, resolvedDir), 242→ }) 243→ }) 244→ 245→// ── daemon ──────────────────────────────────────────────────────────────── 246→ 2...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>240→        ? requestedPort
+   241→        : resolveReportPort(config, resolvedDir),
+   242→    })
+   243→  })
+   244→
+   245→// ── daemon ────────────────────────────────────────────────────────────────
+   246→
+   247→const caddy = program
+   248→  .command(&#39;caddy&#39;)
+   249→  .description(&#39;Manage MemoryTree-owned Caddy config for long-running local report hosting&#39;)
+   250→  .addHelpText(&#39;after&#39;, [
+   251→    &#39;&#39;,
+   252→    &#39;Scenario examples:&#39;,
+   253→    &#39;  Connect the current repository to Caddy:&#39;,
+   254→    &#39;    memorytree caddy enable --root .&#39;,
+   255→    &#39;  Check the current repository Caddy status:&#39;,
+   256→    &#39;    memorytree caddy status --root .&#39;,
+   257→    &#39;  Remove the current repository from MemoryTree-managed Caddy:&#39;,
+   258→    &#39;    memorytree caddy disable --root .&#39;,
+   259→  ].join(&#39;\n&#39;))
+   260→
+   261→caddy
+   262→  .command(&#39;enable&#39;)
+   263→  .description(&#39;Write/update the current project Caddy fragment and reload Caddy&#39;)
+   264→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Project root that is already registered with MemoryTree&#39;, &#39;.&#39;)
+   265→  .action(async (opts) =&gt; {
+   266→    const { cmdCaddyEnable } = await import(&#39;./cmd-caddy.js&#39;)
+   267→    process.exitCode = await cmdCaddyEnable({
+   268→      root: opts.root,
+   269→    })
+   270→  })
+   271→
+   272→caddy
+   273→  .command(&#39;disable&#39;)
+   274→  .description(&#39;Remove the current project Caddy fragment and reload Caddy&#39;)
+   275→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Project root that is already registered with MemoryTree&#39;, &#39;.&#39;)
+   276→  .action(async (opts) =&gt; {
+   277→    const { cmdCaddyDisable } = await import(&#39;./cmd-caddy.js&#39;)
+   278→    process.exitCode = await cmdCaddyDisable({
+   279→      root: opts.root,
+   280→    })
+   281→  })
+   282→
+   283→caddy
+   284→  .command(&#39;status&#39;)
+   285→  .description(&#39;Show whether the current project is connected to MemoryTree-managed Caddy&#39;)
+   286→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Project root that is already registered with MemoryTree&#39;, &#39;.&#39;)
+   287→  .action(async (opts) =&gt; {
+   288→    const { cmdCaddyStatus } = await import(&#39;./cmd-caddy.js&#39;)
+   289→    process.exitCode = await cmdCaddyStatus({
+   290→      root: opts.root,
+   291→    })
+   292→  })
+   293→
+   294→const daemonHelpExamples = [
+   295→  &#39;&#39;,
+   296→  &#39;Scenario examples:&#39;,
+   297→  &#39;  First time on this machine:&#39;,
+   298→  &#39;    memorytree daemon install --interval 5m --auto-push true&#39;,
+   299→  &#39;  First time for the current repository:&#39;,</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_bb22908c0425479fac7e984b Read output=1→import { resolve } from &#39;node:path&#39; 2→ 3→import { findProjectForPath, loadConfig, type ProjectEntry } from &#39;../heartbeat/config.js&#39; 4→import { 5→ disableManagedCaddy, 6→ enabl..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_bb22908c0425479fac7e984b</span>
+      
+      <span class="timeline-time">09:26:18</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { resolve } from &#39;node:path&#39; 2→ 3→import { findProjectForPath, loadConfig, type ProjectEntry } from &#39;../heartbeat/config.js&#39; 4→import { 5→ disableManagedCaddy, 6→ enabl...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { resolve } from &#39;node:path&#39;
+     2→
+     3→import { findProjectForPath, loadConfig, type ProjectEntry } from &#39;../heartbeat/config.js&#39;
+     4→import {
+     5→  disableManagedCaddy,
+     6→  enableManagedCaddy,
+     7→  isCaddyInstalled,
+     8→  loadManagedCaddyStatus,
+     9→  managedCaddyStartCommand,
+    10→} from &#39;../caddy/manager.js&#39;
+    11→
+    12→export async function cmdCaddyEnable(options: { root: string }): Promise&lt;number&gt; {
+    13→  const project = resolveProject(options.root)
+    14→  if (project === null) {
+    15→    process.stderr.write(
+    16→      &#39;Project not found in ~/.memorytree/config.toml. Run `memorytree daemon quick-start --root .` first.\n&#39;,
+    17→    )
+    18→    return 1
+    19→  }
+    20→
+    21→  if (!isCaddyInstalled()) {
+    22→    process.stderr.write(&#39;Caddy is not installed or not available on PATH. Install Caddy first.\n&#39;)
+    23→    return 1
+    24→  }
+    25→
+    26→  try {
+    27→    const result = enableManagedCaddy(project)
+    28→    process.stdout.write(`Caddy enabled for project: ${project.name}\n`)
+    29→    process.stdout.write(`Port: ${String(project.report_port)}\n`)
+    30→    process.stdout.write(`Exposure: ${project.report_exposure}\n`)
+    31→    process.stdout.write(`Report directory: ${result.reportDir}\n`)
+    32→    process.stdout.write(`Main config: ${result.mainConfigPath}\n`)
+    33→    process.stdout.write(`Project fragment: ${result.fragmentPath}\n`)
+    34→    for (const url of result.localUrls) {
+    35→      process.stdout.write(`Local URL: ${url}\n`)
+    36→    }
+    37→    for (const url of result.lanUrls) {
+    38→      process.stdout.write(`LAN URL: ${url}\n`)
+    39→    }
+    40→    return 0
+    41→  } catch (error: unknown) {
+    42→    process.stderr.write(`${formatError(error)}\n`)
+    43→    return 1
+    44→  }
+    45→}
+    46→
+    47→export async function cmdCaddyDisable(options: { root: string }): Promise&lt;number&gt; {
+    48→  const project = resolveProject(options.root)
+    49→  if (project === null) {
+    50→    process.stderr.write(
+    51→      &#39;Project not found in ~/.memorytree/config.toml. Run `memorytree daemon quick-start --root .` first.\n&#39;,
+    52→    )
+    53→    return 1
+    54→  }
+    55→
+    56→  if (!isCaddyInstalled()) {
+    57→    process.stderr.write(&#39;Caddy is not installed or not available on PATH. Install Caddy first.\n&#39;)
+    58→    return 1
+    59→  }
+    60→
+    61→  try {
+    62→    const result = disableManagedCaddy(project)
+    63→    process.stdout.write(`Caddy disabled for project: ${project.name}\n`)
+    64→    process.stdout.write(`Main config: ${result.mainConfigPath}\n`)
+    65→    process.stdout.write(`Project fragment removed: ${result.fragmentPath}\n`)
+    66→    return 0
+    67→  } catch (error: unknown) {
+    68→    process.stderr.write(`${formatError(error)}\n`)
+    69→    return 1
+    70→  }
+    71→}
+    72→
+    73→export async function cmdCaddyStatus(options: { root: string }): Promise&lt;number&gt; {
+    74→  const project = resolveProject(options.root)
+    75→  if (project === null) {
+    76→    process.stderr.write(
+    77→      &#39;Project not found in ~/.memorytree/config.toml. Run `memorytree daemon quick-start --root .` first.\n&#39;,
+    78→    )
+    79→    return 1
+    80→  }
+    81→
+    82→  const status = await loadManagedCaddyStatus(project)
+    83→  process.stdout.write(`Caddy installed: ${yesNo(status.installed)}\n`)
+    84→  process.stdout.write(`Caddy running: ${yesNo(status.running)}\n`)
+    85→  process.stdout.write(`Using MemoryTree Caddyfile: ${yesNoOrUnknown(status.usingManagedConfig)}\n`)
+    86→  process.stdout.write(`Project registered: ${yesNo(status.fragmentExists)}\n`)
+    87→  process.stdout.write(`Port: ${String(status.port)}\n`)
+    88→  process.stdout.write(`Exposure: ${status.exposure}\n`)
+    89→  process.stdout.write(`Report directory: ${status.reportDir}\n`)
+    90→  process.stdout.write(`Main config: ${status.mainConfigPath}\n`)
+    91→  process.stdout.write(`Project fragment: ${status.fragmentPath}\n`)
+    92→  for (const url of status.localUrls) {
+    93→    process.stdout.write(`Local URL: ${url}\n`)
+    94→  }
+    95→  for (const url of status.lanUrls) {
+    96→    process.stdout.write(`LAN URL: ${url}\n`)
+    97→  }
+    98→  if (!status.installed || !status.running || status.usingManagedConfig !== true) {
+    99→    process.stdout.write(`Managed start command: ${managedCaddyStartCommand()}\n`)
+   100→  }
+   101→  return 0
+   102→}
+   103→
+   104→function resolveProject(root: string): ProjectEntry | null {
+   105→  const config = loadConfig()
+   106→  return findProjectForPath(config, resolve(root))
+   107→}
+   108→
+   109→function yesNo(value: boolean): string {
+   110→  return value ? &#39;yes&#39; : &#39;no&#39;
+   111→}
+   112→
+   113→function yesNoOrUnknown(value: boolean | null): string {
+   114→  if (value === null) return &#39;unknown&#39;
+   115→  return yesNo(value)
+   116→}
+   117→
+   118→function formatError(error: unknown): string {
+   119→  if (error instanceof Error &amp;&amp; error.message) {
+   120→    return error.message
+   121→  }
+   122→  return String(error)
+   123→}
+   124→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now I have the full picture. Let me read the test for caddy and the manager more completely before implementing." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#18</span>
+      
+      <span class="timeline-time">09:26:58</span>
+    </div>
+    <div class="message-body"><p>Now I have the full picture. Let me read the test for caddy and the manager more completely before implementing.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_52c2aeb8d78141b082a0d101 Read input={&quot;file_path&quot;:&quot;tests/caddy/manager.test.ts&quot;}" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_52c2aeb8d78141b082a0d101</span>
+      <span class="timeline-time">09:26:58</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;tests/caddy/manager.test.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;tests/caddy/manager.test.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_8aa66ecb3d4f48abb765a2d7 Read input={&quot;file_path&quot;:&quot;src/caddy/manager.ts&quot;,&quot;limit&quot;:50}" id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_8aa66ecb3d4f48abb765a2d7</span>
+      <span class="timeline-time">09:26:58</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/caddy/manager.ts&quot;,&quot;limit&quot;:50}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/caddy/manager.ts&quot;,
+  &quot;limit&quot;: 50
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_52c2aeb8d78141b082a0d101 Read output=1→import { beforeEach, afterEach, describe, expect, it, vi } from &#39;vitest&#39; 2→import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from &#39;node:fs&#39; 3→import { join, resolve } f..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_52c2aeb8d78141b082a0d101</span>
+      
+      <span class="timeline-time">09:26:58</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { beforeEach, afterEach, describe, expect, it, vi } from &#39;vitest&#39; 2→import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from &#39;node:fs&#39; 3→import { join, resolve } f...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { beforeEach, afterEach, describe, expect, it, vi } from &#39;vitest&#39;
+     2→import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from &#39;node:fs&#39;
+     3→import { join, resolve } from &#39;node:path&#39;
+     4→import { tmpdir } from &#39;node:os&#39;
+     5→
+     6→let tmpHome: string
+     7→
+     8→vi.mock(&#39;node:os&#39;, async () =&gt; {
+     9→  const actual = await vi.importActual&lt;typeof import(&#39;node:os&#39;)&gt;(&#39;node:os&#39;)
+    10→  return {
+    11→    ...actual,
+    12→    homedir: () =&gt; tmpHome,
+    13→  }
+    14→})
+    15→
+    16→import {
+    17→  findManagedPortConflict,
+    18→  managedCaddyPaths,
+    19→  managedCaddyStartCommand,
+    20→  renderManagedMainCaddyfile,
+    21→  renderManagedProjectFragment,
+    22→} from &#39;../../src/caddy/manager.js&#39;
+    23→import { toPosixPath } from &#39;../../src/utils/path.js&#39;
+    24→
+    25→beforeEach(() =&gt; {
+    26→  tmpHome = mkdtempSync(join(tmpdir(), &#39;memorytree-caddy-test-&#39;))
+    27→})
+    28→
+    29→afterEach(() =&gt; {
+    30→  rmSync(tmpHome, { recursive: true, force: true })
+    31→})
+    32→
+    33→describe(&#39;managedCaddyPaths&#39;, () =&gt; {
+    34→  it(&#39;stores the managed config tree under ~/.memorytree/caddy&#39;, () =&gt; {
+    35→    const paths = managedCaddyPaths(&#39;demo-project&#39;)
+    36→
+    37→    expect(paths.rootDir).toContain(&#39;.memorytree&#39;)
+    38→    expect(paths.mainConfigPath).toContain(&#39;.memorytree&#39;)
+    39→    expect(paths.fragmentPath).toContain(join(&#39;.memorytree&#39;, &#39;caddy&#39;, &#39;sites&#39;))
+    40→    expect(paths.fragmentPath).toMatch(/demo-project\.caddy$/)
+    41→  })
+    42→})
+    43→
+    44→describe(&#39;renderManagedMainCaddyfile&#39;, () =&gt; {
+    45→  it(&#39;imports project site fragments through a MemoryTree-owned main Caddyfile&#39;, () =&gt; {
+    46→    const text = renderManagedMainCaddyfile()
+    47→
+    48→    expect(text).toContain(&#39;auto_https off&#39;)
+    49→    expect(text).toContain(&#39;import sites/*.caddy&#39;)
+    50→  })
+    51→})
+    52→
+    53→describe(&#39;renderManagedProjectFragment&#39;, () =&gt; {
+    54→  it(&#39;renders a local-only site block with loopback bind&#39;, () =&gt; {
+    55→    const reportDir = resolve(&#39;Memory&#39;, &#39;07_reports&#39;)
+    56→    const text = renderManagedProjectFragment({
+    57→      id: &#39;demo-project&#39;,
+    58→      name: &#39;Demo Project&#39;,
+    59→      report_port: 10010,
+    60→      report_exposure: &#39;local&#39;,
+    61→    }, reportDir)
+    62→
+    63→    expect(text).toContain(&#39;# project_id: demo-project&#39;)
+    64→    expect(text).toContain(&#39;# report_port: 10010&#39;)
+    65→    expect(text).toContain(&#39;# report_exposure: local&#39;)
+    66→    expect(text).toContain(&#39;http://127.0.0.1:10010, http://localhost:10010&#39;)
+    67→    expect(text).toContain(&#39;bind 127.0.0.1 [::1]&#39;)
+    68→    expect(text).toContain(`root * &quot;${toPosixPath(reportDir)}&quot;`)
+    69→    expect(text).toContain(&#39;file_server&#39;)
+    70→  })
+    71→
+    72→  it(&#39;renders a lan-visible site block without loopback bind restriction&#39;, () =&gt; {
+    73→    const text = renderManagedProjectFragment({
+    74→      id: &#39;demo-project&#39;,
+    75→      name: &#39;Demo Project&#39;,
+    76→      report_port: 12000,
+    77→      report_exposure: &#39;lan&#39;,
+    78→    }, &#39;/workspace/demo/Memory/07_reports&#39;)
+    79→
+    80→    expect(text).toContain(&#39;http://:12000&#39;)
+    81→    expect(text).not.toContain(&#39;bind 127.0.0.1&#39;)
+    82→  })
+    83→})
+    84→
+    85→describe(&#39;findManagedPortConflict&#39;, () =&gt; {
+    86→  it(&#39;detects when another managed fragment already owns the same port&#39;, () =&gt; {
+    87→    const paths = managedCaddyPaths(&#39;demo-project&#39;)
+    88→    mkdirSync(paths.sitesDir, { recursive: true })
+    89→    writeFileSync(join(paths.sitesDir, &#39;other-project.caddy&#39;), [
+    90→      &#39;# project_id: other-project&#39;,
+    91→      &#39;# report_port: 10010&#39;,
+    92→      &#39;&#39;,
+    93→    ].join(&#39;\n&#39;), &#39;utf-8&#39;)
+    94→
+    95→    expect(findManagedPortConflict(&#39;demo-project&#39;, 10010)).toBe(&#39;other-project&#39;)
+    96→  })
+    97→
+    98→  it(&#39;ignores the current project fragment when the port matches itself&#39;, () =&gt; {
+    99→    const paths = managedCaddyPaths(&#39;demo-project&#39;)
+   100→    mkdirSync(paths.sitesDir, { recursive: true })
+   101→    writeFileSync(paths.fragmentPath, [
+   102→      &#39;# project_id: demo-project&#39;,
+   103→      &#39;# report_port: 10010&#39;,
+   104→      &#39;&#39;,
+   105→    ].join(&#39;\n&#39;), &#39;utf-8&#39;)
+   106→
+   107→    expect(findManagedPortConflict(&#39;demo-project&#39;, 10010)).toBeNull()
+   108→  })
+   109→})
+   110→
+   111→describe(&#39;managedCaddyStartCommand&#39;, () =&gt; {
+   112→  it(&#39;points Caddy at the MemoryTree-owned main config&#39;, () =&gt; {
+   113→    expect(managedCaddyStartCommand()).toContain(&#39;caddy run --config&#39;)
+   114→    expect(managedCaddyStartCommand()).toContain(&#39;.memorytree&#39;)
+   115→    expect(managedCaddyStartCommand()).toContain(&#39;Caddyfile&#39;)
+   116→  })
+   117→})
+   118→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_8aa66ecb3d4f48abb765a2d7 Read output=1→import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from &#39;node:fs&#39; 2→import { networkInterfaces } from &#39;node:os&#39; 3→import { resolve } from &#39;node..." id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_8aa66ecb3d4f48abb765a2d7</span>
+      
+      <span class="timeline-time">09:26:58</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from &#39;node:fs&#39; 2→import { networkInterfaces } from &#39;node:os&#39; 3→import { resolve } from &#39;node...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from &#39;node:fs&#39;
+     2→import { networkInterfaces } from &#39;node:os&#39;
+     3→import { resolve } from &#39;node:path&#39;
+     4→
+     5→import { memorytreeRoot, type ProjectEntry } from &#39;../heartbeat/config.js&#39;
+     6→import { toPosixPath } from &#39;../utils/path.js&#39;
+     7→import { execCommand } from &#39;../utils/exec.js&#39;
+     8→
+     9→const CADDY_ADMIN_URL = &#39;http://127.0.0.1:2019&#39;
+    10→
+    11→export interface ManagedCaddyPaths {
+    12→  readonly rootDir: string
+    13→  readonly sitesDir: string
+    14→  readonly mainConfigPath: string
+    15→  readonly fragmentPath: string
+    16→}
+    17→
+    18→export interface ManagedCaddyStatus {
+    19→  readonly installed: boolean
+    20→  readonly running: boolean
+    21→  readonly usingManagedConfig: boolean | null
+    22→  readonly mainConfigPath: string
+    23→  readonly mainConfigExists: boolean
+    24→  readonly fragmentPath: string
+    25→  readonly fragmentExists: boolean
+    26→  readonly port: number
+    27→  readonly exposure: ProjectEntry[&#39;report_exposure&#39;]
+    28→  readonly reportDir: string
+    29→  readonly localUrls: readonly string[]
+    30→  readonly lanUrls: readonly string[]
+    31→}
+    32→
+    33→export interface ManagedCaddyEnableResult {
+    34→  readonly mainConfigPath: string
+    35→  readonly fragmentPath: string
+    36→  readonly reportDir: string
+    37→  readonly localUrls: readonly string[]
+    38→  readonly lanUrls: readonly string[]
+    39→}
+    40→
+    41→export function managedCaddyPaths(projectId: string): ManagedCaddyPaths {
+    42→  const rootDir = resolve(memorytreeRoot(), &#39;caddy&#39;)
+    43→  const sitesDir = resolve(rootDir, &#39;sites&#39;)
+    44→  return {
+    45→    rootDir,
+    46→    sitesDir,
+    47→    mainConfigPath: resolve(rootDir, &#39;Caddyfile&#39;),
+    48→    fragmentPath: resolve(sitesDir, `${projectId}.caddy`),
+    49→  }
+    50→}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now I have the full picture. Let me plan the implementation." id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#23</span>
+      
+      <span class="timeline-time">09:27:57</span>
+    </div>
+    <div class="message-body"><p>Now I have the full picture. Let me plan the implementation.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="TodoWrite toolu_532e3d8d63834863bde60d3a TodoWrite input={&quot;todos&quot;:[{&quot;content&quot;:&quot;Create src/caddy/hub.ts — global hub page generator (reads config, renders HTML, writes to ~/.memorytree/hub/)&quot;,&quot;id&quot;:&quot;1&quot;,&quot;priority&quot;:&quot;high&quot;,&quot;status&quot;:&quot;in_pro..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">TodoWrite</span>
+      <span class="timeline-chip">toolu_532e3d8d63834863bde60d3a</span>
+      <span class="timeline-time">09:27:57</span>
+    </div>
+    <div class="timeline-title">TodoWrite input={&quot;todos&quot;:[{&quot;content&quot;:&quot;Create src/caddy/hub.ts — global hub page generator (reads config, renders HTML, writes to ~/.memorytree/hub/)&quot;,&quot;id&quot;:&quot;1&quot;,&quot;priority&quot;:&quot;high&quot;,&quot;status&quot;:&quot;in_pro...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;todos&quot;: [
+    {
+      &quot;id&quot;: &quot;1&quot;,
+      &quot;content&quot;: &quot;Create src/caddy/hub.ts — global hub page generator (reads config, renders HTML, writes to ~/.memorytree/hub/)&quot;,
+      &quot;status&quot;: &quot;in_progress&quot;,
+      &quot;priority&quot;: &quot;high&quot;
+    },
+    {
+      &quot;id&quot;: &quot;2&quot;,
+      &quot;content&quot;: &quot;Add enableGlobalHub / disableGlobalHub / loadGlobalHubStatus to src/caddy/manager.ts&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;priority&quot;: &quot;high&quot;
+    },
+    {
+      &quot;id&quot;: &quot;3&quot;,
+      &quot;content&quot;: &quot;Add cmdCaddyEnableHub / cmdCaddyDisableHub / cmdCaddyHubStatus to src/cli/cmd-caddy.ts&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;priority&quot;: &quot;high&quot;
+    },
+    {
+      &quot;id&quot;: &quot;4&quot;,
+      &quot;content&quot;: &quot;Add caddy enable-hub / disable-hub / hub-status subcommands to src/cli/main.ts&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;priority&quot;: &quot;high&quot;
+    },
+    {
+      &quot;id&quot;: &quot;5&quot;,
+      &quot;content&quot;: &quot;Add tests/caddy/hub.test.ts for hub page generator&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;priority&quot;: &quot;medium&quot;
+    },
+    {
+      &quot;id&quot;: &quot;6&quot;,
+      &quot;content&quot;: &quot;Build, run tests, verify&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;priority&quot;: &quot;medium&quot;
+    }
+  ]
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="TodoWrite toolu_532e3d8d63834863bde60d3a TodoWrite output=&lt;tool_use_error&gt;InputValidationError: TodoWrite failed due to the following issues: The required parameter `todos[0].activeForm` is missing The required parameter `todos[1].acti..." id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">TodoWrite</span>
+      <span class="timeline-chip">toolu_532e3d8d63834863bde60d3a</span>
+      
+      <span class="timeline-time">09:27:57</span>
+    </div>
+    <div class="timeline-title">TodoWrite output=&lt;tool_use_error&gt;InputValidationError: TodoWrite failed due to the following issues: The required parameter `todos[0].activeForm` is missing The required parameter `todos[1].acti...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>&lt;tool_use_error&gt;InputValidationError: TodoWrite failed due to the following issues:
+The required parameter `todos[0].activeForm` is missing
+The required parameter `todos[1].activeForm` is missing
+The required parameter `todos[2].activeForm` is missing
+The required parameter `todos[3].activeForm` is missing
+The required parameter `todos[4].activeForm` is missing
+The required parameter `todos[5].activeForm` is missing&lt;/tool_use_error&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_e6c9888508204b96864a141f Read input={&quot;file_path&quot;:&quot;src/report/render/layout.ts&quot;,&quot;limit&quot;:80}" id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_e6c9888508204b96864a141f</span>
+      <span class="timeline-time">09:27:57</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/report/render/layout.ts&quot;,&quot;limit&quot;:80}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/report/render/layout.ts&quot;,
+  &quot;limit&quot;: 80
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_e6c9888508204b96864a141f Read output=1→/** 2→ * HTML layout helpers: shell, navigation, and HTML escaping. 3→ */ 4→ 5→import { basename } from &#39;node:path&#39; 6→ 7→import type { ManifestEntry } from &#39;../../types/transc..." id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_e6c9888508204b96864a141f</span>
+      
+      <span class="timeline-time">09:27:57</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * HTML layout helpers: shell, navigation, and HTML escaping. 3→ */ 4→ 5→import { basename } from &#39;node:path&#39; 6→ 7→import type { ManifestEntry } from &#39;../../types/transc...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * HTML layout helpers: shell, navigation, and HTML escaping.
+     3→ */
+     4→
+     5→import { basename } from &#39;node:path&#39;
+     6→
+     7→import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+     8→import type { Translations } from &#39;../i18n/types.js&#39;
+     9→import { REPORT_CSS } from &#39;./css.js&#39;
+    10→
+    11→// ---------------------------------------------------------------------------
+    12→// HTML escaping
+    13→// ---------------------------------------------------------------------------
+    14→
+    15→export function escHtml(text: string): string {
+    16→  return text
+    17→    .replace(/&amp;/g, &#39;&amp;amp;&#39;)
+    18→    .replace(/&lt;/g, &#39;&amp;lt;&#39;)
+    19→    .replace(/&gt;/g, &#39;&amp;gt;&#39;)
+    20→    .replace(/&quot;/g, &#39;&amp;quot;&#39;)
+    21→    .replace(/&#39;/g, &#39;&amp;#39;&#39;)
+    22→}
+    23→
+    24→// ---------------------------------------------------------------------------
+    25→// Navigation page IDs
+    26→// ---------------------------------------------------------------------------
+    27→
+    28→export type NavPage =
+    29→  | &#39;dashboard&#39;
+    30→  | &#39;transcripts&#39;
+    31→  | &#39;projects&#39;
+    32→  | &#39;graph&#39;
+    33→  | &#39;goals&#39;
+    34→  | &#39;todos&#39;
+    35→  | &#39;knowledge&#39;
+    36→  | &#39;archive&#39;
+    37→  | &#39;search&#39;
+    38→
+    39→// ---------------------------------------------------------------------------
+    40→// Sidebar navigation
+    41→// ---------------------------------------------------------------------------
+    42→
+    43→const SIDEBAR_INLINE_JS = `
+    44→&lt;script&gt;
+    45→(function() {
+    46→  // Theme
+    47→  var saved = localStorage.getItem(&#39;mt-theme&#39;) || &#39;dark&#39;;
+    48→  document.documentElement.setAttribute(&#39;data-theme&#39;, saved);
+    49→  // Sidebar collapse
+    50→  if (localStorage.getItem(&#39;mt-sidebar&#39;) === &#39;collapsed&#39;) document.body.classList.add(&#39;sidebar-collapsed&#39;);
+    51→  function updateThemeBtn() {
+    52→    var btn = document.getElementById(&#39;theme-toggle&#39;);
+    53→    if (btn) btn.textContent = document.documentElement.getAttribute(&#39;data-theme&#39;) === &#39;dark&#39; ? &#39;☀ Light&#39; : &#39;☾ Dark&#39;;
+    54→  }
+    55→  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    56→    updateThemeBtn();
+    57→    var btn = document.getElementById(&#39;theme-toggle&#39;);
+    58→    if (btn) btn.addEventListener(&#39;click&#39;, function() {
+    59→      var next = document.documentElement.getAttribute(&#39;data-theme&#39;) === &#39;dark&#39; ? &#39;light&#39; : &#39;dark&#39;;
+    60→      document.documentElement.setAttribute(&#39;data-theme&#39;, next);
+    61→      localStorage.setItem(&#39;mt-theme&#39;, next);
+    62→      updateThemeBtn();
+    63→    });
+    64→    // Mobile hamburger
+    65→    var hb = document.getElementById(&#39;hamburger&#39;);
+    66→    var sb = document.getElementById(&#39;sidebar&#39;);
+    67→    var ov = document.getElementById(&#39;sidebar-overlay&#39;);
+    68→    function closeSidebar() {
+    69→      if (sb) sb.classList.remove(&#39;open&#39;);
+    70→      if (ov) ov.classList.remove(&#39;open&#39;);
+    71→    }
+    72→    if (hb) hb.addEventListener(&#39;click&#39;, function() {
+    73→      if (sb) sb.classList.toggle(&#39;open&#39;);
+    74→      if (ov) ov.classList.toggle(&#39;open&#39;);
+    75→    });
+    76→    if (ov) ov.addEventListener(&#39;click&#39;, closeSidebar);
+    77→    // Sidebar collapse toggle
+    78→    var collapseBtn = document.getElementById(&#39;sidebar-collapse&#39;);
+    79→    if (collapseBtn) collapseBtn.addEventListener(&#39;click&#39;, function() {
+    80→      var collapsed = document.body.classList.toggle(&#39;sidebar-collapsed&#39;);</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now I have everything I need. Let me implement the global hub. The design: port 10010 becomes a single Caddy site that serves: - `~/.memorytree/hub/` as the root (hub index page) - `/projects/&lt;name&gt;/*` path-prefixed routing to each project&#39;s `Memory/07_reports` This way one port = global entry point, all projects accessible from it.&lt;thinking&gt; I need to use the bash/read tool for reading source files, not..." id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#28</span>
+      
+      <span class="timeline-time">09:29:04</span>
+    </div>
+    <p class="event-preview">Now I have everything I need. Let me implement the global hub. The design: port 10010 becomes a single Caddy site that serves: - `~/.memorytree/hub/` as the root (hub index page) - `/projects/&lt;name&gt;/*` path-prefixed r...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Now I have everything I need. Let me implement the global hub.</p><p>The design: port 10010 becomes a single Caddy site that serves:<br>- <code>~/.memorytree/hub/</code> as the root (hub index page)<br>- <code>/projects/&lt;name&gt;/*</code> path-prefixed routing to each project&#39;s <code>Memory/07_reports</code></p><p>This way one port = global entry point, all projects accessible from it.&lt;thinking&gt;<br>I need to use the bash/read tool for reading source files, not the <code>read_file</code> tool which is only for documentation MDX files.</p><p>Let me just implement the feature now. I have enough information:</p><p>1. The CSS comes from <code>src/report/render/css.ts</code> (imported as <code>REPORT_CSS</code>) <br>2. The layout helpers come from <code>src/report/render/layout.ts</code><br>3. The hub page will be simpler - I&#39;ll inline a minimal CSS since it&#39;s not part of the report build system</p><p>Let me design the implementation:</p><p><strong><code>src/caddy/hub.ts</code></strong> - new file<br>- <code>renderHubPage(projects: ProjectEntry[]): string</code> - standalone HTML hub page<br>- <code>buildGlobalHubDir(config: Config): string</code> - writes ~/.memorytree/hub/index.html<br>- <code>renderGlobalHubFragment(projects: ProjectEntry[], exposure: ProjectEntry[&#39;report_exposure&#39;], port: number): string</code> - single Caddy fragment<br>- <code>enableGlobalHub(config: Config): HubEnableResult</code> - writes HTML + Caddy fragment + reloads<br>- <code>disableGlobalHub(config: Config): void</code> - removes hub fragment<br>- <code>loadGlobalHubStatus(config: Config): Promise&lt;GlobalHubStatus&gt;</code> - reads status</p><p>The global hub Caddy fragment (project ID <code>_global_hub</code>):<br>```<br>http://127.0.0.1:10010, http://localhost:10010 {<br>  bind 127.0.0.1 [::1]</p><p>handle /projects/memorytree-workflow/* {<br>    uri strip_prefix /projects/memorytree-workflow<br>    root * &quot;D:/demo1/memorytree-workflow/Memory/07_reports&quot;<br>    file_server<br>  }</p><p>handle /projects/papaweb/* {<br>    uri strip_prefix /projects/papaweb<br>    root * &quot;D:/demo1/papaweb/Memory/07_reports&quot;<br>    file_server<br>  }</p><p>root *</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_dd5474cbd5604267a83548d4 Read input={&quot;file_path&quot;:&quot;src/caddy/manager.ts&quot;,&quot;limit&quot;:120,&quot;offset&quot;:50}" id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#29</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_dd5474cbd5604267a83548d4</span>
+      <span class="timeline-time">09:29:13</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/caddy/manager.ts&quot;,&quot;limit&quot;:120,&quot;offset&quot;:50}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/caddy/manager.ts&quot;,
+  &quot;offset&quot;: 50,
+  &quot;limit&quot;: 120
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_dd5474cbd5604267a83548d4 Read output=50→} 51→ 52→export function projectReportDir(project: Pick&lt;ProjectEntry, &#39;development_path&#39;&gt;): string { 53→ return resolve(project.development_path, &#39;Memory&#39;, &#39;07_reports&#39;) 54→}..." id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#30</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_dd5474cbd5604267a83548d4</span>
+      
+      <span class="timeline-time">09:29:13</span>
+    </div>
+    <div class="timeline-title">Read output=50→} 51→ 52→export function projectReportDir(project: Pick&lt;ProjectEntry, &#39;development_path&#39;&gt;): string { 53→ return resolve(project.development_path, &#39;Memory&#39;, &#39;07_reports&#39;) 54→}...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>50→}
+    51→
+    52→export function projectReportDir(project: Pick&lt;ProjectEntry, &#39;development_path&#39;&gt;): string {
+    53→  return resolve(project.development_path, &#39;Memory&#39;, &#39;07_reports&#39;)
+    54→}
+    55→
+    56→export function renderManagedMainCaddyfile(): string {
+    57→  return [
+    58→    &#39;# Managed by MemoryTree. Do not edit by hand.&#39;,
+    59→    &#39;{&#39;,
+    60→    &#39;  auto_https off&#39;,
+    61→    &#39;}&#39;,
+    62→    &#39;&#39;,
+    63→    &#39;import sites/*.caddy&#39;,
+    64→    &#39;&#39;,
+    65→  ].join(&#39;\n&#39;)
+    66→}
+    67→
+    68→export function renderManagedProjectFragment(
+    69→  project: Pick&lt;ProjectEntry, &#39;id&#39; | &#39;name&#39; | &#39;report_port&#39; | &#39;report_exposure&#39;&gt;,
+    70→  reportDir: string,
+    71→): string {
+    72→  const lines = [
+    73→    &#39;# Managed by MemoryTree. Do not edit by hand.&#39;,
+    74→    `# project_id: ${project.id}`,
+    75→    `# project_name: ${project.name}`,
+    76→    `# report_port: ${String(project.report_port)}`,
+    77→    `# report_exposure: ${project.report_exposure}`,
+    78→    &#39;&#39;,
+    79→    managedSiteAddress(project.report_port, project.report_exposure),
+    80→    &#39;{&#39;,
+    81→  ]
+    82→
+    83→  if (project.report_exposure === &#39;local&#39;) {
+    84→    lines.push(&#39;  bind 127.0.0.1 [::1]&#39;)
+    85→  }
+    86→
+    87→  lines.push(`  root * ${quoteForCaddyPath(reportDir)}`)
+    88→  lines.push(&#39;  file_server&#39;)
+    89→  lines.push(&#39;}&#39;)
+    90→  lines.push(&#39;&#39;)
+    91→  return lines.join(&#39;\n&#39;)
+    92→}
+    93→
+    94→export function isCaddyInstalled(): boolean {
+    95→  try {
+    96→    execCommand(&#39;caddy&#39;, [&#39;version&#39;])
+    97→    return true
+    98→  } catch {
+    99→    return false
+   100→  }
+   101→}
+   102→
+   103→export function findManagedPortConflict(projectId: string, reportPort: number): string | null {
+   104→  const { sitesDir, fragmentPath } = managedCaddyPaths(projectId)
+   105→  if (!existsSync(sitesDir)) return null
+   106→
+   107→  for (const entry of readdirSync(sitesDir)) {
+   108→    if (!entry.endsWith(&#39;.caddy&#39;)) continue
+   109→    const currentPath = resolve(sitesDir, entry)
+   110→    if (currentPath === fragmentPath) continue
+   111→
+   112→    const text = readFileSync(currentPath, &#39;utf-8&#39;)
+   113→    const portMatch = text.match(/^# report_port:\s*(\d+)\s*$/m)
+   114→    if (!portMatch) continue
+   115→
+   116→    const currentPort = parseInt(portMatch[1]!, 10)
+   117→    if (currentPort !== reportPort) continue
+   118→
+   119→    const projectMatch = text.match(/^# project_id:\s*(.+)\s*$/m)
+   120→    return projectMatch?.[1]?.trim() || entry.replace(/\.caddy$/i, &#39;&#39;)
+   121→  }
+   122→
+   123→  return null
+   124→}
+   125→
+   126→export function enableManagedCaddy(project: ProjectEntry): ManagedCaddyEnableResult {
+   127→  const paths = managedCaddyPaths(project.id)
+   128→  const conflictProjectId = findManagedPortConflict(project.id, project.report_port)
+   129→  if (conflictProjectId !== null) {
+   130→    throw new Error(
+   131→      `Port ${String(project.report_port)} is already used by another managed Caddy site (${conflictProjectId}). ` +
+   132→      &#39;Change this project\&#39;s report_port first, then rerun the command.&#39;,
+   133→    )
+   134→  }
+   135→
+   136→  mkdirSync(paths.rootDir, { recursive: true })
+   137→  mkdirSync(paths.sitesDir, { recursive: true })
+   138→
+   139→  const reportDir = projectReportDir(project)
+   140→  mkdirSync(reportDir, { recursive: true })
+   141→
+   142→  writeTextIfChanged(paths.mainConfigPath, renderManagedMainCaddyfile())
+   143→  writeTextIfChanged(paths.fragmentPath, renderManagedProjectFragment(project, reportDir))
+   144→  validateManagedCaddyConfig(paths.mainConfigPath)
+   145→  try {
+   146→    reloadManagedCaddy(paths.mainConfigPath)
+   147→  } catch (error: unknown) {
+   148→    throw new Error(
+   149→      `Caddy config files were updated, but reload failed. ${formatExecError(error)} ` +
+   150→      `Start Caddy with: ${managedCaddyStartCommand()}`,
+   151→    )
+   152→  }
+   153→
+   154→  return {
+   155→    mainConfigPath: paths.mainConfigPath,
+   156→    fragmentPath: paths.fragmentPath,
+   157→    reportDir,
+   158→    localUrls: localUrlsForProject(project.report_port),
+   159→    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),
+   160→  }
+   161→}
+   162→
+   163→export function disableManagedCaddy(project: Pick&lt;ProjectEntry, &#39;id&#39; | &#39;report_port&#39; | &#39;report_exposure&#39;&gt;): ManagedCaddyEnableResult {
+   164→  const paths = managedCaddyPaths(project.id)
+   165→  if (existsSync(paths.fragmentPath)) {
+   166→    rmSync(paths.fragmentPath, { force: true })
+   167→  }
+   168→
+   169→  if (existsSync(paths.mainConfigPath)) {</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_918febfa2b8a4110b3011dc3 Read input={&quot;file_path&quot;:&quot;src/caddy/manager.ts&quot;,&quot;limit&quot;:100,&quot;offset&quot;:168}" id="event-30">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#31</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_918febfa2b8a4110b3011dc3</span>
+      <span class="timeline-time">09:29:21</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/caddy/manager.ts&quot;,&quot;limit&quot;:100,&quot;offset&quot;:168}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/caddy/manager.ts&quot;,
+  &quot;limit&quot;: 100,
+  &quot;offset&quot;: 168
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_918febfa2b8a4110b3011dc3 Read output=168→ 169→ if (existsSync(paths.mainConfigPath)) { 170→ validateManagedCaddyConfig(paths.mainConfigPath) 171→ try { 172→ reloadManagedCaddy(paths.mainConfigPath) 173→ } catch (er..." id="event-31">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#32</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_918febfa2b8a4110b3011dc3</span>
+      
+      <span class="timeline-time">09:29:21</span>
+    </div>
+    <div class="timeline-title">Read output=168→ 169→ if (existsSync(paths.mainConfigPath)) { 170→ validateManagedCaddyConfig(paths.mainConfigPath) 171→ try { 172→ reloadManagedCaddy(paths.mainConfigPath) 173→ } catch (er...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>168→
+   169→  if (existsSync(paths.mainConfigPath)) {
+   170→    validateManagedCaddyConfig(paths.mainConfigPath)
+   171→    try {
+   172→      reloadManagedCaddy(paths.mainConfigPath)
+   173→    } catch (error: unknown) {
+   174→      throw new Error(
+   175→        `The project fragment was removed, but Caddy reload failed. ${formatExecError(error)} ` +
+   176→        `Start Caddy with: ${managedCaddyStartCommand()}`,
+   177→      )
+   178→    }
+   179→  }
+   180→
+   181→  return {
+   182→    mainConfigPath: paths.mainConfigPath,
+   183→    fragmentPath: paths.fragmentPath,
+   184→    reportDir: &#39;&#39;,
+   185→    localUrls: localUrlsForProject(project.report_port),
+   186→    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),
+   187→  }
+   188→}
+   189→
+   190→export async function loadManagedCaddyStatus(project: ProjectEntry): Promise&lt;ManagedCaddyStatus&gt; {
+   191→  const paths = managedCaddyPaths(project.id)
+   192→  const installed = isCaddyInstalled()
+   193→  const mainConfigExists = existsSync(paths.mainConfigPath)
+   194→  const fragmentExists = existsSync(paths.fragmentPath)
+   195→  const runningConfigText = installed ? await fetchRunningCaddyConfigText() : null
+   196→  const running = runningConfigText !== null
+   197→
+   198→  let usingManagedConfig: boolean | null = null
+   199→  if (installed &amp;&amp; running &amp;&amp; mainConfigExists) {
+   200→    const managedConfigText = adaptManagedCaddyConfig(paths.mainConfigPath)
+   201→    usingManagedConfig = stableJsonFromText(managedConfigText) === stableJsonFromText(runningConfigText)
+   202→  }
+   203→
+   204→  return {
+   205→    installed,
+   206→    running,
+   207→    usingManagedConfig,
+   208→    mainConfigPath: paths.mainConfigPath,
+   209→    mainConfigExists,
+   210→    fragmentPath: paths.fragmentPath,
+   211→    fragmentExists,
+   212→    port: project.report_port,
+   213→    exposure: project.report_exposure,
+   214→    reportDir: projectReportDir(project),
+   215→    localUrls: localUrlsForProject(project.report_port),
+   216→    lanUrls: lanUrlsForProject(project.report_port, project.report_exposure),
+   217→  }
+   218→}
+   219→
+   220→export function managedCaddyStartCommand(): string {
+   221→  const mainConfigPath = managedCaddyPaths(&#39;placeholder&#39;).mainConfigPath
+   222→  return `caddy run --config &quot;${mainConfigPath}&quot; --adapter caddyfile`
+   223→}
+   224→
+   225→function managedSiteAddress(reportPort: number, exposure: ProjectEntry[&#39;report_exposure&#39;]): string {
+   226→  if (exposure === &#39;lan&#39;) {
+   227→    return `http://:${String(reportPort)}`
+   228→  }
+   229→  return `http://127.0.0.1:${String(reportPort)}, http://localhost:${String(reportPort)}`
+   230→}
+   231→
+   232→function quoteForCaddyPath(value: string): string {
+   233→  const normalized = toPosixPath(resolve(value)).replace(/&quot;/g, &#39;\\&quot;&#39;)
+   234→  return `&quot;${normalized}&quot;`
+   235→}
+   236→
+   237→function writeTextIfChanged(path: string, content: string): void {
+   238→  if (existsSync(path) &amp;&amp; readFileSync(path, &#39;utf-8&#39;) === content) {
+   239→    return
+   240→  }
+   241→  writeFileSync(path, content, &#39;utf-8&#39;)
+   242→}
+   243→
+   244→function validateManagedCaddyConfig(mainConfigPath: string): void {
+   245→  execCommand(&#39;caddy&#39;, [&#39;adapt&#39;, &#39;--config&#39;, mainConfigPath, &#39;--adapter&#39;, &#39;caddyfile&#39;, &#39;--validate&#39;], {
+   246→    allowFailure: false,
+   247→  })
+   248→}
+   249→
+   250→function reloadManagedCaddy(mainConfigPath: string): void {
+   251→  execCommand(&#39;caddy&#39;, [&#39;reload&#39;, &#39;--config&#39;, mainConfigPath, &#39;--adapter&#39;, &#39;caddyfile&#39;])
+   252→}
+   253→
+   254→function adaptManagedCaddyConfig(mainConfigPath: string): string {
+   255→  return execCommand(&#39;caddy&#39;, [&#39;adapt&#39;, &#39;--config&#39;, mainConfigPath, &#39;--adapter&#39;, &#39;caddyfile&#39;])
+   256→}
+   257→
+   258→async function fetchRunningCaddyConfigText(): Promise&lt;string | null&gt; {
+   259→  try {
+   260→    const response = await fetch(`${CADDY_ADMIN_URL}/config/`)
+   261→    if (!response.ok) return null
+   262→    return await response.text()
+   263→  } catch {
+   264→    return null
+   265→  }
+   266→}
+   267→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_d7aa6f856d474e5282ff2f3e Read input={&quot;file_path&quot;:&quot;src/heartbeat/config.ts&quot;,&quot;limit&quot;:80,&quot;offset&quot;:0}" id="event-32">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#33</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_d7aa6f856d474e5282ff2f3e</span>
+      <span class="timeline-time">09:29:32</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;src/heartbeat/config.ts&quot;,&quot;limit&quot;:80,&quot;offset&quot;:0}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;src/heartbeat/config.ts&quot;,
+  &quot;limit&quot;: 80,
+  &quot;offset&quot;: 0
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_d7aa6f856d474e5282ff2f3e Read output=0→/** 1→ * Load, validate, and manage ~/.memorytree/config.toml. 2→ * Port of scripts/_config_utils.py 3→ */ 4→ 5→import { existsSync, mkdirSync, readFileSync, writeFileSync } f..." id="event-33">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#34</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_d7aa6f856d474e5282ff2f3e</span>
+      
+      <span class="timeline-time">09:29:32</span>
+    </div>
+    <div class="timeline-title">Read output=0→/** 1→ * Load, validate, and manage ~/.memorytree/config.toml. 2→ * Port of scripts/_config_utils.py 3→ */ 4→ 5→import { existsSync, mkdirSync, readFileSync, writeFileSync } f...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>0→/**
+     1→ * Load, validate, and manage ~/.memorytree/config.toml.
+     2→ * Port of scripts/_config_utils.py
+     3→ */
+     4→
+     5→import { existsSync, mkdirSync, readFileSync, writeFileSync } from &#39;node:fs&#39;
+     6→import { homedir } from &#39;node:os&#39;
+     7→import { basename, dirname, resolve } from &#39;node:path&#39;
+     8→
+     9→import { parse as parseToml } from &#39;smol-toml&#39;
+    10→
+    11→import { toPosixPath } from &#39;../utils/path.js&#39;
+    12→
+    13→// ---------------------------------------------------------------------------
+    14→// Constants
+    15→// ---------------------------------------------------------------------------
+    16→
+    17→const DEFAULT_HEARTBEAT_INTERVAL = &#39;5m&#39;
+    18→const DEFAULT_REFRESH_INTERVAL = &#39;30m&#39;
+    19→export const DEFAULT_MEMORY_BRANCH = &#39;memorytree&#39;
+    20→const DEFAULT_AUTO_PUSH = true
+    21→const DEFAULT_LOG_LEVEL = &#39;info&#39;
+    22→const DEFAULT_GENERATE_REPORT = false
+    23→const DEFAULT_AI_SUMMARY_MODEL = &#39;claude-haiku-4-5-20251001&#39;
+    24→const DEFAULT_LOCALE = &#39;en&#39;
+    25→const DEFAULT_GH_PAGES_BRANCH = &#39;&#39;
+    26→const DEFAULT_CNAME = &#39;&#39;
+    27→const DEFAULT_WEBHOOK_URL = &#39;&#39;
+    28→const DEFAULT_REPORT_BASE_URL = &#39;&#39;
+    29→const DEFAULT_REPORT_PORT = 10010
+    30→const DEFAULT_REPORT_EXPOSURE = &#39;local&#39;
+    31→const VALID_LOG_LEVELS: ReadonlySet&lt;string&gt; = new Set([&#39;debug&#39;, &#39;info&#39;, &#39;warn&#39;, &#39;error&#39;])
+    32→
+    33→// ---------------------------------------------------------------------------
+    34→// Types
+    35→// ---------------------------------------------------------------------------
+    36→
+    37→export type ReportExposure = &#39;local&#39; | &#39;lan&#39;
+    38→
+    39→export interface ProjectEntry {
+    40→  readonly id: string
+    41→  readonly path: string
+    42→  readonly name: string
+    43→  readonly development_path: string
+    44→  readonly memory_path: string
+    45→  readonly memory_branch: string
+    46→  readonly heartbeat_interval: string
+    47→  readonly refresh_interval: string
+    48→  readonly auto_push: boolean
+    49→  readonly generate_report: boolean
+    50→  readonly ai_summary_model: string
+    51→  readonly locale: string
+    52→  readonly gh_pages_branch: string
+    53→  readonly cname: string
+    54→  readonly webhook_url: string
+    55→  readonly report_base_url: string
+    56→  readonly report_port: number
+    57→  readonly report_exposure: ReportExposure
+    58→  readonly last_heartbeat_at: string
+    59→  readonly last_refresh_at: string
+    60→}
+    61→
+    62→export interface Config {
+    63→  readonly heartbeat_interval: string
+    64→  readonly watch_dirs: readonly string[]
+    65→  readonly projects: readonly ProjectEntry[]
+    66→  readonly auto_push: boolean
+    67→  readonly log_level: string
+    68→  readonly generate_report: boolean
+    69→  readonly ai_summary_model: string
+    70→  readonly locale: string
+    71→  readonly gh_pages_branch: string
+    72→  readonly cname: string
+    73→  readonly webhook_url: string
+    74→  /** Base URL for RSS/OG meta (e.g. &#39;https://memory.example.com&#39;). Empty = skip. */
+    75→  readonly report_base_url: string
+    76→  /** Port for the report HTTP server. Default: 10010. */
+    77→  readonly report_port: number
+    78→  /** Exposure for local report hosting. Default: local. */
+    79→  readonly report_exposure: ReportExposure</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I notice I&#39;ve been reading files without a clear task from you. What would you like me to implement or investigate in this codebase?" id="event-34">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#35</span>
+      
+      <span class="timeline-time">09:30:06</span>
+    </div>
+    <div class="message-body"><p>I notice I&#39;ve been reading files without a clear task from you. What would you like me to implement or investigate in this codebase?</p></div>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

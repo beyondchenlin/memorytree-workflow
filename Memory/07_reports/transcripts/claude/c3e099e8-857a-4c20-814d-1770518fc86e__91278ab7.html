@@ -1,0 +1,4105 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-af0a705d842215534 — MemoryTree</title>
+<meta property="og:title" content="agent-af0a705d842215534">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-af0a705d842215534</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>8</strong> Messages</span>
+      <span class="transcript-pill"><strong>24</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>32</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 14:07:05</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-af0a705d842215534</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">c3e099e8-857a-4c20-814d-1770518fc86e</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">91278ab781b8f3d0...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">32</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">8</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">24</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>8</strong> dialog</span>
+    <span class="transcript-pill"><strong>24</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>8</strong> Messages</span>
+          <span class="transcript-pill"><strong>24</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>32 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user You are a planner agent. Create a detailed implementation plan for task 1.1 of the OpenMnemo project. ## Context OpenMnemo is a TypeScript monorepo with 5 packages: types, core, sync, report, cli. Current state: just migrated from sql.js to better-sqlite3 (sync API). 650 tests passing. ### Current db.ts schema (packages/core/src/transcript/db.ts) - Table: `transcripts` with columns: client, project, session_i..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">14:07:05</span>
+    </div>
+    <p class="event-preview">You are a planner agent. Create a detailed implementation plan for task 1.1 of the OpenMnemo project. ## Context OpenMnemo is a TypeScript monorepo with 5 packages: types, core, sync, report, cli. Current state: just ...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>You are a planner agent. Create a detailed implementation plan for task 1.1 of the OpenMnemo project.</p><p>## Context</p><p>OpenMnemo is a TypeScript monorepo with 5 packages: types, core, sync, report, cli.<br>Current state: just migrated from sql.js to better-sqlite3 (sync API). 650 tests passing.</p><p>### Current db.ts schema (packages/core/src/transcript/db.ts)<br>- Table: <code>transcripts</code> with columns: client, project, session_id, raw_sha256, title, started_at, imported_at, cwd, branch, raw_source_path, raw_upload_permission, global_raw_path, global_clean_path, repo_raw_path, repo_clean_path, repo_manifest_path, message_count, tool_event_count<br>- FTS4 virtual table: <code>transcripts_fts</code> with content=&#39;transcripts&#39;, indexed columns: title, cwd, branch<br>- Public API: <code>upsertSearchIndex(dbPath, manifest)</code>, <code>searchTranscripts(dbPath, query, limit)</code>, <code>initSchema(dbPath)</code>, <code>rebuildFtsIndex(dbPath)</code>, <code>sanitizeFtsQuery(raw)</code></p><p>### Current ManifestEntry type (packages/types/src/index.ts) — key fields:<br>- All the columns above plus: cleaning_mode, repo_mirror_enabled, global_manifest_path</p><p>### Task 1.1 requirements (from todo):<br>- Add <code>content</code> field to SQLite FTS table: write clean markdown full text of conversation<br>- Add <code>commit_layer</code> field to SQLite FTS table: write associated git commit message + changed files<br>- Implement layered retrieval logic: Layer1(commit) → Layer2(manifest/title) → Layer3(fulltext)<br>- Update <code>recall.ts</code> to support full-text search mode<br>- Maintain 80%+ test coverage</p><p>## Your task<br>Create a step-by-step implementation plan covering:<br>1. Schema migration strategy (how to add columns to existing DB without breaking existing data)<br>2. Where <code>content</code> (clean markdown) comes from — it&#39;s already written to <code>global_clean_path</code>, so read from there during upsert<br>3. Where <code>commit_layer</code> comes from — this is future data (task 1.2), so for now store empty string<br>4. How to update FTS4 virtual table to index the new fields<br>5. API changes needed in db.ts, import.ts, recall.ts<br>6. Test strategy</p><p>Be specific about file paths, function signatures, and SQL. Keep it concise.</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll explore the codebase thoroughly before designing the plan." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">14:07:12</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll explore the codebase thoroughly before designing the plan.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_Kz6JW5Nhn2hzikBRKhal8I Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/core/src/transcript -type f | sort&quot;,&quot;description&quot;:&quot;List transcript source files&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_Kz6JW5Nhn2hzikBRKhal8I</span>
+      <span class="timeline-time">14:07:12</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/core/src/transcript -type f | sort&quot;,&quot;description&quot;:&quot;List transcript source files&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find /d/demo1/openmnemo/packages/core/src/transcript -type f | sort&quot;,
+  &quot;description&quot;: &quot;List transcript source files&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_xUkrjqTOIrFyC5wHQfJwRN Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/core/src -type f | sort&quot;,&quot;description&quot;:&quot;List all core source files&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_xUkrjqTOIrFyC5wHQfJwRN</span>
+      <span class="timeline-time">14:07:13</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/core/src -type f | sort&quot;,&quot;description&quot;:&quot;List all core source files&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find /d/demo1/openmnemo/packages/core/src -type f | sort&quot;,
+  &quot;description&quot;: &quot;List all core source files&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_Kz6JW5Nhn2hzikBRKhal8I Bash output=/d/demo1/openmnemo/packages/core/src/transcript/common.ts /d/demo1/openmnemo/packages/core/src/transcript/db.ts /d/demo1/openmnemo/packages/core/src/transcript/discover.ts /d/de..." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_Kz6JW5Nhn2hzikBRKhal8I</span>
+      
+      <span class="timeline-time">14:07:13</span>
+    </div>
+    <div class="timeline-title">Bash output=/d/demo1/openmnemo/packages/core/src/transcript/common.ts /d/demo1/openmnemo/packages/core/src/transcript/db.ts /d/demo1/openmnemo/packages/core/src/transcript/discover.ts /d/de...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>/d/demo1/openmnemo/packages/core/src/transcript/common.ts
+/d/demo1/openmnemo/packages/core/src/transcript/db.ts
+/d/demo1/openmnemo/packages/core/src/transcript/discover.ts
+/d/demo1/openmnemo/packages/core/src/transcript/import.ts
+/d/demo1/openmnemo/packages/core/src/transcript/index.ts
+/d/demo1/openmnemo/packages/core/src/transcript/parse.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_xUkrjqTOIrFyC5wHQfJwRN Bash output=/d/demo1/openmnemo/packages/core/src/index.ts /d/demo1/openmnemo/packages/core/src/recall/recall.ts /d/demo1/openmnemo/packages/core/src/storage/adapter.ts /d/demo1/openmnemo/pa..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_xUkrjqTOIrFyC5wHQfJwRN</span>
+      
+      <span class="timeline-time">14:07:13</span>
+    </div>
+    <div class="timeline-title">Bash output=/d/demo1/openmnemo/packages/core/src/index.ts /d/demo1/openmnemo/packages/core/src/recall/recall.ts /d/demo1/openmnemo/packages/core/src/storage/adapter.ts /d/demo1/openmnemo/pa...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>/d/demo1/openmnemo/packages/core/src/index.ts
+/d/demo1/openmnemo/packages/core/src/recall/recall.ts
+/d/demo1/openmnemo/packages/core/src/storage/adapter.ts
+/d/demo1/openmnemo/packages/core/src/storage/gitea-adapter.ts
+/d/demo1/openmnemo/packages/core/src/storage/local-adapter.ts
+/d/demo1/openmnemo/packages/core/src/transcript/common.ts
+/d/demo1/openmnemo/packages/core/src/transcript/db.ts
+/d/demo1/openmnemo/packages/core/src/transcript/discover.ts
+/d/demo1/openmnemo/packages/core/src/transcript/import.ts
+/d/demo1/openmnemo/packages/core/src/transcript/index.ts
+/d/demo1/openmnemo/packages/core/src/transcript/parse.ts
+/d/demo1/openmnemo/packages/core/src/utils/exec.ts
+/d/demo1/openmnemo/packages/core/src/utils/path.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me read the key files." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#7</span>
+      
+      <span class="timeline-time">14:07:17</span>
+    </div>
+    <div class="message-body"><p>Let me read the key files.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_iMonrNykTllkpOYW1PbBH4 Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/transcript/db.ts&quot;}" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_iMonrNykTllkpOYW1PbBH4</span>
+      <span class="timeline-time">14:07:17</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/transcript/db.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/core/src/transcript/db.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_2l0NTyzwQ6V5kWXcIdnhfw Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/recall/recall.ts&quot;}" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_2l0NTyzwQ6V5kWXcIdnhfw</span>
+      <span class="timeline-time">14:07:17</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/recall/recall.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/core/src/recall/recall.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_iMonrNykTllkpOYW1PbBH4 Read output=1→/** 2→ * Transcript search index — SQLite upsert for the global transcript catalog. 3→ * 4→ * Uses better-sqlite3 (native binding) for synchronous SQLite access. 5→ * FTS4 ful..." id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_iMonrNykTllkpOYW1PbBH4</span>
+      
+      <span class="timeline-time">14:07:17</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript search index — SQLite upsert for the global transcript catalog. 3→ * 4→ * Uses better-sqlite3 (native binding) for synchronous SQLite access. 5→ * FTS4 ful...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript search index — SQLite upsert for the global transcript catalog.
+     3→ *
+     4→ * Uses better-sqlite3 (native binding) for synchronous SQLite access.
+     5→ * FTS4 full-text search on title, cwd, branch columns.
+     6→ *
+     7→ * Design notes:
+     8→ * - Schema init (CREATE TABLE + CREATE VIRTUAL TABLE) happens only in the
+     9→ *   write path (upsertSearchIndex / initSchema). The read path (searchTranscripts)
+    10→ *   opens readonly and never writes.
+    11→ * - FTS rebuild is deferred: upsertSearchIndex does NOT rebuild per-row.
+    12→ *   Call rebuildFtsIndex() once after a batch of upserts.
+    13→ * - busy_timeout = 5000ms guards against concurrent writer collisions.
+    14→ * - Single-quotes are stripped from FTS queries to prevent MATCH parse errors.
+    15→ */
+    16→
+    17→import Database from &#39;better-sqlite3&#39;
+    18→import { mkdirSync } from &#39;node:fs&#39;
+    19→import { existsSync } from &#39;node:fs&#39;
+    20→import { dirname } from &#39;node:path&#39;
+    21→import type { ManifestEntry } from &#39;@openmnemo/types&#39;
+    22→
+    23→// ---------------------------------------------------------------------------
+    24→// Column definitions — must stay in sync with CREATE_TABLE_SQL
+    25→// ---------------------------------------------------------------------------
+    26→
+    27→const PK_COLUMNS = [
+    28→  &#39;client&#39;,
+    29→  &#39;project&#39;,
+    30→  &#39;session_id&#39;,
+    31→  &#39;raw_sha256&#39;,
+    32→] as const
+    33→
+    34→const DATA_COLUMNS = [
+    35→  &#39;title&#39;,
+    36→  &#39;started_at&#39;,
+    37→  &#39;imported_at&#39;,
+    38→  &#39;cwd&#39;,
+    39→  &#39;branch&#39;,
+    40→  &#39;raw_source_path&#39;,
+    41→  &#39;raw_upload_permission&#39;,
+    42→  &#39;global_raw_path&#39;,
+    43→  &#39;global_clean_path&#39;,
+    44→  &#39;repo_raw_path&#39;,
+    45→  &#39;repo_clean_path&#39;,
+    46→  &#39;repo_manifest_path&#39;,
+    47→  &#39;message_count&#39;,
+    48→  &#39;tool_event_count&#39;,
+    49→] as const
+    50→
+    51→const ALL_COLUMNS = [...PK_COLUMNS, ...DATA_COLUMNS] as const
+    52→
+    53→// ---------------------------------------------------------------------------
+    54→// SQL statements
+    55→// ---------------------------------------------------------------------------
+    56→
+    57→const CREATE_TABLE_SQL = `
+    58→  CREATE TABLE IF NOT EXISTS transcripts (
+    59→    client              TEXT    NOT NULL,
+    60→    project             TEXT    NOT NULL,
+    61→    session_id          TEXT    NOT NULL,
+    62→    raw_sha256          TEXT    NOT NULL,
+    63→    title               TEXT    NOT NULL,
+    64→    started_at          TEXT    NOT NULL,
+    65→    imported_at         TEXT    NOT NULL,
+    66→    cwd                 TEXT    NOT NULL,
+    67→    branch              TEXT    NOT NULL,
+    68→    raw_source_path     TEXT    NOT NULL,
+    69→    raw_upload_permission TEXT  NOT NULL,
+    70→    global_raw_path     TEXT    NOT NULL,
+    71→    global_clean_path   TEXT    NOT NULL,
+    72→    repo_raw_path       TEXT    NOT NULL,
+    73→    repo_clean_path     TEXT    NOT NULL,
+    74→    repo_manifest_path  TEXT    NOT NULL,
+    75→    message_count       INTEGER NOT NULL,
+    76→    tool_event_count    INTEGER NOT NULL,
+    77→    PRIMARY KEY (client, project, session_id, raw_sha256)
+    78→  )
+    79→`
+    80→
+    81→const UPSERT_SQL = `
+    82→  INSERT INTO transcripts (
+    83→    ${ALL_COLUMNS.join(&#39;, &#39;)}
+    84→  ) VALUES (${ALL_COLUMNS.map(() =&gt; &#39;?&#39;).join(&#39;, &#39;)})
+    85→  ON CONFLICT(${PK_COLUMNS.join(&#39;, &#39;)}) DO UPDATE SET
+    86→    ${DATA_COLUMNS.map((c) =&gt; `${c} = excluded.${c}`).join(&#39;,\n    &#39;)}
+    87→`
+    88→
+    89→// FTS4 content table — tracks title, cwd, branch for keyword search.
+    90→// The content table keeps FTS in sync with the source table via rebuild.
+    91→const CREATE_FTS_SQL = `
+    92→  CREATE VIRTUAL TABLE IF NOT EXISTS transcripts_fts USING fts4(
+    93→    content=&#39;transcripts&#39;,
+    94→    title, cwd, branch
+    95→  )
+    96→`
+    97→
+    98→// Full rebuild re-reads all rows from the content table.
+    99→// Must be called after any write batch to keep FTS in sync.
+   100→const REBUILD_FTS_SQL = `
+   101→  INSERT INTO transcripts_fts(transcripts_fts) VALUES(&#39;rebuild&#39;)
+   102→`
+   103→
+   104→// Join on rowid (stable as long as no DELETE + re-INSERT or VACUUM).
+   105→// After any DELETE or VACUUM, call rebuildFtsIndex() to re-sync docid→rowid.
+   106→const SEARCH_SQL = `
+   107→  SELECT t.client, t.project, t.session_id, t.title, t.cwd, t.branch, t.started_at
+   108→  FROM transcripts_fts
+   109→  JOIN transcripts t ON transcripts_fts.docid = t.rowid
+   110→  WHERE transcripts_fts MATCH ?
+   111→  ORDER BY t.started_at DESC
+   112→  LIMIT ?
+   113→`
+   114→
+   115→// ---------------------------------------------------------------------------
+   116→// Types
+   117→// ---------------------------------------------------------------------------
+   118→
+   119→export interface SearchResult {
+   120→  client: string
+   121→  project: string
+   122→  session_id: string
+   123→  title: string
+   124→  cwd: string
+   125→  branch: string
+   126→  started_at: string
+   127→}
+   128→
+   129→// ---------------------------------------------------------------------------
+   130→// Helpers
+   131→// ---------------------------------------------------------------------------
+   132→
+   133→/**
+   134→ * Sanitize a user-supplied query string for safe use in an FTS4 MATCH clause.
+   135→ * Strips FTS4 metacharacters AND single quotes (which cause MATCH parse errors).
+   136→ */
+   137→export function sanitizeFtsQuery(raw: string): string {
+   138→  return raw
+   139→    .replace(/[^\p{L}\p{N}\s]/gu, &#39; &#39;)  // strip all non-letter/digit/space (incl. single quotes)
+   140→    .trim()
+   141→    .replace(/\s+/g, &#39; &#39;)
+   142→}
+   143→
+   144→/**
+   145→ * Open (or create) a writable SQLite database.
+   146→ * Sets WAL mode and busy_timeout to handle concurrent access.
+   147→ */
+   148→function openDb(dbPath: string): InstanceType&lt;typeof Database&gt; {
+   149→  mkdirSync(dirname(dbPath), { recursive: true })
+   150→  const db = new Database(dbPath)
+   151→  db.pragma(&#39;journal_mode = WAL&#39;)
+   152→  db.pragma(&#39;busy_timeout = 5000&#39;)
+   153→  return db
+   154→}
+   155→
+   156→/**
+   157→ * Initialise schema (transcripts table + FTS virtual table).
+   158→ * Safe to call multiple times — uses IF NOT EXISTS.
+   159→ */
+   160→export function initSchema(dbPath: string): void {
+   161→  const db = openDb(dbPath)
+   162→  try {
+   163→    db.exec(CREATE_TABLE_SQL)
+   164→    db.exec(CREATE_FTS_SQL)
+   165→  } finally {
+   166→    db.close()
+   167→  }
+   168→}
+   169→
+   170→/**
+   171→ * Rebuild the FTS index from the transcripts table.
+   172→ * Call once after a batch of upserts, or after any DELETE/VACUUM.
+   173→ */
+   174→export function rebuildFtsIndex(dbPath: string): void {
+   175→  const db = openDb(dbPath)
+   176→  try {
+   177→    db.exec(CREATE_FTS_SQL)  // ensure FTS table exists
+   178→    db.exec(REBUILD_FTS_SQL)
+   179→  } finally {
+   180→    db.close()
+   181→  }
+   182→}
+   183→
+   184→// ---------------------------------------------------------------------------
+   185→// Public API
+   186→// ---------------------------------------------------------------------------
+   187→
+   188→/**
+   189→ * Full-text search over the transcript index using FTS4.
+   190→ * Returns an empty array when the database does not exist or the sanitized
+   191→ * query is empty. Opens readonly — never writes.
+   192→ */
+   193→export function searchTranscripts(
+   194→  dbPath: string,
+   195→  query: string,
+   196→  limit = 20,
+   197→): SearchResult[] {
+   198→  const sanitized = sanitizeFtsQuery(query)
+   199→  if (!sanitized) return []
+   200→  if (!existsSync(dbPath)) return []
+   201→
+   202→  const db = new Database(dbPath, { readonly: true })
+   203→  try {
+   204→    return db.prepare(SEARCH_SQL).all(sanitized, limit) as SearchResult[]
+   205→  } catch {
+   206→    // FTS table missing or index corrupt — return empty rather than throw
+   207→    return []
+   208→  } finally {
+   209→    db.close()
+   210→  }
+   211→}
+   212→
+   213→/**
+   214→ * Insert or update a single transcript manifest row in the SQLite search
+   215→ * index at dbPath. Creates the database and schema if they do not exist.
+   216→ *
+   217→ * NOTE: Does NOT rebuild the FTS index. Call rebuildFtsIndex(dbPath) once
+   218→ * after a batch of upserts so that searchTranscripts returns fresh results.
+   219→ */
+   220→export function upsertSearchIndex(
+   221→  dbPath: string,
+   222→  manifest: ManifestEntry,
+   223→): void {
+   224→  const db = openDb(dbPath)
+   225→  try {
+   226→    db.exec(CREATE_TABLE_SQL)
+   227→    db.exec(CREATE_FTS_SQL)
+   228→
+   229→    const record: Record&lt;string, unknown&gt; = { ...manifest }
+   230→    const params: (string | number)[] = ALL_COLUMNS.map((col) =&gt; {
+   231→      const value = record[col]
+   232→      if (value === undefined || value === null) return &#39;&#39;
+   233→      return typeof value === &#39;number&#39; ? value : String(value)
+   234→    })
+   235→
+   236→    // Pass array directly (not spread) for type-safe binding
+   237→    db.prepare(UPSERT_SQL).run(params)
+   238→
+   239→    // Rebuild FTS after every single upsert to keep search in sync.
+   240→    // For bulk imports, callers may skip this and call rebuildFtsIndex() once.
+   241→    db.exec(REBUILD_FTS_SQL)
+   242→  } finally {
+   243→    db.close()
+   244→  }
+   245→}
+   246→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_2l0NTyzwQ6V5kWXcIdnhfw Read output=1→/** 2→ * Recall — on-demand transcript sync + latest session lookup. 3→ * Port of scripts/recall-session.py 4→ */ 5→ 6→import { existsSync, readFileSync } from &#39;node:fs&#39; 7→imp..." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_2l0NTyzwQ6V5kWXcIdnhfw</span>
+      
+      <span class="timeline-time">14:07:17</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Recall — on-demand transcript sync + latest session lookup. 3→ * Port of scripts/recall-session.py 4→ */ 5→ 6→import { existsSync, readFileSync } from &#39;node:fs&#39; 7→imp...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Recall — on-demand transcript sync + latest session lookup.
+     3→ * Port of scripts/recall-session.py
+     4→ */
+     5→
+     6→import { existsSync, readFileSync } from &#39;node:fs&#39;
+     7→import { resolve, join } from &#39;node:path&#39;
+     8→
+     9→import Database from &#39;better-sqlite3&#39;
+    10→
+    11→import { slugify } from &#39;../transcript/common.js&#39;
+    12→import { defaultGlobalTranscriptRoot, discoverSourceFiles, transcriptMatchesRepo } from &#39;../transcript/discover.js&#39;
+    13→import { importTranscript, transcriptHasContent } from &#39;../transcript/import.js&#39;
+    14→import { parseTranscript } from &#39;../transcript/parse.js&#39;
+    15→import { toPosixPath } from &#39;../utils/path.js&#39;
+    16→
+    17→// ---------------------------------------------------------------------------
+    18→// Types
+    19→// ---------------------------------------------------------------------------
+    20→
+    21→export interface RecallResult {
+    22→  found: boolean
+    23→  project: string
+    24→  repo: string
+    25→  imported_count: number
+    26→  message?: string
+    27→  client?: string
+    28→  session_id?: string
+    29→  title?: string
+    30→  started_at?: string
+    31→  cwd?: string
+    32→  branch?: string
+    33→  message_count?: number
+    34→  tool_event_count?: number
+    35→  global_clean_path?: string
+    36→  clean_content?: string
+    37→}
+    38→
+    39→// ---------------------------------------------------------------------------
+    40→// Public API
+    41→// ---------------------------------------------------------------------------
+    42→
+    43→export async function recall(
+    44→  root: string,
+    45→  projectName: string,
+    46→  globalRootOverride: string,
+    47→  activationTime: string,
+    48→): Promise&lt;RecallResult&gt; {
+    49→  const resolvedRoot = resolve(root)
+    50→  const repoSlug = slugify(projectName.trim() || (resolvedRoot.split(/[/\\]/).pop() ?? &#39;&#39;), &#39;project&#39;)
+    51→  const globalRoot = globalRootOverride ? resolve(globalRootOverride) : defaultGlobalTranscriptRoot()
+    52→  const effectiveActivation = activationTime || nowIso()
+    53→
+    54→  const imported = await syncCurrentProject(resolvedRoot, repoSlug, globalRoot)
+    55→
+    56→  const session = findLatestSession(globalRoot, resolvedRoot, repoSlug, effectiveActivation)
+    57→
+    58→  if (session === null) {
+    59→    return {
+    60→      found: false,
+    61→      project: repoSlug,
+    62→      repo: toPosixPath(resolvedRoot),
+    63→      imported_count: imported,
+    64→      message: &#39;No previous session found for this project.&#39;,
+    65→    }
+    66→  }
+    67→
+    68→  const cleanPath = String(session[&#39;global_clean_path&#39;] ?? &#39;&#39;)
+    69→  let cleanContent = &#39;&#39;
+    70→  if (cleanPath &amp;&amp; existsSync(cleanPath)) {
+    71→    try {
+    72→      cleanContent = readFileSync(cleanPath, &#39;utf-8&#39;)
+    73→    } catch {
+    74→      // ignore read errors
+    75→    }
+    76→  }
+    77→
+    78→  return {
+    79→    found: true,
+    80→    project: repoSlug,
+    81→    repo: toPosixPath(resolvedRoot),
+    82→    imported_count: imported,
+    83→    client: String(session[&#39;client&#39;] ?? &#39;&#39;),
+    84→    session_id: String(session[&#39;session_id&#39;] ?? &#39;&#39;),
+    85→    title: String(session[&#39;title&#39;] ?? &#39;&#39;),
+    86→    started_at: String(session[&#39;started_at&#39;] ?? &#39;&#39;),
+    87→    cwd: String(session[&#39;cwd&#39;] ?? &#39;&#39;),
+    88→    branch: String(session[&#39;branch&#39;] ?? &#39;&#39;),
+    89→    message_count: Number(session[&#39;message_count&#39;] ?? 0),
+    90→    tool_event_count: Number(session[&#39;tool_event_count&#39;] ?? 0),
+    91→    global_clean_path: cleanPath,
+    92→    clean_content: cleanContent,
+    93→  }
+    94→}
+    95→
+    96→// ---------------------------------------------------------------------------
+    97→// Sync current project
+    98→// ---------------------------------------------------------------------------
+    99→
+   100→export async function syncCurrentProject(root: string, repoSlug: string, globalRoot: string): Promise&lt;number&gt; {
+   101→  const discovered = discoverSourceFiles()
+   102→  let imported = 0
+   103→
+   104→  for (const [client, source] of discovered) {
+   105→    let parsed
+   106→    try {
+   107→      parsed = parseTranscript(client, source)
+   108→    } catch {
+   109→      continue
+   110→    }
+   111→
+   112→    if (!transcriptHasContent(parsed)) continue
+   113→    if (!transcriptMatchesRepo(parsed, root, repoSlug)) continue
+   114→
+   115→    try {
+   116→      await importTranscript(parsed, root, globalRoot, repoSlug, &#39;not-set&#39;, true)
+   117→      imported++
+   118→    } catch {
+   119→      continue
+   120→    }
+   121→  }
+   122→
+   123→  return imported
+   124→}
+   125→
+   126→// ---------------------------------------------------------------------------
+   127→// Find latest session
+   128→// ---------------------------------------------------------------------------
+   129→
+   130→export function findLatestSession(
+   131→  globalRoot: string,
+   132→  root: string,
+   133→  repoSlug: string,
+   134→  activationTime: string,
+   135→): Record&lt;string, unknown&gt; | null {
+   136→  const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+   137→  if (!existsSync(dbPath)) {
+   138→    return findLatestFromJsonl(globalRoot, root, repoSlug, activationTime)
+   139→  }
+   140→
+   141→  try {
+   142→    const db = new Database(dbPath, { readonly: true })
+   143→    try {
+   144→      const rows = db
+   145→        .prepare(&#39;SELECT * FROM transcripts WHERE started_at &lt; ? ORDER BY started_at DESC LIMIT 20&#39;)
+   146→        .all(activationTime) as Record&lt;string, unknown&gt;[]
+   147→
+   148→      const resolvedRoot = toPosixPath(resolve(root)).toLowerCase()
+   149→      for (const row of rows) {
+   150→        const cwd = String(row[&#39;cwd&#39;] ?? &#39;&#39;)
+   151→        const project = String(row[&#39;project&#39;] ?? &#39;&#39;)
+   152→        if (cwdMatches(cwd, resolvedRoot) || project === repoSlug) {
+   153→          return row
+   154→        }
+   155→      }
+   156→    } finally {
+   157→      db.close()
+   158→    }
+   159→  } catch {
+   160→    return findLatestFromJsonl(globalRoot, root, repoSlug, activationTime)
+   161→  }
+   162→
+   163→  // No matching row in DB — fall back to JSONL index
+   164→  return findLatestFromJsonl(globalRoot, root, repoSlug, activationTime)
+   165→}
+   166→
+   167→// ---------------------------------------------------------------------------
+   168→// JSONL fallback
+   169→// ---------------------------------------------------------------------------
+   170→
+   171→export function findLatestFromJsonl(
+   172→  globalRoot: string,
+   173→  root: string,
+   174→  repoSlug: string,
+   175→  activationTime: string,
+   176→): Record&lt;string, unknown&gt; | null {
+   177→  const jsonlPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)
+   178→  if (!existsSync(jsonlPath)) return null
+   179→
+   180→  const resolvedRoot = toPosixPath(resolve(root)).toLowerCase()
+   181→  const candidates: Record&lt;string, unknown&gt;[] = []
+   182→
+   183→  let content: string
+   184→  try {
+   185→    content = readFileSync(jsonlPath, &#39;utf-8&#39;)
+   186→  } catch {
+   187→    return null
+   188→  }
+   189→
+   190→  for (const line of content.split(&#39;\n&#39;)) {
+   191→    const trimmed = line.trim()
+   192→    if (!trimmed) continue
+   193→    let entry: Record&lt;string, unknown&gt;
+   194→    try {
+   195→      entry = JSON.parse(trimmed) as Record&lt;string, unknown&gt;
+   196→    } catch {
+   197→      continue
+   198→    }
+   199→
+   200→    const started = String(entry[&#39;started_at&#39;] ?? &#39;&#39;)
+   201→    if (started &gt;= activationTime) continue
+   202→
+   203→    const cwd = String(entry[&#39;cwd&#39;] ?? &#39;&#39;)
+   204→    const project = String(entry[&#39;project&#39;] ?? &#39;&#39;)
+   205→    if (cwdMatches(cwd, resolvedRoot) || project === repoSlug) {
+   206→      candidates.push(entry)
+   207→    }
+   208→  }
+   209→
+   210→  if (candidates.length === 0) return null
+   211→
+   212→  candidates.sort((a, b) =&gt; {
+   213→    const aTime = String(a[&#39;started_at&#39;] ?? &#39;&#39;)
+   214→    const bTime = String(b[&#39;started_at&#39;] ?? &#39;&#39;)
+   215→    return bTime.localeCompare(aTime)
+   216→  })
+   217→  return candidates[0]!
+   218→}
+   219→
+   220→// ---------------------------------------------------------------------------
+   221→// CWD matching
+   222→// ---------------------------------------------------------------------------
+   223→
+   224→export function cwdMatches(cwd: string, resolvedRoot: string): boolean {
+   225→  if (!cwd) return false
+   226→  try {
+   227→    const cwdResolved = toPosixPath(resolve(cwd)).toLowerCase()
+   228→    if (cwdResolved === resolvedRoot) return true
+   229→    const prefix = resolvedRoot.endsWith(&#39;/&#39;) ? resolvedRoot : resolvedRoot + &#39;/&#39;
+   230→    return cwdResolved.startsWith(prefix)
+   231→  } catch {
+   232→    return false
+   233→  }
+   234→}
+   235→
+   236→// ---------------------------------------------------------------------------
+   237→// Helpers
+   238→// ---------------------------------------------------------------------------
+   239→
+   240→function nowIso(): string {
+   241→  return new Date().toISOString().replace(/\.\d{3}Z$/, &#39;Z&#39;)
+   242→}
+   243→
+   244→export function formatText(payload: RecallResult): string {
+   245→  if (!payload.found) {
+   246→    return [
+   247→      `project: ${payload.project}`,
+   248→      `imported: ${payload.imported_count}`,
+   249→      `result: ${payload.message ?? &#39;No previous session found.&#39;}`,
+   250→    ].join(&#39;\n&#39;)
+   251→  }
+   252→
+   253→  const lines = [
+   254→    `project: ${payload.project}`,
+   255→    `client: ${payload.client ?? &#39;&#39;}`,
+   256→    `session_id: ${payload.session_id ?? &#39;&#39;}`,
+   257→    `title: ${payload.title ?? &#39;&#39;}`,
+   258→    `started_at: ${payload.started_at ?? &#39;&#39;}`,
+   259→    `cwd: ${payload.cwd ?? &#39;&#39;}`,
+   260→    `branch: ${payload.branch ?? &#39;&#39;}`,
+   261→    `messages: ${payload.message_count ?? 0}`,
+   262→    `tool_events: ${payload.tool_event_count ?? 0}`,
+   263→    `imported_this_sync: ${payload.imported_count}`,
+   264→    `clean_transcript: ${payload.global_clean_path ?? &#39;&#39;}`,
+   265→  ]
+   266→
+   267→  if (payload.clean_content) {
+   268→    lines.push(&#39;&#39;, &#39;--- clean transcript content ---&#39;, payload.clean_content)
+   269→  }
+   270→
+   271→  return lines.join(&#39;\n&#39;)
+   272→}
+   273→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me read the remaining key files." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#12</span>
+      
+      <span class="timeline-time">14:07:24</span>
+    </div>
+    <div class="message-body"><p>Let me read the remaining key files.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_31eBhlbzoPBoQdrfZANY8y Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/transcript/import.ts&quot;}" id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_31eBhlbzoPBoQdrfZANY8y</span>
+      <span class="timeline-time">14:07:24</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/transcript/import.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/core/src/transcript/import.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_UW6ExSrPKthHR1A1QWSPIW Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/types/src/index.ts&quot;}" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_UW6ExSrPKthHR1A1QWSPIW</span>
+      <span class="timeline-time">14:07:24</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/types/src/index.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/types/src/index.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_31eBhlbzoPBoQdrfZANY8y Read output=1→/** 2→ * Transcript import — orchestration, cleaning, and manifest management. 3→ * Port of scripts/_transcript_import.py 4→ */ 5→ 6→import { copyFileSync, existsSync, mkdirSy..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_31eBhlbzoPBoQdrfZANY8y</span>
+      
+      <span class="timeline-time">14:07:24</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript import — orchestration, cleaning, and manifest management. 3→ * Port of scripts/_transcript_import.py 4→ */ 5→ 6→import { copyFileSync, existsSync, mkdirSy...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript import — orchestration, cleaning, and manifest management.
+     3→ * Port of scripts/_transcript_import.py
+     4→ */
+     5→
+     6→import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from &#39;node:fs&#39;
+     7→import { dirname, extname, join, relative } from &#39;node:path&#39;
+     8→
+     9→import type { ManifestEntry, ParsedTranscript } from &#39;@openmnemo/types&#39;
+    10→import { toPosixPath } from &#39;../utils/path.js&#39;
+    11→import {
+    12→  loadJson,
+    13→  normalizeTimestamp,
+    14→  sha256File,
+    15→  slugify,
+    16→  timestampPartition,
+    17→  yamlEscape,
+    18→} from &#39;./common.js&#39;
+    19→import { upsertSearchIndex } from &#39;./db.js&#39;
+    20→
+    21→export async function importTranscript(
+    22→  parsed: ParsedTranscript,
+    23→  root: string,
+    24→  globalRoot: string,
+    25→  projectSlug: string,
+    26→  rawUploadPermission: string,
+    27→  mirrorToRepo = true,
+    28→): Promise&lt;ManifestEntry&gt; {
+    29→  const importedAt = normalizeTimestamp(new Date())
+    30→  const rawSha256 = sha256File(parsed.source_path)
+    31→  const sessionLabel = slugify(
+    32→    parsed.session_id,
+    33→    slugify(stemOf(parsed.source_path), &#39;session&#39;),
+    34→  )
+    35→  const artifactStem = `${sessionLabel}__${rawSha256.slice(0, 8)}`
+    36→  const sourceSuffix = extname(parsed.source_path) || &#39;.txt&#39;
+    37→
+    38→  const [yearToken, monthToken] = timestampPartition(parsed.started_at || importedAt)
+    39→
+    40→  const repoRoot = join(root, &#39;Memory&#39;, &#39;06_transcripts&#39;)
+    41→  const repoRawPath = join(repoRoot, &#39;raw&#39;, parsed.client, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
+    42→  const repoCleanPath = join(repoRoot, &#39;clean&#39;, parsed.client, yearToken, monthToken, `${artifactStem}.md`)
+    43→  const repoManifestPath = join(repoRoot, &#39;manifests&#39;, parsed.client, yearToken, monthToken, `${artifactStem}.json`)
+    44→
+    45→  const globalRawPath = join(globalRoot, &#39;raw&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
+    46→  const globalCleanPath = join(globalRoot, &#39;clean&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.md`)
+    47→  const globalManifestPath = join(globalRoot, &#39;index&#39;, &#39;manifests&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.json`)
+    48→  const globalEventLogPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)
+    49→  const globalDbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+    50→
+    51→  for (const p of [globalRawPath, globalCleanPath, globalManifestPath, globalEventLogPath, globalDbPath]) {
+    52→    mkdirSync(dirname(p), { recursive: true })
+    53→  }
+    54→  if (mirrorToRepo) {
+    55→    for (const p of [repoRawPath, repoCleanPath, repoManifestPath]) {
+    56→      mkdirSync(dirname(p), { recursive: true })
+    57→    }
+    58→  }
+    59→
+    60→  if (mirrorToRepo) {
+    61→    copyFile(parsed.source_path, repoRawPath)
+    62→  }
+    63→  copyFile(parsed.source_path, globalRawPath)
+    64→
+    65→  let manifest: ManifestEntry = {
+    66→    client: parsed.client,
+    67→    project: projectSlug,
+    68→    session_id: parsed.session_id,
+    69→    title: parsed.title,
+    70→    started_at: parsed.started_at,
+    71→    imported_at: importedAt,
+    72→    cwd: parsed.cwd,
+    73→    branch: parsed.branch,
+    74→    raw_source_path: toPosixPath(parsed.source_path),
+    75→    raw_sha256: rawSha256,
+    76→    raw_upload_permission: rawUploadPermission,
+    77→    repo_raw_path: mirrorToRepo ? toPosixPath(relative(root, repoRawPath)) : &#39;&#39;,
+    78→    repo_clean_path: mirrorToRepo ? toPosixPath(relative(root, repoCleanPath)) : &#39;&#39;,
+    79→    repo_manifest_path: mirrorToRepo ? toPosixPath(relative(root, repoManifestPath)) : &#39;&#39;,
+    80→    global_raw_path: toPosixPath(globalRawPath),
+    81→    global_clean_path: toPosixPath(globalCleanPath),
+    82→    global_manifest_path: toPosixPath(globalManifestPath),
+    83→    message_count: parsed.messages.length,
+    84→    tool_event_count: parsed.tool_events.length,
+    85→    cleaning_mode: &#39;deterministic-code&#39;,
+    86→    repo_mirror_enabled: mirrorToRepo,
+    87→  }
+    88→
+    89→  const existingGlobalManifest = loadJson(globalManifestPath)
+    90→  manifest = preserveExistingImportTimestamp(existingGlobalManifest, manifest)
+    91→
+    92→  if (mirrorToRepo) {
+    93→    writeCleanMarkdown(parsed, manifest, repoCleanPath)
+    94→  }
+    95→  writeCleanMarkdown(parsed, manifest, globalCleanPath)
+    96→  const manifestRecord = { ...manifest } as Record&lt;string, unknown&gt;
+    97→  if (mirrorToRepo) {
+    98→    writeJson(repoManifestPath, manifestRecord)
+    99→  }
+   100→  const appendToEventLog = existingGlobalManifest === null || !deepEqual(existingGlobalManifest, manifestRecord)
+   101→  writeJson(globalManifestPath, manifestRecord)
+   102→  if (appendToEventLog) {
+   103→    appendJsonl(globalEventLogPath, manifestRecord)
+   104→  }
+   105→  try {
+   106→    upsertSearchIndex(globalDbPath, manifest)
+   107→  } catch {
+   108→    // Non-fatal: search index failure should not abort the import
+   109→  }
+   110→
+   111→  return manifest
+   112→}
+   113→
+   114→export function transcriptHasContent(parsed: ParsedTranscript): boolean {
+   115→  return parsed.messages.length &gt; 0 || parsed.tool_events.length &gt; 0
+   116→}
+   117→
+   118→export function writeCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestEntry, filePath: string): void {
+   119→  const lines: string[] = [
+   120→    &#39;---&#39;,
+   121→    `client: ${manifest.client}`,
+   122→    `project: ${manifest.project}`,
+   123→    `session_id: ${manifest.session_id}`,
+   124→    `title: ${yamlEscape(manifest.title)}`,
+   125→    `started_at: ${manifest.started_at}`,
+   126→    `imported_at: ${manifest.imported_at}`,
+   127→    `cwd: ${yamlEscape(manifest.cwd)}`,
+   128→    `branch: ${yamlEscape(manifest.branch)}`,
+   129→    `raw_source_path: ${yamlEscape(manifest.raw_source_path)}`,
+   130→    `raw_sha256: ${manifest.raw_sha256}`,
+   131→    `raw_upload_permission: ${manifest.raw_upload_permission}`,
+   132→    `cleaning_mode: ${manifest.cleaning_mode}`,
+   133→    &#39;---&#39;,
+   134→    &#39;&#39;,
+   135→    `# ${manifest.title || manifest.session_id}`,
+   136→    &#39;&#39;,
+   137→    &#39;## Metadata&#39;,
+   138→    `- Client: \`${manifest.client}\``,
+   139→    `- Project: \`${manifest.project}\``,
+   140→    `- Session ID: \`${manifest.session_id}\``,
+   141→    `- Started At: \`${manifest.started_at}\``,
+   142→    `- Imported At: \`${manifest.imported_at}\``,
+   143→    `- Raw SHA256: \`${manifest.raw_sha256}\``,
+   144→    `- Raw Source: \`${manifest.raw_source_path}\``,
+   145→    `- Repo Raw Path: \`${manifest.repo_raw_path}\``,
+   146→    `- Repo Clean Path: \`${manifest.repo_clean_path}\``,
+   147→    &#39;&#39;,
+   148→    &#39;## Messages&#39;,
+   149→  ]
+   150→
+   151→  if (parsed.messages.length &gt; 0) {
+   152→    for (let i = 0; i &lt; parsed.messages.length; i++) {
+   153→      const message = parsed.messages[i]!
+   154→      lines.push(
+   155→        `### ${i + 1}. ${message.role}`,
+   156→        `- Timestamp: \`${message.timestamp ?? manifest.started_at}\``,
+   157→        &#39;&#39;,
+   158→        message.text,
+   159→        &#39;&#39;,
+   160→      )
+   161→    }
+   162→  } else {
+   163→    lines.push(
+   164→      &#39;No user or assistant messages were extracted deterministically from the source transcript.&#39;,
+   165→      &#39;&#39;,
+   166→    )
+   167→  }
+   168→
+   169→  lines.push(&#39;## Tool Events&#39;)
+   170→  if (parsed.tool_events.length &gt; 0) {
+   171→    for (const event of parsed.tool_events) {
+   172→      lines.push(`- \`${event.timestamp ?? manifest.started_at}\` ${event.summary}`)
+   173→    }
+   174→  } else {
+   175→    lines.push(&#39;- No tool events were extracted.&#39;)
+   176→  }
+   177→  lines.push(&#39;&#39;)
+   178→
+   179→  writeFileSync(filePath, lines.join(&#39;\n&#39;), &#39;utf-8&#39;)
+   180→}
+   181→
+   182→export function preserveExistingImportTimestamp(
+   183→  existing: Record&lt;string, unknown&gt; | null,
+   184→  payload: ManifestEntry,
+   185→): ManifestEntry {
+   186→  if (existing === null) return payload
+   187→  const payloadRecord = { ...payload } as Record&lt;string, unknown&gt;
+   188→  if (!deepEqual(manifestSignature(existing), manifestSignature(payloadRecord))) return payload
+   189→  const importedAt = existing[&#39;imported_at&#39;]
+   190→  if (typeof importedAt === &#39;string&#39; &amp;&amp; importedAt) {
+   191→    return { ...payload, imported_at: importedAt }
+   192→  }
+   193→  return payload
+   194→}
+   195→
+   196→export function manifestSignature(payload: Record&lt;string, unknown&gt;): Record&lt;string, unknown&gt; {
+   197→  const result: Record&lt;string, unknown&gt; = {}
+   198→  for (const [key, value] of Object.entries(payload)) {
+   199→    if (key !== &#39;imported_at&#39;) {
+   200→      result[key] = value
+   201→    }
+   202→  }
+   203→  return result
+   204→}
+   205→
+   206→export function manifestChanged(filePath: string, payload: Record&lt;string, unknown&gt;): boolean {
+   207→  if (!existsSync(filePath)) return true
+   208→  try {
+   209→    const current = JSON.parse(readFileSync(filePath, &#39;utf-8&#39;)) as Record&lt;string, unknown&gt;
+   210→    return !deepEqual(current, payload)
+   211→  } catch {
+   212→    return true
+   213→  }
+   214→}
+   215→
+   216→export function writeJson(filePath: string, payload: Record&lt;string, unknown&gt;): void {
+   217→  writeFileSync(filePath, JSON.stringify(payload, null, 2) + &#39;\n&#39;, &#39;utf-8&#39;)
+   218→}
+   219→
+   220→export function appendJsonl(filePath: string, payload: Record&lt;string, unknown&gt;): void {
+   221→  appendFileSync(filePath, JSON.stringify(payload) + &#39;\n&#39;, &#39;utf-8&#39;)
+   222→}
+   223→
+   224→export function copyFile(source: string, destination: string): void {
+   225→  if (source === destination) return
+   226→  copyFileSync(source, destination)
+   227→}
+   228→
+   229→// ---------------------------------------------------------------------------
+   230→// Internal helpers
+   231→// ---------------------------------------------------------------------------
+   232→
+   233→function stemOf(filePath: string): string {
+   234→  const base = filePath.replace(/\\/g, &#39;/&#39;).split(&#39;/&#39;).pop() ?? &#39;&#39;
+   235→  const ext = extname(base)
+   236→  return ext ? base.slice(0, -ext.length) : base
+   237→}
+   238→
+   239→function deepEqual(a: unknown, b: unknown): boolean {
+   240→  if (a === b) return true
+   241→  if (a === null || b === null || typeof a !== typeof b) return false
+   242→  if (typeof a !== &#39;object&#39;) return false
+   243→  if (Array.isArray(a) !== Array.isArray(b)) return false
+   244→  const aObj = a as Record&lt;string, unknown&gt;
+   245→  const bObj = b as Record&lt;string, unknown&gt;
+   246→  const aKeys = Object.keys(aObj)
+   247→  const bKeys = Object.keys(bObj)
+   248→  if (aKeys.length !== bKeys.length) return false
+   249→  return aKeys.every(key =&gt; deepEqual(aObj[key], bObj[key]))
+   250→}
+   251→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_UW6ExSrPKthHR1A1QWSPIW Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39; 5→ 6→export int..." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_UW6ExSrPKthHR1A1QWSPIW</span>
+      
+      <span class="timeline-time">14:07:24</span>
+    </div>
+    <div class="timeline-title">Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39; 5→ 6→export int...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→// Types — ParsedTranscript, Message, ToolEvent interfaces
+     2→// To be implemented in Phase 1
+     3→
+     4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39;
+     5→
+     6→export interface TranscriptMessage {
+     7→  role: string
+     8→  text: string
+     9→  timestamp: string | null
+    10→}
+    11→
+    12→export interface TranscriptToolEvent {
+    13→  summary: string
+    14→  timestamp: string | null
+    15→}
+    16→
+    17→export interface ParsedTranscript {
+    18→  client: Client
+    19→  session_id: string
+    20→  title: string
+    21→  started_at: string
+    22→  cwd: string
+    23→  branch: string
+    24→  messages: TranscriptMessage[]
+    25→  tool_events: TranscriptToolEvent[]
+    26→  source_path: string
+    27→}
+    28→
+    29→export interface ManifestEntry {
+    30→  client: string
+    31→  project: string
+    32→  session_id: string
+    33→  raw_sha256: string
+    34→  title: string
+    35→  started_at: string
+    36→  imported_at: string
+    37→  cwd: string
+    38→  branch: string
+    39→  raw_source_path: string
+    40→  raw_upload_permission: string
+    41→  global_raw_path: string
+    42→  global_clean_path: string
+    43→  global_manifest_path: string
+    44→  repo_raw_path: string
+    45→  repo_clean_path: string
+    46→  repo_manifest_path: string
+    47→  message_count: number
+    48→  tool_event_count: number
+    49→  cleaning_mode: string
+    50→  repo_mirror_enabled: boolean
+    51→}
+    52→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me read the test files to understand coverage patterns." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#17</span>
+      
+      <span class="timeline-time">14:07:32</span>
+    </div>
+    <div class="message-body"><p>Now let me read the test files to understand coverage patterns.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_QC7CrZcaSuyegpZucCswVH Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/core/tests -type f | sort&quot;,&quot;description&quot;:&quot;List core test files&quot;}" id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_QC7CrZcaSuyegpZucCswVH</span>
+      <span class="timeline-time">14:07:32</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/core/tests -type f | sort&quot;,&quot;description&quot;:&quot;List core test files&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find /d/demo1/openmnemo/packages/core/tests -type f | sort&quot;,
+  &quot;description&quot;: &quot;List core test files&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_F1MCpU2bZp8TM2ae8KOmrD Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/cli/src -type f | sort&quot;,&quot;description&quot;:&quot;List CLI source files&quot;}" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_F1MCpU2bZp8TM2ae8KOmrD</span>
+      <span class="timeline-time">14:07:32</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find /d/demo1/openmnemo/packages/cli/src -type f | sort&quot;,&quot;description&quot;:&quot;List CLI source files&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find /d/demo1/openmnemo/packages/cli/src -type f | sort&quot;,
+  &quot;description&quot;: &quot;List CLI source files&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_QC7CrZcaSuyegpZucCswVH Bash output=/d/demo1/openmnemo/packages/core/tests/recall/recall.test.ts /d/demo1/openmnemo/packages/core/tests/smoke.test.ts /d/demo1/openmnemo/packages/core/tests/transcript/common.test.t..." id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_QC7CrZcaSuyegpZucCswVH</span>
+      
+      <span class="timeline-time">14:07:32</span>
+    </div>
+    <div class="timeline-title">Bash output=/d/demo1/openmnemo/packages/core/tests/recall/recall.test.ts /d/demo1/openmnemo/packages/core/tests/smoke.test.ts /d/demo1/openmnemo/packages/core/tests/transcript/common.test.t...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>/d/demo1/openmnemo/packages/core/tests/recall/recall.test.ts
+/d/demo1/openmnemo/packages/core/tests/smoke.test.ts
+/d/demo1/openmnemo/packages/core/tests/transcript/common.test.ts
+/d/demo1/openmnemo/packages/core/tests/transcript/db.test.ts
+/d/demo1/openmnemo/packages/core/tests/transcript/discover.test.ts
+/d/demo1/openmnemo/packages/core/tests/transcript/import.test.ts
+/d/demo1/openmnemo/packages/core/tests/transcript/integration.test.ts
+/d/demo1/openmnemo/packages/core/tests/transcript/parse.test.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_F1MCpU2bZp8TM2ae8KOmrD Bash output=/d/demo1/openmnemo/packages/cli/src/cmd-daemon.ts /d/demo1/openmnemo/packages/cli/src/cmd-discover.ts /d/demo1/openmnemo/packages/cli/src/cmd-import.ts /d/demo1/openmnemo/packag..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_F1MCpU2bZp8TM2ae8KOmrD</span>
+      
+      <span class="timeline-time">14:07:32</span>
+    </div>
+    <div class="timeline-title">Bash output=/d/demo1/openmnemo/packages/cli/src/cmd-daemon.ts /d/demo1/openmnemo/packages/cli/src/cmd-discover.ts /d/demo1/openmnemo/packages/cli/src/cmd-import.ts /d/demo1/openmnemo/packag...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>/d/demo1/openmnemo/packages/cli/src/cmd-daemon.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-discover.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-import.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-init.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-locale.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-recall.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-report.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-search.ts
+/d/demo1/openmnemo/packages/cli/src/cmd-upgrade.ts
+/d/demo1/openmnemo/packages/cli/src/main.ts
+/d/demo1/openmnemo/packages/cli/src/project/locale.ts
+/d/demo1/openmnemo/packages/cli/src/project/scaffold.ts
+/d/demo1/openmnemo/packages/cli/src/project/upgrade.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me read the test files for db and recall." id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#22</span>
+      
+      <span class="timeline-time">14:07:38</span>
+    </div>
+    <div class="message-body"><p>Let me read the test files for db and recall.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_XxFV1PV5s34XD3mVqVTnLZ Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/tests/transcript/db.test.ts&quot;}" id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_XxFV1PV5s34XD3mVqVTnLZ</span>
+      <span class="timeline-time">14:07:38</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/tests/transcript/db.test.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/core/tests/transcript/db.test.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_XxFV1PV5s34XD3mVqVTnLZ Read output=1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39; 2→import { mkdtempSync, rmSync, existsSync } from &#39;node:fs&#39; 3→import { join } from &#39;node:path&#39; 4→import { ..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_XxFV1PV5s34XD3mVqVTnLZ</span>
+      
+      <span class="timeline-time">14:07:38</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39; 2→import { mkdtempSync, rmSync, existsSync } from &#39;node:fs&#39; 3→import { join } from &#39;node:path&#39; 4→import { ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39;
+     2→import { mkdtempSync, rmSync, existsSync } from &#39;node:fs&#39;
+     3→import { join } from &#39;node:path&#39;
+     4→import { tmpdir } from &#39;node:os&#39;
+     5→import Database from &#39;better-sqlite3&#39;
+     6→
+     7→import { upsertSearchIndex, searchTranscripts, sanitizeFtsQuery, rebuildFtsIndex, initSchema } from &#39;../../src/transcript/db.js&#39;
+     8→import type { ManifestEntry } from &#39;@openmnemo/types&#39;
+     9→
+    10→// ---------------------------------------------------------------------------
+    11→// Helpers
+    12→// ---------------------------------------------------------------------------
+    13→
+    14→function makeManifest(overrides: Partial&lt;ManifestEntry&gt; = {}): ManifestEntry {
+    15→  return {
+    16→    client: &#39;claude&#39;,
+    17→    project: &#39;my-project&#39;,
+    18→    session_id: &#39;sess-001&#39;,
+    19→    raw_sha256: &#39;abc123def456&#39;,
+    20→    title: &#39;Test Session&#39;,
+    21→    started_at: &#39;2024-06-01T00:00:00Z&#39;,
+    22→    imported_at: &#39;2024-06-01T01:00:00Z&#39;,
+    23→    cwd: &#39;/home/user/project&#39;,
+    24→    branch: &#39;main&#39;,
+    25→    raw_source_path: &#39;/raw/source.jsonl&#39;,
+    26→    raw_upload_permission: &#39;granted&#39;,
+    27→    global_raw_path: &#39;/global/raw/file.jsonl&#39;,
+    28→    global_clean_path: &#39;/global/clean/file.md&#39;,
+    29→    repo_raw_path: &#39;.memorytree/raw/file.jsonl&#39;,
+    30→    repo_clean_path: &#39;.memorytree/clean/file.md&#39;,
+    31→    repo_manifest_path: &#39;.memorytree/manifest.yaml&#39;,
+    32→    message_count: 42,
+    33→    tool_event_count: 7,
+    34→    ...overrides,
+    35→  }
+    36→}
+    37→
+    38→// ---------------------------------------------------------------------------
+    39→// Tests
+    40→// ---------------------------------------------------------------------------
+    41→
+    42→describe(&#39;upsertSearchIndex&#39;, () =&gt; {
+    43→  let tmpDir: string
+    44→  let dbPath: string
+    45→
+    46→  beforeEach(() =&gt; {
+    47→    tmpDir = mkdtempSync(join(tmpdir(), &#39;db-test-&#39;))
+    48→    dbPath = join(tmpDir, &#39;transcripts.db&#39;)
+    49→  })
+    50→
+    51→  afterEach(() =&gt; {
+    52→    rmSync(tmpDir, { recursive: true, force: true })
+    53→  })
+    54→
+    55→  it(&#39;creates a new db file and inserts one record&#39;, () =&gt; {
+    56→    expect(existsSync(dbPath)).toBe(false)
+    57→
+    58→    const manifest = makeManifest()
+    59→    upsertSearchIndex(dbPath, manifest)
+    60→
+    61→    expect(existsSync(dbPath)).toBe(true)
+    62→
+    63→    const db = new Database(dbPath, { readonly: true })
+    64→    try {
+    65→      const row = db.prepare(&#39;SELECT * FROM transcripts&#39;).get() as Record&lt;string, unknown&gt;
+    66→      expect(row[&#39;client&#39;]).toBe(&#39;claude&#39;)
+    67→      expect(row[&#39;title&#39;]).toBe(&#39;Test Session&#39;)
+    68→      expect(row[&#39;message_count&#39;]).toBe(42)
+    69→      expect(row[&#39;tool_event_count&#39;]).toBe(7)
+    70→    } finally {
+    71→      db.close()
+    72→    }
+    73→  })
+    74→
+    75→  it(&#39;updates existing record on conflict (upsert)&#39;, () =&gt; {
+    76→    upsertSearchIndex(dbPath, makeManifest())
+    77→    upsertSearchIndex(dbPath, makeManifest({
+    78→      title: &#39;Updated Title&#39;,
+    79→      message_count: 100,
+    80→      tool_event_count: 20,
+    81→      branch: &#39;feature-x&#39;,
+    82→    }))
+    83→
+    84→    const db = new Database(dbPath, { readonly: true })
+    85→    try {
+    86→      const rows = db.prepare(&#39;SELECT * FROM transcripts&#39;).all() as Record&lt;string, unknown&gt;[]
+    87→      expect(rows).toHaveLength(1)
+    88→      expect(rows[0]![&#39;title&#39;]).toBe(&#39;Updated Title&#39;)
+    89→      expect(rows[0]![&#39;message_count&#39;]).toBe(100)
+    90→      expect(rows[0]![&#39;tool_event_count&#39;]).toBe(20)
+    91→      expect(rows[0]![&#39;branch&#39;]).toBe(&#39;feature-x&#39;)
+    92→    } finally {
+    93→      db.close()
+    94→    }
+    95→  })
+    96→
+    97→  it(&#39;creates table with 18 columns&#39;, () =&gt; {
+    98→    upsertSearchIndex(dbPath, makeManifest())
+    99→
+   100→    const db = new Database(dbPath, { readonly: true })
+   101→    try {
+   102→      const info = db.prepare(&#39;PRAGMA table_info(transcripts)&#39;).all() as Record&lt;string, unknown&gt;[]
+   103→      expect(info).toHaveLength(18)
+   104→      const columnNames = info.map((r) =&gt; r[&#39;name&#39;])
+   105→      expect(columnNames).toEqual([
+   106→        &#39;client&#39;, &#39;project&#39;, &#39;session_id&#39;, &#39;raw_sha256&#39;,
+   107→        &#39;title&#39;, &#39;started_at&#39;, &#39;imported_at&#39;,
+   108→        &#39;cwd&#39;, &#39;branch&#39;, &#39;raw_source_path&#39;, &#39;raw_upload_permission&#39;,
+   109→        &#39;global_raw_path&#39;, &#39;global_clean_path&#39;,
+   110→        &#39;repo_raw_path&#39;, &#39;repo_clean_path&#39;, &#39;repo_manifest_path&#39;,
+   111→        &#39;message_count&#39;, &#39;tool_event_count&#39;,
+   112→      ])
+   113→    } finally {
+   114→      db.close()
+   115→    }
+   116→  })
+   117→
+   118→  it(&#39;inserts multiple different records&#39;, () =&gt; {
+   119→    upsertSearchIndex(dbPath, makeManifest({ session_id: &#39;sess-001&#39;, raw_sha256: &#39;hash1&#39; }))
+   120→    upsertSearchIndex(dbPath, makeManifest({ session_id: &#39;sess-002&#39;, raw_sha256: &#39;hash2&#39;, title: &#39;Second&#39; }))
+   121→    upsertSearchIndex(dbPath, makeManifest({ session_id: &#39;sess-003&#39;, raw_sha256: &#39;hash3&#39;, client: &#39;codex&#39; }))
+   122→
+   123→    const db = new Database(dbPath, { readonly: true })
+   124→    try {
+   125→      const rows = db.prepare(&#39;SELECT session_id FROM transcripts ORDER BY session_id&#39;).all() as Record&lt;string, unknown&gt;[]
+   126→      expect(rows).toHaveLength(3)
+   127→      expect(rows[0]![&#39;session_id&#39;]).toBe(&#39;sess-001&#39;)
+   128→      expect(rows[1]![&#39;session_id&#39;]).toBe(&#39;sess-002&#39;)
+   129→      expect(rows[2]![&#39;session_id&#39;]).toBe(&#39;sess-003&#39;)
+   130→    } finally {
+   131→      db.close()
+   132→    }
+   133→  })
+   134→
+   135→  it(&#39;opens an existing db and preserves previous records&#39;, () =&gt; {
+   136→    upsertSearchIndex(dbPath, makeManifest({ session_id: &#39;first&#39; }))
+   137→    upsertSearchIndex(dbPath, makeManifest({ session_id: &#39;second&#39;, raw_sha256: &#39;different&#39; }))
+   138→
+   139→    const db = new Database(dbPath, { readonly: true })
+   140→    try {
+   141→      const count = (db.prepare(&#39;SELECT COUNT(*) as cnt FROM transcripts&#39;).get() as { cnt: number }).cnt
+   142→      expect(count).toBe(2)
+   143→    } finally {
+   144→      db.close()
+   145→    }
+   146→  })
+   147→
+   148→  it(&#39;enforces composite primary key (client, project, session_id, raw_sha256)&#39;, () =&gt; {
+   149→    upsertSearchIndex(dbPath, makeManifest({ raw_sha256: &#39;sha-aaa&#39;, title: &#39;First&#39; }))
+   150→    upsertSearchIndex(dbPath, makeManifest({ raw_sha256: &#39;sha-bbb&#39;, title: &#39;Second&#39; }))
+   151→
+   152→    const db = new Database(dbPath, { readonly: true })
+   153→    try {
+   154→      const rows = db.prepare(&#39;SELECT title FROM transcripts ORDER BY raw_sha256&#39;).all() as Record&lt;string, unknown&gt;[]
+   155→      expect(rows).toHaveLength(2)
+   156→      expect(rows[0]![&#39;title&#39;]).toBe(&#39;First&#39;)
+   157→      expect(rows[1]![&#39;title&#39;]).toBe(&#39;Second&#39;)
+   158→    } finally {
+   159→      db.close()
+   160→    }
+   161→  })
+   162→})
+   163→
+   164→// ---------------------------------------------------------------------------
+   165→// searchTranscripts — FTS4 full-text search
+   166→// ---------------------------------------------------------------------------
+   167→
+   168→describe(&#39;searchTranscripts&#39;, () =&gt; {
+   169→  let tmpDir: string
+   170→  let dbPath: string
+   171→
+   172→  beforeEach(() =&gt; {
+   173→    tmpDir = mkdtempSync(join(tmpdir(), &#39;db-fts-test-&#39;))
+   174→    dbPath = join(tmpDir, &#39;search.sqlite&#39;)
+   175→  })
+   176→
+   177→  afterEach(() =&gt; {
+   178→    rmSync(tmpDir, { recursive: true, force: true })
+   179→  })
+   180→
+   181→  it(&#39;returns empty array when db does not exist&#39;, () =&gt; {
+   182→    const results = searchTranscripts(dbPath, &#39;anything&#39;)
+   183→    expect(results).toEqual([])
+   184→  })
+   185→
+   186→  it(&#39;finds records matching query term in title&#39;, () =&gt; {
+   187→    upsertSearchIndex(dbPath, makeManifest({ title: &#39;authentication bug&#39;, session_id: &#39;sess-auth&#39; }))
+   188→    upsertSearchIndex(dbPath, makeManifest({ title: &#39;unrelated session&#39;, session_id: &#39;sess-other&#39;, raw_sha256: &#39;other&#39; }))
+   189→
+   190→    const results = searchTranscripts(dbPath, &#39;authentication&#39;)
+   191→    expect(results).toHaveLength(1)
+   192→    expect(results[0]!.session_id).toBe(&#39;sess-auth&#39;)
+   193→  })
+   194→
+   195→  it(&#39;finds records matching query term in cwd&#39;, () =&gt; {
+   196→    upsertSearchIndex(dbPath, makeManifest({ cwd: &#39;/home/user/myproject&#39;, session_id: &#39;sess-cwd&#39; }))
+   197→    const results = searchTranscripts(dbPath, &#39;myproject&#39;)
+   198→    expect(results).toHaveLength(1)
+   199→    expect(results[0]!.session_id).toBe(&#39;sess-cwd&#39;)
+   200→  })
+   201→
+   202→  it(&#39;returns empty array when no records match&#39;, () =&gt; {
+   203→    upsertSearchIndex(dbPath, makeManifest({ title: &#39;hello world&#39; }))
+   204→    const results = searchTranscripts(dbPath, &#39;zzznomatch9999&#39;)
+   205→    expect(results).toEqual([])
+   206→  })
+   207→
+   208→  it(&#39;respects the limit parameter&#39;, () =&gt; {
+   209→    for (let i = 0; i &lt; 5; i++) {
+   210→      upsertSearchIndex(dbPath, makeManifest({
+   211→        session_id: `sess-${i}`,
+   212→        raw_sha256: `hash-${i}`,
+   213→        title: &#39;common keyword session&#39;,
+   214→      }))
+   215→    }
+   216→    const results = searchTranscripts(dbPath, &#39;common&#39;, 3)
+   217→    expect(results.length).toBe(3)
+   218→  })
+   219→
+   220→  it(&#39;result records have required SearchResult fields&#39;, () =&gt; {
+   221→    upsertSearchIndex(dbPath, makeManifest({
+   222→      title: &#39;feature implementation&#39;,
+   223→      cwd: &#39;/home/dev&#39;,
+   224→      branch: &#39;feature/auth&#39;,
+   225→      started_at: &#39;2024-07-01T00:00:00Z&#39;,
+   226→    }))
+   227→    const results = searchTranscripts(dbPath, &#39;feature&#39;)
+   228→    expect(results).toHaveLength(1)
+   229→    const r = results[0]!
+   230→    expect(r.client).toBe(&#39;claude&#39;)
+   231→    expect(r.project).toBe(&#39;my-project&#39;)
+   232→    expect(r.title).toBe(&#39;feature implementation&#39;)
+   233→    expect(r.cwd).toBe(&#39;/home/dev&#39;)
+   234→    expect(r.branch).toBe(&#39;feature/auth&#39;)
+   235→    expect(r.started_at).toBe(&#39;2024-07-01T00:00:00Z&#39;)
+   236→    expect(Object.keys(r)).toEqual([&#39;client&#39;, &#39;project&#39;, &#39;session_id&#39;, &#39;title&#39;, &#39;cwd&#39;, &#39;branch&#39;, &#39;started_at&#39;])
+   237→  })
+   238→
+   239→  it(&#39;returns empty array when sanitized query is empty (only special chars)&#39;, () =&gt; {
+   240→    upsertSearchIndex(dbPath, makeManifest({ title: &#39;hello world&#39; }))
+   241→    const results = searchTranscripts(dbPath, &#39;&quot;*()-&#39;)
+   242→    expect(results).toEqual([])
+   243→  })
+   244→
+   245→  it(&#39;does not throw on multi-word query&#39;, () =&gt; {
+   246→    upsertSearchIndex(dbPath, makeManifest({ title: &#39;authentication bug fix&#39;, session_id: &#39;sess-multi&#39; }))
+   247→    const results = searchTranscripts(dbPath, &#39;authentication bug&#39;)
+   248→    expect(results).toHaveLength(1)
+   249→    expect(results[0]!.session_id).toBe(&#39;sess-multi&#39;)
+   250→  })
+   251→})
+   252→
+   253→// ---------------------------------------------------------------------------
+   254→// sanitizeFtsQuery
+   255→// ---------------------------------------------------------------------------
+   256→
+   257→describe(&#39;sanitizeFtsQuery&#39;, () =&gt; {
+   258→  it(&#39;passes through plain words unchanged&#39;, () =&gt; {
+   259→    expect(sanitizeFtsQuery(&#39;hello world&#39;)).toBe(&#39;hello world&#39;)
+   260→  })
+   261→
+   262→  it(&#39;strips FTS4 metacharacters&#39;, () =&gt; {
+   263→    expect(sanitizeFtsQuery(&#39;&quot;auth* (bug)-&#39;)).toBe(&#39;auth bug&#39;)
+   264→  })
+   265→
+   266→  it(&#39;strips single quotes to prevent FTS4 MATCH parse errors&#39;, () =&gt; {
+   267→    expect(sanitizeFtsQuery(&quot;it&#39;s broken&quot;)).toBe(&#39;it s broken&#39;)
+   268→    expect(sanitizeFtsQuery(&quot;O&#39;Brien&quot;)).toBe(&#39;O Brien&#39;)
+   269→  })
+   270→
+   271→  it(&#39;collapses whitespace runs&#39;, () =&gt; {
+   272→    expect(sanitizeFtsQuery(&#39;foo   bar&#39;)).toBe(&#39;foo bar&#39;)
+   273→  })
+   274→
+   275→  it(&#39;trims leading and trailing whitespace&#39;, () =&gt; {
+   276→    expect(sanitizeFtsQuery(&#39;  hello  &#39;)).toBe(&#39;hello&#39;)
+   277→  })
+   278→
+   279→  it(&#39;returns empty string when only metacharacters given&#39;, () =&gt; {
+   280→    expect(sanitizeFtsQuery(&#39;&quot;*()-^&#39;)).toBe(&#39;&#39;)
+   281→  })
+   282→
+   283→  it(&#39;preserves Unicode letters&#39;, () =&gt; {
+   284→    expect(sanitizeFtsQuery(&#39;café authentication&#39;)).toBe(&#39;café authentication&#39;)
+   285→  })
+   286→})
+   287→
+   288→// ---------------------------------------------------------------------------
+   289→// initSchema + rebuildFtsIndex
+   290→// ---------------------------------------------------------------------------
+   291→
+   292→describe(&#39;initSchema&#39;, () =&gt; {
+   293→  let tmpDir: string
+   294→  let dbPath: string
+   295→
+   296→  beforeEach(() =&gt; {
+   297→    tmpDir = mkdtempSync(join(tmpdir(), &#39;db-schema-test-&#39;))
+   298→    dbPath = join(tmpDir, &#39;schema.sqlite&#39;)
+   299→  })
+   300→  afterEach(() =&gt; { rmSync(tmpDir, { recursive: true, force: true }) })
+   301→
+   302→  it(&#39;creates transcripts table and FTS table without inserting data&#39;, () =&gt; {
+   303→    initSchema(dbPath)
+   304→    expect(existsSync(dbPath)).toBe(true)
+   305→    const db = new Database(dbPath, { readonly: true })
+   306→    try {
+   307→      const tables = db.prepare(&quot;SELECT name FROM sqlite_master WHERE type=&#39;table&#39; OR type=&#39;shadow&#39;&quot;).all() as { name: string }[]
+   308→      const names = tables.map(t =&gt; t.name)
+   309→      expect(names).toContain(&#39;transcripts&#39;)
+   310→      expect(names).toContain(&#39;transcripts_fts&#39;)
+   311→    } finally {
+   312→      db.close()
+   313→    }
+   314→  })
+   315→
+   316→  it(&#39;is idempotent — calling twice does not throw&#39;, () =&gt; {
+   317→    expect(() =&gt; { initSchema(dbPath); initSchema(dbPath) }).not.toThrow()
+   318→  })
+   319→})
+   320→
+   321→describe(&#39;rebuildFtsIndex&#39;, () =&gt; {
+   322→  let tmpDir: string
+   323→  let dbPath: string
+   324→
+   325→  beforeEach(() =&gt; {
+   326→    tmpDir = mkdtempSync(join(tmpdir(), &#39;db-rebuild-test-&#39;))
+   327→    dbPath = join(tmpDir, &#39;rebuild.sqlite&#39;)
+   328→  })
+   329→  afterEach(() =&gt; { rmSync(tmpDir, { recursive: true, force: true }) })
+   330→
+   331→  it(&#39;makes records searchable after upsert without per-row rebuild&#39;, () =&gt; {
+   332→    // upsertSearchIndex still rebuilds per-row by default, so test the
+   333→    // explicit rebuildFtsIndex path by using initSchema + raw insert
+   334→    initSchema(dbPath)
+   335→    const db = new Database(dbPath)
+   336→    try {
+   337→      db.prepare(`INSERT INTO transcripts (${[&#39;client&#39;,&#39;project&#39;,&#39;session_id&#39;,&#39;raw_sha256&#39;,&#39;title&#39;,&#39;started_at&#39;,&#39;imported_at&#39;,&#39;cwd&#39;,&#39;branch&#39;,&#39;raw_source_path&#39;,&#39;raw_upload_permission&#39;,&#39;global_raw_path&#39;,&#39;global_clean_path&#39;,&#39;repo_raw_path&#39;,&#39;repo_clean_path&#39;,&#39;repo_manifest_path&#39;,&#39;message_count&#39;,&#39;tool_event_count&#39;].join(&#39;,&#39;)}) VALUES (${Array(18).fill(&#39;?&#39;).join(&#39;,&#39;)})`)
+   338→        .run(&#39;claude&#39;,&#39;proj&#39;,&#39;s1&#39;,&#39;h1&#39;,&#39;rebuild test&#39;,&#39;2024-01-01T00:00:00Z&#39;,&#39;2024-01-01T00:00:00Z&#39;,&#39;/cwd&#39;,&#39;main&#39;,&#39;/raw&#39;,&#39;none&#39;,&#39;/graw&#39;,&#39;/gclean&#39;,&#39;&#39;,&#39;&#39;,&#39;&#39;,1,0)
+   339→    } finally {
+   340→      db.close()
+   341→    }
+   342→    // Before rebuild, search returns nothing
+   343→    expect(searchTranscripts(dbPath, &#39;rebuild&#39;)).toEqual([])
+   344→    // After rebuild, search finds the row
+   345→    rebuildFtsIndex(dbPath)
+   346→    const results = searchTranscripts(dbPath, &#39;rebuild&#39;)
+   347→    expect(results).toHaveLength(1)
+   348→    expect(results[0]!.session_id).toBe(&#39;s1&#39;)
+   349→  })
+   350→})
+   351→
+   352→// ---------------------------------------------------------------------------
+   353→// searchTranscripts — error resilience
+   354→// ---------------------------------------------------------------------------
+   355→
+   356→describe(&#39;searchTranscripts error resilience&#39;, () =&gt; {
+   357→  let tmpDir: string
+   358→  let dbPath: string
+   359→
+   360→  beforeEach(() =&gt; {
+   361→    tmpDir = mkdtempSync(join(tmpdir(), &#39;db-err-test-&#39;))
+   362→    dbPath = join(tmpDir, &#39;err.sqlite&#39;)
+   363→  })
+   364→  afterEach(() =&gt; { rmSync(tmpDir, { recursive: true, force: true }) })
+   365→
+   366→  it(&#39;returns empty array when FTS table is missing (legacy DB with only transcripts table)&#39;, () =&gt; {
+   367→    // Create DB with transcripts table but no FTS table
+   368→    const db = new Database(dbPath)
+   369→    db.exec(`CREATE TABLE transcripts (
+   370→      client TEXT, project TEXT, session_id TEXT, raw_sha256 TEXT,
+   371→      title TEXT, started_at TEXT, imported_at TEXT, cwd TEXT, branch TEXT,
+   372→      raw_source_path TEXT, raw_upload_permission TEXT, global_raw_path TEXT,
+   373→      global_clean_path TEXT, repo_raw_path TEXT, repo_clean_path TEXT,
+   374→      repo_manifest_path TEXT, message_count INTEGER, tool_event_count INTEGER,
+   375→      PRIMARY KEY (client, project, session_id, raw_sha256)
+   376→    )`)
+   377→    db.close()
+   378→    // searchTranscripts should not throw — returns empty
+   379→    expect(searchTranscripts(dbPath, &#39;anything&#39;)).toEqual([])
+   380→  })
+   381→})
+   382→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_NtMd89KsjhS07Q7yGcLuQK Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/tests/recall/recall.test.ts&quot;}" id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_NtMd89KsjhS07Q7yGcLuQK</span>
+      <span class="timeline-time">14:07:38</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/tests/recall/recall.test.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/core/tests/recall/recall.test.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_NtMd89KsjhS07Q7yGcLuQK Read output=1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39; 2→import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from &#39;node:fs&#39; 3→import { join, resolve } from ..." id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_NtMd89KsjhS07Q7yGcLuQK</span>
+      
+      <span class="timeline-time">14:07:38</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39; 2→import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from &#39;node:fs&#39; 3→import { join, resolve } from ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39;
+     2→import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from &#39;node:fs&#39;
+     3→import { join, resolve } from &#39;node:path&#39;
+     4→import { tmpdir } from &#39;node:os&#39;
+     5→
+     6→import {
+     7→  cwdMatches,
+     8→  findLatestFromJsonl,
+     9→  formatText,
+    10→  type RecallResult,
+    11→} from &#39;../../src/recall/recall.js&#39;
+    12→import { toPosixPath } from &#39;../../src/utils/path.js&#39;
+    13→
+    14→// ---------------------------------------------------------------------------
+    15→// cwdMatches
+    16→// ---------------------------------------------------------------------------
+    17→
+    18→describe(&#39;cwdMatches&#39;, () =&gt; {
+    19→  it(&#39;returns true for exact match&#39;, () =&gt; {
+    20→    const root = toPosixPath(resolve(&#39;/projects/my-app&#39;)).toLowerCase()
+    21→    expect(cwdMatches(&#39;/projects/my-app&#39;, root)).toBe(true)
+    22→  })
+    23→
+    24→  it(&#39;returns true for subdirectory match&#39;, () =&gt; {
+    25→    const root = toPosixPath(resolve(&#39;/projects/my-app&#39;)).toLowerCase()
+    26→    expect(cwdMatches(&#39;/projects/my-app/src/utils&#39;, root)).toBe(true)
+    27→  })
+    28→
+    29→  it(&#39;returns false when cwd does not match&#39;, () =&gt; {
+    30→    const root = toPosixPath(resolve(&#39;/projects/my-app&#39;)).toLowerCase()
+    31→    expect(cwdMatches(&#39;/other/project&#39;, root)).toBe(false)
+    32→  })
+    33→
+    34→  it(&#39;returns false for empty cwd&#39;, () =&gt; {
+    35→    const root = toPosixPath(resolve(&#39;/projects/my-app&#39;)).toLowerCase()
+    36→    expect(cwdMatches(&#39;&#39;, root)).toBe(false)
+    37→  })
+    38→})
+    39→
+    40→// ---------------------------------------------------------------------------
+    41→// findLatestFromJsonl
+    42→// ---------------------------------------------------------------------------
+    43→
+    44→describe(&#39;findLatestFromJsonl&#39;, () =&gt; {
+    45→  let tmpDir: string
+    46→
+    47→  beforeEach(() =&gt; {
+    48→    tmpDir = mkdtempSync(join(tmpdir(), &#39;recall-jsonl-&#39;))
+    49→  })
+    50→  afterEach(() =&gt; {
+    51→    rmSync(tmpDir, { recursive: true, force: true })
+    52→  })
+    53→
+    54→  it(&#39;finds the latest session matching the project slug&#39;, () =&gt; {
+    55→    const indexDir = join(tmpDir, &#39;index&#39;)
+    56→    mkdirSync(indexDir, { recursive: true })
+    57→
+    58→    const sessions = [
+    59→      { project: &#39;my-app&#39;, started_at: &#39;2024-01-01T10:00:00Z&#39;, session_id: &#39;older&#39; },
+    60→      { project: &#39;my-app&#39;, started_at: &#39;2024-06-15T10:00:00Z&#39;, session_id: &#39;newer&#39; },
+    61→    ]
+    62→    writeFileSync(
+    63→      join(indexDir, &#39;sessions.jsonl&#39;),
+    64→      sessions.map(s =&gt; JSON.stringify(s)).join(&#39;\n&#39;) + &#39;\n&#39;,
+    65→    )
+    66→
+    67→    const result = findLatestFromJsonl(tmpDir, &#39;/some/path&#39;, &#39;my-app&#39;, &#39;2025-01-01T00:00:00Z&#39;)
+    68→    expect(result).not.toBeNull()
+    69→    expect(result![&#39;session_id&#39;]).toBe(&#39;newer&#39;)
+    70→  })
+    71→
+    72→  it(&#39;filters out sessions at or after activation time&#39;, () =&gt; {
+    73→    const indexDir = join(tmpDir, &#39;index&#39;)
+    74→    mkdirSync(indexDir, { recursive: true })
+    75→
+    76→    const sessions = [
+    77→      { project: &#39;my-app&#39;, started_at: &#39;2024-01-01T10:00:00Z&#39;, session_id: &#39;before&#39; },
+    78→      { project: &#39;my-app&#39;, started_at: &#39;2025-06-01T00:00:00Z&#39;, session_id: &#39;after&#39; },
+    79→    ]
+    80→    writeFileSync(
+    81→      join(indexDir, &#39;sessions.jsonl&#39;),
+    82→      sessions.map(s =&gt; JSON.stringify(s)).join(&#39;\n&#39;) + &#39;\n&#39;,
+    83→    )
+    84→
+    85→    const result = findLatestFromJsonl(tmpDir, &#39;/some/path&#39;, &#39;my-app&#39;, &#39;2025-01-01T00:00:00Z&#39;)
+    86→    expect(result).not.toBeNull()
+    87→    expect(result![&#39;session_id&#39;]).toBe(&#39;before&#39;)
+    88→  })
+    89→
+    90→  it(&#39;returns null when no sessions match the project&#39;, () =&gt; {
+    91→    const indexDir = join(tmpDir, &#39;index&#39;)
+    92→    mkdirSync(indexDir, { recursive: true })
+    93→
+    94→    const sessions = [
+    95→      { project: &#39;other-project&#39;, started_at: &#39;2024-01-01T10:00:00Z&#39;, session_id: &#39;s1&#39; },
+    96→    ]
+    97→    writeFileSync(
+    98→      join(indexDir, &#39;sessions.jsonl&#39;),
+    99→      sessions.map(s =&gt; JSON.stringify(s)).join(&#39;\n&#39;) + &#39;\n&#39;,
+   100→    )
+   101→
+   102→    const result = findLatestFromJsonl(tmpDir, &#39;/some/path&#39;, &#39;my-app&#39;, &#39;2025-01-01T00:00:00Z&#39;)
+   103→    expect(result).toBeNull()
+   104→  })
+   105→
+   106→  it(&#39;returns null when sessions.jsonl does not exist&#39;, () =&gt; {
+   107→    const result = findLatestFromJsonl(tmpDir, &#39;/some/path&#39;, &#39;my-app&#39;, &#39;2025-01-01T00:00:00Z&#39;)
+   108→    expect(result).toBeNull()
+   109→  })
+   110→
+   111→  it(&#39;matches sessions by cwd in addition to project slug&#39;, () =&gt; {
+   112→    const indexDir = join(tmpDir, &#39;index&#39;)
+   113→    mkdirSync(indexDir, { recursive: true })
+   114→
+   115→    // Use a real temp path so resolve() works correctly
+   116→    const projectRoot = join(tmpDir, &#39;projects&#39;, &#39;my-app&#39;)
+   117→    mkdirSync(projectRoot, { recursive: true })
+   118→    const resolvedRoot = toPosixPath(resolve(projectRoot))
+   119→
+   120→    const sessions = [
+   121→      { project: &#39;unrelated&#39;, cwd: resolvedRoot, started_at: &#39;2024-01-01T10:00:00Z&#39;, session_id: &#39;cwd-match&#39; },
+   122→    ]
+   123→    writeFileSync(
+   124→      join(indexDir, &#39;sessions.jsonl&#39;),
+   125→      sessions.map(s =&gt; JSON.stringify(s)).join(&#39;\n&#39;) + &#39;\n&#39;,
+   126→    )
+   127→
+   128→    const result = findLatestFromJsonl(tmpDir, projectRoot, &#39;different-slug&#39;, &#39;2025-01-01T00:00:00Z&#39;)
+   129→    expect(result).not.toBeNull()
+   130→    expect(result![&#39;session_id&#39;]).toBe(&#39;cwd-match&#39;)
+   131→  })
+   132→
+   133→  it(&#39;skips malformed JSON lines&#39;, () =&gt; {
+   134→    const indexDir = join(tmpDir, &#39;index&#39;)
+   135→    mkdirSync(indexDir, { recursive: true })
+   136→
+   137→    const content = [
+   138→      &#39;not valid json&#39;,
+   139→      JSON.stringify({ project: &#39;my-app&#39;, started_at: &#39;2024-01-01T10:00:00Z&#39;, session_id: &#39;valid&#39; }),
+   140→      &#39;{ broken: }&#39;,
+   141→    ].join(&#39;\n&#39;) + &#39;\n&#39;
+   142→    writeFileSync(join(indexDir, &#39;sessions.jsonl&#39;), content)
+   143→
+   144→    const result = findLatestFromJsonl(tmpDir, &#39;/some/path&#39;, &#39;my-app&#39;, &#39;2025-01-01T00:00:00Z&#39;)
+   145→    expect(result).not.toBeNull()
+   146→    expect(result![&#39;session_id&#39;]).toBe(&#39;valid&#39;)
+   147→  })
+   148→})
+   149→
+   150→// ---------------------------------------------------------------------------
+   151→// formatText
+   152→// ---------------------------------------------------------------------------
+   153→
+   154→describe(&#39;formatText&#39;, () =&gt; {
+   155→  it(&#39;formats a found result with session details&#39;, () =&gt; {
+   156→    const payload: RecallResult = {
+   157→      found: true,
+   158→      project: &#39;my-app&#39;,
+   159→      repo: &#39;/projects/my-app&#39;,
+   160→      imported_count: 3,
+   161→      client: &#39;claude&#39;,
+   162→      session_id: &#39;abc-123&#39;,
+   163→      title: &#39;Test Session&#39;,
+   164→      started_at: &#39;2024-06-15T10:00:00Z&#39;,
+   165→      cwd: &#39;/projects/my-app&#39;,
+   166→      branch: &#39;main&#39;,
+   167→      message_count: 42,
+   168→      tool_event_count: 7,
+   169→      global_clean_path: &#39;/tmp/clean.md&#39;,
+   170→    }
+   171→
+   172→    const text = formatText(payload)
+   173→    expect(text).toContain(&#39;project: my-app&#39;)
+   174→    expect(text).toContain(&#39;client: claude&#39;)
+   175→    expect(text).toContain(&#39;session_id: abc-123&#39;)
+   176→    expect(text).toContain(&#39;title: Test Session&#39;)
+   177→    expect(text).toContain(&#39;started_at: 2024-06-15T10:00:00Z&#39;)
+   178→    expect(text).toContain(&#39;branch: main&#39;)
+   179→    expect(text).toContain(&#39;messages: 42&#39;)
+   180→    expect(text).toContain(&#39;tool_events: 7&#39;)
+   181→    expect(text).toContain(&#39;imported_this_sync: 3&#39;)
+   182→  })
+   183→
+   184→  it(&#39;formats a not-found result with message&#39;, () =&gt; {
+   185→    const payload: RecallResult = {
+   186→      found: false,
+   187→      project: &#39;my-app&#39;,
+   188→      repo: &#39;/projects/my-app&#39;,
+   189→      imported_count: 0,
+   190→      message: &#39;No previous session found for this project.&#39;,
+   191→    }
+   192→
+   193→    const text = formatText(payload)
+   194→    expect(text).toContain(&#39;project: my-app&#39;)
+   195→    expect(text).toContain(&#39;imported: 0&#39;)
+   196→    expect(text).toContain(&#39;result: No previous session found for this project.&#39;)
+   197→  })
+   198→
+   199→  it(&#39;includes clean content when present&#39;, () =&gt; {
+   200→    const payload: RecallResult = {
+   201→      found: true,
+   202→      project: &#39;my-app&#39;,
+   203→      repo: &#39;/projects/my-app&#39;,
+   204→      imported_count: 0,
+   205→      clean_content: &#39;This is the transcript content.&#39;,
+   206→      global_clean_path: &#39;/tmp/clean.md&#39;,
+   207→    }
+   208→
+   209→    const text = formatText(payload)
+   210→    expect(text).toContain(&#39;--- clean transcript content ---&#39;)
+   211→    expect(text).toContain(&#39;This is the transcript content.&#39;)
+   212→  })
+   213→})
+   214→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me read the CLI search and recall commands to understand the full picture." id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#27</span>
+      
+      <span class="timeline-time">14:07:44</span>
+    </div>
+    <div class="message-body"><p>Now let me read the CLI search and recall commands to understand the full picture.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_v79Xnk5wV3h4IM5BztKIKo Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/cmd-search.ts&quot;}" id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_v79Xnk5wV3h4IM5BztKIKo</span>
+      <span class="timeline-time">14:07:44</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/cmd-search.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/cli/src/cmd-search.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_v79Xnk5wV3h4IM5BztKIKo Read output=1→/** 2→ * CLI: openmnemo search — full-text search over the transcript index. 3→ */ 4→ 5→import { join, resolve } from &#39;node:path&#39; 6→ 7→import { defaultGlobalTranscriptRoot, se..." id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#29</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_v79Xnk5wV3h4IM5BztKIKo</span>
+      
+      <span class="timeline-time">14:07:44</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * CLI: openmnemo search — full-text search over the transcript index. 3→ */ 4→ 5→import { join, resolve } from &#39;node:path&#39; 6→ 7→import { defaultGlobalTranscriptRoot, se...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * CLI: openmnemo search — full-text search over the transcript index.
+     3→ */
+     4→
+     5→import { join, resolve } from &#39;node:path&#39;
+     6→
+     7→import { defaultGlobalTranscriptRoot, searchTranscripts } from &#39;@openmnemo/core&#39;
+     8→import type { SearchResult } from &#39;@openmnemo/core&#39;
+     9→
+    10→export interface SearchOptions {
+    11→  query: string
+    12→  globalRoot: string
+    13→  limit: number
+    14→  format: string
+    15→}
+    16→
+    17→export async function cmdSearch(options: SearchOptions): Promise&lt;number&gt; {
+    18→  const query = options.query.trim()
+    19→  if (!query) {
+    20→    process.stderr.write(&#39;--query must not be empty\n&#39;)
+    21→    return 1
+    22→  }
+    23→
+    24→  const globalRoot = options.globalRoot ? resolve(options.globalRoot) : defaultGlobalTranscriptRoot()
+    25→  const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+    26→
+    27→  let results: SearchResult[]
+    28→  try {
+    29→    results = await searchTranscripts(dbPath, query, options.limit)
+    30→  } catch (err: unknown) {
+    31→    const msg = err instanceof Error ? err.message : String(err)
+    32→    process.stderr.write(`search error: ${msg}\n`)
+    33→    return 1
+    34→  }
+    35→
+    36→  if (options.format === &#39;json&#39;) {
+    37→    process.stdout.write(JSON.stringify({ query, results, count: results.length }) + &#39;\n&#39;)
+    38→  } else {
+    39→    process.stdout.write(formatSearchText(query, results) + &#39;\n&#39;)
+    40→  }
+    41→  return 0
+    42→}
+    43→
+    44→function formatSearchText(query: string, results: SearchResult[]): string {
+    45→  const lines: string[] = [`query: ${query}`, `count: ${results.length}`]
+    46→  if (results.length &gt; 0) {
+    47→    lines.push(&#39;results:&#39;)
+    48→    for (const r of results) {
+    49→      lines.push(`- [${r.client}] ${r.project}/${r.session_id}`)
+    50→      lines.push(`  title: ${r.title}`)
+    51→      lines.push(`  started_at: ${r.started_at}`)
+    52→      if (r.cwd) lines.push(`  cwd: ${r.cwd}`)
+    53→      if (r.branch) lines.push(`  branch: ${r.branch}`)
+    54→    }
+    55→  }
+    56→  return lines.join(&#39;\n&#39;)
+    57→}
+    58→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_Hl4olyfbg5IGFzyAbsvq4X Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/cmd-recall.ts&quot;}" id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#30</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_Hl4olyfbg5IGFzyAbsvq4X</span>
+      <span class="timeline-time">14:07:44</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/cmd-recall.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/cli/src/cmd-recall.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_Hl4olyfbg5IGFzyAbsvq4X Read output=1→/** 2→ * CLI: memorytree recall — on-demand transcript sync + session lookup. 3→ * Port of scripts/recall-session.py CLI wrapper. 4→ */ 5→ 6→import { existsSync } from &#39;node:f..." id="event-30">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#31</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_Hl4olyfbg5IGFzyAbsvq4X</span>
+      
+      <span class="timeline-time">14:07:44</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * CLI: memorytree recall — on-demand transcript sync + session lookup. 3→ * Port of scripts/recall-session.py CLI wrapper. 4→ */ 5→ 6→import { existsSync } from &#39;node:f...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * CLI: memorytree recall — on-demand transcript sync + session lookup.
+     3→ * Port of scripts/recall-session.py CLI wrapper.
+     4→ */
+     5→
+     6→import { existsSync } from &#39;node:fs&#39;
+     7→import { resolve } from &#39;node:path&#39;
+     8→
+     9→import { recall, formatRecallText } from &#39;@openmnemo/core&#39;
+    10→
+    11→export interface RecallOptions {
+    12→  root: string
+    13→  projectName: string
+    14→  globalRoot: string
+    15→  activationTime: string
+    16→  format: string
+    17→}
+    18→
+    19→export async function cmdRecall(options: RecallOptions): Promise&lt;number&gt; {
+    20→  const root = resolve(options.root)
+    21→  if (!existsSync(root)) {
+    22→    process.stderr.write(`root does not exist: ${root}\n`)
+    23→    return 1
+    24→  }
+    25→
+    26→  const result = await recall(root, options.projectName, options.globalRoot, options.activationTime)
+    27→
+    28→  if (options.format === &#39;json&#39;) {
+    29→    process.stdout.write(JSON.stringify(result) + &#39;\n&#39;)
+    30→  } else {
+    31→    process.stdout.write(formatRecallText(result) + &#39;\n&#39;)
+    32→  }
+    33→  return 0
+    34→}
+    35→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now I have everything I need. Here is the complete implementation plan. --- ## Task 1.1 Implementation Plan: Layered FTS with `content` and `commit_layer` Fields --- ### Overview of Changes Four files need modification, one type needs extension: 1. `packages/types/src/index.ts` — add two optional fields to `ManifestEntry` 2. `packages/core/src/transcript/db.ts` — schema migration, new columns, layered se..." id="event-31">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#32</span>
+      
+      <span class="timeline-time">14:08:40</span>
+    </div>
+    <p class="event-preview">Now I have everything I need. Here is the complete implementation plan. --- ## Task 1.1 Implementation Plan: Layered FTS with `content` and `commit_layer` Fields --- ### Overview of Changes Four files need modificatio...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Now I have everything I need. Here is the complete implementation plan.</p><p>---</p><p>## Task 1.1 Implementation Plan: Layered FTS with <code>content</code> and <code>commit_layer</code> Fields</p><p>---</p><p>### Overview of Changes</p><p>Four files need modification, one type needs extension:</p><p>1. <code>packages/types/src/index.ts</code> — add two optional fields to <code>ManifestEntry</code><br>2. <code>packages/core/src/transcript/db.ts</code> — schema migration, new columns, layered search logic<br>3. <code>packages/core/src/transcript/import.ts</code> — pass <code>content</code> to upsert<br>4. <code>packages/core/src/recall/recall.ts</code> — add full-text search mode<br>5. Test files — update existing + add new cases</p><p>---</p><p>## Step 1: Extend <code>ManifestEntry</code> in types</p><p><code>packages/types/src/index.ts</code> — add two optional fields at the end of <code>ManifestEntry</code>:</p><pre><code>content?: string        // full clean markdown text (populated at import time)
+commit_layer?: string   // git commit message + changed files (task 1.2, empty for now)
+</code></pre><p>These are optional (<code>?</code>) so all existing callers that construct <code>ManifestEntry</code> without them continue to compile without changes.</p><p>---</p><p>## Step 2: Schema migration strategy in <code>db.ts</code></p><p>### The core problem</p><p><code>CREATE TABLE IF NOT EXISTS</code> will not add new columns to an existing DB. The two new columns (<code>content TEXT</code>, <code>commit_layer TEXT</code>) must be added via <code>ALTER TABLE ... ADD COLUMN</code> when the DB already exists.</p><p>### Migration function</p><p>Add a private <code>migrateSchema(db)</code> function that runs after <code>CREATE TABLE IF NOT EXISTS</code>:</p><pre><code>ALTER TABLE transcripts ADD COLUMN content      TEXT NOT NULL DEFAULT &#39;&#39;;
+ALTER TABLE transcripts ADD COLUMN commit_layer TEXT NOT NULL DEFAULT &#39;&#39;;
+</code></pre><p>SQLite <code>ALTER TABLE ADD COLUMN</code> is safe and idempotent-friendly — wrap each in a try/catch that ignores <code>duplicate column name</code> errors (SQLite error code <code>SQLITE_ERROR</code>, message contains <code>duplicate column name</code>). This is the standard pattern for additive migrations without a version table.</p><pre><code>function migrateSchema(db: InstanceType&lt;typeof Database&gt;): void {
+  for (const col of [&#39;content&#39;, &#39;commit_layer&#39;]) {
+    try {
+      db.exec(`ALTER TABLE transcripts ADD COLUMN ${col} TEXT NOT NULL DEFAULT &#39;&#39;`)
+    } catch (e: unknown) {
+      // ignore &quot;duplicate column name&quot; — column already exists
+      if (!(e instanceof Error) || !e.message.includes(&#39;duplicate column name&#39;)) throw e
+    }
+  }
+}
+</code></pre><p>Call <code>migrateSchema(db)</code> inside <code>openDb()</code> after the pragma setup, so every write-path open automatically migrates. The read path (<code>searchTranscripts</code>) opens readonly and never calls <code>migrateSchema</code> — that is correct, reads against an old schema still work because the columns default to <code>&#39;&#39;</code>.</p><p>### Updated FTS4 virtual table</p><p>Drop the old <code>CREATE_FTS_SQL</code> and replace with:</p><pre><code>CREATE VIRTUAL TABLE IF NOT EXISTS transcripts_fts USING fts4(
+  content=&#39;transcripts&#39;,
+  title, cwd, branch, content, commit_layer
+)
+</code></pre><p>Note: the FTS4 <code>content=</code> option refers to the source table name, not the column named <code>content</code>. SQLite FTS4 allows a column named <code>content</code> inside a <code>content=&#39;tablename&#39;</code> virtual table — they are distinct concepts. This is valid SQL.</p><p>Because <code>CREATE VIRTUAL TABLE IF NOT EXISTS</code> will not alter an existing FTS table, the migration strategy is: drop and recreate the FTS table when the column count is wrong. Add a private <code>migrateFts(db)</code>:</p><pre><code>function migrateFts(db: InstanceType&lt;typeof Database&gt;): void {
+  // Check if FTS table has the new columns by inspecting its schema
+  // fts4 stores column list in sqlite_master as the CREATE statement
+  const row = db.prepare(
+    &quot;SELECT sql FROM sqlite_master WHERE type=&#39;table&#39; AND name=&#39;transcripts_fts&#39;&quot;
+  ).get() as { sql: string } | undefined
+
+  const needsRebuild = !row || !row.sql.includes(&#39;commit_layer&#39;)
+  if (needsRebuild) {
+    db.exec(&#39;DROP TABLE IF EXISTS transcripts_fts&#39;)
+    db.exec(CREATE_FTS_SQL)  // new 5-column definition
+    db.exec(REBUILD_FTS_SQL) // repopulate from transcripts table
+  }
+}
+</code></pre><p>Call <code>migrateFts(db)</code> inside <code>initSchema</code> and <code>upsertSearchIndex</code> after <code>migrateSchema</code>.</p><p>---</p><p>## Step 3: Update column arrays and SQL in <code>db.ts</code></p><p>Add <code>&#39;content&#39;</code> and <code>&#39;commit_layer&#39;</code> to <code>DATA_COLUMNS</code>:</p><pre><code>const DATA_COLUMNS = [
+  &#39;title&#39;,
+  &#39;started_at&#39;,
+  &#39;imported_at&#39;,
+  &#39;cwd&#39;,
+  &#39;branch&#39;,
+  &#39;raw_source_path&#39;,
+  &#39;raw_upload_permission&#39;,
+  &#39;global_raw_path&#39;,
+  &#39;global_clean_path&#39;,
+  &#39;repo_raw_path&#39;,
+  &#39;repo_clean_path&#39;,
+  &#39;repo_manifest_path&#39;,
+  &#39;message_count&#39;,
+  &#39;tool_event_count&#39;,
+  &#39;content&#39;,        // NEW
+  &#39;commit_layer&#39;,   // NEW
+] as const
+</code></pre><p><code>ALL_COLUMNS</code>, <code>UPSERT_SQL</code>, and the param-binding loop in <code>upsertSearchIndex</code> all derive from these arrays automatically — no further SQL changes needed there.</p><p>Update <code>CREATE_TABLE_SQL</code> to include the two new columns:</p><pre><code>content       TEXT    NOT NULL DEFAULT &#39;&#39;,
+commit_layer  TEXT    NOT NULL DEFAULT &#39;&#39;,
+</code></pre><p>---</p><p>## Step 4: Update <code>upsertSearchIndex</code> signature</p><p>Change the signature to accept an optional <code>content</code> override (since <code>ManifestEntry.content</code> is optional, the value may not be set by callers that don&#39;t read the file):</p><pre><code>export function upsertSearchIndex(
+  dbPath: string,
+  manifest: ManifestEntry,
+): void
+</code></pre><p>No signature change needed — <code>manifest.content</code> and <code>manifest.commit_layer</code> are already on the type (optional). Inside <code>upsertSearchIndex</code>, the existing param-binding loop already handles <code>undefined</code> by falling back to <code>&#39;&#39;</code>:</p><pre><code>if (value === undefined || value === null) return &#39;&#39;
+</code></pre><p>So the new fields are handled automatically.</p><p>---</p><p>## Step 5: Update <code>import.ts</code> to populate <code>content</code></p><p>In <code>importTranscript</code>, after <code>writeCleanMarkdown(parsed, manifest, globalCleanPath)</code> is called, read the file back and attach it to the manifest before calling <code>upsertSearchIndex</code>:</p><pre><code>// Read clean markdown for FTS content indexing
+let contentText = &#39;&#39;
+try {
+  contentText = readFileSync(globalCleanPath, &#39;utf-8&#39;)
+} catch {
+  // non-fatal — FTS content will be empty
+}
+
+const manifestWithContent: ManifestEntry = {
+  ...manifest,
+  content: contentText,
+  commit_layer: &#39;&#39;,   // task 1.2 will populate this
+}
+
+try {
+  upsertSearchIndex(globalDbPath, manifestWithContent)
+} catch {
+  // Non-fatal: search index failure should not abort the import
+}
+</code></pre><p>The <code>manifest</code> object returned from <code>importTranscript</code> should NOT include <code>content</code> (it would bloat the JSON manifest files on disk). Only <code>manifestWithContent</code> is passed to <code>upsertSearchIndex</code>. The returned <code>manifest</code> stays as-is.</p><p>---</p><p>## Step 6: Layered retrieval in <code>recall.ts</code></p><p>Add a new exported function <code>searchRecall</code> that implements the three-layer strategy. This is separate from the existing <code>recall()</code> function (which does latest-session lookup) to keep concerns clean.</p><p>### Layer definitions</p><p>- Layer 1 — <code>commit_layer</code>: search commit messages and changed file paths (future, currently empty)<br>- Layer 2 — <code>title</code>, <code>cwd</code>, <code>branch</code>: existing FTS columns (metadata)<br>- Layer 3 — <code>content</code>: full clean markdown text</p><p>### New function signature</p><pre><code>export interface SearchRecallResult {
+  layer: 1 | 2 | 3
+  results: SearchResult[]
+}
+
+export function searchRecall(
+  globalRoot: string,
+  query: string,
+  limit?: number,
+): SearchRecallResult
+</code></pre><p>### Logic</p><pre><code>export function searchRecall(globalRoot, query, limit = 20): SearchRecallResult {
+  const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+
+  // Layer 1: commit_layer column only
+  const layer1 = searchTranscriptsByColumns(dbPath, query, [&#39;commit_layer&#39;], limit)
+  if (layer1.length &gt; 0) return { layer: 1, results: layer1 }
+
+  // Layer 2: title, cwd, branch (existing behaviour)
+  const layer2 = searchTranscripts(dbPath, query, limit)
+  if (layer2.length &gt; 0) return { layer: 2, results: layer2 }
+
+  // Layer 3: content column (full text)
+  const layer3 = searchTranscriptsByColumns(dbPath, query, [&#39;content&#39;], limit)
+  return { layer: 3, results: layer3 }
+}
+</code></pre><p>Add a private helper <code>searchTranscriptsByColumns</code> in <code>db.ts</code> that accepts a column list and builds a column-scoped FTS4 MATCH query using the <code>column:term</code> syntax FTS4 supports:</p><pre><code>// FTS4 column filter syntax: &quot;title:foo OR cwd:foo&quot;
+function buildColumnQuery(columns: string[], sanitized: string): string {
+  return columns.map(col =&gt; `${col}:${sanitized}`).join(&#39; OR &#39;)
+}
+</code></pre><p>Export this helper as <code>searchTranscriptsByColumns(dbPath, query, columns, limit)</code> from <code>db.ts</code>.</p><p>For now, Layer 1 will always return empty (since <code>commit_layer</code> is <code>&#39;&#39;</code> for all rows), so the effective behaviour is Layer 2 first, then Layer 3 fallback — which is a clean, testable state.</p><p>---</p><p>## Step 7: Update <code>SearchResult</code> type</p><p>The existing <code>SearchResult</code> only returns 7 fields. For Layer 3 results, callers may want to know a snippet. Add an optional field:</p><pre><code>export interface SearchResult {
+  client: string
+  project: string
+  session_id: string
+  title: string
+  cwd: string
+  branch: string
+  started_at: string
+  matched_layer?: 1 | 2 | 3   // set by searchRecall, not by searchTranscripts
+}
+</code></pre><p><code>searchTranscripts</code> itself does not set <code>matched_layer</code> — <code>searchRecall</code> sets it on the returned results after the fact, keeping the DB layer clean.</p><p>---</p><p>## Step 8: Test strategy</p><p>### <code>db.test.ts</code> — changes needed</p><p>- The test <code>&#39;creates table with 18 columns&#39;</code> hardcodes <code>toHaveLength(18)</code> and the exact column name array. Update to 20 columns, add <code>&#39;content&#39;</code> and <code>&#39;commit_layer&#39;</code> to the expected array.<br>- The <code>rebuildFtsIndex</code> test that does a raw INSERT hardcodes 18 <code>?</code> placeholders and 18 column names. Update to 20.<br>- Add new <code>describe(&#39;content and commit_layer indexing&#39;)</code> block:<br>  - upsert with <code>content: &#39;hello world transcript&#39;</code> → <code>searchTranscripts</code> finds it via <code>content</code> column<br>  - upsert with empty <code>content</code> → search for body text returns nothing<br>  - upsert with <code>commit_layer: &#39;fix: auth bug\nauth.ts&#39;</code> → Layer 1 search finds it<br>- Add <code>describe(&#39;searchTranscriptsByColumns&#39;)</code> block:<br>  - column-scoped query hits only the specified column<br>  - empty result when column has no match<br>- Add `describe(&#39;schema</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

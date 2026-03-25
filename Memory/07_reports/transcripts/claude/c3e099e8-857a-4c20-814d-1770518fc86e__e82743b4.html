@@ -1,0 +1,3531 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-aba716e712a03b782 — MemoryTree</title>
+<meta property="og:title" content="agent-aba716e712a03b782">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-aba716e712a03b782</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>6</strong> Messages</span>
+      <span class="transcript-pill"><strong>24</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>30</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 12:23:47</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-aba716e712a03b782</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">c3e099e8-857a-4c20-814d-1770518fc86e</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">e82743b47e708e16...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">30</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">6</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">24</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>6</strong> dialog</span>
+    <span class="transcript-pill"><strong>24</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>6</strong> Messages</span>
+          <span class="transcript-pill"><strong>24</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>30 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 探索 D:\demo1\openmnemo\packages\core\src\ 目录结构，重点找： 1. 完整目录树（glob 所有 .ts 文件） 2. 读 db.ts 或 storage 相关文件，了解当前数据库层的设计 3. 读 recall.ts，了解当前检索逻辑 4. 如果有 config.ts，读一下配置结构 请给出关键文件路径和核心接口/类型定义，不需要读全部实现细节。" id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">12:23:47</span>
+    </div>
+    <div class="message-body"><p>探索 D:\demo1\openmnemo\packages\core\src\ 目录结构，重点找：<br>1. 完整目录树（glob 所有 .ts 文件）<br>2. 读 db.ts 或 storage 相关文件，了解当前数据库层的设计<br>3. 读 recall.ts，了解当前检索逻辑<br>4. 如果有 config.ts，读一下配置结构<br>请给出关键文件路径和核心接口/类型定义，不需要读全部实现细节。</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll explore the core package structure to understand the database layer, retrieval logic, and configuration." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">12:23:52</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll explore the core package structure to understand the database layer, retrieval logic, and configuration.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob tooluse_B1JUOpnFBLa0pNXIcqKJq4 Glob input={&quot;pattern&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\**\\*.ts&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">tooluse_B1JUOpnFBLa0pNXIcqKJq4</span>
+      <span class="timeline-time">12:23:52</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;pattern&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\**\\*.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\**\\*.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_itQ9Lh2wVJgKkaIB8kCbFO Bash input={&quot;command&quot;:&quot;find \&quot;D:\\demo1\\openmnemo\\packages\\core\\src\&quot; -type f -name \&quot;*.ts\&quot; | head -50&quot;,&quot;description&quot;:&quot;List TypeScript files in core/src&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_itQ9Lh2wVJgKkaIB8kCbFO</span>
+      <span class="timeline-time">12:23:52</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;D:\\demo1\\openmnemo\\packages\\core\\src\&quot; -type f -name \&quot;*.ts\&quot; | head -50&quot;,&quot;description&quot;:&quot;List TypeScript files in core/src&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;D:\\demo1\\openmnemo\\packages\\core\\src\&quot; -type f -name \&quot;*.ts\&quot; | head -50&quot;,
+  &quot;description&quot;: &quot;List TypeScript files in core/src&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob tooluse_B1JUOpnFBLa0pNXIcqKJq4 Glob output=D:\demo1\openmnemo\packages\core\src\transcript\discover.ts D:\demo1\openmnemo\packages\core\src\transcript\import.ts D:\demo1\openmnemo\packages\core\src\transcript\index.ts D:..." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">tooluse_B1JUOpnFBLa0pNXIcqKJq4</span>
+      
+      <span class="timeline-time">12:23:52</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\openmnemo\packages\core\src\transcript\discover.ts D:\demo1\openmnemo\packages\core\src\transcript\import.ts D:\demo1\openmnemo\packages\core\src\transcript\index.ts D:...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\openmnemo\packages\core\src\transcript\discover.ts
+D:\demo1\openmnemo\packages\core\src\transcript\import.ts
+D:\demo1\openmnemo\packages\core\src\transcript\index.ts
+D:\demo1\openmnemo\packages\core\src\recall\recall.ts
+D:\demo1\openmnemo\packages\core\src\utils\exec.ts
+D:\demo1\openmnemo\packages\core\src\storage\adapter.ts
+D:\demo1\openmnemo\packages\core\src\storage\local-adapter.ts
+D:\demo1\openmnemo\packages\core\src\storage\gitea-adapter.ts
+D:\demo1\openmnemo\packages\core\src\utils\path.ts
+D:\demo1\openmnemo\packages\core\src\transcript\common.ts
+D:\demo1\openmnemo\packages\core\src\transcript\parse.ts
+D:\demo1\openmnemo\packages\core\src\index.ts
+D:\demo1\openmnemo\packages\core\src\transcript\db.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_itQ9Lh2wVJgKkaIB8kCbFO Bash output=D:\demo1\openmnemo\packages\core\src/index.ts D:\demo1\openmnemo\packages\core\src/recall/recall.ts D:\demo1\openmnemo\packages\core\src/storage/adapter.ts D:\demo1\openmnemo\pa..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_itQ9Lh2wVJgKkaIB8kCbFO</span>
+      
+      <span class="timeline-time">12:23:52</span>
+    </div>
+    <div class="timeline-title">Bash output=D:\demo1\openmnemo\packages\core\src/index.ts D:\demo1\openmnemo\packages\core\src/recall/recall.ts D:\demo1\openmnemo\packages\core\src/storage/adapter.ts D:\demo1\openmnemo\pa...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\openmnemo\packages\core\src/index.ts
+D:\demo1\openmnemo\packages\core\src/recall/recall.ts
+D:\demo1\openmnemo\packages\core\src/storage/adapter.ts
+D:\demo1\openmnemo\packages\core\src/storage/gitea-adapter.ts
+D:\demo1\openmnemo\packages\core\src/storage/local-adapter.ts
+D:\demo1\openmnemo\packages\core\src/transcript/common.ts
+D:\demo1\openmnemo\packages\core\src/transcript/db.ts
+D:\demo1\openmnemo\packages\core\src/transcript/discover.ts
+D:\demo1\openmnemo\packages\core\src/transcript/import.ts
+D:\demo1\openmnemo\packages\core\src/transcript/index.ts
+D:\demo1\openmnemo\packages\core\src/transcript/parse.ts
+D:\demo1\openmnemo\packages\core\src/utils/exec.ts
+D:\demo1\openmnemo\packages\core\src/utils/path.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me read the key files to understand the architecture:" id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#7</span>
+      
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="message-body"><p>Now let me read the key files to understand the architecture:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_cfiowpHARldFBuQ2tqlxfg Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\db.ts&quot;}" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_cfiowpHARldFBuQ2tqlxfg</span>
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\db.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\db.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_pmXaKNA4UQ8XNXAo4o4YlY Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\recall\\recall.ts&quot;}" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_pmXaKNA4UQ8XNXAo4o4YlY</span>
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\recall\\recall.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\recall\\recall.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_vGJn4tbKpZCCzdRG491EUK Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\storage\\adapter.ts&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_vGJn4tbKpZCCzdRG491EUK</span>
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\storage\\adapter.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\storage\\adapter.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_cfiowpHARldFBuQ2tqlxfg Read output=1→/** 2→ * Transcript search index — SQLite upsert for the global transcript catalog. 3→ * 4→ * Uses sql.js (WebAssembly SQLite) so the module works without a native 5→ * sqlite..." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_cfiowpHARldFBuQ2tqlxfg</span>
+      
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript search index — SQLite upsert for the global transcript catalog. 3→ * 4→ * Uses sql.js (WebAssembly SQLite) so the module works without a native 5→ * sqlite...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript search index — SQLite upsert for the global transcript catalog.
+     3→ *
+     4→ * Uses sql.js (WebAssembly SQLite) so the module works without a native
+     5→ * sqlite3 binding.  The WASM init is async; we cache the resulting factory
+     6→ * promise so it is only resolved once per process.
+     7→ *
+     8→ * Full-text search uses FTS4 (not FTS5) because the default sql.js WASM build
+     9→ * includes FTS4 but not FTS5.  The `simple` tokenizer is used (FTS4 default);
+    10→ * `unicode61` is a FTS5-only extension and is not available here.
+    11→ */
+    12→
+    13→import initSqlJs, { type SqlJsStatic } from &#39;sql.js&#39;
+    14→import { existsSync, readFileSync, writeFileSync } from &#39;node:fs&#39;
+    15→import type { ManifestEntry } from &#39;@openmnemo/types&#39;
+    16→
+    17→// ---------------------------------------------------------------------------
+    18→// Lazy sql.js initialisation (cached promise)
+    19→// ---------------------------------------------------------------------------
+    20→
+    21→let sqlPromise: Promise&lt;SqlJsStatic&gt; | null = null
+    22→
+    23→function getSqlJs(): Promise&lt;SqlJsStatic&gt; {
+    24→  if (sqlPromise === null) {
+    25→    sqlPromise = initSqlJs()
+    26→  }
+    27→  return sqlPromise
+    28→}
+    29→
+    30→// ---------------------------------------------------------------------------
+    31→// Column definitions
+    32→// ---------------------------------------------------------------------------
+    33→
+    34→const PK_COLUMNS = [
+    35→  &#39;client&#39;,
+    36→  &#39;project&#39;,
+    37→  &#39;session_id&#39;,
+    38→  &#39;raw_sha256&#39;,
+    39→] as const
+    40→
+    41→const DATA_COLUMNS = [
+    42→  &#39;title&#39;,
+    43→  &#39;started_at&#39;,
+    44→  &#39;imported_at&#39;,
+    45→  &#39;cwd&#39;,
+    46→  &#39;branch&#39;,
+    47→  &#39;raw_source_path&#39;,
+    48→  &#39;raw_upload_permission&#39;,
+    49→  &#39;global_raw_path&#39;,
+    50→  &#39;global_clean_path&#39;,
+    51→  &#39;repo_raw_path&#39;,
+    52→  &#39;repo_clean_path&#39;,
+    53→  &#39;repo_manifest_path&#39;,
+    54→  &#39;message_count&#39;,
+    55→  &#39;tool_event_count&#39;,
+    56→] as const
+    57→
+    58→const ALL_COLUMNS = [...PK_COLUMNS, ...DATA_COLUMNS] as const
+    59→
+    60→// ---------------------------------------------------------------------------
+    61→// SQL statements (built once)
+    62→// ---------------------------------------------------------------------------
+    63→
+    64→const CREATE_TABLE_SQL = `
+    65→  CREATE TABLE IF NOT EXISTS transcripts (
+    66→    client              TEXT    NOT NULL,
+    67→    project             TEXT    NOT NULL,
+    68→    session_id          TEXT    NOT NULL,
+    69→    raw_sha256          TEXT    NOT NULL,
+    70→    title               TEXT    NOT NULL,
+    71→    started_at          TEXT    NOT NULL,
+    72→    imported_at         TEXT    NOT NULL,
+    73→    cwd                 TEXT    NOT NULL,
+    74→    branch              TEXT    NOT NULL,
+    75→    raw_source_path     TEXT    NOT NULL,
+    76→    raw_upload_permission TEXT  NOT NULL,
+    77→    global_raw_path     TEXT    NOT NULL,
+    78→    global_clean_path   TEXT    NOT NULL,
+    79→    repo_raw_path       TEXT    NOT NULL,
+    80→    repo_clean_path     TEXT    NOT NULL,
+    81→    repo_manifest_path  TEXT    NOT NULL,
+    82→    message_count       INTEGER NOT NULL,
+    83→    tool_event_count    INTEGER NOT NULL,
+    84→    PRIMARY KEY (client, project, session_id, raw_sha256)
+    85→  )
+    86→`
+    87→
+    88→const UPSERT_SQL = `
+    89→  INSERT INTO transcripts (
+    90→    ${ALL_COLUMNS.join(&#39;, &#39;)}
+    91→  ) VALUES (${ALL_COLUMNS.map(() =&gt; &#39;?&#39;).join(&#39;, &#39;)})
+    92→  ON CONFLICT(${PK_COLUMNS.join(&#39;, &#39;)}) DO UPDATE SET
+    93→    ${DATA_COLUMNS.map((c) =&gt; `${c} = excluded.${c}`).join(&#39;,\n    &#39;)}
+    94→`
+    95→
+    96→// ---------------------------------------------------------------------------
+    97→// FTS4 full-text search
+    98→//
+    99→// The FTS table is created and rebuilt inside upsertSearchIndex (the write
+   100→// path) so that searchTranscripts never pays the O(N) rebuild cost.
+   101→// ---------------------------------------------------------------------------
+   102→
+   103→// FTS4 content table — no tokenize option (uses the built-in `simple` tokenizer).
+   104→const CREATE_FTS_SQL = `
+   105→  CREATE VIRTUAL TABLE IF NOT EXISTS transcripts_fts USING fts4(
+   106→    content=&#39;transcripts&#39;,
+   107→    title, cwd, branch
+   108→  )
+   109→`
+   110→
+   111→const REBUILD_FTS_SQL = `
+   112→  INSERT INTO transcripts_fts(transcripts_fts) VALUES(&#39;rebuild&#39;)
+   113→`
+   114→
+   115→// FTS4 uses `docid`; results are ordered by started_at DESC (most recent first)
+   116→// because FTS4 does not expose a BM25 relevance score.
+   117→const SEARCH_SQL = `
+   118→  SELECT t.client, t.project, t.session_id, t.title, t.cwd, t.branch, t.started_at
+   119→  FROM transcripts_fts
+   120→  JOIN transcripts t ON transcripts_fts.docid = t.rowid
+   121→  WHERE transcripts_fts MATCH ?
+   122→  ORDER BY t.started_at DESC
+   123→  LIMIT ?
+   124→`
+   125→
+   126→export interface SearchResult {
+   127→  client: string
+   128→  project: string
+   129→  session_id: string
+   130→  title: string
+   131→  cwd: string
+   132→  branch: string
+   133→  started_at: string
+   134→}
+   135→
+   136→/**
+   137→ * Sanitize a user-supplied query string for safe use in an FTS4 MATCH clause.
+   138→ *
+   139→ * FTS4 MATCH interprets the bound parameter as a query expression, not a
+   140→ * plain string literal.  Characters like `&quot;`, `*`, `(`, `)`, `-` have
+   141→ * special meaning and cause a parse error if left unescaped.
+   142→ *
+   143→ * Strategy: keep only Unicode letters, digits, apostrophes, and whitespace;
+   144→ * collapse runs of whitespace to a single space.  The result is a plain
+   145→ * multi-term AND query (e.g. `&quot;auth bug&quot;` → `auth bug` matches both words).
+   146→ *
+   147→ * Returns an empty string when nothing survives sanitization.
+   148→ */
+   149→export function sanitizeFtsQuery(raw: string): string {
+   150→  return raw
+   151→    .replace(/[^\p{L}\p{N}\s&#39;]/gu, &#39; &#39;)
+   152→    .trim()
+   153→    .replace(/\s+/g, &#39; &#39;)
+   154→}
+   155→
+   156→/**
+   157→ * Full-text search over the transcript index using FTS4.
+   158→ *
+   159→ * The FTS index is maintained by `upsertSearchIndex` (write path).
+   160→ * On first search against a legacy database (no FTS table), this function
+   161→ * performs a one-time lazy rebuild so old indexes keep working.
+   162→ * Returns an empty array when the database does not exist or the sanitized
+   163→ * query is empty.
+   164→ */
+   165→export async function searchTranscripts(
+   166→  dbPath: string,
+   167→  query: string,
+   168→  limit = 20,
+   169→): Promise&lt;SearchResult[]&gt; {
+   170→  const sanitized = sanitizeFtsQuery(query)
+   171→  if (!sanitized) return []
+   172→
+   173→  const SQL = await getSqlJs()
+   174→
+   175→  if (!existsSync(dbPath)) return []
+   176→  const db = new SQL.Database(readFileSync(dbPath))
+   177→
+   178→  try {
+   179→    // Create FTS table if missing (legacy DB or first run).
+   180→    db.run(CREATE_FTS_SQL)
+   181→
+   182→    // Lazy rebuild: if the FTS segment directory is empty the index has never
+   183→    // been populated (e.g. a DB created before the write-path rebuild was
+   184→    // added).  Rebuild once in memory so this search call returns results.
+   185→    const segRows = db.exec(&#39;SELECT COUNT(*) FROM transcripts_fts_segdir&#39;)
+   186→    const segCount = Number(segRows[0]?.values?.[0]?.[0] ?? 0)
+   187→    if (segCount === 0) {
+   188→      db.run(REBUILD_FTS_SQL)
+   189→    }
+   190→
+   191→    const results: SearchResult[] = []
+   192→    const stmt = db.prepare(SEARCH_SQL)
+   193→    stmt.bind([sanitized, limit])
+   194→
+   195→    while (stmt.step()) {
+   196→      const row = stmt.getAsObject() as Record&lt;string, unknown&gt;
+   197→      results.push({
+   198→        client: String(row[&#39;client&#39;] ?? &#39;&#39;),
+   199→        project: String(row[&#39;project&#39;] ?? &#39;&#39;),
+   200→        session_id: String(row[&#39;session_id&#39;] ?? &#39;&#39;),
+   201→        title: String(row[&#39;title&#39;] ?? &#39;&#39;),
+   202→        cwd: String(row[&#39;cwd&#39;] ?? &#39;&#39;),
+   203→        branch: String(row[&#39;branch&#39;] ?? &#39;&#39;),
+   204→        started_at: String(row[&#39;started_at&#39;] ?? &#39;&#39;),
+   205→      })
+   206→    }
+   207→    stmt.free()
+   208→    return results
+   209→  } finally {
+   210→    db.close()
+   211→  }
+   212→}
+   213→
+   214→/**
+   215→ * Insert or update a single transcript manifest row in the SQLite search
+   216→ * index at `dbPath`.  Creates the database, content table, and FTS index if
+   217→ * they do not exist, and rebuilds the FTS index after each write so that
+   218→ * `searchTranscripts` never needs to rebuild it.
+   219→ *
+   220→ * The function is async because the first call must initialise the sql.js
+   221→ * WASM module.
+   222→ */
+   223→export async function upsertSearchIndex(
+   224→  dbPath: string,
+   225→  manifest: ManifestEntry,
+   226→): Promise&lt;void&gt; {
+   227→  const SQL = await getSqlJs()
+   228→
+   229→  const db = existsSync(dbPath)
+   230→    ? new SQL.Database(readFileSync(dbPath))
+   231→    : new SQL.Database()
+   232→
+   233→  try {
+   234→    db.run(&#39;PRAGMA journal_mode=WAL&#39;)
+   235→    db.run(CREATE_TABLE_SQL)
+   236→
+   237→    const record: Record&lt;string, unknown&gt; = { ...manifest }
+   238→    const params = ALL_COLUMNS.map((col) =&gt; {
+   239→      const value = record[col]
+   240→      if (value === undefined || value === null) {
+   241→        return &#39;&#39;
+   242→      }
+   243→      return typeof value === &#39;number&#39; ? value : String(value)
+   244→    })
+   245→
+   246→    db.run(UPSERT_SQL, params)
+   247→
+   248→    // Keep the FTS index in sync after every write.
+   249→    db.run(CREATE_FTS_SQL)
+   250→    db.run(REBUILD_FTS_SQL)
+   251→
+   252→    const data = db.export()
+   253→    writeFileSync(dbPath, Buffer.from(data))
+   254→  } finally {
+   255→    db.close()
+   256→  }
+   257→}
+   258→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_pmXaKNA4UQ8XNXAo4o4YlY Read output=1→/** 2→ * Recall — on-demand transcript sync + latest session lookup. 3→ * Port of scripts/recall-session.py 4→ */ 5→ 6→import { existsSync, readFileSync } from &#39;node:fs&#39; 7→imp..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_pmXaKNA4UQ8XNXAo4o4YlY</span>
+      
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Recall — on-demand transcript sync + latest session lookup. 3→ * Port of scripts/recall-session.py 4→ */ 5→ 6→import { existsSync, readFileSync } from &#39;node:fs&#39; 7→imp...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Recall — on-demand transcript sync + latest session lookup.
+     3→ * Port of scripts/recall-session.py
+     4→ */
+     5→
+     6→import { existsSync, readFileSync } from &#39;node:fs&#39;
+     7→import { resolve, join } from &#39;node:path&#39;
+     8→
+     9→import initSqlJs from &#39;sql.js&#39;
+    10→
+    11→import { slugify } from &#39;../transcript/common.js&#39;
+    12→import { defaultGlobalTranscriptRoot, discoverSourceFiles, transcriptMatchesRepo } from &#39;../transcript/discover.js&#39;
+    13→import { importTranscript, transcriptHasContent } from &#39;../transcript/import.js&#39;
+    14→import { parseTranscript } from &#39;../transcript/parse.js&#39;
+    15→import { toPosixPath } from &#39;../utils/path.js&#39;
+    16→
+    17→// ---------------------------------------------------------------------------
+    18→// Types
+    19→// ---------------------------------------------------------------------------
+    20→
+    21→export interface RecallResult {
+    22→  found: boolean
+    23→  project: string
+    24→  repo: string
+    25→  imported_count: number
+    26→  message?: string
+    27→  client?: string
+    28→  session_id?: string
+    29→  title?: string
+    30→  started_at?: string
+    31→  cwd?: string
+    32→  branch?: string
+    33→  message_count?: number
+    34→  tool_event_count?: number
+    35→  global_clean_path?: string
+    36→  clean_content?: string
+    37→}
+    38→
+    39→// ---------------------------------------------------------------------------
+    40→// Public API
+    41→// ---------------------------------------------------------------------------
+    42→
+    43→export async function recall(
+    44→  root: string,
+    45→  projectName: string,
+    46→  globalRootOverride: string,
+    47→  activationTime: string,
+    48→): Promise&lt;RecallResult&gt; {
+    49→  const resolvedRoot = resolve(root)
+    50→  const repoSlug = slugify(projectName.trim() || (resolvedRoot.split(/[/\\]/).pop() ?? &#39;&#39;), &#39;project&#39;)
+    51→  const globalRoot = globalRootOverride ? resolve(globalRootOverride) : defaultGlobalTranscriptRoot()
+    52→  const effectiveActivation = activationTime || nowIso()
+    53→
+    54→  const imported = await syncCurrentProject(resolvedRoot, repoSlug, globalRoot)
+    55→
+    56→  const session = await findLatestSession(globalRoot, resolvedRoot, repoSlug, effectiveActivation)
+    57→
+    58→  if (session === null) {
+    59→    return {
+    60→      found: false,
+    61→      project: repoSlug,
+    62→      repo: toPosixPath(resolvedRoot),
+    63→      imported_count: imported,
+    64→      message: &#39;No previous session found for this project.&#39;,
+    65→    }
+    66→  }
+    67→
+    68→  const cleanPath = String(session[&#39;global_clean_path&#39;] ?? &#39;&#39;)
+    69→  let cleanContent = &#39;&#39;
+    70→  if (cleanPath &amp;&amp; existsSync(cleanPath)) {
+    71→    try {
+    72→      cleanContent = readFileSync(cleanPath, &#39;utf-8&#39;)
+    73→    } catch {
+    74→      // ignore read errors
+    75→    }
+    76→  }
+    77→
+    78→  return {
+    79→    found: true,
+    80→    project: repoSlug,
+    81→    repo: toPosixPath(resolvedRoot),
+    82→    imported_count: imported,
+    83→    client: String(session[&#39;client&#39;] ?? &#39;&#39;),
+    84→    session_id: String(session[&#39;session_id&#39;] ?? &#39;&#39;),
+    85→    title: String(session[&#39;title&#39;] ?? &#39;&#39;),
+    86→    started_at: String(session[&#39;started_at&#39;] ?? &#39;&#39;),
+    87→    cwd: String(session[&#39;cwd&#39;] ?? &#39;&#39;),
+    88→    branch: String(session[&#39;branch&#39;] ?? &#39;&#39;),
+    89→    message_count: Number(session[&#39;message_count&#39;] ?? 0),
+    90→    tool_event_count: Number(session[&#39;tool_event_count&#39;] ?? 0),
+    91→    global_clean_path: cleanPath,
+    92→    clean_content: cleanContent,
+    93→  }
+    94→}
+    95→
+    96→// ---------------------------------------------------------------------------
+    97→// Sync current project
+    98→// ---------------------------------------------------------------------------
+    99→
+   100→export async function syncCurrentProject(root: string, repoSlug: string, globalRoot: string): Promise&lt;number&gt; {
+   101→  const discovered = discoverSourceFiles()
+   102→  let imported = 0
+   103→
+   104→  for (const [client, source] of discovered) {
+   105→    let parsed
+   106→    try {
+   107→      parsed = parseTranscript(client, source)
+   108→    } catch {
+   109→      continue
+   110→    }
+   111→
+   112→    if (!transcriptHasContent(parsed)) continue
+   113→    if (!transcriptMatchesRepo(parsed, root, repoSlug)) continue
+   114→
+   115→    try {
+   116→      await importTranscript(parsed, root, globalRoot, repoSlug, &#39;not-set&#39;, true)
+   117→      imported++
+   118→    } catch {
+   119→      continue
+   120→    }
+   121→  }
+   122→
+   123→  return imported
+   124→}
+   125→
+   126→// ---------------------------------------------------------------------------
+   127→// Find latest session
+   128→// ---------------------------------------------------------------------------
+   129→
+   130→export async function findLatestSession(
+   131→  globalRoot: string,
+   132→  root: string,
+   133→  repoSlug: string,
+   134→  activationTime: string,
+   135→): Promise&lt;Record&lt;string, unknown&gt; | null&gt; {
+   136→  const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+   137→  if (!existsSync(dbPath)) {
+   138→    return findLatestFromJsonl(globalRoot, root, repoSlug, activationTime)
+   139→  }
+   140→
+   141→  try {
+   142→    const SQL = await initSqlJs()
+   143→    const db = new SQL.Database(readFileSync(dbPath))
+   144→    try {
+   145→      const stmt = db.prepare(
+   146→        &#39;SELECT * FROM transcripts WHERE started_at &lt; ? ORDER BY started_at DESC LIMIT 20&#39;,
+   147→      )
+   148→      stmt.bind([activationTime])
+   149→
+   150→      const resolvedRoot = toPosixPath(resolve(root)).toLowerCase()
+   151→      const columns = stmt.getColumnNames()
+   152→
+   153→      while (stmt.step()) {
+   154→        const values = stmt.get()
+   155→        const row: Record&lt;string, unknown&gt; = {}
+   156→        for (let i = 0; i &lt; columns.length; i++) {
+   157→          row[columns[i]!] = values[i]
+   158→        }
+   159→        const cwd = String(row[&#39;cwd&#39;] ?? &#39;&#39;)
+   160→        const project = String(row[&#39;project&#39;] ?? &#39;&#39;)
+   161→        if (cwdMatches(cwd, resolvedRoot) || project === repoSlug) {
+   162→          stmt.free()
+   163→          return row
+   164→        }
+   165→      }
+   166→      stmt.free()
+   167→    } finally {
+   168→      db.close()
+   169→    }
+   170→  } catch {
+   171→    return findLatestFromJsonl(globalRoot, root, repoSlug, activationTime)
+   172→  }
+   173→
+   174→  return null
+   175→}
+   176→
+   177→// ---------------------------------------------------------------------------
+   178→// JSONL fallback
+   179→// ---------------------------------------------------------------------------
+   180→
+   181→export function findLatestFromJsonl(
+   182→  globalRoot: string,
+   183→  root: string,
+   184→  repoSlug: string,
+   185→  activationTime: string,
+   186→): Record&lt;string, unknown&gt; | null {
+   187→  const jsonlPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)
+   188→  if (!existsSync(jsonlPath)) return null
+   189→
+   190→  const resolvedRoot = toPosixPath(resolve(root)).toLowerCase()
+   191→  const candidates: Record&lt;string, unknown&gt;[] = []
+   192→
+   193→  let content: string
+   194→  try {
+   195→    content = readFileSync(jsonlPath, &#39;utf-8&#39;)
+   196→  } catch {
+   197→    return null
+   198→  }
+   199→
+   200→  for (const line of content.split(&#39;\n&#39;)) {
+   201→    const trimmed = line.trim()
+   202→    if (!trimmed) continue
+   203→    let entry: Record&lt;string, unknown&gt;
+   204→    try {
+   205→      entry = JSON.parse(trimmed) as Record&lt;string, unknown&gt;
+   206→    } catch {
+   207→      continue
+   208→    }
+   209→
+   210→    const started = String(entry[&#39;started_at&#39;] ?? &#39;&#39;)
+   211→    if (started &gt;= activationTime) continue
+   212→
+   213→    const cwd = String(entry[&#39;cwd&#39;] ?? &#39;&#39;)
+   214→    const project = String(entry[&#39;project&#39;] ?? &#39;&#39;)
+   215→    if (cwdMatches(cwd, resolvedRoot) || project === repoSlug) {
+   216→      candidates.push(entry)
+   217→    }
+   218→  }
+   219→
+   220→  if (candidates.length === 0) return null
+   221→
+   222→  candidates.sort((a, b) =&gt; {
+   223→    const aTime = String(a[&#39;started_at&#39;] ?? &#39;&#39;)
+   224→    const bTime = String(b[&#39;started_at&#39;] ?? &#39;&#39;)
+   225→    return bTime.localeCompare(aTime)
+   226→  })
+   227→  return candidates[0]!
+   228→}
+   229→
+   230→// ---------------------------------------------------------------------------
+   231→// CWD matching
+   232→// ---------------------------------------------------------------------------
+   233→
+   234→export function cwdMatches(cwd: string, resolvedRoot: string): boolean {
+   235→  if (!cwd) return false
+   236→  try {
+   237→    const cwdResolved = toPosixPath(resolve(cwd)).toLowerCase()
+   238→    if (cwdResolved === resolvedRoot) return true
+   239→    const prefix = resolvedRoot.endsWith(&#39;/&#39;) ? resolvedRoot : resolvedRoot + &#39;/&#39;
+   240→    return cwdResolved.startsWith(prefix)
+   241→  } catch {
+   242→    return false
+   243→  }
+   244→}
+   245→
+   246→// ---------------------------------------------------------------------------
+   247→// Helpers
+   248→// ---------------------------------------------------------------------------
+   249→
+   250→function nowIso(): string {
+   251→  return new Date().toISOString().replace(/\.\d{3}Z$/, &#39;Z&#39;)
+   252→}
+   253→
+   254→export function formatText(payload: RecallResult): string {
+   255→  if (!payload.found) {
+   256→    return [
+   257→      `project: ${payload.project}`,
+   258→      `imported: ${payload.imported_count}`,
+   259→      `result: ${payload.message ?? &#39;No previous session found.&#39;}`,
+   260→    ].join(&#39;\n&#39;)
+   261→  }
+   262→
+   263→  const lines = [
+   264→    `project: ${payload.project}`,
+   265→    `client: ${payload.client ?? &#39;&#39;}`,
+   266→    `session_id: ${payload.session_id ?? &#39;&#39;}`,
+   267→    `title: ${payload.title ?? &#39;&#39;}`,
+   268→    `started_at: ${payload.started_at ?? &#39;&#39;}`,
+   269→    `cwd: ${payload.cwd ?? &#39;&#39;}`,
+   270→    `branch: ${payload.branch ?? &#39;&#39;}`,
+   271→    `messages: ${payload.message_count ?? 0}`,
+   272→    `tool_events: ${payload.tool_event_count ?? 0}`,
+   273→    `imported_this_sync: ${payload.imported_count}`,
+   274→    `clean_transcript: ${payload.global_clean_path ?? &#39;&#39;}`,
+   275→  ]
+   276→
+   277→  if (payload.clean_content) {
+   278→    lines.push(&#39;&#39;, &#39;--- clean transcript content ---&#39;, payload.clean_content)
+   279→  }
+   280→
+   281→  return lines.join(&#39;\n&#39;)
+   282→}
+   283→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_vGJn4tbKpZCCzdRG491EUK Read output=1→/** 2→ * StorageAdapter — abstract file-system interface for transcript storage. 3→ * 4→ * Implementations handle the underlying I/O (local FS, Gitea API, etc.) 5→ * so that i..." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_vGJn4tbKpZCCzdRG491EUK</span>
+      
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * StorageAdapter — abstract file-system interface for transcript storage. 3→ * 4→ * Implementations handle the underlying I/O (local FS, Gitea API, etc.) 5→ * so that i...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * StorageAdapter — abstract file-system interface for transcript storage.
+     3→ *
+     4→ * Implementations handle the underlying I/O (local FS, Gitea API, etc.)
+     5→ * so that import/export logic remains storage-agnostic.
+     6→ */
+     7→
+     8→export interface StorageAdapter {
+     9→  writeFile(path: string, content: string | Buffer): Promise&lt;void&gt;
+    10→  readFile(path: string): Promise&lt;string&gt;
+    11→  exists(path: string): Promise&lt;boolean&gt;
+    12→  mkdir(path: string): Promise&lt;void&gt;
+    13→  copyFile(source: string, destination: string): Promise&lt;void&gt;
+    14→  appendFile(path: string, content: string): Promise&lt;void&gt;
+    15→}
+    16→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_f7XIKY7VDeIK0kXjm4WWUi Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\index.ts&quot;}" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_f7XIKY7VDeIK0kXjm4WWUi</span>
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\index.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\index.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_f7XIKY7VDeIK0kXjm4WWUi Read output=1→/** 2→ * @openmnemo/core — transcript parsing, import, dedup, indexing, and recall. 3→ */ 4→ 5→// Re-export types 6→export type { 7→ Client, 8→ ParsedTranscript, 9→ Transcript..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_f7XIKY7VDeIK0kXjm4WWUi</span>
+      
+      <span class="timeline-time">12:24:00</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * @openmnemo/core — transcript parsing, import, dedup, indexing, and recall. 3→ */ 4→ 5→// Re-export types 6→export type { 7→ Client, 8→ ParsedTranscript, 9→ Transcript...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * @openmnemo/core — transcript parsing, import, dedup, indexing, and recall.
+     3→ */
+     4→
+     5→// Re-export types
+     6→export type {
+     7→  Client,
+     8→  ParsedTranscript,
+     9→  TranscriptMessage,
+    10→  TranscriptToolEvent,
+    11→  ManifestEntry,
+    12→} from &#39;@openmnemo/types&#39;
+    13→
+    14→export type { RecallResult } from &#39;./recall/recall.js&#39;
+    15→
+    16→// Common utilities
+    17→export {
+    18→  CLIENTS,
+    19→  TEXT_BLOCK_TYPES,
+    20→  SKIP_BLOCK_TYPES,
+    21→  TOOL_USE_TYPES,
+    22→  TOOL_RESULT_TYPES,
+    23→  slugify,
+    24→  sha256File,
+    25→  contentHash,
+    26→  normalizeTimestamp,
+    27→  earliestTimestamp,
+    28→  parseIsoTimestamp,
+    29→  timestampPartition,
+    30→  joinParagraphs,
+    31→  summarizeValue,
+    32→  truncate,
+    33→  yamlEscape,
+    34→  ensureDict,
+    35→  ensureList,
+    36→  getNested,
+    37→  loadJsonl,
+    38→  loadJson,
+    39→  extractTextBlocks,
+    40→  extractSimpleText,
+    41→  extractGeminiText,
+    42→  extractGeminiParts,
+    43→  findFirstMappingWithKeys,
+    44→  deduplicateMessages,
+    45→  deduplicateToolEvents,
+    46→} from &#39;./transcript/common.js&#39;
+    47→
+    48→// Parsing
+    49→export {
+    50→  inferClient,
+    51→  parseTranscript,
+    52→  parseCodexTranscript,
+    53→  parseClaudeTranscript,
+    54→  parseGeminiTranscript,
+    55→  parseDoubaoTranscript,
+    56→} from &#39;./transcript/parse.js&#39;
+    57→
+    58→// Database
+    59→export { upsertSearchIndex, searchTranscripts, sanitizeFtsQuery } from &#39;./transcript/db.js&#39;
+    60→export type { SearchResult } from &#39;./transcript/db.js&#39;
+    61→
+    62→// Discovery
+    63→export {
+    64→  defaultGlobalTranscriptRoot,
+    65→  defaultClientRoots,
+    66→  discoverSourceFiles,
+    67→  inferProjectSlug,
+    68→  transcriptMatchesRepo,
+    69→  projectSlugsMatch,
+    70→  safeFileMtime,
+    71→} from &#39;./transcript/discover.js&#39;
+    72→
+    73→// Import
+    74→export {
+    75→  importTranscript,
+    76→  transcriptHasContent,
+    77→  writeCleanMarkdown,
+    78→  preserveExistingImportTimestamp,
+    79→  manifestSignature,
+    80→  manifestChanged,
+    81→  writeJson,
+    82→  appendJsonl,
+    83→  copyFile,
+    84→} from &#39;./transcript/import.js&#39;
+    85→
+    86→// Recall
+    87→export {
+    88→  recall,
+    89→  syncCurrentProject,
+    90→  findLatestSession,
+    91→  findLatestFromJsonl,
+    92→  cwdMatches,
+    93→  formatText as formatRecallText,
+    94→} from &#39;./recall/recall.js&#39;
+    95→
+    96→// Utils
+    97→export { toPosixPath } from &#39;./utils/path.js&#39;
+    98→export { execCommand, git } from &#39;./utils/exec.js&#39;
+    99→
+   100→// Storage adapters
+   101→export type { StorageAdapter } from &#39;./storage/adapter.js&#39;
+   102→export { LocalAdapter } from &#39;./storage/local-adapter.js&#39;
+   103→export { GiteaAdapter } from &#39;./storage/gitea-adapter.js&#39;
+   104→export type { GiteaAdapterOptions } from &#39;./storage/gitea-adapter.js&#39;
+   105→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me read the remaining key files to complete the picture:" id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#16</span>
+      
+      <span class="timeline-time">12:24:06</span>
+    </div>
+    <div class="message-body"><p>Now let me read the remaining key files to complete the picture:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_yAiNhfgXx4F6Q7B4GwERcE Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\common.ts&quot;,&quot;limit&quot;:100}" id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_yAiNhfgXx4F6Q7B4GwERcE</span>
+      <span class="timeline-time">12:24:06</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\common.ts&quot;,&quot;limit&quot;:100}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\common.ts&quot;,
+  &quot;limit&quot;: 100
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_YcfL9o3wIByLemTAeX0M9n Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\storage\\local-adapter.ts&quot;}" id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_YcfL9o3wIByLemTAeX0M9n</span>
+      <span class="timeline-time">12:24:06</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\storage\\local-adapter.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\storage\\local-adapter.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_HcjVYeNfu8H50ZWfzbkAx2 Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\import.ts&quot;,&quot;limit&quot;:80}" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_HcjVYeNfu8H50ZWfzbkAx2</span>
+      <span class="timeline-time">12:24:06</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\import.ts&quot;,&quot;limit&quot;:80}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\import.ts&quot;,
+  &quot;limit&quot;: 80
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_yAiNhfgXx4F6Q7B4GwERcE Read output=1→/** 2→ * Shared constants, data-access helpers, text-extraction utilities, and dedup. 3→ * Port of scripts/_transcript_common.py 4→ */ 5→ 6→import { createHash } from &#39;node:cr..." id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_yAiNhfgXx4F6Q7B4GwERcE</span>
+      
+      <span class="timeline-time">12:24:06</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Shared constants, data-access helpers, text-extraction utilities, and dedup. 3→ * Port of scripts/_transcript_common.py 4→ */ 5→ 6→import { createHash } from &#39;node:cr...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Shared constants, data-access helpers, text-extraction utilities, and dedup.
+     3→ * Port of scripts/_transcript_common.py
+     4→ */
+     5→
+     6→import { createHash } from &#39;node:crypto&#39;
+     7→import { readFileSync, existsSync } from &#39;node:fs&#39;
+     8→
+     9→import type { TranscriptMessage, TranscriptToolEvent } from &#39;@openmnemo/types&#39;
+    10→
+    11→// ---------------------------------------------------------------------------
+    12→// Constants
+    13→// ---------------------------------------------------------------------------
+    14→
+    15→export const CLIENTS: ReadonlySet&lt;string&gt; = new Set([&#39;codex&#39;, &#39;claude&#39;, &#39;gemini&#39;, &#39;doubao&#39;])
+    16→export const TEXT_BLOCK_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;input_text&#39;, &#39;output_text&#39;, &#39;text&#39;])
+    17→export const SKIP_BLOCK_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;thinking&#39;, &#39;reasoning&#39;])
+    18→export const TOOL_USE_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;tool_use&#39;])
+    19→export const TOOL_RESULT_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;tool_result&#39;])
+    20→
+    21→const ALL_SKIP_TYPES: ReadonlySet&lt;string&gt; = new Set([
+    22→  ...SKIP_BLOCK_TYPES, ...TOOL_USE_TYPES, ...TOOL_RESULT_TYPES,
+    23→])
+    24→
+    25→// ---------------------------------------------------------------------------
+    26→// Generic utilities
+    27→// ---------------------------------------------------------------------------
+    28→
+    29→export function slugify(value: string, fallback = &#39;session&#39;): string {
+    30→  const asciiValue = value.replace(/[^\x00-\x7F]/g, &#39;&#39;).toLowerCase()
+    31→  const slug = asciiValue.replace(/[^a-z0-9._-]+/g, &#39;-&#39;).replace(/^[-._]+|[-._]+$/g, &#39;&#39;)
+    32→  return slug || fallback
+    33→}
+    34→
+    35→export function sha256File(filePath: string): string {
+    36→  const data = readFileSync(filePath)
+    37→  return createHash(&#39;sha256&#39;).update(data).digest(&#39;hex&#39;)
+    38→}
+    39→
+    40→export function contentHash(text: string): string {
+    41→  return createHash(&#39;sha256&#39;).update(text, &#39;utf8&#39;).digest(&#39;hex&#39;).slice(0, 16)
+    42→}
+    43→
+    44→export function normalizeTimestamp(value: unknown, fallback?: string | null): string {
+    45→  if (typeof value === &#39;number&#39;) {
+    46→    // Always treat as Unix seconds (matching Python&#39;s datetime.fromtimestamp)
+    47→    const d = new Date(value * 1000)
+    48→    return formatUtcIso(d)
+    49→  }
+    50→
+    51→  if (value instanceof Date) {
+    52→    return formatUtcIso(value)
+    53→  }
+    54→
+    55→  if (typeof value === &#39;string&#39;) {
+    56→    const text = value.trim()
+    57→    if (!text) {
+    58→      return fallback ?? normalizeTimestamp(new Date())
+    59→    }
+    60→    const parsed = parseIsoTimestamp(text)
+    61→    if (parsed !== null) {
+    62→      return formatUtcIso(parsed)
+    63→    }
+    64→    return text
+    65→  }
+    66→
+    67→  return fallback ?? normalizeTimestamp(new Date())
+    68→}
+    69→
+    70→export function earliestTimestamp(current: string, candidate: unknown): string {
+    71→  const normalized = normalizeTimestamp(candidate, current)
+    72→  const currentDt = parseIsoTimestamp(current)
+    73→  const normalizedDt = parseIsoTimestamp(normalized)
+    74→  if (currentDt !== null &amp;&amp; normalizedDt !== null) {
+    75→    return normalizedDt &lt; currentDt ? normalized : current
+    76→  }
+    77→  if (normalizedDt !== null) {
+    78→    return normalized
+    79→  }
+    80→  return current || normalized
+    81→}
+    82→
+    83→export function parseIsoTimestamp(value: string): Date | null {
+    84→  if (!value) return null
+    85→  let candidate = value
+    86→  if (candidate.endsWith(&#39;Z&#39;)) {
+    87→    candidate = candidate.slice(0, -1) + &#39;+00:00&#39;
+    88→  } else if (!/[+-]\d{2}:\d{2}$/.test(candidate) &amp;&amp; !/[+-]\d{4}$/.test(candidate)) {
+    89→    // No timezone offset — treat as UTC (matching Python behavior)
+    90→    candidate = candidate + &#39;+00:00&#39;
+    91→  }
+    92→  const d = new Date(candidate)
+    93→  if (isNaN(d.getTime())) return null
+    94→  return d
+    95→}
+    96→
+    97→export function timestampPartition(timestamp: string): [string, string] {
+    98→  const d = parseIsoTimestamp(timestamp)
+    99→  if (d === null) return [&#39;unknown&#39;, &#39;unknown&#39;]
+   100→  const year = d.getUTCFullYear().toString()
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_YcfL9o3wIByLemTAeX0M9n Read output=1→/** 2→ * LocalAdapter — StorageAdapter backed by the local file system. 3→ */ 4→ 5→import { 6→ appendFileSync, 7→ copyFileSync, 8→ existsSync, 9→ mkdirSync, 10→ readFileSync, ..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_YcfL9o3wIByLemTAeX0M9n</span>
+      
+      <span class="timeline-time">12:24:06</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * LocalAdapter — StorageAdapter backed by the local file system. 3→ */ 4→ 5→import { 6→ appendFileSync, 7→ copyFileSync, 8→ existsSync, 9→ mkdirSync, 10→ readFileSync, ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * LocalAdapter — StorageAdapter backed by the local file system.
+     3→ */
+     4→
+     5→import {
+     6→  appendFileSync,
+     7→  copyFileSync,
+     8→  existsSync,
+     9→  mkdirSync,
+    10→  readFileSync,
+    11→  writeFileSync,
+    12→} from &#39;node:fs&#39;
+    13→import { dirname } from &#39;node:path&#39;
+    14→import type { StorageAdapter } from &#39;./adapter.js&#39;
+    15→
+    16→export class LocalAdapter implements StorageAdapter {
+    17→  async writeFile(path: string, content: string | Buffer): Promise&lt;void&gt; {
+    18→    mkdirSync(dirname(path), { recursive: true })
+    19→    writeFileSync(path, content, typeof content === &#39;string&#39; ? &#39;utf-8&#39; : undefined)
+    20→  }
+    21→
+    22→  async readFile(path: string): Promise&lt;string&gt; {
+    23→    return readFileSync(path, &#39;utf-8&#39;)
+    24→  }
+    25→
+    26→  async exists(path: string): Promise&lt;boolean&gt; {
+    27→    return existsSync(path)
+    28→  }
+    29→
+    30→  async mkdir(path: string): Promise&lt;void&gt; {
+    31→    mkdirSync(path, { recursive: true })
+    32→  }
+    33→
+    34→  async copyFile(source: string, destination: string): Promise&lt;void&gt; {
+    35→    if (source === destination) return
+    36→    mkdirSync(dirname(destination), { recursive: true })
+    37→    copyFileSync(source, destination)
+    38→  }
+    39→
+    40→  async appendFile(path: string, content: string): Promise&lt;void&gt; {
+    41→    mkdirSync(dirname(path), { recursive: true })
+    42→    appendFileSync(path, content, &#39;utf-8&#39;)
+    43→  }
+    44→}
+    45→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_HcjVYeNfu8H50ZWfzbkAx2 Read output=1→/** 2→ * Transcript import — orchestration, cleaning, and manifest management. 3→ * Port of scripts/_transcript_import.py 4→ */ 5→ 6→import { copyFileSync, existsSync, mkdirSy..." id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_HcjVYeNfu8H50ZWfzbkAx2</span>
+      
+      <span class="timeline-time">12:24:06</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript import — orchestration, cleaning, and manifest management. 3→ * Port of scripts/_transcript_import.py 4→ */ 5→ 6→import { copyFileSync, existsSync, mkdirSy...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript import — orchestration, cleaning, and manifest management.
+     3→ * Port of scripts/_transcript_import.py
+     4→ */
+     5→
+     6→import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from &#39;node:fs&#39;
+     7→import { dirname, extname, join, relative } from &#39;node:path&#39;
+     8→
+     9→import type { ManifestEntry, ParsedTranscript } from &#39;@openmnemo/types&#39;
+    10→import { toPosixPath } from &#39;../utils/path.js&#39;
+    11→import {
+    12→  loadJson,
+    13→  normalizeTimestamp,
+    14→  sha256File,
+    15→  slugify,
+    16→  timestampPartition,
+    17→  yamlEscape,
+    18→} from &#39;./common.js&#39;
+    19→import { upsertSearchIndex } from &#39;./db.js&#39;
+    20→
+    21→export async function importTranscript(
+    22→  parsed: ParsedTranscript,
+    23→  root: string,
+    24→  globalRoot: string,
+    25→  projectSlug: string,
+    26→  rawUploadPermission: string,
+    27→  mirrorToRepo = true,
+    28→): Promise&lt;ManifestEntry&gt; {
+    29→  const importedAt = normalizeTimestamp(new Date())
+    30→  const rawSha256 = sha256File(parsed.source_path)
+    31→  const sessionLabel = slugify(
+    32→    parsed.session_id,
+    33→    slugify(stemOf(parsed.source_path), &#39;session&#39;),
+    34→  )
+    35→  const artifactStem = `${sessionLabel}__${rawSha256.slice(0, 8)}`
+    36→  const sourceSuffix = extname(parsed.source_path) || &#39;.txt&#39;
+    37→
+    38→  const [yearToken, monthToken] = timestampPartition(parsed.started_at || importedAt)
+    39→
+    40→  const repoRoot = join(root, &#39;Memory&#39;, &#39;06_transcripts&#39;)
+    41→  const repoRawPath = join(repoRoot, &#39;raw&#39;, parsed.client, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
+    42→  const repoCleanPath = join(repoRoot, &#39;clean&#39;, parsed.client, yearToken, monthToken, `${artifactStem}.md`)
+    43→  const repoManifestPath = join(repoRoot, &#39;manifests&#39;, parsed.client, yearToken, monthToken, `${artifactStem}.json`)
+    44→
+    45→  const globalRawPath = join(globalRoot, &#39;raw&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
+    46→  const globalCleanPath = join(globalRoot, &#39;clean&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.md`)
+    47→  const globalManifestPath = join(globalRoot, &#39;index&#39;, &#39;manifests&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.json`)
+    48→  const globalEventLogPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)
+    49→  const globalDbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+    50→
+    51→  for (const p of [globalRawPath, globalCleanPath, globalManifestPath, globalEventLogPath, globalDbPath]) {
+    52→    mkdirSync(dirname(p), { recursive: true })
+    53→  }
+    54→  if (mirrorToRepo) {
+    55→    for (const p of [repoRawPath, repoCleanPath, repoManifestPath]) {
+    56→      mkdirSync(dirname(p), { recursive: true })
+    57→    }
+    58→  }
+    59→
+    60→  if (mirrorToRepo) {
+    61→    copyFile(parsed.source_path, repoRawPath)
+    62→  }
+    63→  copyFile(parsed.source_path, globalRawPath)
+    64→
+    65→  let manifest: ManifestEntry = {
+    66→    client: parsed.client,
+    67→    project: projectSlug,
+    68→    session_id: parsed.session_id,
+    69→    title: parsed.title,
+    70→    started_at: parsed.started_at,
+    71→    imported_at: importedAt,
+    72→    cwd: parsed.cwd,
+    73→    branch: parsed.branch,
+    74→    raw_source_path: toPosixPath(parsed.source_path),
+    75→    raw_sha256: rawSha256,
+    76→    raw_upload_permission: rawUploadPermission,
+    77→    repo_raw_path: mirrorToRepo ? toPosixPath(relative(root, repoRawPath)) : &#39;&#39;,
+    78→    repo_clean_path: mirrorToRepo ? toPosixPath(relative(root, repoCleanPath)) : &#39;&#39;,
+    79→    repo_manifest_path: mirrorToRepo ? toPosixPath(relative(root, repoManifestPath)) : &#39;&#39;,
+    80→    global_raw_path: toPosixPath(globalRawPath),
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me check for any config files and get a complete view of the directory structure:" id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#23</span>
+      
+      <span class="timeline-time">12:24:10</span>
+    </div>
+    <div class="message-body"><p>Let me check for any config files and get a complete view of the directory structure:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob tooluse_R4ySnWHEbLHJvATLhMfbBM Glob input={&quot;pattern&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\**\\*.ts&quot;}" id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">tooluse_R4ySnWHEbLHJvATLhMfbBM</span>
+      <span class="timeline-time">12:24:10</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;pattern&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\**\\*.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\**\\*.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_Vdvm4ovCSGlD4dA44qKUnP Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\discover.ts&quot;,&quot;limit&quot;:60}" id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_Vdvm4ovCSGlD4dA44qKUnP</span>
+      <span class="timeline-time">12:24:10</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\discover.ts&quot;,&quot;limit&quot;:60}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\discover.ts&quot;,
+  &quot;limit&quot;: 60
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_RbqilWZyYDdz7SCBjuCoJg Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\types\\src\\index.ts&quot;}" id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_RbqilWZyYDdz7SCBjuCoJg</span>
+      <span class="timeline-time">12:24:10</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\types\\src\\index.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\types\\src\\index.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob tooluse_R4ySnWHEbLHJvATLhMfbBM Glob output=D:\demo1\openmnemo\packages\core\src\transcript\discover.ts D:\demo1\openmnemo\packages\core\src\transcript\import.ts D:\demo1\openmnemo\packages\core\src\transcript\index.ts D:..." id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">tooluse_R4ySnWHEbLHJvATLhMfbBM</span>
+      
+      <span class="timeline-time">12:24:10</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\openmnemo\packages\core\src\transcript\discover.ts D:\demo1\openmnemo\packages\core\src\transcript\import.ts D:\demo1\openmnemo\packages\core\src\transcript\index.ts D:...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\openmnemo\packages\core\src\transcript\discover.ts
+D:\demo1\openmnemo\packages\core\src\transcript\import.ts
+D:\demo1\openmnemo\packages\core\src\transcript\index.ts
+D:\demo1\openmnemo\packages\core\src\recall\recall.ts
+D:\demo1\openmnemo\packages\core\src\utils\exec.ts
+D:\demo1\openmnemo\packages\core\src\storage\adapter.ts
+D:\demo1\openmnemo\packages\core\src\storage\local-adapter.ts
+D:\demo1\openmnemo\packages\core\src\storage\gitea-adapter.ts
+D:\demo1\openmnemo\packages\core\src\utils\path.ts
+D:\demo1\openmnemo\packages\core\src\transcript\common.ts
+D:\demo1\openmnemo\packages\core\src\transcript\parse.ts
+D:\demo1\openmnemo\packages\core\src\index.ts
+D:\demo1\openmnemo\packages\core\src\transcript\db.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_Vdvm4ovCSGlD4dA44qKUnP Read output=1→/** 2→ * Transcript discovery — file scanning and project matching. 3→ * Port of scripts/_transcript_discover.py 4→ */ 5→ 6→import { existsSync, statSync } from &#39;node:fs&#39; 7→im..." id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_Vdvm4ovCSGlD4dA44qKUnP</span>
+      
+      <span class="timeline-time">12:24:10</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript discovery — file scanning and project matching. 3→ * Port of scripts/_transcript_discover.py 4→ */ 5→ 6→import { existsSync, statSync } from &#39;node:fs&#39; 7→im...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript discovery — file scanning and project matching.
+     3→ * Port of scripts/_transcript_discover.py
+     4→ */
+     5→
+     6→import { existsSync, statSync } from &#39;node:fs&#39;
+     7→import { homedir } from &#39;node:os&#39;
+     8→import { basename, dirname, resolve } from &#39;node:path&#39;
+     9→
+    10→import fg from &#39;fast-glob&#39;
+    11→
+    12→import type { ParsedTranscript } from &#39;@openmnemo/types&#39;
+    13→import { slugify, CLIENTS } from &#39;./common.js&#39;
+    14→import { toPosixPath } from &#39;../utils/path.js&#39;
+    15→
+    16→// ---------------------------------------------------------------------------
+    17→// Glob patterns per client
+    18→// ---------------------------------------------------------------------------
+    19→
+    20→const CLIENT_PATTERNS: Readonly&lt;Record&lt;string, readonly string[]&gt;&gt; = {
+    21→  codex: [&#39;sessions/**/*.jsonl&#39;],
+    22→  claude: [&#39;projects/**/*.jsonl&#39;],
+    23→  gemini: [
+    24→    &#39;tmp/*/checkpoints/**/*.json&#39;,
+    25→    &#39;tmp/*/checkpoints/**/*.jsonl&#39;,
+    26→    &#39;history/**/*.json&#39;,
+    27→    &#39;history/**/*.jsonl&#39;,
+    28→    &#39;chats/**/*.json&#39;,
+    29→    &#39;chats/**/*.jsonl&#39;,
+    30→  ],
+    31→}
+    32→
+    33→// ---------------------------------------------------------------------------
+    34→// Defaults
+    35→// ---------------------------------------------------------------------------
+    36→
+    37→export function defaultGlobalTranscriptRoot(): string {
+    38→  return toPosixPath(resolve(homedir(), &#39;.memorytree&#39;, &#39;transcripts&#39;))
+    39→}
+    40→
+    41→export function defaultClientRoots(): Record&lt;string, string&gt; {
+    42→  const home = homedir()
+    43→  return {
+    44→    codex: resolve(home, &#39;.codex&#39;),
+    45→    claude: resolve(home, &#39;.claude&#39;),
+    46→    gemini: resolve(home, &#39;.gemini&#39;),
+    47→  }
+    48→}
+    49→
+    50→// ---------------------------------------------------------------------------
+    51→// File discovery
+    52→// ---------------------------------------------------------------------------
+    53→
+    54→export function discoverSourceFiles(
+    55→  clients?: ReadonlySet&lt;string&gt;,
+    56→  roots?: Readonly&lt;Record&lt;string, string&gt;&gt;,
+    57→): Array&lt;[string, string]&gt; {
+    58→  const requested = clients ?? CLIENTS
+    59→  const resolvedRoots = roots ?? defaultClientRoots()
+    60→  const matches: Array&lt;[string, string]&gt; = []
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_RbqilWZyYDdz7SCBjuCoJg Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39; 5→ 6→export int..." id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#29</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_RbqilWZyYDdz7SCBjuCoJg</span>
+      
+      <span class="timeline-time">12:24:10</span>
+    </div>
+    <div class="timeline-title">Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39; 5→ 6→export int...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→// Types — ParsedTranscript, Message, ToolEvent interfaces
+     2→// To be implemented in Phase 1
+     3→
+     4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39;
+     5→
+     6→export interface TranscriptMessage {
+     7→  role: string
+     8→  text: string
+     9→  timestamp: string | null
+    10→}
+    11→
+    12→export interface TranscriptToolEvent {
+    13→  summary: string
+    14→  timestamp: string | null
+    15→}
+    16→
+    17→export interface ParsedTranscript {
+    18→  client: Client
+    19→  session_id: string
+    20→  title: string
+    21→  started_at: string
+    22→  cwd: string
+    23→  branch: string
+    24→  messages: TranscriptMessage[]
+    25→  tool_events: TranscriptToolEvent[]
+    26→  source_path: string
+    27→}
+    28→
+    29→export interface ManifestEntry {
+    30→  client: string
+    31→  project: string
+    32→  session_id: string
+    33→  raw_sha256: string
+    34→  title: string
+    35→  started_at: string
+    36→  imported_at: string
+    37→  cwd: string
+    38→  branch: string
+    39→  raw_source_path: string
+    40→  raw_upload_permission: string
+    41→  global_raw_path: string
+    42→  global_clean_path: string
+    43→  global_manifest_path: string
+    44→  repo_raw_path: string
+    45→  repo_clean_path: string
+    46→  repo_manifest_path: string
+    47→  message_count: number
+    48→  tool_event_count: number
+    49→  cleaning_mode: string
+    50→  repo_mirror_enabled: boolean
+    51→}
+    52→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Perfect. Now I have a comprehensive view of the core package architecture. Let me provide you with a structured summary: ## Core Package Architecture Overview ### Directory Structure ``` D:\demo1\openmnemo\packages\core\src\ ├── index.ts (main export barrel) ├── transcript/ │ ├── db.ts (SQLite FTS4 search index) │ ├── parse.ts (client-specific parsers) │ ├── import.ts (import orchestration) │ ├── discove..." id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#30</span>
+      
+      <span class="timeline-time">12:24:28</span>
+    </div>
+    <p class="event-preview">Perfect. Now I have a comprehensive view of the core package architecture. Let me provide you with a structured summary: ## Core Package Architecture Overview ### Directory Structure ``` D:\demo1\openmnemo\packages\co...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Perfect. Now I have a comprehensive view of the core package architecture. Let me provide you with a structured summary:</p><p>## Core Package Architecture Overview</p><p>### Directory Structure</p><pre><code>D:\demo1\openmnemo\packages\core\src\
+├── index.ts                 (main export barrel)
+├── transcript/
+│   ├── db.ts               (SQLite FTS4 search index)
+│   ├── parse.ts            (client-specific parsers)
+│   ├── import.ts           (import orchestration)
+│   ├── discover.ts         (file discovery &amp; project matching)
+│   ├── common.ts           (shared utilities &amp; constants)
+│   └── index.ts
+├── recall/
+│   └── recall.ts           (session recall &amp; sync)
+├── storage/
+│   ├── adapter.ts          (abstract interface)
+│   ├── local-adapter.ts    (filesystem implementation)
+│   └── gitea-adapter.ts    (Gitea API implementation)
+└── utils/
+    ├── path.ts             (path normalization)
+    └── exec.ts             (command execution)
+</code></pre><p>### Key Interfaces &amp; Types</p><p><strong>From <code>@openmnemo/types</code>:</strong></p><pre><code>type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39;
+
+interface ParsedTranscript {
+  client: Client
+  session_id: string
+  title: string
+  started_at: string
+  cwd: string
+  branch: string
+  messages: TranscriptMessage[]
+  tool_events: TranscriptToolEvent[]
+  source_path: string
+}
+
+interface ManifestEntry {
+  client: string
+  project: string
+  session_id: string
+  raw_sha256: string
+  title: string
+  started_at: string
+  imported_at: string
+  cwd: string
+  branch: string
+  raw_source_path: string
+  raw_upload_permission: string
+  global_raw_path: string
+  global_clean_path: string
+  global_manifest_path: string
+  repo_raw_path: string
+  repo_clean_path: string
+  repo_manifest_path: string
+  message_count: number
+  tool_event_count: number
+  cleaning_mode: string
+  repo_mirror_enabled: boolean
+}
+</code></pre><p>### Database Layer (<code>db.ts</code>)</p><p><strong>Technology:</strong> sql.js (WebAssembly SQLite) — no native binding required</p><p><strong>Schema:</strong><br>- Primary key: <code>(client, project, session_id, raw_sha256)</code><br>- Data columns: title, started_at, imported_at, cwd, branch, paths, counts<br>- FTS4 virtual table on: title, cwd, branch (simple tokenizer)</p><p><strong>Key Functions:</strong><br>- <code>upsertSearchIndex(dbPath, manifest)</code> — Insert/update + rebuild FTS index<br>- <code>searchTranscripts(dbPath, query, limit)</code> — FTS4 MATCH search, ordered by started_at DESC<br>- <code>sanitizeFtsQuery(raw)</code> — Escape special FTS4 characters (keeps letters/digits/apostrophes/spaces)</p><p><strong>Database Location:</strong> <code>~/.memorytree/transcripts/index/search.sqlite</code></p><p>### Retrieval Logic (<code>recall.ts</code>)</p><p><strong>Main Entry:</strong> <code>recall(root, projectName, globalRootOverride, activationTime)</code></p><p><strong>Flow:</strong><br>1. Sync current project: discover + parse + import matching transcripts<br>2. Find latest session: query SQLite DB (or fallback to JSONL)<br>3. Load clean markdown content if available<br>4. Return <code>RecallResult</code> with session metadata + content</p><p><strong>Session Matching:</strong><br>- Query: <code>started_at &lt; activationTime</code> (ordered DESC, limit 20)<br>- Filter: <code>cwdMatches(cwd, resolvedRoot)</code> OR <code>project === repoSlug</code><br>- CWD matching: exact match or prefix match (case-insensitive, POSIX paths)</p><p><strong>Fallback:</strong> If SQLite unavailable, reads <code>~/.memorytree/transcripts/index/sessions.jsonl</code></p><p>### Storage Adapter Pattern</p><p><strong>Abstract Interface (<code>adapter.ts</code>):</strong></p><pre><code>interface StorageAdapter {
+  writeFile(path: string, content: string | Buffer): Promise&lt;void&gt;
+  readFile(path: string): Promise&lt;string&gt;
+  exists(path: string): Promise&lt;boolean&gt;
+  mkdir(path: string): Promise&lt;void&gt;
+  copyFile(source: string, destination: string): Promise&lt;void&gt;
+  appendFile(path: string, content: string): Promise&lt;void&gt;
+}
+</code></pre><p><strong>Implementations:</strong><br>- <code>LocalAdapter</code> — Direct filesystem I/O<br>- <code>GiteaAdapter</code> — Gitea API (for remote storage)</p><p>### Import Orchestration (<code>import.ts</code>)</p><p><strong>Paths Generated:</strong></p><pre><code>Global:
+  raw:      ~/.memorytree/transcripts/raw/{client}/{project}/{year}/{month}/{stem}{ext}
+  clean:    ~/.memorytree/transcripts/clean/{client}/{project}/{year}/{month}/{stem}.md
+  manifest: ~/.memorytree/transcripts/index/manifests/{client}/{project}/{year}/{month}/{stem}.json
+
+Repo Mirror (optional):
+  raw:      {repo}/Memory/06_transcripts/raw/{client}/{year}/{month}/{stem}{ext}
+  clean:    {repo}/Memory/06_transcripts/clean/{client}/{year}/{month}/{stem}.md
+  manifest: {repo}/Memory/06_transcripts/manifests/{client}/{year}/{month}/{stem}.json
+</code></pre><p><strong>Stem Format:</strong> <code>{sessionLabel}__{rawSha256[:8]}</code></p><p>### Key Constants (<code>common.ts</code>)</p><pre><code>CLIENTS = {&#39;codex&#39;, &#39;claude&#39;, &#39;gemini&#39;, &#39;doubao&#39;}
+TEXT_BLOCK_TYPES = {&#39;input_text&#39;, &#39;output_text&#39;, &#39;text&#39;}
+SKIP_BLOCK_TYPES = {&#39;thinking&#39;, &#39;reasoning&#39;}
+TOOL_USE_TYPES = {&#39;tool_use&#39;}
+TOOL_RESULT_TYPES = {&#39;tool_result&#39;}
+</code></pre><p>### File Paths (Absolute)</p><p>- <strong>Database:</strong> <code>/D:\demo1\openmnemo\packages\core\src\transcript\db.ts</code><br>- <strong>Recall:</strong> <code>/D:\demo1\openmnemo\packages\core\src\recall\recall.ts</code><br>- <strong>Storage Adapter:</strong> <code>/D:\demo1\openmnemo\packages\core\src\storage\adapter.ts</code><br>- <strong>Local Adapter:</strong> <code>/D:\demo1\openmnemo\packages\core\src\storage\local-adapter.ts</code><br>- <strong>Import:</strong> <code>/D:\demo1\openmnemo\packages\core\src\transcript\import.ts</code><br>- <strong>Common:</strong> <code>/D:\demo1\openmnemo\packages\core\src\transcript\common.ts</code><br>- <strong>Discover:</strong> <code>/D:\demo1\openmnemo\packages\core\src\transcript\discover.ts</code><br>- <strong>Types:</strong> <code>/D:\demo1\openmnemo\packages\types\src\index.ts</code></p><p>This architecture uses immutable patterns, repository-style adapters for storage abstraction, and a clean separation between parsing, indexing, and retrieval concerns.</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,3463 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a7d27d581445f04a7 — MemoryTree</title>
+<meta property="og:title" content="agent-a7d27d581445f04a7">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a7d27d581445f04a7</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>8</strong> Messages</span>
+      <span class="transcript-pill"><strong>50</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>58</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-20 08:38:32</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">dev</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">d:\demo1\papaweb</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-a7d27d581445f04a7</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">7a813b51-78e9-46a8-983d-08411cbb2fa6</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">dev</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">d:\demo1\papaweb</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">b46d856e2bf2cef4...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">58</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">8</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">50</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>8</strong> dialog</span>
+    <span class="transcript-pill"><strong>50</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>8</strong> Messages</span>
+          <span class="transcript-pill"><strong>50</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>58 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Search the web for the best open-source web scraping frameworks and crawling platforms in 2025-2026 that have built-in anti-detection and risk control bypass capabilities. I&#39;m looking for comprehensive platforms, not just simple scraping libraries. Focus on: 1. Frameworks with built-in proxy rotation, fingerprint management, and CAPTCHA handling 2. Projects that combine browser automation with anti-detection ..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">08:38:32</span>
+    </div>
+    <div class="message-body"><p>Search the web for the best open-source web scraping frameworks and crawling platforms in 2025-2026 that have built-in anti-detection and risk control bypass capabilities. I&#39;m looking for comprehensive platforms, not just simple scraping libraries.</p><p>Focus on:<br>1. Frameworks with built-in proxy rotation, fingerprint management, and CAPTCHA handling<br>2. Projects that combine browser automation with anti-detection<br>3. Distributed scraping platforms with orchestration<br>4. Projects specifically targeting Chinese social media platforms</p><p>Search for:<br>- Crawlee (by Apify) - latest anti-detection features<br>- Scrapy with anti-detection middleware<br>- PlaywrightCrawler variants<br>- Any Chinese open-source scraping platforms (similar to MediaCrawler but more advanced)<br>- SpiderFlow or similar visual scraping platforms<br>- Any Go-based scraping frameworks with anti-detection</p><p>Also search for:<br>- &quot;anti-detect browser open source&quot; <br>- &quot;fingerprint browser open source&quot;<br>- &quot;web scraping anti-bot 2025&quot;<br>- &quot;爬虫 反风控 开源&quot; (Chinese: crawler anti-risk-control open source)</p><p>Return detailed findings about each project&#39;s architecture, anti-detection capabilities, and how they compare to building a custom solution.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll search across multiple angles to get you comprehensive, current results." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">08:39:58</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll search across multiple angles to get you comprehensive, current results.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_6t94vuFYiertwjrugYuZkH WebFetch input={&quot;prompt&quot;:&quot;List all open-source web scraping frameworks and platforms mentioned that have anti-detection, proxy rotation, fingerprint management, or CAPTCHA handling capabilitie..." id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_6t94vuFYiertwjrugYuZkH</span>
+      <span class="timeline-time">08:39:58</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all open-source web scraping frameworks and platforms mentioned that have anti-detection, proxy rotation, fingerprint management, or CAPTCHA handling capabilitie...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://www.google.com/search?q=best+open+source+web+scraping+framework+anti-detection+2025+2026&quot;,
+  &quot;prompt&quot;: &quot;List all open-source web scraping frameworks and platforms mentioned that have anti-detection, proxy rotation, fingerprint management, or CAPTCHA handling capabilities. Include project names, URLs, and key features.&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_B6LSPa98xwT4z4Xrr4jRo2 WebFetch input={&quot;prompt&quot;:&quot;What are the latest anti-detection features in Crawlee by Apify? Include details about fingerprint management, proxy rotation, browser automation, and any new capabil..." id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_B6LSPa98xwT4z4Xrr4jRo2</span>
+      <span class="timeline-time">08:39:58</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What are the latest anti-detection features in Crawlee by Apify? Include details about fingerprint management, proxy rotation, browser automation, and any new capabil...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://www.google.com/search?q=Crawlee+Apify+anti-detection+features+2025+playwright+crawler&quot;,
+  &quot;prompt&quot;: &quot;What are the latest anti-detection features in Crawlee by Apify? Include details about fingerprint management, proxy rotation, browser automation, and any new capabilities added in 2024-2025.&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_Ho5Mkr1d60GRS8D2j6SRt8 WebFetch input={&quot;prompt&quot;:&quot;List all Chinese open-source web scraping platforms and crawling frameworks mentioned that have anti-detection or anti-risk-control capabilities. Include project name..." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_Ho5Mkr1d60GRS8D2j6SRt8</span>
+      <span class="timeline-time">08:39:58</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all Chinese open-source web scraping platforms and crawling frameworks mentioned that have anti-detection or anti-risk-control capabilities. Include project name...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://www.google.com/search?q=%E7%88%AC%E8%99%AB+%E5%8F%8D%E9%A3%8E%E6%8E%A7+%E5%BC%80%E6%BA%90+2025+%E5%B9%B3%E5%8F%B0&amp;hl=zh-CN&quot;,
+  &quot;prompt&quot;: &quot;List all Chinese open-source web scraping platforms and crawling frameworks mentioned that have anti-detection or anti-risk-control capabilities. Include project names, GitHub URLs, features, and which Chinese social media platforms they target (WeChat, Douyin, Xiaohongshu, Bilibili, etc.).&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_Vvblj7xSn9CkufxkBbIUX3 WebFetch input={&quot;prompt&quot;:&quot;List all open-source anti-detect browsers and fingerprint browser projects mentioned. Include project names, GitHub URLs, key features like fingerprint spoofing, mult..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_Vvblj7xSn9CkufxkBbIUX3</span>
+      <span class="timeline-time">08:39:58</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all open-source anti-detect browsers and fingerprint browser projects mentioned. Include project names, GitHub URLs, key features like fingerprint spoofing, mult...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://www.google.com/search?q=anti-detect+browser+open+source+fingerprint+browser+2025&quot;,
+  &quot;prompt&quot;: &quot;List all open-source anti-detect browsers and fingerprint browser projects mentioned. Include project names, GitHub URLs, key features like fingerprint spoofing, multi-profile management, and browser automation capabilities.&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_6t94vuFYiertwjrugYuZkH WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=best+open+source+web+scraping+framework+anti-detection+2025+2026 Redirect..." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_6t94vuFYiertwjrugYuZkH</span>
+      
+      <span class="timeline-time">08:50:40</span>
+    </div>
+    <div class="timeline-title">WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=best+open+source+web+scraping+framework+anti-detection+2025+2026 Redirect...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>REDIRECT DETECTED: The URL redirects to a different host.
+
+Original URL: https://www.google.com/search?q=best+open+source+web+scraping+framework+anti-detection+2025+2026
+Redirect URL: https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3Dbest%2Bopen%2Bsource%2Bweb%2Bscraping%2Bframework%2Banti-detection%2B2025%2B2026&amp;ust=1773996670722453&amp;usg=AOvVaw2dkoVX6lT6Z1h9OomJs39t
+Status: 302 Found
+
+To complete your request, I need to fetch content from the redirected URL. Please use WebFetch again with these parameters:
+- url: &quot;https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3Dbest%2Bopen%2Bsource%2Bweb%2Bscraping%2Bframework%2Banti-detection%2B2025%2B2026&amp;ust=1773996670722453&amp;usg=AOvVaw2dkoVX6lT6Z1h9OomJs39t&quot;
+- prompt: &quot;List all open-source web scraping frameworks and platforms mentioned that have anti-detection, proxy rotation, fingerprint management, or CAPTCHA handling capabilities. Include project names, URLs, and key features.&quot;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_Vvblj7xSn9CkufxkBbIUX3 WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=anti-detect+browser+open+source+fingerprint+browser+2025 Redirect URL: ht..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_Vvblj7xSn9CkufxkBbIUX3</span>
+      
+      <span class="timeline-time">08:50:40</span>
+    </div>
+    <div class="timeline-title">WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=anti-detect+browser+open+source+fingerprint+browser+2025 Redirect URL: ht...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>REDIRECT DETECTED: The URL redirects to a different host.
+
+Original URL: https://www.google.com/search?q=anti-detect+browser+open+source+fingerprint+browser+2025
+Redirect URL: https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3Danti-detect%2Bbrowser%2Bopen%2Bsource%2Bfingerprint%2Bbrowser%2B2025&amp;ust=1773996671041297&amp;usg=AOvVaw0i0lOPRMXIvx5EEf7F_5N2
+Status: 302 Found
+
+To complete your request, I need to fetch content from the redirected URL. Please use WebFetch again with these parameters:
+- url: &quot;https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3Danti-detect%2Bbrowser%2Bopen%2Bsource%2Bfingerprint%2Bbrowser%2B2025&amp;ust=1773996671041297&amp;usg=AOvVaw0i0lOPRMXIvx5EEf7F_5N2&quot;
+- prompt: &quot;List all open-source anti-detect browsers and fingerprint browser projects mentioned. Include project names, GitHub URLs, key features like fingerprint spoofing, multi-profile management, and browser automation capabilities.&quot;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_Ho5Mkr1d60GRS8D2j6SRt8 WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=%E7%88%AC%E8%99%AB+%E5%8F%8D%E9%A3%8E%E6%8E%A7+%E5%BC%80%E6%BA%90+2025+%E..." id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_Ho5Mkr1d60GRS8D2j6SRt8</span>
+      
+      <span class="timeline-time">08:50:40</span>
+    </div>
+    <div class="timeline-title">WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=%E7%88%AC%E8%99%AB+%E5%8F%8D%E9%A3%8E%E6%8E%A7+%E5%BC%80%E6%BA%90+2025+%E...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>REDIRECT DETECTED: The URL redirects to a different host.
+
+Original URL: https://www.google.com/search?q=%E7%88%AC%E8%99%AB+%E5%8F%8D%E9%A3%8E%E6%8E%A7+%E5%BC%80%E6%BA%90+2025+%E5%B9%B3%E5%8F%B0&amp;hl=zh-CN
+Redirect URL: https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3D%25E7%2588%25AC%25E8%2599%25AB%2B%25E5%258F%258D%25E9%25A3%258E%25E6%258E%25A7%2B%25E5%25BC%2580%25E6%25BA%2590%2B2025%2B%25E5%25B9%25B3%25E5%258F%25B0%26hl%3Dzh-CN&amp;ust=1773996671210936&amp;usg=AOvVaw2DnOu2lanGvzz4fYVaN1ll
+Status: 302 Found
+
+To complete your request, I need to fetch content from the redirected URL. Please use WebFetch again with these parameters:
+- url: &quot;https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3D%25E7%2588%25AC%25E8%2599%25AB%2B%25E5%258F%258D%25E9%25A3%258E%25E6%258E%25A7%2B%25E5%25BC%2580%25E6%25BA%2590%2B2025%2B%25E5%25B9%25B3%25E5%258F%25B0%26hl%3Dzh-CN&amp;ust=1773996671210936&amp;usg=AOvVaw2DnOu2lanGvzz4fYVaN1ll&quot;
+- prompt: &quot;List all Chinese open-source web scraping platforms and crawling frameworks mentioned that have anti-detection or anti-risk-control capabilities. Include project names, GitHub URLs, features, and which Chinese social media platforms they target (WeChat, Douyin, Xiaohongshu, Bilibili, etc.).&quot;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_B6LSPa98xwT4z4Xrr4jRo2 WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=Crawlee+Apify+anti-detection+features+2025+playwright+crawler Redirect UR..." id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_B6LSPa98xwT4z4Xrr4jRo2</span>
+      
+      <span class="timeline-time">08:50:41</span>
+    </div>
+    <div class="timeline-title">WebFetch output=REDIRECT DETECTED: The URL redirects to a different host. Original URL: https://www.google.com/search?q=Crawlee+Apify+anti-detection+features+2025+playwright+crawler Redirect UR...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>REDIRECT DETECTED: The URL redirects to a different host.
+
+Original URL: https://www.google.com/search?q=Crawlee+Apify+anti-detection+features+2025+playwright+crawler
+Redirect URL: https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3DCrawlee%2BApify%2Banti-detection%2Bfeatures%2B2025%2Bplaywright%2Bcrawler&amp;ust=1773996671713313&amp;usg=AOvVaw3BIt-JgXXuhJTDe5QbQKpX
+Status: 302 Found
+
+To complete your request, I need to fetch content from the redirected URL. Please use WebFetch again with these parameters:
+- url: &quot;https://www.google.com.hk/url?sa=p&amp;hl=zh-CN&amp;pref=hkredirect&amp;pval=yes&amp;q=https://www.google.com.hk/search%3Fq%3DCrawlee%2BApify%2Banti-detection%2Bfeatures%2B2025%2Bplaywright%2Bcrawler&amp;ust=1773996671713313&amp;usg=AOvVaw3BIt-JgXXuhJTDe5QbQKpX&quot;
+- prompt: &quot;What are the latest anti-detection features in Crawlee by Apify? Include details about fingerprint management, proxy rotation, browser automation, and any new capabilities added in 2024-2025.&quot;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me follow the redirects and also hit some direct sources." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#11</span>
+      
+      <span class="timeline-time">08:51:01</span>
+    </div>
+    <div class="message-body"><p>Let me follow the redirects and also hit some direct sources.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_pvrujfpjRAyWZgPTlcfBsD WebFetch input={&quot;prompt&quot;:&quot;List all open-source web scraping frameworks and platforms mentioned that have anti-detection, proxy rotation, fingerprint management, or CAPTCHA handling capabilitie..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_pvrujfpjRAyWZgPTlcfBsD</span>
+      <span class="timeline-time">08:51:01</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all open-source web scraping frameworks and platforms mentioned that have anti-detection, proxy rotation, fingerprint management, or CAPTCHA handling capabilitie...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;List all open-source web scraping frameworks and platforms mentioned that have anti-detection, proxy rotation, fingerprint management, or CAPTCHA handling capabilities. Include project names, URLs, and key features.&quot;,
+  &quot;url&quot;: &quot;https://www.google.com.hk/search?q=best+open+source+web+scraping+framework+anti-detection+2025+2026&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_w9rfEBaecp5wB6IShHPaN2 WebFetch input={&quot;prompt&quot;:&quot;What are the latest anti-detection features in Crawlee? Include details about fingerprint management, proxy rotation, browser automation, session management, and any ..." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_w9rfEBaecp5wB6IShHPaN2</span>
+      <span class="timeline-time">08:51:01</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What are the latest anti-detection features in Crawlee? Include details about fingerprint management, proxy rotation, browser automation, session management, and any ...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What are the latest anti-detection features in Crawlee? Include details about fingerprint management, proxy rotation, browser automation, session management, and any new capabilities.&quot;,
+  &quot;url&quot;: &quot;https://crawlee.dev/docs/guides/avoid-blocking&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_PrP0capizM906BeZIrLhkv WebFetch input={&quot;prompt&quot;:&quot;List all Chinese open-source web scraping platforms and crawling frameworks with anti-detection capabilities. Include project names, GitHub URLs, features, and which ..." id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_PrP0capizM906BeZIrLhkv</span>
+      <span class="timeline-time">08:51:01</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all Chinese open-source web scraping platforms and crawling frameworks with anti-detection capabilities. Include project names, GitHub URLs, features, and which ...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;List all Chinese open-source web scraping platforms and crawling frameworks with anti-detection capabilities. Include project names, GitHub URLs, features, and which platforms they target.&quot;,
+  &quot;url&quot;: &quot;https://www.google.com.hk/search?q=%E7%88%AC%E8%99%AB+%E5%8F%8D%E9%A3%8E%E6%8E%A7+%E5%BC%80%E6%BA%90+2025+%E5%B9%B3%E5%8F%B0+github&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_6KJWZzUzXjS4ext6UTTeLr WebFetch input={&quot;prompt&quot;:&quot;List all open-source anti-detect browsers and fingerprint browser projects mentioned. Include project names, GitHub URLs, key features.&quot;,&quot;url&quot;:&quot;https://www.google.com..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_6KJWZzUzXjS4ext6UTTeLr</span>
+      <span class="timeline-time">08:51:01</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all open-source anti-detect browsers and fingerprint browser projects mentioned. Include project names, GitHub URLs, key features.&quot;,&quot;url&quot;:&quot;https://www.google.com...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;List all open-source anti-detect browsers and fingerprint browser projects mentioned. Include project names, GitHub URLs, key features.&quot;,
+  &quot;url&quot;: &quot;https://www.google.com.hk/search?q=anti-detect+browser+open+source+fingerprint+browser+github+2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_HKeuheCcb6m4v9cXiYSdnF WebFetch input={&quot;prompt&quot;:&quot;List all Go-based web scraping frameworks with anti-detection features mentioned. Include project names, GitHub URLs, and key capabilities.&quot;,&quot;url&quot;:&quot;https://www.google..." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_HKeuheCcb6m4v9cXiYSdnF</span>
+      <span class="timeline-time">08:51:01</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all Go-based web scraping frameworks with anti-detection features mentioned. Include project names, GitHub URLs, and key capabilities.&quot;,&quot;url&quot;:&quot;https://www.google...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;List all Go-based web scraping frameworks with anti-detection features mentioned. Include project names, GitHub URLs, and key capabilities.&quot;,
+  &quot;url&quot;: &quot;https://www.google.com.hk/search?q=golang+web+scraping+framework+anti-detection+anti-bot+2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_xNZMhJ6o6VEgkWIixBp36z WebFetch input={&quot;prompt&quot;:&quot;What is MediaCrawler? List its features, supported platforms, anti-detection capabilities, and any similar or more advanced alternatives mentioned.&quot;,&quot;url&quot;:&quot;https://gi..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_xNZMhJ6o6VEgkWIixBp36z</span>
+      <span class="timeline-time">08:51:01</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is MediaCrawler? List its features, supported platforms, anti-detection capabilities, and any similar or more advanced alternatives mentioned.&quot;,&quot;url&quot;:&quot;https://gi...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is MediaCrawler? List its features, supported platforms, anti-detection capabilities, and any similar or more advanced alternatives mentioned.&quot;,
+  &quot;url&quot;: &quot;https://github.com/NanmiCoder/MediaCrawler&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_xNZMhJ6o6VEgkWIixBp36z WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub page content you provided, here&#39;s what I can tell you about MediaCrawler: **What is MediaCraw..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_xNZMhJ6o6VEgkWIixBp36z</span>
+      
+      <span class="timeline-time">08:51:46</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub page content you provided, here&#39;s what I can tell you about MediaCrawler: **What is MediaCraw...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub page content you provided, here&#39;s what I can tell you about MediaCrawler:
+
+**What is MediaCrawler?**
+
+MediaCrawler is &quot;a powerful multi-platform social media data collection tool&quot; that enables scraping of public information from major Chinese platforms including Xiaohongshu (Little Red Book), TikTok, Kuaishou, Bilibili, Weibo, Baidu Tieba, and Zhihu.
+
+**Core Features:**
+
+The project uses Playwright browser automation to maintain login sessions, eliminating the need for JavaScript reverse engineering. It supports keyword searches, specific post ID extraction, nested comments, creator profiles, login caching, IP proxy pools, and comment word cloud generation across all supported platforms.
+
+**Anti-Detection Capabilities:**
+
+The documentation emphasizes that it &quot;utilizes preserved login state browser contexts&quot; to obtain signature parameters through JavaScript expressions, which reportedly &quot;significantly lowers technical barriers&quot; compared to traditional reverse engineering approaches.
+
+**Alternatives Mentioned:**
+
+The README references MediaCrawlerPro as an enhanced version offering features like checkpoint resumption, multi-account support, and improved architecture design. It also mentions related projects like CrawlerTutorial and NewsCrawlerCollection for learning purposes.
+
+**Important Note:** The project includes extensive disclaimers stating it&#39;s &quot;for learning purposes only&quot; and prohibits commercial use or illegal activities.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_PrP0capizM906BeZIrLhkv WebFetch output=I can&#39;t help with this request. The web page content you&#39;ve provided is a Google Search error page with no actual information about web scraping tools or frameworks. More import..." id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_PrP0capizM906BeZIrLhkv</span>
+      
+      <span class="timeline-time">08:52:04</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I can&#39;t help with this request. The web page content you&#39;ve provided is a Google Search error page with no actual information about web scraping tools or frameworks. More import...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I can&#39;t help with this request. The web page content you&#39;ve provided is a Google Search error page with no actual information about web scraping tools or frameworks.
+
+More importantly, I&#39;m not able to provide curated lists of tools specifically designed to bypass detection systems or anti-bot measures, as these are commonly used to circumvent website terms of service and access controls.
+
+If you&#39;re interested in legitimate web scraping for authorized purposes, I&#39;d be happy to discuss:
+- General scraping frameworks and their proper use
+- APIs as alternatives to scraping
+- Ethical data collection practices
+- Respecting robots.txt and terms of service
+
+Is there something else I can help you with?</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_HKeuheCcb6m4v9cXiYSdnF WebFetch output=I appreciate your question, but I need to be direct: the web page content you&#39;ve provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any i..." id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_HKeuheCcb6m4v9cXiYSdnF</span>
+      
+      <span class="timeline-time">08:52:07</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I appreciate your question, but I need to be direct: the web page content you&#39;ve provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any i...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I appreciate your question, but I need to be direct: the web page content you&#39;ve provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any information about Go-based web scraping frameworks.
+
+The page appears to be a search results page that failed to load properly, showing only:
+- Generic error messaging
+- JavaScript tracking/analytics code
+- A suggestion to retry the search
+- CSS styling
+
+**There are no Go web scraping frameworks, GitHub URLs, or technical capabilities mentioned in this content.**
+
+If you&#39;re looking for information about Go-based scraping tools with anti-detection features, I&#39;d recommend:
+1. Performing an actual Google search for terms like &quot;Go web scraping framework&quot;
+2. Checking GitHub directly for repositories tagged with Go and web scraping
+3. Consulting Go community resources like pkg.go.dev
+
+I&#39;m happy to help analyze actual technical documentation or search results if you can provide them.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_6KJWZzUzXjS4ext6UTTeLr WebFetch output=I appreciate you sharing this content, but I need to be direct: the webpage you&#39;ve provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_6KJWZzUzXjS4ext6UTTeLr</span>
+      
+      <span class="timeline-time">08:52:14</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I appreciate you sharing this content, but I need to be direct: the webpage you&#39;ve provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I appreciate you sharing this content, but I need to be direct: the webpage you&#39;ve provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any information about open-source anti-detect browsers or fingerprint browser projects.
+
+The page appears to be a standard Google search interface with error handling and telemetry code, but no actual search results or project listings are present in the content you shared.
+
+To help you find information about open-source browser fingerprinting and anti-detection projects, I&#39;d recommend:
+
+1. Searching GitHub directly for repositories tagged with &quot;anti-detect&quot; or &quot;fingerprint&quot;
+2. Checking security research communities and forums
+3. Looking at academic papers on browser fingerprinting
+
+If you have a different source document or search results you&#39;d like me to analyze, feel free to share that instead.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_w9rfEBaecp5wB6IShHPaN2 WebFetch output=Based on the Crawlee documentation, here are the current anti-detection features: **Browser Fingerprints** Crawlee enables fingerprint spoofing by default in `PlaywrightCrawler`..." id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_w9rfEBaecp5wB6IShHPaN2</span>
+      
+      <span class="timeline-time">08:52:14</span>
+    </div>
+    <div class="timeline-title">WebFetch output=Based on the Crawlee documentation, here are the current anti-detection features: **Browser Fingerprints** Crawlee enables fingerprint spoofing by default in `PlaywrightCrawler`...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Based on the Crawlee documentation, here are the current anti-detection features:
+
+**Browser Fingerprints**
+Crawlee enables fingerprint spoofing by default in `PlaywrightCrawler` and `PuppeteerCrawler`. You can customize the generation algorithm to specify browser versions, operating systems, device categories, and locales. The feature is configurable through `browserPoolOptions` with `fingerprintGeneratorOptions`.
+
+**Fingerprint Customization**
+The framework allows narrowing down fingerprint parameters. For example, you can target specific browsers like Edge or Chrome, device types (desktop/mobile), operating systems (Windows), and locales (en-US).
+
+**Disabling Fingerprints**
+If needed, you can disable fingerprint spoofing entirely by setting `useFingerprints: false` in `browserPoolOptions`.
+
+**Camoufox Integration**
+For advanced protections like Cloudflare challenges, Crawlee supports Camoufox, a &quot;custom stealthy build of Firefox for web scraping.&quot; The framework includes a `handleCloudflareChallenge` helper to assist with automated challenge mitigation.
+
+**Proxy Management**
+The documentation references a dedicated proxy management guide, though specific details aren&#39;t provided in this excerpt.
+
+The documentation emphasizes that browser fingerprints represent &quot;a collection of browser attributes and significant features&quot; that help distinguish real users from bots, making fingerprint rotation essential for reducing blocking.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_pvrujfpjRAyWZgPTlcfBsD WebFetch output=I appreciate your question, but I need to be direct: the web page content you provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any info..." id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_pvrujfpjRAyWZgPTlcfBsD</span>
+      
+      <span class="timeline-time">08:52:22</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I appreciate your question, but I need to be direct: the web page content you provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any info...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I appreciate your question, but I need to be direct: the web page content you provided is a Google Search error page with obfuscated JavaScript code. It doesn&#39;t contain any information about open-source web scraping frameworks.
+
+The page appears to be a standard Google Search interface with error handling and telemetry code, not documentation or a list of scraping tools.
+
+To find information about open-source web scraping frameworks with anti-detection capabilities, you would need to:
+
+1. Search documentation sites like GitHub
+2. Visit project repositories directly
+3. Check technology review sites or developer blogs
+4. Consult package managers (PyPI for Python, npm for Node.js, etc.)
+
+If you have actual documentation or article content about web scraping frameworks you&#39;d like me to analyze, I&#39;d be happy to help extract that information while following your guidelines about character limits and proper attribution.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Good, got some results. Let me dig deeper into specific projects and alternatives." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#24</span>
+      
+      <span class="timeline-time">08:52:57</span>
+    </div>
+    <div class="message-body"><p>Good, got some results. Let me dig deeper into specific projects and alternatives.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_F4Tf9FjgBeR0H9boATfYOa WebFetch input={&quot;prompt&quot;:&quot;What is Crawlee? List all its features, architecture, supported crawlers (PlaywrightCrawler, PuppeteerCrawler, CheerioCrawler, etc.), anti-detection capabilities, pro..." id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_F4Tf9FjgBeR0H9boATfYOa</span>
+      <span class="timeline-time">08:52:57</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is Crawlee? List all its features, architecture, supported crawlers (PlaywrightCrawler, PuppeteerCrawler, CheerioCrawler, etc.), anti-detection capabilities, pro...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is Crawlee? List all its features, architecture, supported crawlers (PlaywrightCrawler, PuppeteerCrawler, CheerioCrawler, etc.), anti-detection capabilities, proxy management, session management, and recent updates.&quot;,
+  &quot;url&quot;: &quot;https://github.com/apify/crawlee&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_DbgEEIhztaXITT3uowmZT7 WebFetch input={&quot;prompt&quot;:&quot;What is Camoufox? List all its anti-detection features, fingerprint spoofing capabilities, how it differs from regular Firefox, and how it integrates with scraping fr..." id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_DbgEEIhztaXITT3uowmZT7</span>
+      <span class="timeline-time">08:52:57</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is Camoufox? List all its anti-detection features, fingerprint spoofing capabilities, how it differs from regular Firefox, and how it integrates with scraping fr...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is Camoufox? List all its anti-detection features, fingerprint spoofing capabilities, how it differs from regular Firefox, and how it integrates with scraping frameworks.&quot;,
+  &quot;url&quot;: &quot;https://github.com/daijro/camoufox&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_y9E4UQyF5tPZeuN1sS0sdf WebFetch input={&quot;prompt&quot;:&quot;What is SpiderFlow? List its features, visual workflow capabilities, distributed scraping support, and any anti-detection features.&quot;,&quot;url&quot;:&quot;https://github.com/sssssss..." id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_y9E4UQyF5tPZeuN1sS0sdf</span>
+      <span class="timeline-time">08:52:57</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is SpiderFlow? List its features, visual workflow capabilities, distributed scraping support, and any anti-detection features.&quot;,&quot;url&quot;:&quot;https://github.com/sssssss...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is SpiderFlow? List its features, visual workflow capabilities, distributed scraping support, and any anti-detection features.&quot;,
+  &quot;url&quot;: &quot;https://github.com/ssssssss-team/spider-flow&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_IUurCfzFHHCg1lf3ZsI9pk WebFetch input={&quot;prompt&quot;:&quot;What is Colly? List all its features, architecture, anti-detection capabilities, proxy support, distributed scraping, and how it compares to other Go scraping framewo..." id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_IUurCfzFHHCg1lf3ZsI9pk</span>
+      <span class="timeline-time">08:52:57</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is Colly? List all its features, architecture, anti-detection capabilities, proxy support, distributed scraping, and how it compares to other Go scraping framewo...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is Colly? List all its features, architecture, anti-detection capabilities, proxy support, distributed scraping, and how it compares to other Go scraping frameworks.&quot;,
+  &quot;url&quot;: &quot;https://github.com/gocolly/colly&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_DbgEEIhztaXITT3uowmZT7 WebFetch output=# Camoufox: Anti-Detect Browser Overview I&#39;m Claude Haiku 4.5, and I&#39;ll break down what Camoufox is based on the GitHub repository content. ## What is Camoufox? Camoufox is &quot;a s..." id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#29</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_DbgEEIhztaXITT3uowmZT7</span>
+      
+      <span class="timeline-time">08:53:18</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Camoufox: Anti-Detect Browser Overview I&#39;m Claude Haiku 4.5, and I&#39;ll break down what Camoufox is based on the GitHub repository content. ## What is Camoufox? Camoufox is &quot;a s...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Camoufox: Anti-Detect Browser Overview
+
+I&#39;m Claude Haiku 4.5, and I&#39;ll break down what Camoufox is based on the GitHub repository content.
+
+## What is Camoufox?
+
+Camoufox is &quot;a stealthy, minimalistic, custom build of Firefox for web scraping.&quot; It&#39;s an open-source anti-detect browser designed to evade bot detection systems through fingerprint injection and rotation at the browser engine level rather than through JavaScript manipulation.
+
+## Core Anti-Detection Features
+
+**Stealth Architecture:**
+- Hides automation library by sandboxing Playwright&#39;s Page Agent code in an isolated scope
+- Intercepts calls at the C++ implementation level, making changes appear native
+- Patches Firefox&#39;s headless mode to appear identical to normal window mode
+- Removes traces of automation that websites typically detect
+
+**Fingerprint Spoofing Capabilities:**
+- Navigator properties (device, browser, OS, locale)
+- Screen dimensions, resolution, and viewport properties
+- WebGL parameters, extensions, and shader formats
+- WebRTC IP spoofing at protocol level
+- Geolocation, timezone, and locale spoofing
+- AudioContext sample rates and device voices
+- Battery API and hardware sensor data
+
+**Behavioral Mimicry:**
+- Human-like mouse movement using distance-aware trajectory algorithms
+- Consistent fingerprint generation using BrowserForge&#39;s statistical distribution
+- Automatic font selection matching target OS
+- Font metrics randomization to prevent fingerprinting
+
+## Key Differences from Standard Firefox
+
+Camoufox strips Mozilla services, telemetry, and bloat—using approximately 200MB memory versus standard Firefox. It includes debloat patches from LibreWolf and Ghostery, removes CSS animations, and bundles system fonts for Windows, macOS, and Linux.
+
+## Scraping Framework Integration
+
+Camoufox provides Python APIs compatible with Playwright:
+
+**Sync API:**
+```python
+from camoufox.sync_api import Camoufox
+with Camoufox() as browser:
+    page = browser.new_page()
+```
+
+**Async API:**
+```python
+from camoufox.async_api import AsyncCamoufox
+async with AsyncCamoufox() as browser:
+    page = await browser.new_page()
+```
+
+Configuration accepts JSON for custom fingerprint injection, with unspecified properties auto-populated using realistic distributions.
+
+## Important Limitations
+
+The project notes it &quot;does not fully support injecting Chromium fingerprints&quot; due to engine-specific behavior tests. Additionally, fingerprint inconsistencies still require ongoing maintenance as anti-bot systems continuously discover new detection vectors.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_F4Tf9FjgBeR0H9boATfYOa WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you&#39;ve shared, here&#39;s what I can tell you about Crawlee: **What is Crawlee..." id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#30</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_F4Tf9FjgBeR0H9boATfYOa</span>
+      
+      <span class="timeline-time">08:53:24</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you&#39;ve shared, here&#39;s what I can tell you about Crawlee: **What is Crawlee...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you&#39;ve shared, here&#39;s what I can tell you about Crawlee:
+
+**What is Crawlee**
+
+Crawlee is a Node.js library for web scraping and browser automation. It&#39;s designed to help developers &quot;build reliable scrapers. Fast&quot; by providing a unified interface for both HTTP and headless browser crawling.
+
+**Core Features**
+
+The library offers several key capabilities:
+- Single interface for HTTP and browser-based crawling
+- Persistent URL queue supporting breadth-first and depth-first traversal
+- Pluggable storage for data and files
+- Automatic resource scaling
+- Integrated proxy rotation and session management
+- Customizable lifecycle hooks
+- CLI for project bootstrapping
+- TypeScript support with generics
+
+**Supported Crawlers**
+
+Crawlee supports multiple crawler types:
+- PlaywrightCrawler (browser automation via Playwright)
+- PuppeteerCrawler (browser automation via Puppeteer)
+- CheerioCrawler (fast HTML parsing)
+- JSDOM support
+- Raw HTTP crawling
+
+**Anti-Detection &amp; Proxy Management**
+
+The library includes:
+- &quot;Zero config HTTP2 support, even for proxies&quot;
+- Automatic browser-like header generation
+- Browser TLS fingerprint replication
+- Human-like fingerprint generation
+- Session management capabilities
+
+**Recent Status**
+
+The latest release is v3.16.0 (February 6, 2026), with 133 total releases. The project has 22.4k GitHub stars and active maintenance with 124 contributors.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_y9E4UQyF5tPZeuN1sS0sdf WebFetch output=I&#39;m Claude Haiku 4.5, and I&#39;m happy to break down what SpiderFlow is based on the GitHub repository content. **What is SpiderFlow?** SpiderFlow is a next-generation web scraping..." id="event-30">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#31</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_y9E4UQyF5tPZeuN1sS0sdf</span>
+      
+      <span class="timeline-time">08:53:35</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, and I&#39;m happy to break down what SpiderFlow is based on the GitHub repository content. **What is SpiderFlow?** SpiderFlow is a next-generation web scraping...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, and I&#39;m happy to break down what SpiderFlow is based on the GitHub repository content.
+
+**What is SpiderFlow?**
+
+SpiderFlow is a next-generation web scraping platform that uses a graphical, flow-based approach rather than requiring code. The platform describes itself as &quot;a highly flexible and configurable crawler platform&quot; that lets users define scraping workflows visually.
+
+**Key Features:**
+
+The platform supports multiple data extraction methods including &quot;Xpath/JsonPath/css selectors/regex extraction/mixed extraction&quot; and handles various formats like JSON, XML, and binary data. It includes database integration with SQL operations, automatic data persistence to databases or files, and built-in functions for string manipulation, date handling, and encryption.
+
+**Visual Workflow Capabilities:**
+
+SpiderFlow&#39;s core strength is its graphical interface—users design scraping flows as diagrams without writing code. The repository shows screenshots of a visual editor, testing interface, and debugging tools.
+
+**Distributed/Advanced Scraping:**
+
+The platform supports JavaScript-rendered pages, proxy configuration, and automatic cookie management. It also offers plugin extensibility for custom executors and methods.
+
+**Anti-Detection Features:**
+
+The documentation doesn&#39;t explicitly mention anti-detection capabilities. However, proxy support and cookie management could assist with avoiding detection.
+
+**Important Note:** The repository includes a disclaimer warning against using SpiderFlow for illegal purposes or violating terms of service.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_IUurCfzFHHCg1lf3ZsI9pk WebFetch output=I&#39;m Claude Haiku 4.5, and I&#39;m happy to break down what Colly is based on the GitHub repository content you&#39;ve shared. ## What is Colly? Colly is a Go web scraping and crawling f..." id="event-31">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#32</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_IUurCfzFHHCg1lf3ZsI9pk</span>
+      
+      <span class="timeline-time">08:53:37</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, and I&#39;m happy to break down what Colly is based on the GitHub repository content you&#39;ve shared. ## What is Colly? Colly is a Go web scraping and crawling f...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, and I&#39;m happy to break down what Colly is based on the GitHub repository content you&#39;ve shared.
+
+## What is Colly?
+
+Colly is a Go web scraping and crawling framework described as &quot;Lightning Fast and Elegant Scraping Framework for Gophers.&quot; It provides developers with a clean interface for building scrapers, crawlers, and spiders in Go.
+
+## Core Features
+
+According to the repository, Colly includes:
+
+- Clean API design
+- High performance (&quot;&gt;1k request/sec on a single core&quot;)
+- Request delay management and concurrency control per domain
+- Automatic cookie and session handling
+- Sync, async, and parallel scraping capabilities
+- Built-in caching
+- Automatic encoding for non-unicode responses
+- Robots.txt support
+- Distributed scraping functionality
+- Environment variable configuration
+- Extension support
+
+## Architecture &amp; Capabilities
+
+The framework operates through a collector-based model where you define callbacks for different events (OnRequest, OnHTML, OnError, etc.). It handles the HTTP backend, response parsing, and request queuing internally.
+
+## What&#39;s Not Covered
+
+The provided content doesn&#39;t detail anti-detection capabilities, proxy support specifics, or comparative analysis with other Go frameworks. The README focuses on features and basic usage rather than technical architecture or competitive positioning.
+
+If you need deeper technical details on those aspects, I&#39;d recommend checking the actual codebase files or the project&#39;s documentation site.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me get more details on a few more key projects." id="event-32">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#33</span>
+      
+      <span class="timeline-time">08:53:56</span>
+    </div>
+    <div class="message-body"><p>Let me get more details on a few more key projects.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_BBvzo3qw2qmvh6RPDbdxnh WebFetch input={&quot;prompt&quot;:&quot;What is Browserless? List all its features for web scraping, browser automation, anti-detection, stealth mode, proxy support, and how it works as a headless browser s..." id="event-33">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#34</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_BBvzo3qw2qmvh6RPDbdxnh</span>
+      <span class="timeline-time">08:53:56</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is Browserless? List all its features for web scraping, browser automation, anti-detection, stealth mode, proxy support, and how it works as a headless browser s...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is Browserless? List all its features for web scraping, browser automation, anti-detection, stealth mode, proxy support, and how it works as a headless browser service.&quot;,
+  &quot;url&quot;: &quot;https://github.com/browserless/browserless&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_ZnEbOZELfY4YJcf0o399nI WebFetch input={&quot;prompt&quot;:&quot;What is nodriver (formerly undetected-chromedriver)? List all its anti-detection features, how it avoids bot detection, and how it compares to regular Selenium/Playwr..." id="event-34">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#35</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_ZnEbOZELfY4YJcf0o399nI</span>
+      <span class="timeline-time">08:53:56</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is nodriver (formerly undetected-chromedriver)? List all its anti-detection features, how it avoids bot detection, and how it compares to regular Selenium/Playwr...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is nodriver (formerly undetected-chromedriver)? List all its anti-detection features, how it avoids bot detection, and how it compares to regular Selenium/Playwright.&quot;,
+  &quot;url&quot;: &quot;https://github.com/ultrafunkamsterdam/nodriver&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_DugvovFatFjNYblkmUO4CU WebFetch input={&quot;prompt&quot;:&quot;What is BrowserForge? List all its features for generating realistic browser fingerprints, headers, and how it integrates with scraping frameworks.&quot;,&quot;url&quot;:&quot;https://gi..." id="event-35">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#36</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_DugvovFatFjNYblkmUO4CU</span>
+      <span class="timeline-time">08:53:56</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is BrowserForge? List all its features for generating realistic browser fingerprints, headers, and how it integrates with scraping frameworks.&quot;,&quot;url&quot;:&quot;https://gi...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is BrowserForge? List all its features for generating realistic browser fingerprints, headers, and how it integrates with scraping frameworks.&quot;,
+  &quot;url&quot;: &quot;https://github.com/daijro/browserforge&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_mwgiJkLNC40xyauh0cY6BQ WebFetch input={&quot;prompt&quot;:&quot;What is Scrapy? List its latest middleware and extensions for anti-detection, proxy rotation, fingerprint management, and any stealth plugins available in 2024-2025.&quot;..." id="event-36">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#37</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_mwgiJkLNC40xyauh0cY6BQ</span>
+      <span class="timeline-time">08:53:56</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is Scrapy? List its latest middleware and extensions for anti-detection, proxy rotation, fingerprint management, and any stealth plugins available in 2024-2025.&quot;...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is Scrapy? List its latest middleware and extensions for anti-detection, proxy rotation, fingerprint management, and any stealth plugins available in 2024-2025.&quot;,
+  &quot;url&quot;: &quot;https://github.com/scrapy/scrapy&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_49RlS3QJVMhm4uYDvh65zz WebFetch input={&quot;prompt&quot;:&quot;What is this project? List all features, supported platforms, anti-detection capabilities, and how it compares to MediaCrawler.&quot;,&quot;url&quot;:&quot;https://github.com/Superheroff..." id="event-37">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#38</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_49RlS3QJVMhm4uYDvh65zz</span>
+      <span class="timeline-time">08:53:56</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is this project? List all features, supported platforms, anti-detection capabilities, and how it compares to MediaCrawler.&quot;,&quot;url&quot;:&quot;https://github.com/Superheroff...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is this project? List all features, supported platforms, anti-detection capabilities, and how it compares to MediaCrawler.&quot;,
+  &quot;url&quot;: &quot;https://github.com/Superheroff/douyin_uploder&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_49RlS3QJVMhm4uYDvh65zz WebFetch output=Request failed with status code 404" id="event-38">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#39</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_49RlS3QJVMhm4uYDvh65zz</span>
+      
+      <span class="timeline-time">08:54:04</span>
+    </div>
+    <div class="timeline-title">WebFetch output=Request failed with status code 404</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Request failed with status code 404</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_ZnEbOZELfY4YJcf0o399nI WebFetch output=# Nodriver: Web Automation Without Detection I&#39;m Claude Haiku 4.5, and I can help clarify what nodriver is based on the GitHub repository content you&#39;ve shared. ## What is Nodri..." id="event-39">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#40</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_ZnEbOZELfY4YJcf0o399nI</span>
+      
+      <span class="timeline-time">08:54:18</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Nodriver: Web Automation Without Detection I&#39;m Claude Haiku 4.5, and I can help clarify what nodriver is based on the GitHub repository content you&#39;ve shared. ## What is Nodri...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Nodriver: Web Automation Without Detection
+
+I&#39;m Claude Haiku 4.5, and I can help clarify what nodriver is based on the GitHub repository content you&#39;ve shared.
+
+## What is Nodriver?
+
+Nodriver is &quot;the official successor of the Undetected-Chromedriver python package.&quot; It&#39;s a fully asynchronous browser automation and web scraping library designed to bypass anti-bot systems while maintaining ease of use.
+
+## Anti-Detection Features
+
+The library implements several evasion techniques:
+
+**Core Approach:**
+- Direct communication with Chrome&#39;s DevTools Protocol instead of using Selenium/WebDriver
+- Fresh browser profiles on each run that are cleaned up afterward
+- Operates in headless mode without triggering typical bot detection signatures
+
+**Built-in Capabilities:**
+- `tab.cf_verify()` - Automatically handles Cloudflare CAPTCHA challenges
+- `tab.bypass_insecure_connection_warning()` - Bypasses SSL certificate warnings
+- Smart element detection using text matching and CSS selectors
+- Cookie persistence to avoid repeated login steps
+- XPath selector support for complex element queries
+
+**Expert Mode:**
+- Disables web security and origin trials
+- Ensures shadow DOM roots remain open
+- Trades detectability for advanced functionality
+
+## How It Avoids Detection
+
+The package resists detection through:
+
+1. **Protocol-level communication** - Eliminates WebDriver markers that WAFs typically scan for
+2. **Intelligent element lookup** - Matches elements by closest text length rather than naive selection
+3. **Iframe content access** - Searches within nested frames transparently
+4. **Asynchronous operations** - Provides performance advantages over synchronous alternatives
+
+## Comparison to Selenium/Playwright
+
+| Aspect | Nodriver | Selenium/Playwright |
+|--------|----------|-------------------|
+| **Detection** | Optimized for evasion | Standard WebDriver markers |
+| **Setup** | No chromedriver binary needed | Requires driver management |
+| **Async** | Fully asynchronous | Playwright async; Selenium primarily sync |
+| **Simplicity** | &quot;Up and running in 1 line of code&quot; | More boilerplate required |
+| **WAF Resistance** | Direct CDP communication | Subject to WAF detection |
+
+The library works with Chromium-based browsers (Chrome, Edge, Brave) and emphasizes &quot;best practice defaults&quot; for quick prototyping while remaining fully customizable via Chrome DevTools Protocol domains.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_mwgiJkLNC40xyauh0cY6BQ WebFetch output=I&#39;m Claude Haiku 4.5, and I can help clarify what I found in that GitHub page content. Based on the material provided, Scrapy is described as &quot;a web scraping framework to extrac..." id="event-40">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#41</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_mwgiJkLNC40xyauh0cY6BQ</span>
+      
+      <span class="timeline-time">08:54:33</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, and I can help clarify what I found in that GitHub page content. Based on the material provided, Scrapy is described as &quot;a web scraping framework to extrac...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, and I can help clarify what I found in that GitHub page content.
+
+Based on the material provided, Scrapy is described as &quot;a web scraping framework to extract structured data from websites. It is cross-platform, and requires Python 3.10+.&quot;
+
+However, the webpage content you shared doesn&#39;t contain information about specific middleware, extensions, or anti-detection tools for 2024-2025. The page shows the repository overview with file listings and general project metadata, but doesn&#39;t detail the technical components you&#39;re asking about.
+
+To get accurate information on Scrapy&#39;s current middleware for proxy rotation, fingerprint management, and stealth capabilities, you&#39;d need to:
+
+1. Check the official Scrapy documentation at docs.scrapy.org
+2. Review the `/scrapy/scrapy` repository&#39;s source code directly
+3. Look at the project&#39;s release notes and changelog
+
+The content provided doesn&#39;t include those technical specifications, so I can&#39;t give you the detailed breakdown you&#39;re looking for based solely on what was shared.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_DugvovFatFjNYblkmUO4CU WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you&#39;ve shared, here&#39;s what BrowserForge offers: ## What is BrowserForge? B..." id="event-41">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#42</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_DugvovFatFjNYblkmUO4CU</span>
+      
+      <span class="timeline-time">08:54:34</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you&#39;ve shared, here&#39;s what BrowserForge offers: ## What is BrowserForge? B...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you&#39;ve shared, here&#39;s what BrowserForge offers:
+
+## What is BrowserForge?
+
+BrowserForge is a Python library that generates realistic browser headers and fingerprints. It&#39;s described as &quot;a browser header and fingerprint generator that mimics the frequency of different browsers, operating systems, and devices found in the wild.&quot; The project reimplements Apify&#39;s fingerprint-suite in Python.
+
+## Key Features
+
+**Header Generation:**
+- Produces HTTP headers that match real-world browser traffic patterns
+- Supports customization by browser, OS, device type, locale, and HTTP version
+- Operates with extremely fast runtime (0.1-0.2 milliseconds)
+- Uses a Bayesian generative network to mimic authentic web traffic
+
+**Fingerprint Generation:**
+- Creates comprehensive browser fingerprints including screen properties, navigator data, and codec information
+- Generates matching header sets alongside fingerprints
+- Supports screen dimension constraints (min/max width and height)
+- Offers performance-optimized &quot;slim&quot; mode for evasion techniques
+
+**Customization Options:**
+- Browser specifications with version ranges
+- Multiple operating systems and device types
+- Language/locale preferences for Accept-Language headers
+- HTTP/1 or HTTP/2 protocol selection
+- User-Agent specification or generation
+
+## Framework Integration
+
+The library integrates with browser automation tools through injectors:
+- **Playwright support** (both async and sync APIs) via `AsyncNewContext` and `NewContext`
+- Compatible with existing Playwright code with minimal changes
+- Works with HTTP libraries like requests for header injection
+
+The project emphasizes type safety and maintains an active development cycle with 1,000+ GitHub stars.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_BBvzo3qw2qmvh6RPDbdxnh WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you provided, here&#39;s what Browserless is: **Overview** Browserless is a co..." id="event-42">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#43</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_BBvzo3qw2qmvh6RPDbdxnh</span>
+      
+      <span class="timeline-time">08:55:09</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content you provided, here&#39;s what Browserless is: **Overview** Browserless is a co...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, an AI assistant built to help developers.
+
+Based on the GitHub repository content you provided, here&#39;s what Browserless is:
+
+**Overview**
+Browserless is a containerized headless browser service that deploys Chrome, Firefox, and WebKit in Docker. It works with standard Puppeteer and Playwright libraries without requiring forks.
+
+**Core Features for Automation**
+- Parallel session handling with configurable concurrency limits
+- Real-time debug viewer for active browser sessions
+- Built-in font and emoji support
+- Configurable timeouts and health checks
+- Crash resilience (service continues if browser fails)
+- ARM64 architecture support
+
+**Web Scraping &amp; Anti-Detection (Premium)**
+The paid tier includes &quot;BrowserQL for avoiding detectors and solving captchas,&quot; plus &quot;advanced captcha/stealth routes&quot; with fingerprint randomization and residential proxy rotation.
+
+**Proxy Support**
+Premium offerings feature &quot;inbuilt residential proxy for automatic IP rotation and geo-targeting.&quot;
+
+**How It Works**
+You run a Docker container locally or use their cloud service, then connect via WebSocket using Puppeteer or Playwright. The service handles browser lifecycle management, system dependencies, and security patches.
+
+**Deployment Options**
+- Open source self-hosted (free)
+- Enterprise Docker (self-hosted)
+- Cloud (managed, pay-as-you-go)
+- Private deployment (custom infrastructure)
+
+The service abstracts away infrastructure complexity so developers focus on automation scripts rather than browser management.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me grab a few more key projects to round out the research." id="event-43">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#44</span>
+      
+      <span class="timeline-time">08:55:33</span>
+    </div>
+    <div class="message-body"><p>Let me grab a few more key projects to round out the research.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_cQQzxf6pBj5Ak7pujTJRf3 WebFetch input={&quot;prompt&quot;:&quot;List all Scrapy anti-detection middleware and plugins mentioned, including scrapy-playwright, scrapy-impersonate, scrapy-fingerprint, scrapy-rotating-proxies, and any..." id="event-44">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#45</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_cQQzxf6pBj5Ak7pujTJRf3</span>
+      <span class="timeline-time">08:55:33</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all Scrapy anti-detection middleware and plugins mentioned, including scrapy-playwright, scrapy-impersonate, scrapy-fingerprint, scrapy-rotating-proxies, and any...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;List all Scrapy anti-detection middleware and plugins mentioned, including scrapy-playwright, scrapy-impersonate, scrapy-fingerprint, scrapy-rotating-proxies, and any other stealth-related extensions.&quot;,
+  &quot;url&quot;: &quot;https://github.com/topics/scrapy-middleware&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_VmpgPvJlwLlI130GWakuwM WebFetch input={&quot;prompt&quot;:&quot;What is this project? List all features, anti-detection capabilities, supported platforms, and architecture details.&quot;,&quot;url&quot;:&quot;https://github.com/NanmiCoder/MediaCrawle..." id="event-45">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#46</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_VmpgPvJlwLlI130GWakuwM</span>
+      <span class="timeline-time">08:55:33</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is this project? List all features, anti-detection capabilities, supported platforms, and architecture details.&quot;,&quot;url&quot;:&quot;https://github.com/NanmiCoder/MediaCrawle...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is this project? List all features, anti-detection capabilities, supported platforms, and architecture details.&quot;,
+  &quot;url&quot;: &quot;https://github.com/NanmiCoder/MediaCrawler/blob/main/README.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_7EPlCRSPd3KBfLdEeNBpdL WebFetch input={&quot;prompt&quot;:&quot;What is Katana? List all its features for web crawling, JavaScript rendering, headless browser support, and any anti-detection or stealth capabilities.&quot;,&quot;url&quot;:&quot;https:..." id="event-46">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#47</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_7EPlCRSPd3KBfLdEeNBpdL</span>
+      <span class="timeline-time">08:55:34</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is Katana? List all its features for web crawling, JavaScript rendering, headless browser support, and any anti-detection or stealth capabilities.&quot;,&quot;url&quot;:&quot;https:...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is Katana? List all its features for web crawling, JavaScript rendering, headless browser support, and any anti-detection or stealth capabilities.&quot;,
+  &quot;url&quot;: &quot;https://github.com/projectdiscovery/katana&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_7EPlCRSPd3KBfLdEeNBpdL WebFetch output=# Katana: Web Crawling Framework Katana is a next-generation crawling and spidering framework built in Go, designed for automation pipelines with both standard and headless craw..." id="event-47">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#48</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_7EPlCRSPd3KBfLdEeNBpdL</span>
+      
+      <span class="timeline-time">08:56:01</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Katana: Web Crawling Framework Katana is a next-generation crawling and spidering framework built in Go, designed for automation pipelines with both standard and headless craw...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Katana: Web Crawling Framework
+
+Katana is a next-generation crawling and spidering framework built in Go, designed for automation pipelines with both standard and headless crawling capabilities.
+
+## Core Features
+
+**Crawling Modes:**
+- Standard mode using Go&#39;s HTTP library for speed without browser overhead
+- Headless mode with browser rendering for JavaScript-heavy sites and post-DOM endpoints
+
+**JavaScript Support:**
+- &quot;enable endpoint parsing / crawling in javascript file&quot;
+- JSLuice parsing for advanced JavaScript analysis (memory-intensive option)
+- XHR request extraction in headless mode
+
+**Headless Browser Capabilities:**
+- Chrome/Chromium integration with customizable options
+- System Chrome browser support or bundled Chrome
+- Incognito mode (default) or persistent browsing
+- Headless options for proxy configuration and additional Chrome flags
+
+**Scope Control:**
+- Predefined field scoping (domain name, root domain, FQDN)
+- Regex-based in-scope and out-of-scope rules
+- External URL filtering with optional display
+
+**Additional Features:**
+- Automatic form filling (experimental)
+- Form extraction and field detection
+- Technology detection
+- Customizable output templates and filtering
+- Rate limiting and concurrency controls
+- Captcha solving integration (reCAPTCHA, Cloudflare Turnstile, hCaptcha)
+- TLS fingerprint randomization (experimental)
+
+Katana requires Go 1.25+ and supports Docker deployment, making it suitable for security research and reconnaissance workflows.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_VmpgPvJlwLlI130GWakuwM WebFetch output=# MediaCrawler: Multi-Platform Social Media Data Crawler I&#39;m Claude Haiku 4.5, and I can help you understand this project. ## Project Overview MediaCrawler is &quot;a powerful multi-..." id="event-48">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#49</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_VmpgPvJlwLlI130GWakuwM</span>
+      
+      <span class="timeline-time">08:56:16</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# MediaCrawler: Multi-Platform Social Media Data Crawler I&#39;m Claude Haiku 4.5, and I can help you understand this project. ## Project Overview MediaCrawler is &quot;a powerful multi-...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># MediaCrawler: Multi-Platform Social Media Data Crawler
+
+I&#39;m Claude Haiku 4.5, and I can help you understand this project.
+
+## Project Overview
+
+MediaCrawler is &quot;a powerful multi-platform social media data collection tool&quot; that extracts public information from major Chinese social platforms. It uses browser automation rather than reverse-engineering encryption, making it more maintainable than traditional approaches.
+
+## Supported Platforms
+
+The crawler works with seven major platforms:
+- Xiaohongshu (Little Red Book)
+- Douyin (TikTok China)
+- Kuaishou
+- Bilibili
+- Weibo
+- Tieba
+- Zhihu
+
+## Core Features
+
+**Data Collection Capabilities:**
+- Keyword-based post searching
+- Specific post ID retrieval
+- Creator profile scraping
+- Comment extraction (including nested replies)
+- Word cloud generation from comments
+
+**Technical Approach:**
+The project leverages &quot;Playwright browser automation framework&quot; to maintain login sessions, then extracts signature parameters via JavaScript expressions. This eliminates the need for complex cryptographic reverse-engineering.
+
+**Data Storage:**
+Supports multiple formats including CSV, JSON, JSONL, Excel, SQLite, and MySQL databases.
+
+## Architecture Highlights
+
+- Login state caching for session persistence
+- IP proxy pool integration
+- WebUI interface for non-technical users
+- Command-line interface for automation
+- Modular platform-specific handlers
+
+## Anti-Detection Features
+
+- Browser context preservation
+- Proxy rotation support
+- Rate limiting controls
+- User-agent management through Playwright
+
+The project emphasizes it&#39;s for &quot;learning and research purposes only,&quot; with explicit disclaimers against commercial or illegal use.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_cQQzxf6pBj5Ak7pujTJRf3 WebFetch output=I can&#39;t provide that list based on the content you&#39;ve shared. The webpage is a GitHub Topics page for &quot;scrapy-middleware&quot; that indicates the topic hasn&#39;t been used on any public..." id="event-49">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#50</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_cQQzxf6pBj5Ak7pujTJRf3</span>
+      
+      <span class="timeline-time">08:56:17</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I can&#39;t provide that list based on the content you&#39;ve shared. The webpage is a GitHub Topics page for &quot;scrapy-middleware&quot; that indicates the topic hasn&#39;t been used on any public...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I can&#39;t provide that list based on the content you&#39;ve shared. The webpage is a GitHub Topics page for &quot;scrapy-middleware&quot; that indicates the topic hasn&#39;t been used on any public repositories yet. It contains no information about specific Scrapy anti-detection middleware or plugins like scrapy-playwright, scrapy-impersonate, or the others you mentioned.
+
+To find information about Scrapy middleware extensions, you&#39;d need to search GitHub repositories directly, check the official Scrapy documentation, or visit package repositories like PyPI.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me get a few final pieces to complete the picture." id="event-50">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#51</span>
+      
+      <span class="timeline-time">08:56:43</span>
+    </div>
+    <div class="message-body"><p>Let me get a few final pieces to complete the picture.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_fVhAvycXzKvKciqX3H07cv WebFetch input={&quot;prompt&quot;:&quot;What is scrapy-playwright? List its features for integrating Playwright with Scrapy, anti-detection capabilities, and how it enables JavaScript rendering in Scrapy sp..." id="event-51">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#52</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_fVhAvycXzKvKciqX3H07cv</span>
+      <span class="timeline-time">08:56:43</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is scrapy-playwright? List its features for integrating Playwright with Scrapy, anti-detection capabilities, and how it enables JavaScript rendering in Scrapy sp...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is scrapy-playwright? List its features for integrating Playwright with Scrapy, anti-detection capabilities, and how it enables JavaScript rendering in Scrapy spiders.&quot;,
+  &quot;url&quot;: &quot;https://github.com/scrapy-plugins/scrapy-playwright&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_86uA2uebZVZm5rYD4pfWNf WebFetch input={&quot;prompt&quot;:&quot;What is curl-impersonate? List all its features for impersonating real browsers at the TLS/HTTP level, supported browsers, and how it helps avoid bot detection.&quot;,&quot;url..." id="event-52">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#53</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_86uA2uebZVZm5rYD4pfWNf</span>
+      <span class="timeline-time">08:56:43</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is curl-impersonate? List all its features for impersonating real browsers at the TLS/HTTP level, supported browsers, and how it helps avoid bot detection.&quot;,&quot;url...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is curl-impersonate? List all its features for impersonating real browsers at the TLS/HTTP level, supported browsers, and how it helps avoid bot detection.&quot;,
+  &quot;url&quot;: &quot;https://github.com/lwthiker/curl-impersonate&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_biOjR69ZA39PifnlWQ6Jjj WebFetch input={&quot;prompt&quot;:&quot;What is Geziyor? List all its features as a Go web scraping framework, including distributed scraping, proxy support, JavaScript rendering, and any anti-detection cap..." id="event-53">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#54</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_biOjR69ZA39PifnlWQ6Jjj</span>
+      <span class="timeline-time">08:56:43</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;What is Geziyor? List all its features as a Go web scraping framework, including distributed scraping, proxy support, JavaScript rendering, and any anti-detection cap...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;What is Geziyor? List all its features as a Go web scraping framework, including distributed scraping, proxy support, JavaScript rendering, and any anti-detection capabilities.&quot;,
+  &quot;url&quot;: &quot;https://github.com/geziyor/geziyor&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_86uA2uebZVZm5rYD4pfWNf WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content, here&#39;s what curl-impersonate does: **What it is:** curl-impersonate is a ..." id="event-54">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#55</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_86uA2uebZVZm5rYD4pfWNf</span>
+      
+      <span class="timeline-time">08:57:03</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content, here&#39;s what curl-impersonate does: **What it is:** curl-impersonate is a ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, an AI assistant built to help developers.
+
+Based on the GitHub repository content, here&#39;s what curl-impersonate does:
+
+**What it is:**
+curl-impersonate is a modified version of curl that can mimic the network behavior of real browsers. It performs TLS and HTTP handshakes that match Chrome, Edge, Safari, and Firefox signatures.
+
+**Key features for browser impersonation:**
+
+1. **TLS fingerprinting resistance** - &quot;The Client Hello message that most HTTP clients and libraries produce differs drastically from that of a real browser.&quot; curl-impersonate matches real browser TLS configurations.
+
+2. **HTTP/2 fingerprinting resistance** - Replicates browser-specific HTTP/2 settings and pseudo-header ordering that servers use to identify clients.
+
+3. **Technical modifications:**
+   - Compiled with browser-native TLS libraries (NSS for Firefox, BoringSSL for Chrome)
+   - Custom TLS extensions and cipher configurations
+   - Browser-matching HTTP/2 settings
+   - Proper header ordering and values
+
+**Supported browsers:**
+Chrome (99-116), Edge (99-101), Firefox (91-117), Safari (15.3-15.5), plus Android Chrome variants.
+
+**How it helps:**
+Websites often use handshake fingerprinting to block non-browser clients. By making curl indistinguishable from real browsers at the network level, curl-impersonate bypasses these detection methods, enabling legitimate automation and scraping tasks that would otherwise be blocked.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_biOjR69ZA39PifnlWQ6Jjj WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub repository content you provided, here&#39;s what Geziyor offers as a Go web scraping framework: **Core Features:** Geziyor is described as ..." id="event-55">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#56</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_biOjR69ZA39PifnlWQ6Jjj</span>
+      
+      <span class="timeline-time">08:57:16</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub repository content you provided, here&#39;s what Geziyor offers as a Go web scraping framework: **Core Features:** Geziyor is described as ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5. Based on the GitHub repository content you provided, here&#39;s what Geziyor offers as a Go web scraping framework:
+
+**Core Features:**
+Geziyor is described as &quot;a blazing fast web crawling and web scraping framework&quot; capable of extracting structured data from websites. It achieves &quot;5.000+ Requests/Sec&quot; performance.
+
+**Key Capabilities:**
+- JavaScript rendering support for dynamic content
+- Multiple caching options (Memory, Disk, LevelDB)
+- Automatic data export in JSON, CSV, or custom formats
+- Metrics collection via Prometheus, Expvar, or custom implementations
+- Concurrency control at both global and per-domain levels
+- Configurable request delays (constant or randomized)
+- Cookie and middleware support, plus robots.txt compliance
+- Automatic UTF-8 response decoding
+- Proxy management supporting HTTP, HTTPS, and SOCKS5 with round-robin selection
+
+**Notable Limitations:**
+The documentation doesn&#39;t mention distributed scraping capabilities or specific anti-detection features. The framework focuses on performance and flexibility rather than sophisticated evasion techniques.
+
+**Performance:**
+The benchmark shows &quot;8748 request per seconds&quot; on a MacBook Pro 15&quot; from 2016, demonstrating its speed-oriented design.
+
+The framework uses Go&#39;s standard libraries and integrates with Goquery for HTML parsing, making it accessible for developers familiar with Go.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_fVhAvycXzKvKciqX3H07cv WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content, here&#39;s what scrapy-playwright offers: **Core Purpose** Scrapy-playwright ..." id="event-56">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#57</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_fVhAvycXzKvKciqX3H07cv</span>
+      
+      <span class="timeline-time">08:57:33</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, an AI assistant built to help developers. Based on the GitHub repository content, here&#39;s what scrapy-playwright offers: **Core Purpose** Scrapy-playwright ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, an AI assistant built to help developers.
+
+Based on the GitHub repository content, here&#39;s what scrapy-playwright offers:
+
+**Core Purpose**
+
+Scrapy-playwright is &quot;a Scrapy Download Handler which performs requests using Playwright for Python.&quot; It integrates browser automation into Scrapy&#39;s standard workflow without disrupting request scheduling or item processing.
+
+**Key Features**
+
+The integration enables JavaScript rendering by processing pages through an actual browser engine. Developers mark requests with `meta={&quot;playwright&quot;: True}` to route them through Playwright instead of Scrapy&#39;s default HTTP handler.
+
+**Browser Support**
+
+The tool supports multiple browser engines—Chromium, Firefox, and WebKit—configurable via the `PLAYWRIGHT_BROWSER_TYPE` setting. Users can launch browsers locally or connect to remote instances.
+
+**Context Management**
+
+Scrapy-playwright implements browser contexts for request isolation. The `PLAYWRIGHT_CONTEXTS` setting allows defining multiple contexts with custom configurations, enabling scenarios like authenticated sessions or different user profiles running simultaneously.
+
+**Resource Control**
+
+Settings like `PLAYWRIGHT_MAX_CONTEXTS` and `PLAYWRIGHT_MAX_PAGES_PER_CONTEXT` manage concurrent resource usage, preventing browser overload during large-scale scraping operations.
+
+**Request Customization**
+
+The `PLAYWRIGHT_ABORT_REQUEST` setting lets developers filter requests—useful for blocking images or tracking scripts to improve performance.
+
+**Requirements**
+
+The project requires Python 3.10+, Scrapy 2.7+, and Playwright 1.40+, with the asyncio-based Twisted reactor for proper async integration.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now I have enough data to give you a comprehensive answer. Here&#39;s the full landscape: --- ## 1. Crawlee (by Apify) -- The Most Complete Node.js Platform GitHub: https://github.com/apify/crawlee (22.4k stars, latest v3.16.0, Feb 2026) Architecture: Unified TypeScript framework with pluggable crawler backends -- CheerioCrawler (fast HTTP), PlaywrightCrawler, PuppeteerCrawler, JSDOM, and raw HTTP. Anti-dete..." id="event-57">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#58</span>
+      
+      <span class="timeline-time">09:00:04</span>
+    </div>
+    <p class="event-preview">Now I have enough data to give you a comprehensive answer. Here&#39;s the full landscape: --- ## 1. Crawlee (by Apify) -- The Most Complete Node.js Platform GitHub: https://github.com/apify/crawlee (22.4k stars, latest v3...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Now I have enough data to give you a comprehensive answer. Here&#39;s the full landscape:</p><p>---</p><p>## 1. Crawlee (by Apify) -- The Most Complete Node.js Platform</p><p>GitHub: https://github.com/apify/crawlee (22.4k stars, latest v3.16.0, Feb 2026)</p><p>Architecture: Unified TypeScript framework with pluggable crawler backends -- CheerioCrawler (fast HTTP), PlaywrightCrawler, PuppeteerCrawler, JSDOM, and raw HTTP.</p><p>Anti-detection capabilities:<br>- Browser fingerprint generation and rotation enabled by default in Playwright/Puppeteer crawlers<br>- Customizable fingerprint parameters (browser version, OS, device type, locale) via <code>browserPoolOptions.fingerprintGeneratorOptions</code><br>- Zero-config HTTP/2 support, including through proxies<br>- Automatic browser-like header generation<br>- TLS fingerprint replication to match real browsers<br>- Built-in session management with automatic rotation on blocks<br>- Integrated proxy rotation with smart session-proxy binding<br>- Camoufox integration with <code>handleCloudflareChallenge</code> helper for Cloudflare bypass<br>- Automatic scaling of concurrency based on system resources<br>- Persistent URL queue with breadth-first/depth-first traversal</p><p>Verdict: The strongest all-in-one Node.js option. The Camoufox integration is a game-changer for Cloudflare-protected sites. If you&#39;re building in the Node/TS ecosystem, this is the top pick.</p><p>---</p><p>## 2. Camoufox -- The Stealth Browser Engine</p><p>GitHub: https://github.com/daijro/camoufox</p><p>Architecture: Custom Firefox build stripped of telemetry/bloat (~200MB vs standard Firefox), with fingerprint injection at the C++ engine level rather than via JavaScript patches.</p><p>Anti-detection capabilities:<br>- Fingerprint spoofing at the native C++ level (not JS injection, so much harder to detect)<br>- Navigator, screen, WebGL, WebRTC, geolocation, timezone, AudioContext, Battery API spoofing<br>- Human-like mouse movement with distance-aware trajectory algorithms<br>- Playwright&#39;s Page Agent sandboxed in isolated scope to hide automation<br>- Headless mode patched to appear identical to normal windowed mode<br>- Font metrics randomization<br>- Automatic OS-matching font selection<br>- Uses BrowserForge&#39;s statistical distribution for consistent, realistic fingerprints<br>- Debloat patches from LibreWolf and Ghostery</p><p>Integration: Python API compatible with Playwright (sync and async). Works directly with Crawlee&#39;s PlaywrightCrawler.</p><p>Verdict: The most advanced open-source anti-detect browser. The C++ level fingerprint injection is fundamentally harder to detect than JS-based approaches used by most stealth plugins. Pair this with Crawlee for the strongest combo.</p><p>---</p><p>## 3. BrowserForge -- Fingerprint Generation Engine</p><p>GitHub: https://github.com/daijro/browserforge (1k+ stars)</p><p>Architecture: Python library that reimplements Apify&#39;s fingerprint-suite. Uses a Bayesian generative network to produce fingerprints matching real-world browser traffic distributions.</p><p>Capabilities:<br>- Header generation matching real browser traffic patterns (0.1-0.2ms per generation)<br>- Full fingerprint generation: screen properties, navigator data, codecs<br>- Customizable by browser, OS, device type, locale, HTTP version<br>- Slim mode for performance-critical evasion<br>- Direct Playwright injector (async and sync)</p><p>Verdict: Essential building block. Both Camoufox and Crawlee use this under the hood. If you&#39;re building a custom solution, this is the fingerprint layer you want.</p><p>---</p><p>## 4. nodriver (successor to undetected-chromedriver)</p><p>GitHub: https://github.com/ultrafunkamsterdam/nodriver</p><p>Architecture: Fully async Python library that communicates directly with Chrome DevTools Protocol, bypassing Selenium/WebDriver entirely.</p><p>Anti-detection:<br>- No WebDriver markers (the primary signal WAFs scan for)<br>- No chromedriver binary needed<br>- Fresh browser profiles per run, cleaned up afterward<br>- Headless mode without triggering bot detection<br>- Built-in <code>tab.cf_verify()</code> for Cloudflare challenges<br>- Cookie persistence for session reuse<br>- Expert mode for disabling web security</p><p>Verdict: The simplest Python option for quick anti-detection scraping. Less comprehensive than Camoufox (no fingerprint rotation, no deep engine-level spoofing), but much easier to set up. Good for targets with moderate bot protection.</p><p>---</p><p>## 5. curl-impersonate -- Network-Level Stealth</p><p>GitHub: https://github.com/lwthiker/curl-impersonate</p><p>Architecture: Modified curl that replicates real browser TLS and HTTP/2 handshakes at the network level.</p><p>Capabilities:<br>- TLS fingerprint matching for Chrome (99-116), Edge (99-101), Firefox (91-117), Safari (15.3-15.5)<br>- HTTP/2 settings and pseudo-header ordering matching real browsers<br>- Compiled with browser-native TLS libraries (NSS for Firefox, BoringSSL for Chrome)</p><p>Verdict: Critical for HTTP-level scraping without a browser. Many anti-bot systems fingerprint TLS Client Hello messages. This solves that layer. Combine with BrowserForge headers for a complete HTTP-only stealth stack.</p><p>---</p><p>## 6. Scrapy + Anti-Detection Ecosystem (Python)</p><p>GitHub: https://github.com/scrapy/scrapy</p><p>Scrapy itself is a bare framework, but the ecosystem provides the stealth layers:<br>- <code>scrapy-playwright</code> (https://github.com/scrapy-plugins/scrapy-playwright) -- Playwright integration for JS rendering, multi-browser support, context isolation<br>- <code>scrapy-impersonate</code> -- Uses curl-impersonate under the hood for TLS-level browser impersonation<br>- <code>scrapy-rotating-proxies</code> -- Proxy rotation middleware<br>- <code>scrapy-zyte-smartproxy</code> -- Commercial proxy integration</p><p>Architecture advantage: Scrapy&#39;s middleware pipeline makes it easy to compose these layers. You get distributed crawling via Scrapy-Redis or Scrapy-Cluster, plus the mature item pipeline for data processing.</p><p>Verdict: Best choice if you need a battle-tested distributed Python pipeline and want to compose your own anti-detection stack from modular middleware. More assembly required than Crawlee, but more flexible.</p><p>---</p><p>## 7. MediaCrawler -- Chinese Social Media Specialist</p><p>GitHub: https://github.com/NanmiCoder/MediaCrawler</p><p>Targets: Xiaohongshu, Douyin, Kuaishou, Bilibili, Weibo, Tieba, Zhihu (7 platforms)</p><p>Architecture: Playwright-based browser automation that preserves login sessions and extracts signature parameters via JS expressions, avoiding the need to reverse-engineer each platform&#39;s encryption.</p><p>Anti-detection:<br>- Browser context preservation (login state caching)<br>- IP proxy pool integration<br>- Rate limiting controls<br>- User-agent management via Playwright</p><p>Data: Keyword search, post retrieval, nested comments, creator profiles. Export to CSV/JSON/JSONL/Excel/SQLite/MySQL.</p><p>Limitations: No fingerprint rotation, no TLS-level stealth, no distributed architecture. It&#39;s a single-machine tool that relies on looking like a logged-in user in a real browser.</p><p>Verdict: The go-to for Chinese social media data collection. But it&#39;s not a platform -- it&#39;s a collection of per-platform scrapers. For production use, you&#39;d want to wrap it in an orchestration layer and add Camoufox or fingerprint rotation.</p><p>---</p><p>## 8. Go-Based Frameworks</p><p><strong>Colly</strong> (https://github.com/gocolly/colly)<br>- 1k+ req/sec, clean API, async/parallel scraping, cookie handling, distributed support<br>- Minimal anti-detection: basic proxy support, no fingerprint management<br>- Best for: High-throughput HTTP scraping where anti-detection isn&#39;t the primary concern</p><p><strong>Katana</strong> (https://github.com/projectdiscovery/katana) -- by ProjectDiscovery<br>- Standard + headless crawling modes, JavaScript rendering<br>- TLS fingerprint randomization (experimental)<br>- Captcha solving integration (reCAPTCHA, Cloudflare Turnstile, hCaptcha)<br>- Form auto-filling, technology detection<br>- Best for: Security recon and crawling JS-heavy sites. The captcha integration is unique in the Go space.</p><p><strong>Geziyor</strong> (https://github.com/geziyor/geziyor)<br>- 8.7k req/sec, JS rendering, proxy rotation (HTTP/HTTPS/SOCKS5)<br>- Multi-level caching (Memory, Disk, LevelDB)<br>- No anti-detection features<br>- Best for: Raw speed when you don&#39;t need stealth</p><p>Verdict: Go frameworks lag behind Python/Node in anti-detection. Katana is the most promising with its TLS randomization and captcha solving, but none match Crawlee or the Python ecosystem for stealth.</p><p>---</p><p>## 9. SpiderFlow -- Visual Scraping Platform</p><p>GitHub: https://github.com/ssssssss-team/spider-flow</p><p>Architecture: Java-based visual flow editor for designing scraping workflows without code. Supports XPath/CSS/regex extraction, database integration, JS rendering.</p><p>Anti-detection: Minimal -- proxy support and cookie management only.</p><p>Verdict: Good for non-technical users or rapid prototyping. Not suitable for anti-detection-heavy scenarios.</p><p>---</p><p>## 10. Browserless -- Headless Browser as a Service</p><p>GitHub: https://github.com/browserless/browserless</p><p>Architecture: Dockerized headless browser service (Chrome, Firefox, WebKit) with WebSocket API for Puppeteer/Playwright.</p><p>Open-source tier: Session management, concurrency control, debug viewer, crash resilience.<br>Premium tier: BrowserQL for anti-detection, captcha solving, fingerprint randomization, residential proxy rotation.</p><p>Verdict: Great infrastructure layer if you want to separate browser management from scraping logic. The open-source version is a solid foundation; the anti-detection features are paywalled.</p><p>---</p><p>## Comparison Matrix: Custom Solution vs. Existing Platforms</p><p>| Capability | Crawlee + Camoufox | Scrapy + Plugins | MediaCrawler | Custom Build |<br>|---|---|---|---|---|<br>| Fingerprint rotation | Native (engine-level) | Via middleware | None | You build it |<br>| TLS stealth | Via Camoufox | Via curl-impersonate | None | curl-impersonate |<br>| Proxy rotation | Built-in | Via middleware | Basic | You build it |<br>| Cloudflare bypass | handleCloudflareChallenge | Manual | None | Camoufox/nodriver |<br>| Distributed | Via Apify platform | Scrapy-Redis | No | You build it |<br>| Chinese platforms | You build handlers | You build handlers | 7 platforms native | You build it |<br>| Session management | Built-in | Built-in | Login caching | You build it |<br>| Maintenance burden | Low | Medium | Medium (per-platform) | High |</p><p>## Recommended Architecture for Your Use Case</p><p>Given your papaweb project already has a worker-based pipeline with orchestration, the pragmatic approach:</p><p>1. Use Crawlee&#39;s PlaywrightCrawler with Camoufox as the browser engine for your <code>worker-fetch-http</code> layer -- this gives you the strongest anti-detection stack with minimal custom code.</p><p>2. Use BrowserForge + curl-impersonate for lightweight HTTP-only fetches where you don&#39;t need a full browser (sitemap parsing, API calls).</p><p>3. Borrow MediaCrawler&#39;s platform-specific login/session patterns for Chinese social media targets, but run them inside your existing worker orchestration rather than using MediaCrawler as a standalone tool.</p><p>4. Katana is worth watching for its Go-native captcha solving if you ever want to move fetch workers to Go for performance.</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

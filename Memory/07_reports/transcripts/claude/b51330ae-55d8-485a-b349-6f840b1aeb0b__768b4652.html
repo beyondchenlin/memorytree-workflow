@@ -1,0 +1,3101 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a85197311660b8de3 — MemoryTree</title>
+<meta property="og:title" content="agent-a85197311660b8de3">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a85197311660b8de3</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>3</strong> Messages</span>
+      <span class="transcript-pill"><strong>20</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>23</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-17 23:34:06</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-a85197311660b8de3</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">b51330ae-55d8-485a-b349-6f840b1aeb0b</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">768b4652af17d798...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">23</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">3</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">20</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>3</strong> dialog</span>
+    <span class="transcript-pill"><strong>20</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>3</strong> Messages</span>
+          <span class="transcript-pill"><strong>20</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>23 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Research the following topics and provide a comprehensive summary: 1. **Mem0 (mem0.ai / OpenMemory)** - What is it? How does it work? What are its memory layers? How does it extract structured memory from conversations? 2. **MemGPT** - Its hierarchical memory system (main context, external memory, archival memory). How does it manage what goes in/out of context? 3. **Zep** - Its memory architecture for AI age..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">23:34:06</span>
+    </div>
+    <div class="message-body"><p>Research the following topics and provide a comprehensive summary:</p><p>1. <strong>Mem0 (mem0.ai / OpenMemory)</strong> - What is it? How does it work? What are its memory layers? How does it extract structured memory from conversations?</p><p>2. <strong>MemGPT</strong> - Its hierarchical memory system (main context, external memory, archival memory). How does it manage what goes in/out of context?</p><p>3. <strong>Zep</strong> - Its memory architecture for AI agents. What&#39;s the difference between episodic, semantic, and procedural memory in Zep?</p><p>4. <strong>OpenCog or any product nicknamed &quot;小龙虾&quot; (crayfish/lobster) in Chinese AI community</strong> - Try searching for &quot;OpenClaw AI memory&quot; and &quot;小龙虾 AI记忆 多层记忆&quot;</p><p>5. <strong>Git-based knowledge management for AI</strong> - Are there any products that use Git commit history as a RAG source? How do they standardize commits for indexing?</p><p>6. <strong>Conversation history RAG</strong> - Best practices for chunking and indexing AI conversation transcripts for semantic search. What metadata should be extracted per chunk?</p><p>Search web for current information. Focus on architectural patterns that could be borrowed for a personal AI memory manager that stores conversations in Git.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll research all these topics in parallel to give you a comprehensive overview." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">23:34:12</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll research all these topics in parallel to give you a comprehensive overview.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01T749LQMVWZN7pNSt5tzSU9 WebSearch input={&quot;query&quot;:&quot;Mem0 mem0.ai OpenMemory architecture memory layers how it works 2025&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01T749LQMVWZN7pNSt5tzSU9</span>
+      <span class="timeline-time">23:34:12</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;Mem0 mem0.ai OpenMemory architecture memory layers how it works 2025&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;Mem0 mem0.ai OpenMemory architecture memory layers how it works 2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01MZsCFt4dzfg9kMp64GgUzK WebSearch input={&quot;query&quot;:&quot;MemGPT hierarchical memory system main context external archival memory architecture&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01MZsCFt4dzfg9kMp64GgUzK</span>
+      <span class="timeline-time">23:34:13</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;MemGPT hierarchical memory system main context external archival memory architecture&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;MemGPT hierarchical memory system main context external archival memory architecture&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01B4zGYP3pii3Ku7dv1tSKWz WebSearch input={&quot;query&quot;:&quot;Zep AI agent memory architecture episodic semantic procedural memory 2025&quot;}" id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01B4zGYP3pii3Ku7dv1tSKWz</span>
+      <span class="timeline-time">23:34:13</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;Zep AI agent memory architecture episodic semantic procedural memory 2025&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;Zep AI agent memory architecture episodic semantic procedural memory 2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01B4zGYP3pii3Ku7dv1tSKWz WebSearch output=Web search results for query: &quot;Zep AI agent memory architecture episodic semantic procedural memory 2025&quot; Links: [{&quot;title&quot;:&quot;Zep: A Temporal Knowledge Graph Architecture for Agen..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01B4zGYP3pii3Ku7dv1tSKWz</span>
+      
+      <span class="timeline-time">23:34:48</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;Zep AI agent memory architecture episodic semantic procedural memory 2025&quot; Links: [{&quot;title&quot;:&quot;Zep: A Temporal Knowledge Graph Architecture for Agen...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;Zep AI agent memory architecture episodic semantic procedural memory 2025&quot;
+
+Links: [{&quot;title&quot;:&quot;Zep: A Temporal Knowledge Graph Architecture for Agent Memory&quot;,&quot;url&quot;:&quot;https://arxiv.org/html/2501.13956v1&quot;},{&quot;title&quot;:&quot;ZEP: A TEMPORAL KNOWLEDGE GRAPH ARCHITECTURE FOR AGENT MEMORY Preston Rasmussen&quot;,&quot;url&quot;:&quot;https://blog.getzep.com/content/files/2025/01/ZEP__USING_KNOWLEDGE_GRAPHS_TO_POWER_LLM_AGENT_MEMORY_2025011700.pdf&quot;},{&quot;title&quot;:&quot;[2501.13956] Zep: A Temporal Knowledge Graph Architecture for Agent Memory&quot;,&quot;url&quot;:&quot;https://arxiv.org/abs/2501.13956&quot;},{&quot;title&quot;:&quot;Context Engineering &amp; Agent Memory Platform for AI Agents - Zep&quot;,&quot;url&quot;:&quot;https://www.getzep.com/&quot;},{&quot;title&quot;:&quot;Zep: Temporal Knowledge Graph Architecture&quot;,&quot;url&quot;:&quot;https://www.emergentmind.com/topics/zep-a-temporal-knowledge-graph-architecture&quot;},{&quot;title&quot;:&quot;A memory architecture for agentic system · GitHub&quot;,&quot;url&quot;:&quot;https://gist.github.com/spikelab/7551c6368e23caa06a4056350f6b2db3&quot;},{&quot;title&quot;:&quot;(PDF) Zep: A Temporal Knowledge Graph Architecture for Agent Memory&quot;,&quot;url&quot;:&quot;https://www.researchgate.net/publication/388402077_Zep_A_Temporal_Knowledge_Graph_Architecture_for_Agent_Memory&quot;},{&quot;title&quot;:&quot;zep:atemporal knowledge graph architecture for agent ...&quot;,&quot;url&quot;:&quot;https://arxiv.org/pdf/2501.13956&quot;},{&quot;title&quot;:&quot;ICLR 2026 Workshop Proposal MemAgents: Memory for LLM-Based Agentic Systems&quot;,&quot;url&quot;:&quot;https://openreview.net/pdf?id=U51WxL382H&quot;},{&quot;title&quot;:&quot;How Memory is Implemented in LLM-based Agents? | by GUANGYUAN PIAO | Medium&quot;,&quot;url&quot;:&quot;https://medium.com/@parklize/how-memory-is-implemented-in-llm-based-agents-f08e7b6662ff&quot;}]
+
+Here is a comprehensive summary of the search results on **Zep AI&#39;s agent memory architecture** and its relationship to episodic, semantic, and procedural memory in 2025:
+
+---
+
+## 🧠 Zep: A Temporal Knowledge Graph Architecture for Agent Memory (2025)
+
+### Overview
+
+Zep is a novel memory layer service for AI agents that outperforms the current state-of-the-art system, MemGPT, in the Deep Memory Retrieval (DMR) benchmark. While existing RAG frameworks for LLM-based agents are limited to static document retrieval, Zep addresses this limitation through its core component **Graphiti** — a temporally-aware knowledge graph engine that dynamically synthesizes both unstructured conversational data and structured business data while maintaining historical relationships.
+
+---
+
+### 🏗️ Three-Tier Memory Architecture
+
+In Zep, memory is powered by a temporally-aware dynamic knowledge graph. This graph comprises **three hierarchical tiers** of subgraphs: an **episode subgraph**, a **semantic entity subgraph**, and a **community subgraph**.
+
+1. **Episode Subgraph (Episodic Memory)**
+   The episode subgraph records episodic memory, wherein each node represents a raw event or message annotated with the original event timestamp. Episodic data includes high-fidelity inputs such as JSON documents, conversation logs, and transactional snapshots, maintained as the ground truth corpus.
+
+2. **Semantic Entity Subgraph (Semantic Memory)**
+   Here, entities and facts emerge through semantic extraction processes from episodes. Each entity is embedded in a high-dimensional space (e.g., 1024D), enabling fine-grained semantic similarity computation via cosine distance. Relations may form complex hyperedges involving multiple entities and contextual features, supporting multi-entity facts and relationships not limited to binary.
+
+3. **Community Subgraph**
+   Community nodes represent clusters of strongly connected entities. Communities contain high-level summarizations of these clusters and represent a more comprehensive, interconnected view of the semantic graph&#39;s structure.
+
+---
+
+### 🔗 Connection to Human Memory Models
+
+The dual storage of both raw episodic data and derived semantic entity information mirrors psychological models of human memory. These models distinguish between **episodic memory**, which represents distinct events, and **semantic memory**, which captures associations between concepts and their meanings. This approach enables LLM agents using Zep to develop more sophisticated and nuanced memory structures that better align with our understanding of human memory systems.
+
+The field draws heavily from Endel Tulving&#39;s 1972 taxonomy of human memory (semantic, episodic, procedural), and memory for AI agents has exploded from a niche academic topic into a core infrastructure concern in 2025–2026.
+
+Regarding **procedural memory**, long-term memory is divided into three distinct types: procedural memory consists of implicit knowledge stored in the LLM weights, and explicit knowledge written in the agent&#39;s code.
+
+---
+
+### ⏱️ Bi-Temporal Model
+
+A distinguishing feature of Zep is its explicit representation of both **event time (T)** and **ingestion time (T′)** for every node and edge. Event Time records when a fact or event actually occurred, anchoring the factual timeline, while Ingestion Time tracks when information was observed or added to Zep&#39;s memory. This bitemporal approach enables precise reasoning over scenarios involving retroactive data, corrections, and updates, as well as the invalidation or supersession of facts.
+
+---
+
+### 🔍 Multi-Faceted Retrieval
+
+The three search methods each target different aspects of similarity: full-text search identifies word similarities, cosine similarity captures semantic similarities, and breadth-first search reveals contextual similarities — where nodes and edges closer in the graph appear in more similar conversational contexts. This multi-faceted approach to candidate result identification maximizes the likelihood of discovering optimal context.
+
+---
+
+### 📊 Performance Results
+
+In the DMR benchmark, which the MemGPT team established as their primary evaluation metric, Zep demonstrates superior performance (94.8% vs 93.4%). Beyond DMR, Zep&#39;s capabilities are further validated through the more challenging LongMemEval benchmark, achieving accuracy improvements of up to **18.5%** while simultaneously **reducing response latency by 90%** compared to baseline implementations.
+
+---
+
+### 🔭 Broader Research Context
+
+The practical landscape spans a spectrum from simple markdown files (CLAUDE.md) to sophisticated temporal knowledge graphs (Zep/Graphiti), with dedicated memory platforms (Mem0, Letta) raising significant venture funding. Researchers are also discussing interactions among memory types, including relationships between episodic and semantic memory and between working and long-term memory, as well as conversion pathways such as consolidation from episodic to semantic memory and the transition from explicit memory to in-weights implicit knowledge.
+
+---
+
+**Source:** The primary paper is *&quot;Zep: A Temporal Knowledge Graph Architecture for Agent Memory&quot;* (arXiv:2501.13956, January 2025) by Preston Rasmussen et al.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01T749LQMVWZN7pNSt5tzSU9 WebSearch output=Web search results for query: &quot;Mem0 mem0.ai OpenMemory architecture memory layers how it works 2025&quot; Links: [{&quot;title&quot;:&quot;GitHub - mem0ai/mem0: Universal memory layer for AI Agents..." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01T749LQMVWZN7pNSt5tzSU9</span>
+      
+      <span class="timeline-time">23:34:49</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;Mem0 mem0.ai OpenMemory architecture memory layers how it works 2025&quot; Links: [{&quot;title&quot;:&quot;GitHub - mem0ai/mem0: Universal memory layer for AI Agents...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;Mem0 mem0.ai OpenMemory architecture memory layers how it works 2025&quot;
+
+Links: [{&quot;title&quot;:&quot;GitHub - mem0ai/mem0: Universal memory layer for AI Agents · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/mem0ai/mem0&quot;},{&quot;title&quot;:&quot;Mem0 - The Memory Layer for your AI Apps&quot;,&quot;url&quot;:&quot;https://mem0.ai/&quot;},{&quot;title&quot;:&quot;Mem0 Tutorial: Persistent Memory Layer for AI Applications | DataCamp&quot;,&quot;url&quot;:&quot;https://www.datacamp.com/tutorial/mem0-tutorial&quot;},{&quot;title&quot;:&quot;[2504.19413] Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory&quot;,&quot;url&quot;:&quot;https://arxiv.org/abs/2504.19413&quot;},{&quot;title&quot;:&quot;AI Memory Layer Guide December 2025&quot;,&quot;url&quot;:&quot;https://mem0.ai/blog/ai-memory-layer-guide&quot;},{&quot;title&quot;:&quot;Overview - Mem0&quot;,&quot;url&quot;:&quot;https://docs.mem0.ai/platform/overview&quot;},{&quot;title&quot;:&quot;AI Memory Research: 26% Accuracy Boost for LLMs | Mem0&quot;,&quot;url&quot;:&quot;https://mem0.ai/research&quot;},{&quot;title&quot;:&quot;AI Memory Infrastructure: Mem0 vs. OpenMemory &amp; What&#39;s Next&quot;,&quot;url&quot;:&quot;https://fosterfletcher.com/ai-memory-infrastructure/&quot;},{&quot;title&quot;:&quot;OpenMemory - AI Memory MCP Server for Coding Agents | Mem0&quot;,&quot;url&quot;:&quot;https://mem0.ai/openmemory&quot;},{&quot;title&quot;:&quot;Mem0: The Memory layer for your AI apps | Y Combinator&quot;,&quot;url&quot;:&quot;https://www.ycombinator.com/companies/mem0&quot;}]
+
+Here is a comprehensive overview of **Mem0 (mem0.ai)** — its architecture, memory layers, and how it works in 2025:
+
+---
+
+## 🧠 What is Mem0?
+
+Mem0 is an open-source memory layer that sits between your application and the LLM. It automatically extracts relevant information from conversations, stores it, and retrieves it when needed.
+
+Large Language Models (LLMs) have demonstrated remarkable prowess in generating contextually coherent responses, yet their fixed context windows pose fundamental challenges for maintaining consistency over prolonged multi-session dialogues. Mem0 introduces a scalable memory-centric architecture that addresses this issue by dynamically extracting, consolidating, and retrieving salient information from ongoing conversations.
+
+The project raised $24M in October 2025 and works with any LLM provider: OpenAI, Anthropic, Ollama, or your own models.
+
+---
+
+## 🏗️ Core Architecture: Hybrid Datastore
+
+Mem0 employs a **hybrid datastore architecture** that combines graph, vector, and key-value stores to store and manage memories effectively. When you use Mem0 with your AI app, it automatically detects and stores the important parts of your messages or interactions. It categorizes memories in three ways:
+- **Key-value stores** for quick access to structured data (facts, preferences).
+- **Graph stores** for understanding relationships (like people, places, objects).
+- **Vector stores** for capturing the overall meaning and context of conversations, allowing AI apps to find similar memories later.
+
+### Graph-Based Enhancement (Mem0ᵍ)
+Building on this foundation, Mem0 further proposes an enhanced variant that leverages **graph-based memory representations** to capture complex relational structures among conversational elements.
+
+An enhanced variant, **Mem0ᵍ**, layers in a graph-based store to capture richer, multi-session relationships.
+
+---
+
+## 🗂️ Memory Scopes / Layers
+
+Mem0 supports three distinct memory scopes:
+
+- **User memory**: Persists across all conversations with a specific person. If someone mentions they prefer morning study sessions, that fact stays available in every future session.
+- **Session memory**: Tracks context within a single conversation, like the current recipe being discussed.
+- **Agent memory**: Stores information specific to a particular AI agent instance.
+
+You can combine these scopes to build complex applications where different agents share (or isolate) what they know about users.
+
+---
+
+## 🔍 How Retrieval Works
+
+Each memory converts to a semantic embedding. Retrieval uses **similarity search**: the agent&#39;s current query finds related memories through vector proximity.
+
+The most successful agents use a **hybrid architecture** which combines vector search with graph traversal for deeper context. When retrieving information from the memory layer, agents query for relevant context, not loading everything. Filters, metadata tags, and ranking control which memories surface — balancing token usage against context quality.
+
+---
+
+## 📦 OpenMemory (MCP Server for Coding Agents)
+
+**OpenMemory** is a persistent MCP AI memory layer that works with Cursor, VS Code, Claude, and every MCP-compatible coding agent. It learns how you code and feeds the right context to your coding agent automatically, auto-capturing your coding preferences, patterns, and setup as you work in your IDE.
+
+OpenMemory tags every memory by type — like user preference or implementation — so your agent always gets the right context. It pulls memories that match the current project or repo, keeping agents on track without you needing to prompt them manually.
+
+OpenMemory approaches memory management through **hierarchical memory decomposition**, effectively breaking memories into layered structures that can be selectively accessed. The system offers faster recall through intelligent indexing and self-hosted deployment for organizations concerned about data sovereignty.
+
+---
+
+## ⚡ Performance &amp; Benchmarks
+
+Mem0 achieves **26% relative improvements** in the LLM-as-a-Judge metric over OpenAI, while Mem0 with graph memory achieves around 2% higher overall score than the base configuration.
+
+Mem0 attains a **91% lower p95 latency** and saves more than **90% token cost**, offering a compelling balance between advanced reasoning capabilities and practical deployment constraints.
+
+---
+
+## 🚀 Deployment Options
+
+- **Platform**: The cloud-based managed service at `app.mem0.ai` offers quick setup and an API.
+- **Self-hosted**: Gives you full control over your infrastructure, letting you pick your vector database and embedding model.
+- Both options use the same Python SDK, so switching between them is straightforward.
+
+---
+
+## 📈 Adoption &amp; Scale
+
+Mem0 has crossed **41,000 GitHub stars** and **186 million API calls** last quarter. Major frameworks like CrewAI and Langflow have integrated them natively — this is production at scale.
+
+---
+
+In summary, Mem0 is a production-ready, hybrid memory infrastructure for AI agents that combines vector, graph, and key-value storage to enable persistent, personalized, and efficient memory across sessions — with OpenMemory extending this to coding agents via the MCP protocol.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01MZsCFt4dzfg9kMp64GgUzK WebSearch output=Web search results for query: &quot;MemGPT hierarchical memory system main context external archival memory architecture&quot; Links: [{&quot;title&quot;:&quot;MemGPT: Towards LLMs as Operating Systems&quot;..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01MZsCFt4dzfg9kMp64GgUzK</span>
+      
+      <span class="timeline-time">23:34:54</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;MemGPT hierarchical memory system main context external archival memory architecture&quot; Links: [{&quot;title&quot;:&quot;MemGPT: Towards LLMs as Operating Systems&quot;...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;MemGPT hierarchical memory system main context external archival memory architecture&quot;
+
+Links: [{&quot;title&quot;:&quot;MemGPT: Towards LLMs as Operating Systems&quot;,&quot;url&quot;:&quot;https://arxiv.org/pdf/2310.08560&quot;},{&quot;title&quot;:&quot;MemGPT: Engineering Semantic Memory through Adaptive Retention and Context Summarization - Information Matters&quot;,&quot;url&quot;:&quot;https://informationmatters.org/2025/10/memgpt-engineering-semantic-memory-through-adaptive-retention-and-context-summarization/&quot;},{&quot;title&quot;:&quot;MemGPT: Towards LLMs as Operating Systems – Leonie Monigatti&quot;,&quot;url&quot;:&quot;https://www.leoniemonigatti.com/papers/memgpt.html&quot;},{&quot;title&quot;:&quot;[2310.08560] MemGPT: Towards LLMs as Operating Systems&quot;,&quot;url&quot;:&quot;https://arxiv.org/abs/2310.08560&quot;},{&quot;title&quot;:&quot;MemGPT: Hierarchical Memory Management&quot;,&quot;url&quot;:&quot;https://www.emergentmind.com/topics/memgpt-style-memory-management&quot;},{&quot;title&quot;:&quot;MemGPT&quot;,&quot;url&quot;:&quot;https://research.memgpt.ai/&quot;},{&quot;title&quot;:&quot;This article delves into MemGPT, a novel system developed by researchers at UC Berkeley to address the limited context window issue prevalent in Large Language Models (LLMs). By drawing inspiration from traditional operating system memory management, MemGPT introduces a hierarchical memory architecture allowing LLMs to handle extended contexts effectively. This piece explores the core concepts, implementation, evaluations, and the implications of MemGPT in advancing the capabilities of LLMs. · GitHub&quot;,&quot;url&quot;:&quot;https://gist.github.com/cywf/4c1ec28fc0343ea2ea62535272841c69&quot;},{&quot;title&quot;:&quot;Virtual context management with MemGPT and Letta – Leonie Monigatti&quot;,&quot;url&quot;:&quot;https://www.leoniemonigatti.com/blog/memgpt.html&quot;},{&quot;title&quot;:&quot;[2310.08560] MemGPT: Towards LLMs as Operating Systems&quot;,&quot;url&quot;:&quot;https://ar5iv.labs.arxiv.org/html/2310.08560&quot;},{&quot;title&quot;:&quot;MemGPT&quot;,&quot;url&quot;:&quot;https://docs.letta.com/concepts/memgpt/&quot;}]
+
+Here is a comprehensive overview of the **MemGPT Hierarchical Memory System** architecture, based on the search results:
+
+---
+
+## 🧠 MemGPT: Hierarchical Memory System Architecture
+
+### Overview
+
+To enable using context beyond limited context windows, MemGPT proposes **virtual context management**, a technique drawing inspiration from hierarchical memory systems in traditional operating systems that provide the appearance of large memory resources through data movement between fast and slow memory.
+
+Using this technique, MemGPT (Memory-GPT) is a system that intelligently manages different memory tiers in order to effectively provide extended context within the LLM&#39;s limited context window, and utilizes interrupts to manage control flow between itself and the user.
+
+---
+
+### 🏗️ Two-Tier Memory Architecture
+
+The MemGPT agent design pattern has a **two-tier memory architecture** which differentiates between two primary memory types:
+- **Tier 1: Main context** (in-context) — contains core memories
+- **Tier 2: External context** (out-of-context) — contains recall storage and archival storage
+
+MemGPT&#39;s OS-inspired multi-level memory architecture delineates between two primary memory types: **main context** (analogous to main memory/physical memory/RAM) and **external context** (analogous to disk memory/disk storage).
+
+---
+
+### 📌 Tier 1: Main Context (In-Context)
+
+Main context is the standard fixed-context window in modern language models — anything in main context is considered in-context and can be accessed by the LLM processor during inference. It is broken into several sections:
+
+- **System Instructions:** System instructions (`system_prompt`) are read-only and describe the control flow, how to use the different types of memory and their MemGPT function calls.
+
+- **Core Memory:** Core memory (`core_memory`) is the working context of a fixed size. It is writeable only via MemGPT function calls, and is intended for storing key facts and preferences about the user and the persona the agent is adopting.
+
+- **Conversation History (FIFO Queue):** Conversation history (`messages`) is a first-in-first-out (FIFO) queue of the conversation history, including system messages, user messages, assistant messages, and function call inputs and outputs.
+
+---
+
+### 📦 Tier 2: External Context (Out-of-Context)
+
+The external context resembles secondary storage in an OS, holding out-of-context information that can be selectively moved into the main context through explicit function calls.
+
+This multi-level memory architecture consists of several specialized components:
+- **Core Memory:** An always-accessible compressed representation of essential facts and personal information
+- **Recall Memory:** A searchable database enabling reconstruction of specific memories through semantic search
+- **Archival Memory:** Long-term storage for important information that can be moved back into core or recall memory as needed
+
+The system employs vector databases like LanceDB as the default archival storage, which allows MemGPT to perform sophisticated semantic searches across its entire memory space.
+
+---
+
+### ⚙️ Function Executor &amp; Data Movement
+
+In MemGPT, a fixed-context LLM processor is augmented with a hierarchical memory system and functions that let it manage its own memory. The LLM&#39;s prompt tokens (inputs), or **main context**, consist of the system instructions, working context, and a FIFO queue. The LLM completion tokens (outputs) are interpreted as **function calls** by the function executor. MemGPT uses functions to move data between main context and external context (the archival and recall storage databases).
+
+The LLM can request immediate follow-up LLM inference to **chain function calls** together by generating a special keyword argument (`request_heartbeat=true`) in its output; function chaining is what allows MemGPT to perform multi-step retrieval to answer user queries.
+
+---
+
+### 🔄 Context Overflow &amp; Queue Management
+
+A &#39;memory pressure&#39; warning allows the LLM to use MemGPT functions to store important information contained in the FIFO queue to working context or archival storage (a read/write database storing arbitrary length text objects).
+
+When the prompt tokens exceed the &#39;flush token count&#39; (e.g., 100% of the context window), the queue manager flushes the queue to free up space: it evicts a specific count of messages, generates a new recursive summary using the existing recursive summary and evicted messages. Once the queue is flushed, the evicted messages are no longer in-context, however they are stored indefinitely in recall storage and readable via MemGPT function calls.
+
+---
+
+### 🧠 Self-Managing Memory
+
+What makes MemGPT particularly innovative is its use of the LLM itself as the memory manager. Through self-directed memory editing via tool calling, the system can actively manage its own memory contents, deciding what to store, what to summarize, and what to forget. This represents a significant departure from traditional AI systems where memory management was typically handled by separate, rule-based systems.
+
+---
+
+### 📊 Key Benefits
+
+MemGPT is effectively able to make multiple calls to the retriever by querying archival storage, allowing it to scale to larger effective context lengths. MemGPT actively retrieves documents from its archival storage (and can iteratively page through results), so the total number of documents available to MemGPT is no longer limited by the number of documents that fit within the LLM processor&#39;s context window.
+
+---
+
+### 📝 Summary
+
+A MemGPT agent has two key characteristics: First, it has a **two-tier memory architecture** with main context (in-context) and external context (out-of-context). Second, it has **self-editing memory capabilities** through tool use. This OS-inspired design allows LLMs to effectively transcend their fixed context window limitations and support long-running, memory-intensive tasks like extended conversations and large document analysis.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01WgS2szgFM92unbFK5i9ctB WebSearch input={&quot;query&quot;:&quot;Git-based knowledge management RAG commit history indexing AI 2025&quot;}" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01WgS2szgFM92unbFK5i9ctB</span>
+      <span class="timeline-time">23:35:00</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;Git-based knowledge management RAG commit history indexing AI 2025&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;Git-based knowledge management RAG commit history indexing AI 2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01Enfok4X8Rp9X4QGMXjQAwk WebSearch input={&quot;query&quot;:&quot;conversation history RAG chunking indexing AI transcripts metadata semantic search best practices&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01Enfok4X8Rp9X4QGMXjQAwk</span>
+      <span class="timeline-time">23:35:01</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;conversation history RAG chunking indexing AI transcripts metadata semantic search best practices&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;conversation history RAG chunking indexing AI transcripts metadata semantic search best practices&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01XkWv3BU97aqt2jATW3CMA2 WebSearch input={&quot;query&quot;:&quot;小龙虾 AI记忆 多层记忆 中文 AI memory system&quot;}" id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01XkWv3BU97aqt2jATW3CMA2</span>
+      <span class="timeline-time">23:35:01</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;小龙虾 AI记忆 多层记忆 中文 AI memory system&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;小龙虾 AI记忆 多层记忆 中文 AI memory system&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01XkWv3BU97aqt2jATW3CMA2 WebSearch output=Web search results for query: &quot;小龙虾 AI记忆 多层记忆 中文 AI memory system&quot; Links: [{&quot;title&quot;:&quot;虽然一直没用小龙虾，但是受它启发得到了一个新思路，给自己搭了套 Agent 记忆系统 - V2EX&quot;,&quot;url&quot;:&quot;https://www.v2ex.com/t/1195314&quot;},{&quot;..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01XkWv3BU97aqt2jATW3CMA2</span>
+      
+      <span class="timeline-time">23:35:41</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;小龙虾 AI记忆 多层记忆 中文 AI memory system&quot; Links: [{&quot;title&quot;:&quot;虽然一直没用小龙虾，但是受它启发得到了一个新思路，给自己搭了套 Agent 记忆系统 - V2EX&quot;,&quot;url&quot;:&quot;https://www.v2ex.com/t/1195314&quot;},{&quot;...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;小龙虾 AI记忆 多层记忆 中文 AI memory system&quot;
+
+Links: [{&quot;title&quot;:&quot;虽然一直没用小龙虾，但是受它启发得到了一个新思路，给自己搭了套 Agent 记忆系统 - V2EX&quot;,&quot;url&quot;:&quot;https://www.v2ex.com/t/1195314&quot;},{&quot;title&quot;:&quot;陈巍：“龙虾”们颠覆软件世界？（上）——OpenClaw（原Clawdbot）超深度分析 - 知乎&quot;,&quot;url&quot;:&quot;https://zhuanlan.zhihu.com/p/2010119008783987145&quot;},{&quot;title&quot;:&quot;“养龙虾”，AI记忆产业大门洞开 - 21经济网&quot;,&quot;url&quot;:&quot;https://www.21jingji.com/article/20260317/6f28759e1535011ec051ca3c3c003ec3.html&quot;},{&quot;title&quot;:&quot;深入浅出分析最近火热的Mem0个性化AI记忆层 - JadePeng - 博客园&quot;,&quot;url&quot;:&quot;https://www.cnblogs.com/xiaoqi/p/18315502/mem0&quot;},{&quot;title&quot;:&quot;新手入门小龙虾（OpenClaw）完整配置指南 - 苏米客&quot;,&quot;url&quot;:&quot;https://www.xmsumi.com/detail/2649&quot;},{&quot;title&quot;:&quot;OpenClaw 深度解析：一只龙虾凭什么震撼全世界 - 知乎&quot;,&quot;url&quot;:&quot;https://zhuanlan.zhihu.com/p/2012694232666760139&quot;},{&quot;title&quot;:&quot;解剖小龍蝦 以 OpenClaw 為例介紹 AI Agent 的運作原理 🦞&quot;,&quot;url&quot;:&quot;https://speech.ee.ntu.edu.tw/~hylee/ml/ml2026-course-data/intro.pdf&quot;},{&quot;title&quot;:&quot;阿里云上+本地部署OpenClaw（小龙虾）新手攻略：解锁10大必备Skills，零基础也能玩转AI助手-阿里云开发者社区&quot;,&quot;url&quot;:&quot;https://developer.aliyun.com/article/1713579&quot;},{&quot;title&quot;:&quot;一只小龙虾何以引爆全球AI圈？-36氪&quot;,&quot;url&quot;:&quot;https://36kr.com/p/3676078931583876&quot;},{&quot;title&quot;:&quot;大厂集体推动“养龙虾”，“超级个体”时代焦虑综合症大爆发-36氪&quot;,&quot;url&quot;:&quot;https://36kr.com/p/3718633294984576&quot;}]
+
+以下是关于**&quot;小龙虾&quot;（OpenClaw）AI 记忆系统**的搜索结果综合整理：
+
+---
+
+## 🦞 小龙虾（OpenClaw）与 AI 多层记忆系统
+
+### 一、背景概览
+
+2026年初，开源AI应用&quot;小龙虾&quot;OpenClaw 不仅展示了其按指示完成人类任务的潜力，还表现出了更接近真人的互动方式——主动性、个性彰显，并且显而易见地&quot;更加懂你&quot;。其秘密在于通过提取、记录并重塑人机互动上下文，为AI注入&quot;记忆&quot;。
+
+2026年，OpenClaw 凭借&quot;能实际做事&quot;的核心优势，在 GitHub 斩获25万+星标，成为现象级 AI 工具。
+
+---
+
+### 二、多层记忆系统设计
+
+OpenClaw 参考人类记忆结构，设计了一套多层次的记忆体系：
+
+
+- **MEMORY.md（长期记忆）**：相当于&quot;个人认知&quot;，记录跨越多次对话都有用的信息，如偏好、重要决定、学到的经验等。
+- **memory/YYYY-MM-DD.md（每日日志）**：相当于&quot;工作日志&quot;，每天的对话结束后，小龙虾会自动记录当天发生的事；第二天启动时会读取最近几天的日志，保持记忆连续性。
+
+
+除了内容记忆，OpenClaw 还通过 Skill（技能）文件进行&quot;**技能记忆**&quot;——将执行过的任务进行总结，代码生成与封装，再通过目录进行调用。这使得 OpenClaw 随着使用次数的增加，任务执行能力变得更为精确，Token 消耗也会减少。
+
+---
+
+### 三、记忆系统的实际应用场景
+
+用户可以随手将项目记录、灵感碎片、会议要点发给&quot;小龙虾&quot;，让它自动归档到记忆系统；也可以拍摄食物照片发给它，它会自动识别并记录，提醒用户记录胃部感受，自动交叉分析食物和症状数据，帮助识别可能的过敏模式。
+
+---
+
+### 四、持久记忆与&quot;灵魂&quot;文件
+
+OpenClaw 自带&quot;持久性记忆&quot;，能记住用户偏好和运营历史，越用越懂你。它还可以通过一个叫 **SOUL.md** 的文件来定义 AI 的身份、性格和权限边界，让 AI 助理像真人一样有&quot;灵魂&quot;。
+
+所谓&quot;灵魂&quot;，就是把系统提示词里关于 Agent 是谁、行为风格是什么的内容单独抽出来，存成一个 soul.md 文件，Agent 启动时自动读取。
+
+---
+
+### 五、AI 记忆产业的技术挑战
+
+AI 记忆的难点在于，当前 Transformer 自注意力机制对文本的运算并非随上下文长度线性增长，而是**平方级增长**。这意味着悠长的记忆与当前 AI 计算模式存在天然的&quot;不对付&quot;。
+
+---
+
+### 六、Mem0：另一种多层记忆框架
+
+除了 OpenClaw，业内也有专为 LLM 设计的记忆中间层方案：
+
+**Mem0** 是为 LLM 提供的智能的、可自我改进的记忆层，支持**用户级、会话级和 AI 代理级**的多层次记忆保留，并根据用户交互不断改进，提供精准个性化记忆。
+
+---
+
+### 七、心跳机制：让 AI &quot;活起来&quot;
+
+每隔 30 秒，系统自动给 Agent 发一条消息，让它检查有没有事情可以做。消息内容来自一个 heartbeat.md 文件，里面记着待办任务和周期性提醒。Agent 看完，有事就去做，没事就返回特定关键词，系统收到就不打扰用户。这一机制让 AI 从&quot;工具&quot;升级为真正的&quot;助手&quot;。
+
+---
+
+**总结**：小龙虾（OpenClaw）的多层记忆系统以极其简洁的方式（几个 Markdown 文件）实现了短时记忆、长时记忆与技能记忆的分层管理，打开了 AI 个人助手的新范式，也推动了整个 AI 记忆产业的关注与投入。
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01WgS2szgFM92unbFK5i9ctB WebSearch output=Web search results for query: &quot;Git-based knowledge management RAG commit history indexing AI 2025&quot; Links: [{&quot;title&quot;:&quot;GitHub - HKUDS/RAG-Anything: \&quot;RAG-Anything: All-in-One RAG ..." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01WgS2szgFM92unbFK5i9ctB</span>
+      
+      <span class="timeline-time">23:35:41</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;Git-based knowledge management RAG commit history indexing AI 2025&quot; Links: [{&quot;title&quot;:&quot;GitHub - HKUDS/RAG-Anything: \&quot;RAG-Anything: All-in-One RAG ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;Git-based knowledge management RAG commit history indexing AI 2025&quot;
+
+Links: [{&quot;title&quot;:&quot;GitHub - HKUDS/RAG-Anything: \&quot;RAG-Anything: All-in-One RAG Framework\&quot; · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/HKUDS/RAG-Anything&quot;},{&quot;title&quot;:&quot;10 Best RAG Tools and Platforms: Full Comparison [2025]&quot;,&quot;url&quot;:&quot;https://www.meilisearch.com/blog/rag-tools&quot;},{&quot;title&quot;:&quot;GitHub - HKUDS/LightRAG: [EMNLP2025] \&quot;LightRAG: Simple and Fast Retrieval-Augmented Generation\&quot; · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/HKUDS/LightRAG&quot;},{&quot;title&quot;:&quot;Retrieval-Augmented Generation (RAG) and Large Language Models (LLMs) for Enterprise Knowledge Management and Document Automation: A Systematic Literature Review&quot;,&quot;url&quot;:&quot;https://www.mdpi.com/2076-3417/16/1/368&quot;},{&quot;title&quot;:&quot;Chat With Your Git History, Thanks to RAG and Couchbase Shell - The Couchbase Blog&quot;,&quot;url&quot;:&quot;https://www.couchbase.com/blog/chat-with-your-git-history-rag-couchbase-shell/&quot;},{&quot;title&quot;:&quot;GitHub - infiniflow/ragflow: RAGFlow is a leading open-source Retrieval-Augmented Generation (RAG) engine that fuses cutting-edge RAG with Agent capabilities to create a superior context layer for LLMs · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/infiniflow/ragflow&quot;},{&quot;title&quot;:&quot;GitHub - getzep/graphiti: Build Real-Time Knowledge Graphs for AI Agents · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/getzep/graphiti&quot;},{&quot;title&quot;:&quot;15 Best Open-Source RAG Frameworks in 2026&quot;,&quot;url&quot;:&quot;https://www.firecrawl.dev/blog/best-open-source-rag-frameworks&quot;},{&quot;title&quot;:&quot;GitHub - DEEP-PolyU/Awesome-GraphRAG: Awesome-GraphRAG: A curated list of resources (surveys, papers, benchmarks, and opensource projects) on graph-based retrieval-augmented generation. · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/DEEP-PolyU/Awesome-GraphRAG&quot;},{&quot;title&quot;:&quot;RAG in 2026: Bridging Knowledge and Generative AI&quot;,&quot;url&quot;:&quot;https://squirro.com/squirro-blog/state-of-rag-genai&quot;}]
+
+Here is a comprehensive summary of the search results on **Git-based knowledge management, RAG, commit history indexing, and AI in 2025**:
+
+---
+
+## 🔍 Git-Based Knowledge Management &amp; RAG: Key Findings (2025)
+
+### 1. 🗂️ Chatting with Your Git History Using RAG
+One of the most directly relevant applications comes from Couchbase:
+
+There is significant untapped content living in Git logs — and it&#39;s now possible to ask questions directly to a repo using RAG with Couchbase Shell.
+
+The approach works by:
+- Outputting each commit in the repository as a JSON object with the commit hash, author name and email, commit date, and commit message — with the `--all` flag ensuring all branches are included and `--reverse` listing commits in reverse chronological order.
+- Storing all commits of a Git repository in Couchbase, enriched with an AI model, and fully indexed and searchable, then calling the model to run a query with RAG.
+- The index uses `dot_product` as a similarity algorithm, with a vector dimensionality of 1536, and the indexed field is `textVector`.
+
+---
+
+### 2. 📚 RAG + LLMs for Enterprise Knowledge Management (Systematic Review)
+
+A major systematic review published in December 2025 sheds light on this landscape:
+
+A systematic review of 63 quality-assessed studies (2015–2025) identifies four dataset categories used to develop and evaluate RAG with LLMs for enterprise-level knowledge management and document automation.
+
+Open-source GitHub repositories were the primary data source in 54.5% of studies, enabled by diverse codebases, documentation, and issue trackers that support both retrieval indexing and supervised fine-tuning.
+
+However, reliance on public corpora introduces risks for enterprise transferability, and limited curation and unstable versioning in some repositories elevate the risk of data leakage and concept drift, potentially undermining the long-term reliability of RAG systems.
+
+Enterprise adoption is largely in the experimental phase: 63.6% of implementations utilize GPT-based models, and 80.5% rely on standard retrieval frameworks such as FAISS or Elasticsearch.
+
+---
+
+### 3. 🧠 GraphRAG &amp; Temporal Knowledge Graphs
+
+A new paradigm is emerging that goes beyond simple vector search:
+
+GraphRAG revolutionizes domain-specific LLM applications by addressing traditional RAG limitations through graph-structured knowledge representation that explicitly captures entity relationships and domain hierarchies, graph-aware retrieval mechanisms that enable multi-hop reasoning, and structure-guided knowledge search algorithms that ensure efficient retrieval across large-scale corpora.
+
+**Graphiti** (by getzep) is particularly relevant for Git-like version-aware indexing:
+
+Traditional RAG approaches often rely on batch processing and static data summarization, making them inefficient for frequently changing data. Graphiti addresses this with **Temporal Fact Management**: facts have validity windows, and when information changes, old facts are invalidated — not deleted — allowing queries about what&#39;s true now or at any point in time.
+
+Every entity and relationship traces back to the episodes (raw data) that produced it, providing full lineage from derived fact to source.
+
+New data integrates immediately without batch recomputation, with the graph evolving in real-time as episodes are ingested.
+
+---
+
+### 4. 🛠️ Notable RAG Frameworks in 2025
+
+- **LightRAG** (EMNLP 2025): Enhances knowledge graph extraction accuracy for open-source LLMs, and now supports a Reranker that significantly boosts performance for mixed queries.
+
+- **RAG-Anything**: An all-in-one RAG framework that allows users to query documents containing interleaved text, visual diagrams, structured tables, and mathematical formulations — particularly valuable for academic research, technical documentation, and enterprise knowledge management.
+
+- **Code-Graph-RAG**: A graph-based RAG system that analyzes multi-language codebases using Tree-sitter, builds knowledge graphs, and enables natural language querying and editing via MCP server.
+
+- **RAGFlow**: Offers deep document understanding-based knowledge extraction from unstructured data and can find &quot;needle in a data haystack&quot; of literally unlimited tokens.
+
+---
+
+### 5. 🔮 The Road Ahead
+
+Unlike generative AI powered by pre-trained and fine-tuned LLMs that generate answers based on static training data, RAG grounds responses in real-time, curated, proprietary information — enabling enterprises to build systems that are not only intelligent but also compliant, secure, and scalable.
+
+GraphRAG combines vector search with structured taxonomies and ontologies to bring context and logic into the retrieval process — using knowledge graphs to interpret relationships between terms has paved the way for deterministic AI accuracy, boosting search precision to as high as 99%.
+
+---
+
+**In summary**, the intersection of Git-based knowledge management and RAG in 2025 is an active and growing space. Key trends include: indexing commit histories as queryable vector knowledge bases, temporal knowledge graphs that mirror Git&#39;s version-aware model, and graph-based RAG systems designed specifically for codebases and developer workflows.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01Enfok4X8Rp9X4QGMXjQAwk WebSearch output=Web search results for query: &quot;conversation history RAG chunking indexing AI transcripts metadata semantic search best practices&quot; Links: [{&quot;title&quot;:&quot;Chunking Strategies for RAG: ..." id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01Enfok4X8Rp9X4QGMXjQAwk</span>
+      
+      <span class="timeline-time">23:35:45</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;conversation history RAG chunking indexing AI transcripts metadata semantic search best practices&quot; Links: [{&quot;title&quot;:&quot;Chunking Strategies for RAG: ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;conversation history RAG chunking indexing AI transcripts metadata semantic search best practices&quot;
+
+Links: [{&quot;title&quot;:&quot;Chunking Strategies for RAG: 7 Techniques That Work&quot;,&quot;url&quot;:&quot;https://www.f22labs.com/blogs/7-chunking-strategies-in-rag-you-need-to-know/&quot;},{&quot;title&quot;:&quot;Chunking Strategies for AI and RAG Applications | DataCamp&quot;,&quot;url&quot;:&quot;https://www.datacamp.com/blog/chunking-strategies&quot;},{&quot;title&quot;:&quot;Chunking strategies for RAG tutorial using Granite | IBM&quot;,&quot;url&quot;:&quot;https://www.ibm.com/think/tutorials/chunking-strategies-for-rag-with-langchain-watsonx-ai&quot;},{&quot;title&quot;:&quot;Mastering Chunking Strategies for RAG: Best Practices &amp; Code Examples&quot;,&quot;url&quot;:&quot;https://community.databricks.com/t5/technical-blog/the-ultimate-guide-to-chunking-strategies-for-rag-applications/ba-p/113089&quot;},{&quot;title&quot;:&quot;Chunking Strategies to Improve LLM RAG Pipeline Performance | Weaviate&quot;,&quot;url&quot;:&quot;https://weaviate.io/blog/chunking-strategies-for-rag&quot;},{&quot;title&quot;:&quot;Context-Aware RAG System with Azure AI Search to Cut Token Costs and Boost Accuracy | Microsoft Community Hub&quot;,&quot;url&quot;:&quot;https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/context-aware-rag-system-with-azure-ai-search-to-cut-token-costs-and-boost-accur/4456810&quot;},{&quot;title&quot;:&quot;Develop a RAG Solution - Chunking Phase - Azure Architecture Center | Microsoft Learn&quot;,&quot;url&quot;:&quot;https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/rag/rag-chunking-phase&quot;},{&quot;title&quot;:&quot;RAG and Generative AI - Azure AI Search | Microsoft Learn&quot;,&quot;url&quot;:&quot;https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview&quot;},{&quot;title&quot;:&quot;RAG Chunking Strategy | GPT-trainer&quot;,&quot;url&quot;:&quot;https://gpt-trainer.com/blog/rag+chunking+strategy&quot;},{&quot;title&quot;:&quot;Effective Chunking Strategies for RAG | Cohere&quot;,&quot;url&quot;:&quot;https://docs.cohere.com/page/chunking-strategies&quot;}]
+
+Here is a comprehensive summary of best practices for **RAG chunking, indexing, AI transcripts, metadata, and semantic search**, based on the latest resources:
+
+---
+
+## 🗂️ RAG Chunking, Indexing &amp; Semantic Search: Best Practices
+
+### 1. 📐 Choose the Right Chunking Strategy for Your Data Type
+
+For flat or unstructured datasets such as logs, transcripts, or scraped web pages, simpler chunking strategies like fixed-size or token-based chunking are often sufficient and more efficient.
+
+The right strategy depends on query type:
+- For short, fact-based queries such as definitions or parameter lookups, smaller and more granular chunks improve precision and reduce noise — fixed-size or token-based chunking works well here.
+- For analytical or multi-step questions, larger context-preserving chunks perform better. Semantic chunking, recursive chunking, or document-based chunking ensures the LLM receives enough surrounding information to reason correctly.
+- For exploratory or conversational systems, sentence-based and semantic chunking help maintain coherence across turns.
+
+---
+
+### 2. 🎙️ Special Handling for Transcripts &amp; Conversation History
+
+In scenarios like transcripts or meeting notes, you probably want to keep the content of one speaker together, which might require content-dependent strategies.
+
+A prime example is call transcripts — in such scenarios, the goal is to ensure that one person&#39;s speech is fully contained within a chunk.
+
+One proposed approach entails segmenting the text whenever a new speaker begins speaking, which requires preprocessing the text accordingly.
+
+Sliding windows are especially useful for unstructured text such as chat logs or podcast transcripts.
+
+---
+
+### 3. 🔁 Use Chunk Overlap to Preserve Context
+
+In contrast to semantic chunking, sliding-window chunking emphasizes continuity by overlapping chunks. For example, using a chunk size of 500 tokens with a stride of 250 makes each chunk overlap halfway with the previous one — this overlap preserves context across chunk boundaries, reducing the risk of losing important information at the edges.
+
+A typical practice is to use 20–50% overlap between chunks to preserve context across boundaries, especially in technical or conversational text.
+
+Using or not using overlapping can significantly affect a model&#39;s performance, particularly in documents such as call transcripts where subjects change frequently. Ensuring that each chunk contains all relevant information is crucial.
+
+---
+
+### 4. 🏷️ Enrich Chunks with Metadata
+
+Attaching column headers to table rows, linking captions to image regions, or **adding speaker labels and timestamps to transcripts** helps retrieval systems both locate the right chunk and interpret it correctly.
+
+Metadata dramatically improves filtering, ranking, and contextual grounding in RAG chunking pipelines. Best practice: treat metadata as a first-class signal, not an afterthought.
+
+Alongside storing vectors in the vector index, you&#39;ll want to store metadata. Typically, each vector is stored with an ID that can retrieve the original chunk text and additional metadata (document ID, source name, creation date, etc.).
+
+Each chunk should be assigned a unique ID, making retrieval auditable and enabling selective re-embedding when only parts of a document change.
+
+---
+
+### 5. 🔀 Use Hybrid Search (Keyword + Semantic Vector)
+
+Hybrid queries combine keyword and vector search for better recall. Semantic ranking re-scores results based on meaning, not just keywords. Vector similarity search matches concepts, not exact terms.
+
+Combining lexical and semantic matching provides high precision and recall. This supports millions of chunks with fast search latency, and metadata filtering enables fine-grained retrieval (e.g., by document type, author, or section).
+
+---
+
+### 6. 🧠 Consider Semantic &amp; Agentic Chunking for Complex Use Cases
+
+Semantic chunking splits text by grouping sentences based on the semantic similarity of their embeddings — embeddings of high semantic similarity are closer together — resulting in context-aware chunks.
+
+Agentic chunking takes this a step further: instead of applying a single method, an AI agent dynamically decides how to split documents by looking at the whole document, including its structure, density, and content.
+
+Traditional RAG pipelines often use static document chunking, which breaks semantic context and drives inefficiencies. Context-aware, AI-driven semantic chunking can yield accurate answers with up to 85% lower token consumption.
+
+---
+
+### 7. ⚠️ Avoid Common Pitfalls
+
+One of the most common failure modes in RAG chunking is cutting through sentences, code blocks, or logical sections — this is why recursive chunking and semantic chunking outperform naive splitting in most production systems.
+
+If you try to pass entire documents or oversized chunks, it&#39;s expensive, might overwhelm the token limits of the model, and doesn&#39;t produce the best results. Passing information to a language model that&#39;s irrelevant to the query can result in inaccurate or unrelated responses.
+
+---
+
+### 8. 🔄 Leverage Conversation History in Agentic RAG
+
+Agentic retrieval represents the evolution from traditional single-query RAG patterns to multi-query intelligent retrieval, providing context-aware query planning using conversation history.
+
+---
+
+### 9. ✅ Key Takeaways
+
+There&#39;s no universal strategy — each method from fixed-size to AI-driven dynamic chunking has trade-offs, so experiment to see what works best. **Balance size and semantics**: strive to keep chunks large enough for meaningful context but small enough to remain computationally efficient. Break text at natural boundaries, add contextual metadata, monitor retrieval performance continuously, and when in doubt, mix and match strategies (hybrid approaches) to handle different content types optimally.
+
+---
+
+These best practices apply whether you&#39;re building a customer support assistant, an internal knowledge base, a meeting transcript search system, or any other RAG-powered application. The key is to treat chunking and indexing as **first-class architectural decisions** rather than mere preprocessing steps.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_015tQSSxiN9SatpCsbEC98PL WebSearch input={&quot;query&quot;:&quot;OpenClaw AI agent memory architecture MEMORY.md skills system technical details&quot;}" id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_015tQSSxiN9SatpCsbEC98PL</span>
+      <span class="timeline-time">23:35:51</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;OpenClaw AI agent memory architecture MEMORY.md skills system technical details&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;OpenClaw AI agent memory architecture MEMORY.md skills system technical details&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01V4E3H6iSvahx9etysTGBEF WebSearch input={&quot;query&quot;:&quot;git commit history as RAG source standardize commits indexing semantic search codebase&quot;}" id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01V4E3H6iSvahx9etysTGBEF</span>
+      <span class="timeline-time">23:35:51</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;git commit history as RAG source standardize commits indexing semantic search codebase&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;git commit history as RAG source standardize commits indexing semantic search codebase&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01V4E3H6iSvahx9etysTGBEF WebSearch output=Web search results for query: &quot;git commit history as RAG source standardize commits indexing semantic search codebase&quot; Links: [{&quot;title&quot;:&quot;Chat With Your Git History, Thanks to RA..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01V4E3H6iSvahx9etysTGBEF</span>
+      
+      <span class="timeline-time">23:36:31</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;git commit history as RAG source standardize commits indexing semantic search codebase&quot; Links: [{&quot;title&quot;:&quot;Chat With Your Git History, Thanks to RA...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;git commit history as RAG source standardize commits indexing semantic search codebase&quot;
+
+Links: [{&quot;title&quot;:&quot;Chat With Your Git History, Thanks to RAG and Couchbase Shell - The Couchbase Blog&quot;,&quot;url&quot;:&quot;https://www.couchbase.com/blog/chat-with-your-git-history-rag-couchbase-shell/&quot;},{&quot;title&quot;:&quot;brainwires_rag - Rust&quot;,&quot;url&quot;:&quot;https://docs.rs/brainwires-rag/latest/brainwires_rag/&quot;},{&quot;title&quot;:&quot;Git - Searching&quot;,&quot;url&quot;:&quot;https://git-scm.com/book/en/v2/Git-Tools-Searching&quot;},{&quot;title&quot;:&quot;Building a Semantic Code History Search with LanceDB&quot;,&quot;url&quot;:&quot;https://blog.continue.dev/building-a-semantic-code-history-search-with-lancedb/&quot;},{&quot;title&quot;:&quot;Step by step tutorial to build codebase indexing for RAG and semantic search with live update. Learn to breakdown codebase using tree-sitter, embed your chunks for AI-ready semantic search. Perfect for anyone working with LLMs, RAG pipelines, or developer tools powered by AI. In this tutorial, we will walk through: ✅ What codebase indexing means ✅ How to break down your codebase using chunking ✅ How to embed your chunks for AI-ready semantic search ✅ Perfect for anyone working with LLMs, RAG pipelin&quot;,&quot;url&quot;:&quot;https://app.daily.dev/posts/step-by-step-tutorial-to-build-codebase-indexing-for-rag-and-semantic-search-with-live-update-learn-fpoqmdnge&quot;},{&quot;title&quot;:&quot;Mastering Conventional Commits: Structure, Benefits, and Tools - DEV Community&quot;,&quot;url&quot;:&quot;https://dev.to/tene/mastering-conventional-commits-structure-benefits-and-tools-3cpo&quot;},{&quot;title&quot;:&quot;Feature Proposal: AI-Powered Semantic Search for Git Commits · Issue #2727 · cursor/cursor&quot;,&quot;url&quot;:&quot;https://github.com/cursor/cursor/issues/2727&quot;},{&quot;title&quot;:&quot;Feature Request: AI-Powered Semantic Search for Git Commits - Feature Requests - Cursor - Community Forum&quot;,&quot;url&quot;:&quot;https://forum.cursor.com/t/feature-request-ai-powered-semantic-search-for-git-commits/52556&quot;},{&quot;title&quot;:&quot;RAG &amp; GitHub: GitHub Assistant using RAG with Elasticsearch - Elasticsearch Labs&quot;,&quot;url&quot;:&quot;https://www.elastic.co/search-labs/blog/github-rag-elasticsearch&quot;},{&quot;title&quot;:&quot;semantic-search · GitHub Topics · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/topics/semantic-search&quot;}]
+
+Here&#39;s a comprehensive summary of what the search results reveal about using **Git commit history as a RAG source**, standardizing commits, indexing, and semantic search over codebases:
+
+---
+
+## 🔍 Git Commit History as a RAG Source
+
+### The Core Concept
+
+There is a wealth of untapped content living in various Git logs — assuming developers are writing useful messages, of course. The idea is to unlock this knowledge by enabling natural language queries over a repository&#39;s entire history.
+
+Enhancing AI tools with a feature that allows users to query previous commits using natural language and semantic search would streamline debugging, code reviews, and historical analysis by enabling AI-powered commit retrieval.
+
+### The Problem with Traditional Git Search
+
+Currently, developers must manually search commit logs (`git log`), compare diffs (`git diff`), or rely on basic keyword searches. This is inefficient when trying to answer questions like: &quot;Where did we change the auth middleware?&quot;, &quot;When was error handling added to the payment service?&quot;, or &quot;What were the last significant changes to this function?&quot; — there is no built-in AI-powered way to perform semantic searches over commit history.
+
+Traditional `git blame` shows you line-by-line authorship, but it&#39;s keyword-based and lacks semantic understanding. You can&#39;t ask questions like &quot;Find all error handling patterns similar to this one&quot; or &quot;Who implemented our retry logic across services?&quot; — but LanceDB, an AI-native vector database, can turn your code history into a searchable knowledge base.
+
+---
+
+## 🏗️ Architecture: How to Build It
+
+### Step 1 — Extract &amp; Standardize Commits
+
+Commits are collected in JSON format — a JSON array of JSON objects — which can then be stored, enriched, and indexed.
+
+Using an embedding model (e.g., OpenAI), each document is enriched with a `text` field that is the commit **subject and body appended into one string**, making it suitable for vectorization.
+
+**Conventional Commits** can greatly improve the quality of this data source:
+
+Conventional Commits are a simple, powerful way to standardize commit messages and unlock automation. By using types like `feat:`, `fix:`, `docs:`, and a clear description, teams gain automated changelogs, consistent versioning, and smoother collaboration.
+
+Each Conventional Commit has three main parts: a type, an optional scope, and a brief description. The basic syntax is: `&lt;type&gt;[optional scope]: &lt;description&gt; [optional body] [optional footer(s)]`.
+
+### Step 2 — Embed &amp; Index
+
+Semantic search over commits involves indexing commit messages, diffs, or entire file versions using embeddings, then using a vector database (e.g., Pinecone, Chroma) for fast retrieval of related commits.
+
+The process creates a semantic index of git history by: extracting Git Blame data for each file (line-by-line authorship), creating embeddings using sentence transformers to convert code + context into vectors, and storing everything in a local vector database for lightning-fast searches.
+
+### Step 3 — Query with RAG
+
+The RAG pipeline works by turning a question into a vector, piping it to a vector search, getting the full document from the returned IDs, selecting content along with its structured metadata, and finally passing it to the LLM.
+
+Once all commits of a Git repository are stored, enriched with an AI model, and indexed, the final step is to call the model to run a query with RAG.
+
+---
+
+## 🧰 Tools &amp; Libraries
+
+| Tool/Library | Role |
+|---|---|
+| **`brainwires-rag`** (Rust) | Semantic search over commit history with on-demand indexing; usable as a Rust library or MCP server for AI assistants. |
+| **LanceDB + Continue MCP** | Stops grepping through git logs by providing an AI assistant that truly understands codebase history via MCP integration. |
+| **Elasticsearch + LlamaIndex** | Allows direct interaction with a GitHub repository, leveraging semantic search to understand the codebase and receive meaningful, context-aware responses. |
+| **Couchbase Shell** | Enables RAG over git history using Couchbase Shell. |
+| **`commitlint` + `semantic-release`** | Enforce commit conventions and automate your release workflow. |
+
+---
+
+## 🎯 Use Cases
+
+Key use cases include **debugging** (quickly find when a bug was introduced), **code reviews** (retrieve past changes for context), and **refactoring** (understand the history of a function before modifying it).
+
+---
+
+## ✅ Best Practices
+
+- The output is only as good as the input — ensure your data is clean and well-structured. Proper **chunking** of data is also crucial for optimal performance.
+- Start tagging commits with Conventional Commits today to make your project&#39;s history a **clear, machine-readable story**.
+- Everything can run locally on your machine — your code never has to leave your computer.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_015tQSSxiN9SatpCsbEC98PL WebSearch output=Web search results for query: &quot;OpenClaw AI agent memory architecture MEMORY.md skills system technical details&quot; Links: [{&quot;title&quot;:&quot;Memory - OpenClaw&quot;,&quot;url&quot;:&quot;https://docs.openclaw..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_015tQSSxiN9SatpCsbEC98PL</span>
+      
+      <span class="timeline-time">23:36:40</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;OpenClaw AI agent memory architecture MEMORY.md skills system technical details&quot; Links: [{&quot;title&quot;:&quot;Memory - OpenClaw&quot;,&quot;url&quot;:&quot;https://docs.openclaw...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;OpenClaw AI agent memory architecture MEMORY.md skills system technical details&quot;
+
+Links: [{&quot;title&quot;:&quot;Memory - OpenClaw&quot;,&quot;url&quot;:&quot;https://docs.openclaw.ai/concepts/memory&quot;},{&quot;title&quot;:&quot;How OpenClaw Works: Understanding AI Agents Through a Real Architecture | by Bibek Poudel | Feb, 2026 | Medium&quot;,&quot;url&quot;:&quot;https://bibek-poudel.medium.com/how-openclaw-works-understanding-ai-agents-through-a-real-architecture-5d59cc7a4764&quot;},{&quot;title&quot;:&quot;What Is OpenClaw? Complete Guide to the Open-Source AI Agent - Milvus Blog&quot;,&quot;url&quot;:&quot;https://milvus.io/blog/openclaw-formerly-clawdbot-moltbot-explained-a-complete-guide-to-the-autonomous-ai-agent.md&quot;},{&quot;title&quot;:&quot;Deep Dive: How OpenClaw&#39;s Memory System Works | Study Notes&quot;,&quot;url&quot;:&quot;https://snowan.gitbook.io/study-notes/ai-blogs/openclaw-memory-system-deep-dive&quot;},{&quot;title&quot;:&quot;OpenClaw - Wikipedia&quot;,&quot;url&quot;:&quot;https://en.wikipedia.org/wiki/OpenClaw&quot;},{&quot;title&quot;:&quot;OpenClaw Intelligence Layer: How the Agent Thinks&quot;,&quot;url&quot;:&quot;https://www.mmntm.net/articles/clawdbot-intelligence&quot;},{&quot;title&quot;:&quot;Inside OpenClaw: How a Persistent AI Agent Actually Works - DEV Community&quot;,&quot;url&quot;:&quot;https://dev.to/entelligenceai/inside-openclaw-how-a-persistent-ai-agent-actually-works-1mnk&quot;},{&quot;title&quot;:&quot;GitHub - TechNickAI/openclaw-config: Give your AI assistant memory, skills, and autonomy. Persistent memory, 11 integration skills, and 4 autonomous workflows — all in markdown and Python scripts. Built for Claude Code.&quot;,&quot;url&quot;:&quot;https://github.com/TechNickAI/openclaw-config&quot;},{&quot;title&quot;:&quot;Agentic AI: OpenClaw/MoltBot/ClawdBot’s Memory Architecture Explained&quot;,&quot;url&quot;:&quot;https://medium.com/@shivam.agarwal.in/agentic-ai-openclaw-moltbot-clawdbots-memory-architecture-explained-61c3b9697488&quot;},{&quot;title&quot;:&quot;Inside OpenClaw: How a Persistent AI Agent Actually Works&quot;,&quot;url&quot;:&quot;https://entelligence.ai/blogs/openclaw&quot;}]
+
+Here is a comprehensive overview of OpenClaw&#39;s memory architecture, `MEMORY.md`, and skills system based on the search results:
+
+---
+
+## 🧠 OpenClaw: Memory Architecture &amp; Skills System — Technical Details
+
+### Overview
+
+OpenClaw implements a radical departure from conventional AI memory systems: plain Markdown files as the source of truth, layered with hybrid semantic search. Unlike traditional RAG systems that hide data in vector databases, OpenClaw&#39;s approach prioritizes transparency, human readability, and version controllability.
+
+---
+
+### 📁 File-Based Memory Architecture
+
+OpenClaw memory is plain Markdown in the agent workspace. The files are the source of truth; the model only &quot;remembers&quot; what gets written to disk.
+
+#### Three-Tier Memory Structure
+
+OpenClaw uses deliberate, structured memory with clear tiers:
+- **Tier 1 — Always loaded:** `MEMORY.md` stays in context every conversation, curated to ~100 lines of what matters most.
+- **Tier 2 — Daily context:** `memory/YYYY-MM-DD.md` files — today and yesterday load automatically, raw observations, not curated.
+- **Tier 3 — Deep knowledge:** `memory/people/`, `projects/`, `topics/`, `decisions/` — searched via vector embeddings (LM Studio local or OpenAI), retrieved when relevant, not loaded by default.
+
+#### MEMORY.md vs. memory.md
+
+If both `MEMORY.md` and `memory.md` exist at the workspace root, OpenClaw only loads `MEMORY.md`. Lowercase `memory.md` is only used as a fallback when `MEMORY.md` is absent.
+
+Decisions, preferences, and durable facts go to `MEMORY.md`. Day-to-day notes and running context go to `memory/YYYY-MM-DD.md`.
+
+#### Privacy
+
+`MEMORY.md` is only loaded in private sessions, never in group contexts, to protect sensitive information.
+
+---
+
+### 🔍 Memory Search Tools
+
+OpenClaw exposes two agent-facing tools for these Markdown files: `memory_search` — semantic recall over indexed snippets, and `memory_get`, which reads a specific memory Markdown file (workspace-relative), optionally from a starting line and for N lines.
+
+- `memory_search` semantically searches Markdown chunks (~400 token target, 80-token overlap) from `MEMORY.md` + `memory/**/*.md`. It returns snippet text (capped ~700 chars), file path, line range, score, provider/model, and whether it fell back from local → remote embeddings. No full file payload is returned.
+
+- `memory_get` degrades gracefully when a file doesn&#39;t exist (e.g., today&#39;s daily log before the first write). Both the built-in manager and the QMD backend return `{ text: &quot;&quot;, path }` instead of throwing `ENOENT`, so agents can handle &quot;nothing recorded yet&quot; and continue their workflow.
+
+#### Index Storage
+
+Index storage is per-agent SQLite at `~/.openclaw/memory/&lt;agentId&gt;.sqlite` (configurable via `agents.defaults.memorySearch.store.path`, supports `{agentId}` token). Freshness is maintained via a watcher on `MEMORY.md` + `memory/` that marks the index dirty (debounce 1.5s).
+
+---
+
+### 🔎 Hybrid Search (Vector + BM25)
+
+OpenClaw uses union, not intersection — results from either search contribute to the final ranking. A chunk that scores high on vectors but zero on keywords is still included, ensuring comprehensive recall. The final score is computed as: `finalScore = vectorWeight × vectorScore + textWeight × textScore`.
+
+#### Temporal Decay
+
+Without decay, a well-worded note from six months ago can outrank yesterday&#39;s update on the same topic. Temporal decay applies an exponential multiplier to scores based on the age of each result, so recent memories naturally rank higher while old ones fade.
+
+---
+
+### 💾 Auto-Compaction &amp; Memory Flush
+
+When a session is close to auto-compaction, OpenClaw triggers a silent, agentic turn that reminds the model to write durable memory before the context is compacted.
+
+When starting a new session, OpenClaw can automatically save the previous conversation to a timestamped file with a descriptive slug (generated by LLM). These session transcripts are indexed and searchable, allowing agents to recall past conversations.
+
+---
+
+### ⚙️ Skills System
+
+OpenClaw uses a skills system in which skills are stored as directories containing a `SKILL.md` file with metadata and instructions for tool usage. Skills can be bundled with the software, installed globally, or stored in a workspace, with workspace skills taking precedence.
+
+Skills are one of the most elegant features in OpenClaw. A skill is a folder containing a `SKILL.md` file. That Markdown file has natural language instructions, examples, and sometimes tool configurations that tell the agent how to handle a specific domain — like managing a GitHub repo, reviewing pull requests, or interacting with a particular API.
+
+OpenClaw uses a skill-based architecture where capabilities are defined in Markdown files, not compiled code. Each skill is present as `~/clawd/skills/&lt;skill-name&gt;/SKILL.md` and contains instructions for interacting with APIs or performing workflows. The agent reads these files at runtime to understand available capabilities. Installation is immediate — no recompilation or server restarts.
+
+Hundreds of contributors have built skills — modular `SKILL.md` files with YAML frontmatter and natural-language instructions — shared through **ClawHub** (a skill registry the agent can search automatically), community repos, or direct URLs. The format is portable, compatible with Claude Code and Cursor conventions. If a skill doesn&#39;t exist, you can describe the task to your agent and have it draft one.
+
+---
+
+### 🔄 Workflows vs. Skills
+
+Workflows are autonomous agents that run on a schedule. Unlike skills (tools you invoke), workflows maintain state, learn your preferences, and manage themselves.
+
+#### The Librarian Skill
+
+The librarian skill promotes durable knowledge upward — daily observations become structured knowledge, and structured knowledge gets summarized into `MEMORY.md`.
+
+---
+
+### 🔒 Transparency &amp; Security
+
+You can open `SOUL.md` and see exactly what instructions the agent is following. You can read any `SKILL.md` and understand precisely how a capability was added. You can inspect `MEMORY.md` and audit everything the agent knows about you. That transparency is both its greatest engineering virtue and its biggest security surface.
+
+Security researchers have identified a &quot;lethal trifecta&quot; of risks: access to private data, exposure to untrusted content, and the ability to perform external communications while retaining memory. Cisco&#39;s analysis found 26% of 31,000 agent skills contained at least one vulnerability.
+
+---
+
+### Summary
+
+OpenClaw&#39;s architecture is surprisingly simple: a Gateway routes messages, an agent loop processes them with LLM and tools, memory is persisted as files, skills extend capabilities, and a heartbeat runs proactive checks. No database, no microservices, no vendor lock-in. The design choices — file-based memory, Markdown skills, local execution — prioritize transparency and control over convenience.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_01QC2z2b7R7jR5muFTfpommB WebSearch input={&quot;query&quot;:&quot;Mem0 memory extraction from conversations LLM structured facts how does it work technical&quot;}" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01QC2z2b7R7jR5muFTfpommB</span>
+      <span class="timeline-time">23:36:47</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;Mem0 memory extraction from conversations LLM structured facts how does it work technical&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;Mem0 memory extraction from conversations LLM structured facts how does it work technical&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_019rnCiCepNk2juCNgyqvzPP WebSearch input={&quot;query&quot;:&quot;\&quot;conversation transcript\&quot; chunking \&quot;per turn\&quot; OR \&quot;per message\&quot; metadata speaker timestamp RAG indexing&quot;}" id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_019rnCiCepNk2juCNgyqvzPP</span>
+      <span class="timeline-time">23:36:47</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;\&quot;conversation transcript\&quot; chunking \&quot;per turn\&quot; OR \&quot;per message\&quot; metadata speaker timestamp RAG indexing&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;\&quot;conversation transcript\&quot; chunking \&quot;per turn\&quot; OR \&quot;per message\&quot; metadata speaker timestamp RAG indexing&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_019rnCiCepNk2juCNgyqvzPP WebSearch output=Web search results for query: &quot;&quot;conversation transcript&quot; chunking &quot;per turn&quot; OR &quot;per message&quot; metadata speaker timestamp RAG indexing&quot; I&#39;ll run that search for you right now! No..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_019rnCiCepNk2juCNgyqvzPP</span>
+      
+      <span class="timeline-time">23:37:18</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;&quot;conversation transcript&quot; chunking &quot;per turn&quot; OR &quot;per message&quot; metadata speaker timestamp RAG indexing&quot; I&#39;ll run that search for you right now! No...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;&quot;conversation transcript&quot; chunking &quot;per turn&quot; OR &quot;per message&quot; metadata speaker timestamp RAG indexing&quot;
+
+I&#39;ll run that search for you right now!
+
+No links found.
+
+It seems the search returned no results for that specific query. Let me try a slightly broader version to find relevant content.
+
+Links: [{&quot;title&quot;:&quot;Document Chunking for RAG: 9 Strategies Tested (70% Accuracy Boost 2025) | LLM Practical Experience Hub&quot;,&quot;url&quot;:&quot;https://langcopilot.com/posts/2025-10-11-document-chunking-for-rag-practical-guide&quot;},{&quot;title&quot;:&quot;Effective Chunking Strategies for RAG | Cohere&quot;,&quot;url&quot;:&quot;https://docs.cohere.com/page/chunking-strategies&quot;},{&quot;title&quot;:&quot;Chunking Strategies for AI and RAG Applications | DataCamp&quot;,&quot;url&quot;:&quot;https://www.datacamp.com/blog/chunking-strategies&quot;},{&quot;title&quot;:&quot;Chunking Strategies to Improve LLM RAG Pipeline Performance | Weaviate&quot;,&quot;url&quot;:&quot;https://weaviate.io/blog/chunking-strategies-for-rag&quot;},{&quot;title&quot;:&quot;Chunking Strategies for RAG: 7 Techniques That Work&quot;,&quot;url&quot;:&quot;https://www.f22labs.com/blogs/7-chunking-strategies-in-rag-you-need-to-know/&quot;},{&quot;title&quot;:&quot;Chunking Strategies for RAG: Best Practices and Key Methods | Unstructured&quot;,&quot;url&quot;:&quot;https://unstructured.io/blog/chunking-for-rag-best-practices&quot;},{&quot;title&quot;:&quot;5 RAG Chunking Strategies for Better Retrieval-Augmented Generation - Lettria&quot;,&quot;url&quot;:&quot;https://www.lettria.com/blogpost/5-rag-chunking-strategies-for-better-retrieval-augmented-generation&quot;},{&quot;title&quot;:&quot;Which RAG Chunking and Formatting Strategy | Tiger Data&quot;,&quot;url&quot;:&quot;https://www.tigerdata.com/blog/which-rag-chunking-and-formatting-strategy-is-best&quot;},{&quot;title&quot;:&quot;Chunking strategies for RAG tutorial using Granite | IBM&quot;,&quot;url&quot;:&quot;https://www.ibm.com/think/tutorials/chunking-strategies-for-rag-with-langchain-watsonx-ai&quot;},{&quot;title&quot;:&quot;The Ultimate Guide to Chunking Strategies for RAG Applications with Databricks&quot;,&quot;url&quot;:&quot;https://community.databricks.com/t5/technical-blog/the-ultimate-guide-to-chunking-strategies-for-rag-applications/ba-p/113089&quot;}]
+
+Here is a comprehensive summary of best practices for **chunking conversation transcripts with per-turn/per-message metadata for RAG indexing**, drawn from multiple authoritative sources:
+
+---
+
+## 🗣️ Chunking Conversation Transcripts for RAG: Per-Turn Metadata &amp; Indexing
+
+### 1. **Treat Each Turn as an Atomic Unit**
+
+When chunking chat logs or meeting transcripts, preserve speaker turns, timestamps, and topic shifts. Treat each turn (or a small sliding window of turns) as an atomic unit, and store `speaker`, `time`, and `conversation_id` as metadata for filtering at retrieval time.
+
+This is the most critical principle: don&#39;t let fixed-size or character-based splitters blindly cut across speaker turns.
+
+---
+
+### 2. **Keep Speaker Content Together**
+
+In scenarios like transcripts or meeting notes, you probably want to keep the content of one speaker together, which might require deploying content-dependent strategies.
+
+A prime example is call transcripts. In such scenarios, the aim is to ensure that one person&#39;s speech is fully contained within a chunk.
+
+---
+
+### 3. **The Problem with Naive Chunking on Transcripts**
+
+In naive chunking experiments, chunks are often generated in a way that makes it impossible to generate the correct answer — the name of the speaker is not included in the relevant chunk.
+
+Using or not using overlapping can significantly affect a model&#39;s performance, particularly in documents such as call transcripts where subjects change frequently. Ensuring that each chunk contains all relevant information is crucial.
+
+---
+
+### 4. **Attach Speaker Labels &amp; Timestamps as Metadata**
+
+Metadata plays a particularly important role in modality-specific chunking. For instance, attaching column headers to table rows, linking captions to image regions, or **adding speaker labels and timestamps to transcripts** helps retrieval systems both locate the right chunk and interpret it correctly.
+
+This metadata-enriched strategy improves retrieval by tagging chunks with timestamps, document types, authors, and categories. This extra data helps AI understand the context better, improving retrieval relevance — enhancing search precision, especially in enterprise environments, and allowing filtering by specific categories.
+
+---
+
+### 5. **Use Contextual Enrichment Per Chunk**
+
+Contextual chunking goes a step further by enriching chunks with metadata such as headings, timestamps, or source references. This additional information provides important signals that help retrieval systems disambiguate results. For instance, two documents may contain nearly identical sentences, but their section titles or timestamps can determine which one is more relevant to a query.
+
+Context-enriched methods attach additional metadata or summaries to each chunk. By doing so, retrieval models have more background for each chunk, leading to improved understanding during generation.
+
+---
+
+### 6. **Chunk Size Trade-offs for Transcripts**
+
+Smaller chunks support more accurate retrieval, but they might lack context. Larger chunks offer more context, but reduce the effectiveness of retrieval. It is important to experiment with different settings to find the optimal balance.
+
+---
+
+### 7. **Metadata as a First-Class Signal**
+
+Metadata dramatically improves filtering, ranking, and contextual grounding in RAG chunking pipelines. Best practice: treat metadata as a first-class signal, not an afterthought.
+
+---
+
+### ✅ Summary Checklist for Transcript RAG Indexing
+
+| Concern | Recommendation |
+|---|---|
+| **Chunk boundary** | Split per speaker turn, not by character/token count |
+| **Metadata fields** | `speaker`, `timestamp`, `conversation_id`, `turn_index` |
+| **Overlap** | Use small sliding window of turns to preserve context |
+| **Retrieval filtering** | Filter by `speaker` or `time` range at query time |
+| **Chunk size** | Start ~250–512 tokens; experiment from there |
+| **Strategy type** | Content-dependent (structure-aware), not content-independent |
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_01QC2z2b7R7jR5muFTfpommB WebSearch output=Web search results for query: &quot;Mem0 memory extraction from conversations LLM structured facts how does it work technical&quot; Links: [{&quot;title&quot;:&quot;How Mem0 Lets LLMs Remember Everythin..." id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_01QC2z2b7R7jR5muFTfpommB</span>
+      
+      <span class="timeline-time">23:37:28</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;Mem0 memory extraction from conversations LLM structured facts how does it work technical&quot; Links: [{&quot;title&quot;:&quot;How Mem0 Lets LLMs Remember Everythin...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;Mem0 memory extraction from conversations LLM structured facts how does it work technical&quot;
+
+Links: [{&quot;title&quot;:&quot;How Mem0 Lets LLMs Remember Everything Without Slowing Down&quot;,&quot;url&quot;:&quot;https://apidog.com/blog/mem0-memory-llm-agents/&quot;},{&quot;title&quot;:&quot;Mem0 Tutorial: Persistent Memory Layer for AI Applications | DataCamp&quot;,&quot;url&quot;:&quot;https://www.datacamp.com/tutorial/mem0-tutorial&quot;},{&quot;title&quot;:&quot;Mem0 (Memo.ai) Memory Layer — Purpose and Core Functionality | by DhanushKumar | Stackademic&quot;,&quot;url&quot;:&quot;https://blog.stackademic.com/mem0-memo-ai-memory-layer-purpose-and-core-functionality-375cc5a2bfd0&quot;},{&quot;title&quot;:&quot;FAQs - Mem0&quot;,&quot;url&quot;:&quot;https://docs.mem0.ai/platform/faqs&quot;},{&quot;title&quot;:&quot;Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory&quot;,&quot;url&quot;:&quot;https://arxiv.org/html/2504.19413v1&quot;},{&quot;title&quot;:&quot;Demystifying the brilliant architecture of mem0 | by Parth Sharma | Medium&quot;,&quot;url&quot;:&quot;https://medium.com/@parthshr370/from-chat-history-to-ai-memory-a-better-way-to-build-intelligent-agents-f30116b0c124&quot;},{&quot;title&quot;:&quot;AI Memory Research: 26% Accuracy Boost for LLMs | Mem0&quot;,&quot;url&quot;:&quot;https://mem0.ai/research&quot;},{&quot;title&quot;:&quot;Mem0 : Add memory to LLM APIs. How to add memory to LLMs? | by Mehul Gupta | Data Science in Your Pocket | Medium&quot;,&quot;url&quot;:&quot;https://medium.com/data-science-in-your-pocket/mem0-add-memory-to-llm-apis-4f0ef617a776&quot;},{&quot;title&quot;:&quot;Mem0. Explanation and minimalist… | by Kunal Kushwaha | Medium&quot;,&quot;url&quot;:&quot;https://medium.com/@kunalkushwahatg/mem0-bd7467fef9ba&quot;},{&quot;title&quot;:&quot;How to Build Your Own Custom LLM Memory Layer from Scratch | Towards Data Science&quot;,&quot;url&quot;:&quot;https://towardsdatascience.com/how-to-build-your-own-custom-llm-memory-layer-from-scratch/&quot;}]
+
+Here is a comprehensive technical breakdown of how **Mem0** works for memory extraction from conversations:
+
+---
+
+## 🧠 What is Mem0?
+
+Mem0 is an open-source memory layer that sits between your application and the LLM. It automatically extracts relevant information from conversations, stores it, and retrieves it when needed. Rather than simply logging raw chat history, this approach focuses on understanding what was *meant* instead of storing what was *said* — because chat history isn&#39;t memory.
+
+---
+
+## ⚙️ The Two-Phase Memory Pipeline
+
+Mem0&#39;s architecture follows a two-phase pipeline — **Extraction** and **Update** — for each new user-agent exchange.
+
+### Phase 1: Extraction
+In the Extraction Phase, Mem0 ingests three key context sources:
+- **The Latest Exchange:** The most recent interaction between the user and the LLM agent.
+- **A Rolling Summary:** A condensed summary of the conversation up to the current point.
+- **The Most Recent Messages:** A selection of the most recent messages, typically limited to a predefined number (e.g., the last 10 messages).
+
+The model takes the summary and the last conversation, combines them into an optimized prompt, and then extracts new information it thinks is important. Crucially, the new information is extracted only from the latest exchange — the summary and past messages serve only as extra context.
+
+Mem0 automatically splits compound facts into separate atomic entries (e.g., &quot;vegetarian&quot; and &quot;allergic to nuts&quot; become two separate facts). The system handles extraction, and when you search, it returns the most relevant memories based on semantic similarity.
+
+### Phase 2: Update
+In the Update Phase, each new fact is compared to the top *s* similar entries in the vector database. The LLM then chooses one of four operations (ADD, UPDATE, MERGE, or DELETE). These steps keep the memory store coherent, non-redundant, and instantly ready for the next query.
+
+The asynchronous nature of the Update Phase prevents memory management from interfering with real-time interactions.
+
+---
+
+## 🗃️ Storage: Hybrid Vector + Graph Database
+
+Mem0 utilizes a sophisticated hybrid database system. Each memory is linked to a unique identifier, such as a user ID or agent ID. When a message is added via the `add` method, the system extracts pertinent facts and preferences, distributing them across a **vector database** and a **graph database**.
+
+- **Vector Storage:** All stored memories are indexed in a vector database. Mem0&#39;s OSS supports multiple vector backends (Pinecone, Qdrant, Weaviate, Chroma, PGVector, etc.). Each memory is embedded into a vector using an embedding model, and on queries, Mem0 performs a nearest-neighbors search to fetch relevant memories.
+
+- **Graph Memory:** Mem0ᵍ enhances Mem0 by storing memories as a directed, labeled graph. In the Extraction Phase, an Entity Extractor identifies entities as nodes and a Relations Generator infers labeled edges. During the Update Phase, a Conflict Detector flags overlapping or contradictory nodes/edges, and an LLM-powered Update Resolver decides whether to add, merge, invalidate, or skip graph elements. The resulting knowledge graph enables efficient subgraph retrieval for complex multi-hop, temporal, and open-domain reasoning.
+
+For each potential entity pair, the generator evaluates whether a meaningful relationship exists and classifies it with an appropriate label (e.g., `lives_in`, `prefers`, `owns`, `happened_on`). The module employs prompt engineering to guide the LLM to reason about both explicit statements and implicit information in the dialogue.
+
+---
+
+## 🔍 Retrieval &amp; Injection
+
+When an AI agent or LLM needs to access memories, it employs the `search` method. Mem0 conducts a comprehensive search across all data stores, retrieving relevant information from each. The retrieved memories can then be seamlessly integrated into the system prompt, enhancing the personalization and relevance of responses.
+
+Mem0 builds embeddings for memory items, making them semantically retrievable — meaning it understands relationships and similarity instead of relying on exact matches. The result is a more fluid &quot;recall&quot; system, closer to how humans remember associations rather than full transcripts.
+
+---
+
+## 📐 Memory Scopes
+
+Mem0 supports three memory scopes:
+- **User memory:** Persists across all conversations with a specific person.
+- **Session memory:** Tracks context within a single conversation.
+- **Agent memory:** Stores information specific to a particular AI agent instance.
+You can combine these scopes to build complex applications where different agents share (or isolate) what they know about users.
+
+---
+
+## 📊 Performance
+
+Mem0 delivers a **26% accuracy boost**, **91% lower p95 latency**, and **90% token savings**, demonstrating that persistent, structured memory can be both powerful and practical at scale.
+
+Mem0 achieves the lowest search latency among all compared methods (p50: 0.148s, p95: 0.200s).
+
+---
+
+## 🆚 Mem0 vs. RAG
+
+Mem0&#39;s memory implementation offers several advantages over traditional RAG: it can understand and relate entities across different interactions (unlike RAG which retrieves from static documents), retains information across sessions for contextual continuity, and is essential for long-term engagement applications.
+
+In summary, Mem0&#39;s core innovation is treating memory as **structured, atomic, and dynamically updatable facts** — not raw transcripts — extracted via LLM-powered pipelines and stored in hybrid vector + graph databases for precise, low-latency retrieval.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Here is the comprehensive research summary across all five topics. --- ## 1. Mem0 (mem0.ai / OpenMemory) **What it is:** An open-source memory middleware layer that sits between an application and an LLM. Rather than logging raw chat history, it treats memory as structured, atomic, dynamically-updatable facts. Raised $24M in Oct 2025, 41K+ GitHub stars. **How it extracts structured memory — the two-phase..." id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#23</span>
+      
+      <span class="timeline-time">23:39:06</span>
+    </div>
+    <p class="event-preview">Here is the comprehensive research summary across all five topics. --- ## 1. Mem0 (mem0.ai / OpenMemory) **What it is:** An open-source memory middleware layer that sits between an application and an LLM. Rather than ...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Here is the comprehensive research summary across all five topics.</p><p>---</p><p>## 1. Mem0 (mem0.ai / OpenMemory)</p><p><strong>What it is:</strong> An open-source memory middleware layer that sits between an application and an LLM. Rather than logging raw chat history, it treats memory as structured, atomic, dynamically-updatable facts. Raised $24M in Oct 2025, 41K+ GitHub stars.</p><p><strong>How it extracts structured memory — the two-phase pipeline:</strong></p><p>- <strong>Phase 1 — Extraction:</strong> On each new exchange, Mem0 feeds the LLM three inputs: the latest user/agent turn, a rolling conversation summary, and the last N messages. It instructs the LLM to extract <em>new atomic facts only from the latest turn</em> (the rest is context only). Compound statements are automatically split — &quot;vegetarian and allergic to nuts&quot; becomes two separate memory entries.<br>- <strong>Phase 2 — Update (async):</strong> Each new fact is compared against the top-k similar entries already in the vector store. The LLM then chooses one of four operations: ADD, UPDATE, MERGE, or DELETE. This keeps the store coherent and non-redundant without blocking real-time response.</p><p><strong>Memory layers / scopes:</strong><br>- User memory — persists across all sessions for a given user<br>- Session memory — intra-conversation context only<br>- Agent memory — scoped to a specific agent instance</p><p><strong>Storage: hybrid datastores:</strong><br>- <strong>Vector store</strong> (Pinecone, Qdrant, Chroma, PGVector, etc.) — for semantic similarity search<br>- <strong>Graph store (Mem0ᵍ)</strong> — entity extraction + relation generation creates directed labeled edges (e.g., <code>lives_in</code>, <code>prefers</code>). A Conflict Detector + LLM-powered Update Resolver handles contradictions across the graph.<br>- <strong>Key-value store</strong> — for quick structured fact lookup</p><p><strong>OpenMemory</strong> is the MCP-server variant, self-hosted, targeted at coding agents (Cursor, VS Code, Claude Code). It tags every memory by type, filters by project/repo, and integrates with the IDE without requiring manual prompting.</p><p><strong>Performance:</strong> 26% accuracy improvement over OpenAI baseline, 91% lower p95 latency, 90% token savings vs. passing raw context.</p><p>Sources: [mem0.ai](https://mem0.ai/) · [arxiv 2504.19413](https://arxiv.org/abs/2504.19413) · [DataCamp tutorial](https://www.datacamp.com/tutorial/mem0-tutorial) · [Medium architecture deep-dive](https://medium.com/@parthshr370/from-chat-history-to-ai-memory-a-better-way-to-build-intelligent-agents-f30116b0c124)</p><p>---</p><p>## 2. MemGPT</p><p><strong>Core idea:</strong> Treat the LLM as a CPU and design an OS-style virtual memory system around it. The paper is &quot;MemGPT: Towards LLMs as Operating Systems&quot; (arXiv:2310.08560, UC Berkeley).</p><p><strong>Two-tier architecture:</strong></p><p><strong>Tier 1 — Main Context (RAM):</strong><br>- <code>system_prompt</code> — read-only instructions describing the control flow and available function calls<br>- <code>core_memory</code> — writeable fixed-size working context, updated only via function calls; stores key user facts and agent persona<br>- <code>messages</code> (FIFO queue) — rolling conversation history; when the queue fills, a recursive summarizer evicts the oldest messages, generates a new summary, and discards the evicted messages from context (but persists them to recall storage)</p><p><strong>Tier 2 — External Context (disk):</strong><br>- <code>recall_storage</code> — searchable database of all evicted messages, queryable by the LLM via function calls<br>- <code>archival_storage</code> — long-term arbitrary-length text objects, backed by a vector DB (LanceDB by default); the LLM can iteratively page through results</p><p><strong>How context management works:</strong><br>The LLM itself is the memory manager. It emits function calls (not just text) — e.g., <code>archival_memory_search(&quot;authentication bug&quot;)</code>. By setting <code>request_heartbeat=true</code> in the output, it chains multiple function calls without waiting for user input. When the FIFO queue hits the flush threshold, the queue manager evicts messages and runs recursive summarization automatically.</p><p><strong>Key insight for openmnemo:</strong> The self-managed memory pattern — the LLM deciding what to promote to core memory, what to archive, and what to discard — is a powerful architectural primitive.</p><p>Sources: [arxiv 2310.08560](https://arxiv.org/abs/2310.08560) · [Letta/MemGPT docs](https://docs.letta.com/concepts/memgpt/) · [Leonie Monigatti blog](https://www.leoniemonigatti.com/blog/memgpt.html)</p><p>---</p><p>## 3. Zep</p><p><strong>What it is:</strong> A memory layer service for AI agents built around a temporally-aware knowledge graph engine called <strong>Graphiti</strong>. Outperforms MemGPT on the Deep Memory Retrieval benchmark (94.8% vs 93.4%) while reducing latency by 90%.</p><p><strong>Three-tier graph architecture (three subgraphs in one knowledge graph):</strong></p><p>1. <strong>Episode Subgraph (Episodic Memory)</strong> — Raw, immutable event nodes. Each node = one message, JSON document, or transactional snapshot, annotated with the original event timestamp. This is the ground-truth corpus — nothing is lost.</p><p>2. <strong>Semantic Entity Subgraph (Semantic Memory)</strong> — Entities and facts extracted from episodes. Each entity is embedded in 1024-dimensional space. Relations can form hyperedges involving multiple entities. Over time this subgraph reflects what the agent &quot;knows&quot; as consolidated knowledge, mirroring Tulving&#39;s episodic→semantic consolidation model.</p><p>3. <strong>Community Subgraph</strong> — Clusters of strongly connected entities, with high-level summarizations of each cluster. Represents the macro-level semantic structure.</p><p><strong>Bi-temporal model (the key differentiator):</strong><br>Every node and edge carries two timestamps:<br>- <code>event_time (T)</code> — when the fact actually occurred in the real world<br>- <code>ingestion_time (T&#39;)</code> — when it was added to Zep&#39;s graph</p><p>This allows precise reasoning about what was true <em>at any point in time</em> and handles retroactive corrections cleanly — old facts are <em>invalidated</em>, not deleted.</p><p><strong>Multi-faceted retrieval:</strong> Full-text search (word similarity) + cosine similarity (semantic) + BFS graph traversal (contextual, nodes closer in graph = more similar conversational contexts). Uses union, not intersection.</p><p><strong>Procedural memory</strong> in Zep&#39;s framework: implicit knowledge in LLM weights + explicit knowledge in agent code. Not stored in the graph.</p><p>Sources: [arxiv 2501.13956](https://arxiv.org/abs/2501.13956) · [getzep.com](https://www.getzep.com/) · [Graphiti GitHub](https://github.com/getzep/graphiti)</p><p>---</p><p>## 4. OpenClaw — &quot;小龙虾&quot;</p><p><strong>What it is:</strong> OpenClaw (previously ClawdBot/MoltBot) is an open-source AI agent framework that went viral in early 2026, hitting 250K+ GitHub stars. The nickname &quot;小龙虾&quot; (crayfish/lobster) comes from the Chinese tech community. Its main claim: it gives the AI real persistent memory that &quot;gets smarter the more you use it.&quot;</p><p><strong>Memory architecture — three tiers, all plain Markdown:</strong></p><p>| Tier | File | Loaded when | Content |<br>|------|------|-------------|---------|<br>| Always-on | <code>MEMORY.md</code> | Every session, always in context | ~100 lines of curated durable facts, preferences, key decisions |<br>| Daily log | <code>memory/YYYY-MM-DD.md</code> | Today + yesterday auto-loaded | Raw observations, not curated |<br>| Deep knowledge | <code>memory/people/</code>, <code>projects/</code>, <code>topics/</code>, <code>decisions/</code> | On-demand via vector search | Long-form notes, organized by domain |</p><p>The agent has two memory tools: <code>memory_search</code> (semantic search over ~400-token chunks with 80-token overlap, scoring = <code>vectorWeight × vectorScore + textWeight × textScore</code> plus temporal decay so recent memories rank higher) and <code>memory_get</code> (read a specific file at a line offset).</p><p><strong>Skills system:</strong> Each skill is a folder with a <code>SKILL.md</code> file — YAML frontmatter + natural-language instructions. Workspace skills override global skills. Shared via <strong>ClawHub</strong> registry. The <strong>Librarian skill</strong> is the most architecturally relevant: it promotes durable knowledge upward — daily observations → structured knowledge → <code>MEMORY.md</code>.</p><p><strong>SOUL.md:</strong> Defines agent identity, personality, and permission boundaries. Loaded at startup.</p><p><strong>Heartbeat mechanism:</strong> Every 30 seconds a message is sent to the agent from <code>heartbeat.md</code> containing pending tasks and periodic reminders. The agent acts if there&#39;s work; returns a no-op keyword otherwise. This is what enables proactive/autonomous behavior.</p><p><strong>Key insight for openmnemo:</strong> The three-tier Markdown architecture with a Librarian-style promotion pipeline maps well onto a Git-based memory store. Daily <code>.md</code> files = commits; <code>MEMORY.md</code> = a curated README that the agent keeps up to date.</p><p>Sources: [OpenClaw docs: memory](https://docs.openclaw.ai/concepts/memory) · [DEV.to inside OpenClaw](https://dev.to/entelligenceai/inside-openclaw-how-a-persistent-ai-agent-actually-works-1mnk) · [Medium architecture](https://medium.com/@shivam.agarwal.in/agentic-ai-openclaw-moltbot-clawdbots-memory-architecture-explained-61c3b9697488) · [V2EX community thread](https://www.v2ex.com/t/1195314) · [21经济网 industry overview](https://www.21jingji.com/article/20260317/6f28759e1535011ec051ca3c3c003ec3.html)</p><p>---</p><p>## 5. Git-Based Knowledge Management for AI</p><p><strong>Existing work — chat with git history (Couchbase approach):</strong><br>Each commit is output as a JSON object: <code>{ hash, author_name, author_email, date, message, body }</code>. The body is concatenated into a <code>text</code> field, embedded with OpenAI (1536-dim, dot_product similarity), stored, and queried with RAG. The approach uses <code>--all --reverse</code> to index all branches in chronological order.</p><p><strong>brainwires-rag (Rust):</strong> A library + MCP server that does semantic search over commit history with on-demand indexing, exposable directly to AI assistants.</p><p><strong>LanceDB + Continue MCP:</strong> Indexes git blame (line-by-line authorship) + commit diffs using sentence transformers, stored in a local LanceDB instance, queryable via MCP.</p><p><strong>Conventional Commits as a standardization layer:</strong> The <code>&lt;type&gt;[scope]: &lt;description&gt;</code> format (<code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>refactor:</code>, etc.) makes commits machine-readable, enables automated changelog generation, and dramatically improves RAG quality because the type prefix acts as a filterable metadata field. Tooling: <code>commitlint</code> + <code>semantic-release</code>.</p><p><strong>Temporal knowledge graph angle (Graphiti):</strong> Graphiti&#39;s model of &quot;new data integrates immediately, old facts are invalidated not deleted, every fact traces back to its source episode&quot; is essentially what Git already does natively. The gap is the extraction layer — turning raw diffs and commit messages into semantic entities.</p><p><strong>Key insight for openmnemo:</strong> Your <code>chat-memo_*/</code> directories already produce conversation transcripts committed to Git. The conventional commit types in your history (<code>feat:</code>, <code>docs:</code>, <code>chore:</code>) are already metadata fields. A lightweight extraction pipeline that:<br>1. Reads each commit&#39;s diff<br>2. Extracts atomic facts via LLM (Mem0-style)<br>3. Stores them in a SQLite vector index keyed by <code>(commit_sha, session_id, turn_index)</code></p><p>...would give you a RAG source that is fully version-controlled, auditable, and incrementally updatable.</p><p>Sources: [Couchbase: chat with git history](https://www.couchbase.com/blog/chat-with-your-git-history-rag-couchbase-shell/) · [LanceDB semantic code history](https://blog.continue.dev/building-a-semantic-code-history-search-with-lancedb/) · [Cursor feature request: AI semantic search for commits](https://github.com/cursor/cursor/issues/2727) · [Conventional Commits guide](https://dev.to/tene/mastering-conventional-commits-structure-benefits-and-tools-3cpo)</p><p>---</p><p>## 6. Conversation Transcript RAG — Chunking &amp; Metadata Best Practices</p><p><strong>Chunking strategy for transcripts:</strong><br>- <strong>Primary boundary: speaker turn</strong> — never let a fixed-size splitter cut across a turn change. One speaker&#39;s continuous speech = one chunk (or a small window of consecutive turns).<br>- <strong>Sliding window over turns</strong> — 2–4 turns per chunk with 1-turn overlap preserves conversational context across boundaries.<br>- <strong>Target chunk size:</strong> 250–512 tokens for factual retrieval; up to 1024 for analytical queries.<br>- <strong>Semantic chunking</strong> — group sentences by embedding similarity when turn structure is absent.</p><p><strong>Metadata per chunk (minimum viable set):</strong></p><p>| Field | Purpose |<br>|-------|---------|<br>| <code>session_id</code> | Groups all chunks from one conversation |<br>| <code>turn_index</code> | Absolute position in conversation |<br>| <code>speaker</code> | Filter by user vs. assistant |<br>| <code>timestamp_iso</code> | Temporal filtering, recency ranking |<br>| <code>client</code> | Source system (claude, doubao, etc.) |<br>| <code>chunk_id</code> | Unique ID for auditing / re-embedding |<br>| <code>topics[]</code> | LLM-extracted topic tags for faceted search |<br>| <code>entity_mentions[]</code> | Named entities for graph linking |</p><p><strong>Hybrid search for retrieval:</strong> Vector similarity (semantic) + BM25 keyword search (exact term recall), union of results, then re-rank. This is the same pattern used by Zep, OpenClaw, and production Elasticsearch deployments.</p><p><strong>Contextual enrichment per chunk:</strong> Prepend a short LLM-generated summary sentence to each chunk before embedding — Microsoft&#39;s Azure AI Search benchmarks show up to 85% token savings and significantly higher retrieval precision vs. naive chunking.</p><p><strong>Common failure modes to avoid:</strong><br>- Cutting through a turn boundary (loses speaker attribution)<br>- Not including <code>session_id</code> in metadata (can&#39;t reconstruct conversation context)<br>- Indexing raw tool-call events without filtering (noise)<br>- Over-large chunks that contain multiple topic shifts</p><p>Sources: [Weaviate chunking strategies](https://weaviate.io/blog/chunking-strategies-for-rag) · [Cohere chunking guide](https://docs.cohere.com/page/chunking-strategies) · [Microsoft Azure context-aware RAG](https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/context-aware-rag-system-with-azure-ai-search-to-cut-token-costs-and-boost-accur/4456810) · [Databricks ultimate chunking guide](https://community.databricks.com/t5/technical-blog/the-ultimate-guide-to-chunking-strategies-for-rag-applications/ba-p/113089)</p><p>---</p><p>## Synthesis: Architectural Patterns Applicable to openmnemo</p><p>Given that openmnemo already stores conversations as Git commits with structured Markdown transcripts in <code>Memory/06_transcripts/clean/{client}/</code>, the following patterns are most directly borrowable:</p><p><strong>From Mem0:</strong> The two-phase extract-then-update pipeline (LLM extracts atomic facts, then merges/deduplicates against existing memories) is the cleanest design for building a <code>facts/</code> store on top of transcripts. Your <code>ManifestEntry</code> types can carry the <code>session_id</code> foreign key.</p><p><strong>From MemGPT:</strong> The self-managing FIFO queue + recursive summarization is directly applicable to your <code>MEMORY.md</code> maintenance. When <code>MEMORY.md</code> exceeds a line budget, the agent compresses older sections into summaries and pushes the detail to <code>memory/topics/</code>.</p><p><strong>From Zep:</strong> The bi-temporal model (event_time vs. ingestion_time) maps naturally to Git: <code>committed_at</code> is ingestion time; a <code>conversation_date</code> field in frontmatter is event time. The episode→semantic consolidation path — raw turns → extracted facts → community clusters — is a three-stage pipeline your <code>report build</code> command could run.</p><p><strong>From OpenClaw:</strong> The Librarian promotion pattern (daily notes → structured knowledge → curated <code>MEMORY.md</code>) and the three-tier load strategy (always-in-context vs. today&#39;s log vs. searchable deep archive) are the most immediately implementable patterns for a Git-native system.</p><p><strong>From Git-RAG work:</strong> Tag every commit with <code>session_id</code> in the trailer, use Conventional Commits types as filterable metadata, embed <code>(commit_sha, turn_index)</code> as the primary key in your SQLite vector index. The <code>brainwires-rag</code> MCP server pattern shows this can be exposed to any MCP-compatible client with minimal infrastructure.</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

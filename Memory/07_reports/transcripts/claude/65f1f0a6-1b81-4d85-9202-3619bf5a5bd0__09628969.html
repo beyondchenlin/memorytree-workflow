@@ -1,0 +1,4021 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-adfe65f735849ca11 — MemoryTree</title>
+<meta property="og:title" content="agent-adfe65f735849ca11">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-adfe65f735849ca11</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>7</strong> Messages</span>
+      <span class="transcript-pill"><strong>32</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>39</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 07:31:51</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-adfe65f735849ca11</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">65f1f0a6-1b81-4d85-9202-3619bf5a5bd0</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">master</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\memorytree-workflow</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">09628969e5c5f717...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">39</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">7</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">32</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>7</strong> dialog</span>
+    <span class="transcript-pill"><strong>32</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>7</strong> Messages</span>
+          <span class="transcript-pill"><strong>32</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>39 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Thoroughly explore the memorytree-workflow codebase to understand: 1. Read `scripts/memorytree_daemon.py` fully — what CLI subcommands exist, which are implemented vs stubbed? 2. Read any existing OS scheduler registration code (cron, launchd, schtasks) 3. Read `scripts/heartbeat.py` to understand the entry point 4. Search for any existing &quot;install&quot;, &quot;uninstall&quot;, &quot;watch&quot;, &quot;run-once&quot; logic 5. Check if there&#39;s ..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">07:31:51</span>
+    </div>
+    <div class="message-body"><p>Thoroughly explore the memorytree-workflow codebase to understand:</p><p>1. Read <code>scripts/memorytree_daemon.py</code> fully — what CLI subcommands exist, which are implemented vs stubbed?<br>2. Read any existing OS scheduler registration code (cron, launchd, schtasks)<br>3. Read <code>scripts/heartbeat.py</code> to understand the entry point<br>4. Search for any existing &quot;install&quot;, &quot;uninstall&quot;, &quot;watch&quot;, &quot;run-once&quot; logic<br>5. Check if there&#39;s a <code>pyproject.toml</code> or any packaging setup<br>6. Look at the SKILL.md or any skill activation hooks that might relate to &quot;first install trigger&quot;<br>7. Check <code>scripts/_config_utils.py</code> for <code>memorytree_root()</code> and config paths</p><p>Report back: what exists, what&#39;s stubbed, what&#39;s missing entirely.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll thoroughly explore the memorytree-workflow codebase to understand the daemon infrastructure, CLI commands, and configuration setup." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">07:31:54</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll thoroughly explore the memorytree-workflow codebase to understand the daemon infrastructure, CLI commands, and configuration setup.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01EykAU7qMhCWeW5jjipVQLn Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/memorytree_daemon.py&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01EykAU7qMhCWeW5jjipVQLn</span>
+      <span class="timeline-time">07:31:55</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/memorytree_daemon.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/scripts/memorytree_daemon.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01S3ALo2zX6tLi3E5sR64EiN Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/heartbeat.py&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01S3ALo2zX6tLi3E5sR64EiN</span>
+      <span class="timeline-time">07:31:55</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/heartbeat.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/scripts/heartbeat.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01VV1eeSW6Aom5STRgHKk5ys Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow&quot;,&quot;pattern&quot;:&quot;**/_config*.py&quot;}" id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01VV1eeSW6Aom5STRgHKk5ys</span>
+      <span class="timeline-time">07:31:55</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow&quot;,&quot;pattern&quot;:&quot;**/_config*.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;**/_config*.py&quot;,
+  &quot;path&quot;: &quot;/d/demo1/memorytree-workflow&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01YXxx9o6afLu8b3XebBwpar Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow&quot;,&quot;pattern&quot;:&quot;**/{pyproject,setup,SKILL}.{toml,py,md}&quot;}" id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01YXxx9o6afLu8b3XebBwpar</span>
+      <span class="timeline-time">07:31:56</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow&quot;,&quot;pattern&quot;:&quot;**/{pyproject,setup,SKILL}.{toml,py,md}&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;**/{pyproject,setup,SKILL}.{toml,py,md}&quot;,
+  &quot;path&quot;: &quot;/d/demo1/memorytree-workflow&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01EykAU7qMhCWeW5jjipVQLn Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→memorytree-daemon — CLI for managing the MemoryTree heartbeat lifecycle. 4→ 5→Subcommands: 6→ install Register the heartbeat with the OS schedul..." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01EykAU7qMhCWeW5jjipVQLn</span>
+      
+      <span class="timeline-time">07:31:56</span>
+    </div>
+    <div class="timeline-title">Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→memorytree-daemon — CLI for managing the MemoryTree heartbeat lifecycle. 4→ 5→Subcommands: 6→ install Register the heartbeat with the OS schedul...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→#!/usr/bin/env python3
+     2→&quot;&quot;&quot;
+     3→memorytree-daemon — CLI for managing the MemoryTree heartbeat lifecycle.
+     4→
+     5→Subcommands:
+     6→  install    Register the heartbeat with the OS scheduler.
+     7→  uninstall  Remove the heartbeat scheduled task.
+     8→  run-once   Execute a single heartbeat cycle immediately.
+     9→  watch      Continuous loop for development/debugging only.
+    10→  status     Show whether the heartbeat is registered and its lock state.
+    11→&quot;&quot;&quot;
+    12→
+    13→from __future__ import annotations
+    14→
+    15→import argparse
+    16→import platform
+    17→import shlex
+    18→import shutil
+    19→import subprocess
+    20→import sys
+    21→import time
+    22→from pathlib import Path
+    23→
+    24→from _config_utils import Config, config_path, interval_to_seconds, load_config, save_config
+    25→from _lock_utils import read_lock_pid
+    26→
+    27→
+    28→TASK_NAME = &quot;MemoryTree Heartbeat&quot;
+    29→LAUNCHD_LABEL = &quot;com.memorytree.heartbeat&quot;
+    30→
+    31→
+    32→def main() -&gt; int:
+    33→    args = parse_args()
+    34→    return args.func(args)
+    35→
+    36→
+    37→def parse_args() -&gt; argparse.Namespace:
+    38→    parser = argparse.ArgumentParser(
+    39→        prog=&quot;memorytree-daemon&quot;,
+    40→        description=&quot;Manage the MemoryTree heartbeat lifecycle.&quot;,
+    41→    )
+    42→    sub = parser.add_subparsers(dest=&quot;command&quot;, required=True)
+    43→
+    44→    install_cmd = sub.add_parser(&quot;install&quot;, help=&quot;Register heartbeat with the OS scheduler.&quot;)
+    45→    install_cmd.add_argument(&quot;--interval&quot;, default=&quot;&quot;, help=&#39;Override heartbeat interval (e.g., &quot;5m&quot;).&#39;)
+    46→    install_cmd.add_argument(&quot;--auto-push&quot;, choices=(&quot;true&quot;, &quot;false&quot;), default=&quot;&quot;, help=&quot;Override auto_push setting.&quot;)
+    47→    install_cmd.set_defaults(func=cmd_install)
+    48→
+    49→    uninstall_cmd = sub.add_parser(&quot;uninstall&quot;, help=&quot;Remove the heartbeat scheduled task.&quot;)
+    50→    uninstall_cmd.set_defaults(func=cmd_uninstall)
+    51→
+    52→    runonce_cmd = sub.add_parser(&quot;run-once&quot;, help=&quot;Execute a single heartbeat cycle now.&quot;)
+    53→    runonce_cmd.set_defaults(func=cmd_run_once)
+    54→
+    55→    watch_cmd = sub.add_parser(&quot;watch&quot;, help=&quot;Continuous loop (development only).&quot;)
+    56→    watch_cmd.add_argument(&quot;--interval&quot;, default=&quot;&quot;, help=&#39;Override interval (e.g., &quot;5m&quot;).&#39;)
+    57→    watch_cmd.set_defaults(func=cmd_watch)
+    58→
+    59→    status_cmd = sub.add_parser(&quot;status&quot;, help=&quot;Show heartbeat registration and lock state.&quot;)
+    60→    status_cmd.set_defaults(func=cmd_status)
+    61→
+    62→    return parser.parse_args()
+    63→
+    64→
+    65→# ── Subcommands ──────────────────────────────────────────────────────────────
+    66→
+    67→
+    68→def cmd_install(args: argparse.Namespace) -&gt; int:
+    69→    config = load_config()
+    70→
+    71→    if args.interval:
+    72→        config = Config(
+    73→            heartbeat_interval=args.interval,
+    74→            watch_dirs=config.watch_dirs,
+    75→            projects=list(config.projects),
+    76→            auto_push=config.auto_push,
+    77→            log_level=config.log_level,
+    78→        )
+    79→    if args.auto_push:
+    80→        config = Config(
+    81→            heartbeat_interval=config.heartbeat_interval,
+    82→            watch_dirs=config.watch_dirs,
+    83→            projects=list(config.projects),
+    84→            auto_push=args.auto_push == &quot;true&quot;,
+    85→            log_level=config.log_level,
+    86→        )
+    87→
+    88→    save_config(config)
+    89→    seconds = interval_to_seconds(config.heartbeat_interval)
+    90→    heartbeat_script = _heartbeat_script_path()
+    91→
+    92→    system = platform.system()
+    93→    if system == &quot;Linux&quot;:
+    94→        return _install_cron(heartbeat_script, seconds)
+    95→    if system == &quot;Darwin&quot;:
+    96→        return _install_launchd(heartbeat_script, seconds)
+    97→    if system == &quot;Windows&quot;:
+    98→        return _install_schtasks(heartbeat_script, seconds)
+    99→
+   100→    print(f&quot;Unsupported platform: {system}&quot;, file=sys.stderr)
+   101→    return 1
+   102→
+   103→
+   104→def cmd_uninstall(_args: argparse.Namespace) -&gt; int:
+   105→    system = platform.system()
+   106→    if system == &quot;Linux&quot;:
+   107→        return _uninstall_cron()
+   108→    if system == &quot;Darwin&quot;:
+   109→        return _uninstall_launchd()
+   110→    if system == &quot;Windows&quot;:
+   111→        return _uninstall_schtasks()
+   112→
+   113→    print(f&quot;Unsupported platform: {system}&quot;, file=sys.stderr)
+   114→    return 1
+   115→
+   116→
+   117→def cmd_run_once(_args: argparse.Namespace) -&gt; int:
+   118→    heartbeat_script = _heartbeat_script_path()
+   119→    python = _python_path()
+   120→    result = subprocess.run([*python, str(heartbeat_script)], cwd=heartbeat_script.parent)
+   121→    return result.returncode
+   122→
+   123→
+   124→def cmd_watch(args: argparse.Namespace) -&gt; int:
+   125→    config = load_config()
+   126→    interval_str = args.interval or config.heartbeat_interval
+   127→    seconds = interval_to_seconds(interval_str)
+   128→    heartbeat_script = _heartbeat_script_path()
+   129→    python = _python_path()
+   130→
+   131→    print(f&quot;Watch mode: running heartbeat every {seconds}s. Press Ctrl+C to stop.&quot;)
+   132→    try:
+   133→        while True:
+   134→            subprocess.run([*python, str(heartbeat_script)], cwd=heartbeat_script.parent)
+   135→            time.sleep(seconds)
+   136→    except KeyboardInterrupt:
+   137→        print(&quot;\nWatch mode stopped.&quot;)
+   138→    return 0
+   139→
+   140→
+   141→def cmd_status(_args: argparse.Namespace) -&gt; int:
+   142→    system = platform.system()
+   143→
+   144→    # Check scheduler registration
+   145→    registered = False
+   146→    if system == &quot;Linux&quot;:
+   147→        registered = _is_cron_registered()
+   148→    elif system == &quot;Darwin&quot;:
+   149→        registered = _is_launchd_registered()
+   150→    elif system == &quot;Windows&quot;:
+   151→        registered = _is_schtasks_registered()
+   152→
+   153→    print(f&quot;Platform:   {system}&quot;)
+   154→    print(f&quot;Registered: {&#39;yes&#39; if registered else &#39;no&#39;}&quot;)
+   155→
+   156→    # Check lock state
+   157→    pid = read_lock_pid()
+   158→    if pid is not None:
+   159→        print(f&quot;Lock:       held by PID {pid}&quot;)
+   160→    else:
+   161→        print(&quot;Lock:       not held&quot;)
+   162→
+   163→    # Config summary
+   164→    if config_path().exists():
+   165→        config = load_config()
+   166→        print(f&quot;Interval:   {config.heartbeat_interval}&quot;)
+   167→        print(f&quot;Auto-push:  {config.auto_push}&quot;)
+   168→        print(f&quot;Projects:   {len(config.projects)}&quot;)
+   169→    else:
+   170→        print(&quot;Config:     not found (using defaults)&quot;)
+   171→
+   172→    return 0
+   173→
+   174→
+   175→# ── Linux (cron) ─────────────────────────────────────────────────────────────
+   176→
+   177→
+   178→def _install_cron(heartbeat_script: Path, seconds: int) -&gt; int:
+   179→    if _is_cron_registered():
+   180→        print(&quot;Heartbeat is already registered in cron. Use &#39;uninstall&#39; first.&quot;, file=sys.stderr)
+   181→        return 1
+   182→
+   183→    python = _python_path()
+   184→    minutes = max(1, seconds // 60)
+   185→    log_dir = Path.home() / &quot;.memorytree&quot; / &quot;logs&quot;
+   186→    log_dir.mkdir(parents=True, exist_ok=True)
+   187→
+   188→    python_cmd = &quot; &quot;.join(shlex.quote(p) for p in python)
+   189→    cron_line = (
+   190→        f&quot;*/{minutes} * * * * &quot;
+   191→        f&quot;cd {shlex.quote(str(heartbeat_script.parent))} &amp;&amp; &quot;
+   192→        f&quot;{python_cmd} {shlex.quote(str(heartbeat_script))} &quot;
+   193→        f&quot;&gt;&gt; {shlex.quote(str(log_dir / &#39;heartbeat-cron.log&#39;))} 2&gt;&amp;1 &quot;
+   194→        f&quot;# memorytree&quot;
+   195→    )
+   196→
+   197→    existing = _get_crontab()
+   198→    new_crontab = existing.rstrip(&quot;\n&quot;) + &quot;\n&quot; + cron_line + &quot;\n&quot; if existing.strip() else cron_line + &quot;\n&quot;
+   199→
+   200→    result = subprocess.run([&quot;crontab&quot;, &quot;-&quot;], input=new_crontab, text=True, capture_output=True)
+   201→    if result.returncode != 0:
+   202→        print(f&quot;Failed to install cron job: {result.stderr}&quot;, file=sys.stderr)
+   203→        return 1
+   204→
+   205→    print(f&quot;Heartbeat registered in cron (every {minutes}m).&quot;)
+   206→    return 0
+   207→
+   208→
+   209→def _uninstall_cron() -&gt; int:
+   210→    existing = _get_crontab()
+   211→    filtered = &quot;\n&quot;.join(line for line in existing.splitlines() if &quot;memorytree&quot; not in line)
+   212→    subprocess.run([&quot;crontab&quot;, &quot;-&quot;], input=filtered + &quot;\n&quot;, text=True, capture_output=True)
+   213→    print(&quot;Heartbeat removed from cron.&quot;)
+   214→    return 0
+   215→
+   216→
+   217→def _is_cron_registered() -&gt; bool:
+   218→    return &quot;memorytree&quot; in _get_crontab()
+   219→
+   220→
+   221→def _get_crontab() -&gt; str:
+   222→    result = subprocess.run([&quot;crontab&quot;, &quot;-l&quot;], capture_output=True, text=True)
+   223→    return result.stdout if result.returncode == 0 else &quot;&quot;
+   224→
+   225→
+   226→# ── macOS (launchd) ──────────────────────────────────────────────────────────
+   227→
+   228→
+   229→def _launchd_plist_path() -&gt; Path:
+   230→    return Path.home() / &quot;Library&quot; / &quot;LaunchAgents&quot; / f&quot;{LAUNCHD_LABEL}.plist&quot;
+   231→
+   232→
+   233→def _install_launchd(heartbeat_script: Path, seconds: int) -&gt; int:
+   234→    plist_path = _launchd_plist_path()
+   235→    if plist_path.exists():
+   236→        print(&quot;Heartbeat plist already exists. Use &#39;uninstall&#39; first.&quot;, file=sys.stderr)
+   237→        return 1
+   238→
+   239→    python = _python_path()
+   240→    log_dir = Path.home() / &quot;.memorytree&quot; / &quot;logs&quot;
+   241→    log_dir.mkdir(parents=True, exist_ok=True)
+   242→
+   243→    program_args = &quot;\n&quot;.join(f&quot;        &lt;string&gt;{p}&lt;/string&gt;&quot; for p in [*python, str(heartbeat_script)])
+   244→
+   245→    plist_content = f&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+   246→&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;
+   247→&lt;plist version=&quot;1.0&quot;&gt;
+   248→&lt;dict&gt;
+   249→    &lt;key&gt;Label&lt;/key&gt;
+   250→    &lt;string&gt;{LAUNCHD_LABEL}&lt;/string&gt;
+   251→    &lt;key&gt;ProgramArguments&lt;/key&gt;
+   252→    &lt;array&gt;
+   253→{program_args}
+   254→    &lt;/array&gt;
+   255→    &lt;key&gt;StartInterval&lt;/key&gt;
+   256→    &lt;integer&gt;{seconds}&lt;/integer&gt;
+   257→    &lt;key&gt;WorkingDirectory&lt;/key&gt;
+   258→    &lt;string&gt;{heartbeat_script.parent}&lt;/string&gt;
+   259→    &lt;key&gt;StandardOutPath&lt;/key&gt;
+   260→    &lt;string&gt;{log_dir}/heartbeat-launchd.log&lt;/string&gt;
+   261→    &lt;key&gt;StandardErrorPath&lt;/key&gt;
+   262→    &lt;string&gt;{log_dir}/heartbeat-launchd.log&lt;/string&gt;
+   263→&lt;/dict&gt;
+   264→&lt;/plist&gt;
+   265→&quot;&quot;&quot;
+   266→    plist_path.parent.mkdir(parents=True, exist_ok=True)
+   267→    plist_path.write_text(plist_content, encoding=&quot;utf-8&quot;)
+   268→
+   269→    result = subprocess.run([&quot;launchctl&quot;, &quot;load&quot;, str(plist_path)], capture_output=True, text=True)
+   270→    if result.returncode != 0:
+   271→        print(f&quot;Failed to load plist: {result.stderr}&quot;, file=sys.stderr)
+   272→        return 1
+   273→
+   274→    print(f&quot;Heartbeat registered via launchd (every {seconds}s).&quot;)
+   275→    return 0
+   276→
+   277→
+   278→def _uninstall_launchd() -&gt; int:
+   279→    plist_path = _launchd_plist_path()
+   280→    if plist_path.exists():
+   281→        subprocess.run([&quot;launchctl&quot;, &quot;unload&quot;, str(plist_path)], capture_output=True)
+   282→        plist_path.unlink(missing_ok=True)
+   283→    print(&quot;Heartbeat removed from launchd.&quot;)
+   284→    return 0
+   285→
+   286→
+   287→def _is_launchd_registered() -&gt; bool:
+   288→    return _launchd_plist_path().exists()
+   289→
+   290→
+   291→# ── Windows (Task Scheduler) ────────────────────────────────────────────────
+   292→
+   293→
+   294→def _install_schtasks(heartbeat_script: Path, seconds: int) -&gt; int:
+   295→    if _is_schtasks_registered():
+   296→        print(&quot;Heartbeat is already registered in Task Scheduler. Use &#39;uninstall&#39; first.&quot;, file=sys.stderr)
+   297→        return 1
+   298→
+   299→    python = _python_path()
+   300→    minutes = max(1, seconds // 60)
+   301→
+   302→    tr_command = &quot; &quot;.join(f&#39;&quot;{p}&quot;&#39; for p in [*python, str(heartbeat_script)])
+   303→
+   304→    result = subprocess.run(
+   305→        [
+   306→            &quot;schtasks&quot;, &quot;/create&quot;,
+   307→            &quot;/tn&quot;, TASK_NAME,
+   308→            &quot;/sc&quot;, &quot;minute&quot;,
+   309→            &quot;/mo&quot;, str(minutes),
+   310→            &quot;/tr&quot;, tr_command,
+   311→            &quot;/f&quot;,
+   312→        ],
+   313→        capture_output=True,
+   314→        text=True,
+   315→    )
+   316→    if result.returncode != 0:
+   317→        print(f&quot;Failed to create scheduled task: {result.stderr}&quot;, file=sys.stderr)
+   318→        return 1
+   319→
+   320→    print(f&quot;Heartbeat registered in Task Scheduler (every {minutes}m).&quot;)
+   321→    return 0
+   322→
+   323→
+   324→def _uninstall_schtasks() -&gt; int:
+   325→    subprocess.run(
+   326→        [&quot;schtasks&quot;, &quot;/delete&quot;, &quot;/tn&quot;, TASK_NAME, &quot;/f&quot;],
+   327→        capture_output=True,
+   328→        text=True,
+   329→    )
+   330→    print(&quot;Heartbeat removed from Task Scheduler.&quot;)
+   331→    return 0
+   332→
+   333→
+   334→def _is_schtasks_registered() -&gt; bool:
+   335→    result = subprocess.run(
+   336→        [&quot;schtasks&quot;, &quot;/query&quot;, &quot;/tn&quot;, TASK_NAME],
+   337→        capture_output=True,
+   338→        text=True,
+   339→    )
+   340→    return result.returncode == 0
+   341→
+   342→
+   343→# ── Helpers ──────────────────────────────────────────────────────────────────
+   344→
+   345→
+   346→def _heartbeat_script_path() -&gt; Path:
+   347→    return Path(__file__).resolve().parent / &quot;heartbeat.py&quot;
+   348→
+   349→
+   350→def _python_path() -&gt; list[str]:
+   351→    uv = shutil.which(&quot;uv&quot;)
+   352→    if uv:
+   353→        return [uv, &quot;run&quot;, &quot;python&quot;]
+   354→    return [sys.executable]
+   355→
+   356→
+   357→if __name__ == &quot;__main__&quot;:
+   358→    sys.exit(main())
+   359→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01S3ALo2zX6tLi3E5sR64EiN Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→MemoryTree heartbeat — single execution, stateless, idempotent. 4→ 5→Discovers new transcripts across Codex, Claude Code, and Gemini CLI, 6→impo..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01S3ALo2zX6tLi3E5sR64EiN</span>
+      
+      <span class="timeline-time">07:31:56</span>
+    </div>
+    <div class="timeline-title">Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→MemoryTree heartbeat — single execution, stateless, idempotent. 4→ 5→Discovers new transcripts across Codex, Claude Code, and Gemini CLI, 6→impo...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→#!/usr/bin/env python3
+     2→&quot;&quot;&quot;
+     3→MemoryTree heartbeat — single execution, stateless, idempotent.
+     4→
+     5→Discovers new transcripts across Codex, Claude Code, and Gemini CLI,
+     6→imports them into the global archive and per-project mirrors, commits
+     7→MemoryTree changes, and optionally pushes. Designed to be invoked by
+     8→an OS scheduler (cron / launchd / Task Scheduler) every 5 minutes.
+     9→&quot;&quot;&quot;
+    10→
+    11→from __future__ import annotations
+    12→
+    13→import re
+    14→import subprocess
+    15→import sys
+    16→from pathlib import Path
+    17→
+    18→from _alert_utils import reset_failure_count, write_alert, write_alert_with_threshold
+    19→from _config_utils import Config, load_config
+    20→from _lock_utils import acquire_lock, release_lock
+    21→from _log_utils import get_logger, setup_logging
+    22→from _transcript_discover import (
+    23→    discover_source_files,
+    24→    infer_project_slug,
+    25→    transcript_matches_repo,
+    26→)
+    27→from _transcript_import import import_transcript, transcript_has_content
+    28→from _transcript_parse import ParsedTranscript, parse_transcript, slugify
+    29→
+    30→SENSITIVE_PATTERNS = [
+    31→    re.compile(r&quot;(?:api[_-]?key|apikey)\s*[:=]\s*\S+&quot;, re.IGNORECASE),
+    32→    re.compile(r&quot;(?:password|passwd|pwd)\s*[:=]\s*\S+&quot;, re.IGNORECASE),
+    33→    re.compile(r&quot;(?:secret|token)\s*[:=]\s*\S+&quot;, re.IGNORECASE),
+    34→    re.compile(r&quot;(?:sk-|pk_live_|sk_live_|ghp_|gho_|glpat-)\S{10,}&quot;),
+    35→    re.compile(r&quot;Bearer\s+\S{20,}&quot;, re.IGNORECASE),
+    36→]
+    37→
+    38→
+    39→def main() -&gt; int:
+    40→    config = load_config()
+    41→    logger = setup_logging(config.log_level)
+    42→
+    43→    if not acquire_lock():
+    44→        logger.info(&quot;Another heartbeat instance is running. Exiting.&quot;)
+    45→        write_alert(&quot;global&quot;, &quot;lock_held&quot;, &quot;Heartbeat exited: another instance held the lock.&quot;)
+    46→        return 0
+    47→
+    48→    try:
+    49→        return _run_heartbeat(config)
+    50→    finally:
+    51→        release_lock()
+    52→
+    53→
+    54→def _run_heartbeat(config: Config) -&gt; int:
+    55→    logger = get_logger()
+    56→
+    57→    if not config.projects:
+    58→        logger.info(&quot;No projects registered in config.toml. Nothing to do.&quot;)
+    59→        return 0
+    60→
+    61→    logger.info(&quot;Heartbeat started. %d project(s) registered.&quot;, len(config.projects))
+    62→
+    63→    for entry in config.projects:
+    64→        project_path = entry.resolved_path()
+    65→        if not project_path.exists():
+    66→            logger.warning(&quot;Project path does not exist, skipping: %s&quot;, project_path)
+    67→            continue
+    68→        try:
+    69→            _process_project(config, project_path, entry.name or project_path.name)
+    70→        except Exception:
+    71→            logger.exception(&quot;Error processing project: %s&quot;, project_path)
+    72→            write_alert_with_threshold(
+    73→                project=project_path.as_posix(),
+    74→                alert_type=&quot;push_failed&quot;,
+    75→                message=f&quot;Heartbeat error for project: {project_path.name}&quot;,
+    76→            )
+    77→
+    78→    logger.info(&quot;Heartbeat finished.&quot;)
+    79→    return 0
+    80→
+    81→
+    82→def _process_project(config: Config, project_path: Path, project_name: str) -&gt; None:
+    83→    logger = get_logger()
+    84→    repo_slug = slugify(project_name, fallback=&quot;project&quot;)
+    85→    global_root = Path.home() / &quot;.memorytree&quot; / &quot;transcripts&quot;
+    86→
+    87→    # Discover and import new transcripts
+    88→    discovered = discover_source_files()
+    89→    imported_count = 0
+    90→
+    91→    for client, source in discovered:
+    92→        try:
+    93→            parsed = parse_transcript(client, source)
+    94→        except Exception:
+    95→            logger.debug(&quot;Failed to parse %s, skipping.&quot;, source)
+    96→            continue
+    97→
+    98→        if not transcript_has_content(parsed):
+    99→            continue
+   100→
+   101→        if not transcript_matches_repo(parsed, project_path, repo_slug):
+   102→            continue
+   103→
+   104→        # Sensitive info scan on cleaned content
+   105→        _scan_sensitive(parsed, project_path)
+   106→
+   107→        try:
+   108→            import_transcript(
+   109→                parsed=parsed,
+   110→                root=project_path,
+   111→                global_root=global_root,
+   112→                project_slug=repo_slug,
+   113→                raw_upload_permission=&quot;not-set&quot;,
+   114→                mirror_to_repo=True,
+   115→            )
+   116→            imported_count += 1
+   117→        except Exception:
+   118→            logger.exception(&quot;Failed to import transcript: %s&quot;, source)
+   119→
+   120→    if imported_count == 0:
+   121→        logger.info(&quot;[%s] No new transcripts to import.&quot;, project_name)
+   122→        return
+   123→
+   124→    logger.info(&quot;[%s] Imported %d transcript(s).&quot;, project_name, imported_count)
+   125→
+   126→    # Git commit + push
+   127→    _git_commit_and_push(config, project_path, project_name, imported_count)
+   128→
+   129→
+   130→def _scan_sensitive(parsed: ParsedTranscript, project_path: Path) -&gt; None:
+   131→    &quot;&quot;&quot;Scan transcript messages for sensitive patterns. Warn only, never delete.&quot;&quot;&quot;
+   132→    logger = get_logger()
+   133→    for msg in parsed.messages:
+   134→        for pattern in SENSITIVE_PATTERNS:
+   135→            if pattern.search(msg.text):
+   136→                logger.warning(
+   137→                    &quot;Sensitive pattern detected in transcript %s (project: %s, role: %s)&quot;,
+   138→                    parsed.source_path,
+   139→                    project_path.name,
+   140→                    msg.role,
+   141→                )
+   142→                write_alert(
+   143→                    project=project_path.as_posix(),
+   144→                    alert_type=&quot;sensitive_match&quot;,
+   145→                    message=f&quot;Sensitive pattern in transcript: {parsed.source_path.name}&quot;,
+   146→                )
+   147→                return  # One alert per transcript is enough
+   148→
+   149→
+   150→def _git_commit_and_push(config: Config, project_path: Path, project_name: str, count: int) -&gt; None:
+   151→    logger = get_logger()
+   152→
+   153→    # Check for changes in Memory/
+   154→    status = _git(project_path, &quot;status&quot;, &quot;--porcelain&quot;, &quot;Memory/&quot;)
+   155→    if not status.strip():
+   156→        logger.info(&quot;[%s] No git changes in Memory/.&quot;, project_name)
+   157→        return
+   158→
+   159→    # Stage and commit
+   160→    _git(project_path, &quot;add&quot;, &quot;Memory/&quot;)
+   161→    _git(
+   162→        project_path,
+   163→        &quot;commit&quot;,
+   164→        &quot;-m&quot;,
+   165→        f&quot;memorytree(transcripts): import {count} transcript(s)&quot;,
+   166→    )
+   167→    logger.info(&quot;[%s] Committed %d transcript import(s).&quot;, project_name, count)
+   168→
+   169→    if not config.auto_push:
+   170→        logger.info(&quot;[%s] auto_push disabled, skipping push.&quot;, project_name)
+   171→        return
+   172→
+   173→    # Remote pre-check
+   174→    remotes = _git(project_path, &quot;remote&quot;)
+   175→    if not remotes.strip():
+   176→        logger.warning(&quot;[%s] No git remote configured, skipping push.&quot;, project_name)
+   177→        write_alert(
+   178→            project=project_path.as_posix(),
+   179→            alert_type=&quot;no_remote&quot;,
+   180→            message=&quot;Push skipped: no Git remote configured.&quot;,
+   181→        )
+   182→        return
+   183→
+   184→    # Push with one retry
+   185→    if not _try_push(project_path, project_name):
+   186→        logger.warning(&quot;[%s] Push failed, retrying once...&quot;, project_name)
+   187→        if not _try_push(project_path, project_name):
+   188→            logger.error(&quot;[%s] Push failed after retry.&quot;, project_name)
+   189→            write_alert_with_threshold(
+   190→                project=project_path.as_posix(),
+   191→                alert_type=&quot;push_failed&quot;,
+   192→                message=&quot;Push failed after retry.&quot;,
+   193→            )
+   194→            return
+   195→
+   196→    reset_failure_count(project_path.as_posix(), &quot;push_failed&quot;)
+   197→
+   198→
+   199→def _try_push(project_path: Path, project_name: str) -&gt; bool:
+   200→    try:
+   201→        _git(project_path, &quot;push&quot;)
+   202→        get_logger().info(&quot;[%s] Pushed successfully.&quot;, project_name)
+   203→        return True
+   204→    except subprocess.CalledProcessError:
+   205→        return False
+   206→
+   207→
+   208→def _git(cwd: Path, *args: str) -&gt; str:
+   209→    result = subprocess.run(
+   210→        [&quot;git&quot;, *args],
+   211→        cwd=cwd,
+   212→        capture_output=True,
+   213→        text=True,
+   214→        timeout=120,
+   215→    )
+   216→    if result.returncode != 0 and args[0] not in (&quot;status&quot;, &quot;remote&quot;):
+   217→        raise subprocess.CalledProcessError(
+   218→            result.returncode, [&quot;git&quot;, *args], result.stdout, result.stderr
+   219→        )
+   220→    return result.stdout
+   221→
+   222→
+   223→if __name__ == &quot;__main__&quot;:
+   224→    sys.exit(main())
+   225→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01YXxx9o6afLu8b3XebBwpar Glob output=D:\demo1\memorytree-workflow\SKILL.md" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01YXxx9o6afLu8b3XebBwpar</span>
+      
+      <span class="timeline-time">07:31:56</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\memorytree-workflow\SKILL.md</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\SKILL.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01VV1eeSW6Aom5STRgHKk5ys Glob output=D:\demo1\memorytree-workflow\scripts\_config_utils.py" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01VV1eeSW6Aom5STRgHKk5ys</span>
+      
+      <span class="timeline-time">07:31:56</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\memorytree-workflow\scripts\_config_utils.py</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\scripts\_config_utils.py</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me continue reading the config utilities and SKILL.md:" id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#11</span>
+      
+      <span class="timeline-time">07:31:59</span>
+    </div>
+    <div class="message-body"><p>Let me continue reading the config utilities and SKILL.md:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01NNrnwoyUVP9sjE9fQZekeD Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/_config_utils.py&quot;}" id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01NNrnwoyUVP9sjE9fQZekeD</span>
+      <span class="timeline-time">07:32:00</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/_config_utils.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/scripts/_config_utils.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01GAk7Sm9on1kyEDF9KrWuuq Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/SKILL.md&quot;}" id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GAk7Sm9on1kyEDF9KrWuuq</span>
+      <span class="timeline-time">07:32:00</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/SKILL.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/SKILL.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_01DYXYc6AQmMUqAUdfoLzZyt Bash input={&quot;command&quot;:&quot;find /d/demo1/memorytree-workflow -maxdepth 2 -type f \\( -name \&quot;pyproject.toml\&quot; -o -name \&quot;setup.py\&quot; -o -name \&quot;setup.cfg\&quot; \\) 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;Find ..." id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01DYXYc6AQmMUqAUdfoLzZyt</span>
+      <span class="timeline-time">07:32:01</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find /d/demo1/memorytree-workflow -maxdepth 2 -type f \\( -name \&quot;pyproject.toml\&quot; -o -name \&quot;setup.py\&quot; -o -name \&quot;setup.cfg\&quot; \\) 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;Find ...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find /d/demo1/memorytree-workflow -maxdepth 2 -type f \\( -name \&quot;pyproject.toml\&quot; -o -name \&quot;setup.py\&quot; -o -name \&quot;setup.cfg\&quot; \\) 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;Find packaging configuration files&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01RaN5PaGNdrBcMSJFiqyYS6 Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow/scripts&quot;,&quot;pattern&quot;:&quot;_*.py&quot;}" id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01RaN5PaGNdrBcMSJFiqyYS6</span>
+      <span class="timeline-time">07:32:01</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow/scripts&quot;,&quot;pattern&quot;:&quot;_*.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;path&quot;: &quot;/d/demo1/memorytree-workflow/scripts&quot;,
+  &quot;pattern&quot;: &quot;_*.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01NNrnwoyUVP9sjE9fQZekeD Read output=1→&quot;&quot;&quot;Load, validate, and manage ~/.memorytree/config.toml.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import logging 6→import re 7→import tomllib 8→from dataclasses import ..." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01NNrnwoyUVP9sjE9fQZekeD</span>
+      
+      <span class="timeline-time">07:32:01</span>
+    </div>
+    <div class="timeline-title">Read output=1→&quot;&quot;&quot;Load, validate, and manage ~/.memorytree/config.toml.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import logging 6→import re 7→import tomllib 8→from dataclasses import ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&quot;&quot;&quot;Load, validate, and manage ~/.memorytree/config.toml.&quot;&quot;&quot;
+     2→
+     3→from __future__ import annotations
+     4→
+     5→import logging
+     6→import re
+     7→import tomllib
+     8→from dataclasses import dataclass, field
+     9→from pathlib import Path
+    10→
+    11→log = logging.getLogger(&quot;memorytree&quot;)
+    12→
+    13→
+    14→DEFAULT_HEARTBEAT_INTERVAL = &quot;5m&quot;
+    15→DEFAULT_AUTO_PUSH = True
+    16→DEFAULT_LOG_LEVEL = &quot;info&quot;
+    17→VALID_LOG_LEVELS = {&quot;debug&quot;, &quot;info&quot;, &quot;warn&quot;, &quot;error&quot;}
+    18→
+    19→
+    20→@dataclass
+    21→class ProjectEntry:
+    22→    path: str
+    23→    name: str = &quot;&quot;
+    24→
+    25→    def resolved_path(self) -&gt; Path:
+    26→        return Path(self.path).expanduser().resolve()
+    27→
+    28→
+    29→@dataclass
+    30→class Config:
+    31→    heartbeat_interval: str = DEFAULT_HEARTBEAT_INTERVAL
+    32→    watch_dirs: list[str] = field(default_factory=list)
+    33→    projects: list[ProjectEntry] = field(default_factory=list)
+    34→    auto_push: bool = DEFAULT_AUTO_PUSH
+    35→    log_level: str = DEFAULT_LOG_LEVEL
+    36→
+    37→
+    38→def memorytree_root() -&gt; Path:
+    39→    return Path.home() / &quot;.memorytree&quot;
+    40→
+    41→
+    42→def config_path() -&gt; Path:
+    43→    return memorytree_root() / &quot;config.toml&quot;
+    44→
+    45→
+    46→def load_config() -&gt; Config:
+    47→    &quot;&quot;&quot;Load config.toml, falling back to defaults on any error.&quot;&quot;&quot;
+    48→    path = config_path()
+    49→    if not path.exists():
+    50→        log.info(&quot;config.toml not found, using defaults.&quot;)
+    51→        return Config()
+    52→    try:
+    53→        with path.open(&quot;rb&quot;) as fh:
+    54→            raw = tomllib.load(fh)
+    55→    except (OSError, tomllib.TOMLDecodeError) as exc:
+    56→        log.error(&quot;Failed to parse config.toml: %s. Using defaults.&quot;, exc)
+    57→        return Config()
+    58→    return _parse_raw(raw)
+    59→
+    60→
+    61→def _parse_raw(raw: dict) -&gt; Config:
+    62→    interval = raw.get(&quot;heartbeat_interval&quot;, DEFAULT_HEARTBEAT_INTERVAL)
+    63→    if not isinstance(interval, str) or not _is_valid_interval(interval):
+    64→        log.warning(&quot;Invalid heartbeat_interval &#39;%s&#39;, using default &#39;%s&#39;.&quot;, interval, DEFAULT_HEARTBEAT_INTERVAL)
+    65→        interval = DEFAULT_HEARTBEAT_INTERVAL
+    66→
+    67→    auto_push = raw.get(&quot;auto_push&quot;, DEFAULT_AUTO_PUSH)
+    68→    if not isinstance(auto_push, bool):
+    69→        log.warning(&quot;Invalid auto_push value &#39;%s&#39;, using default %s.&quot;, auto_push, DEFAULT_AUTO_PUSH)
+    70→        auto_push = DEFAULT_AUTO_PUSH
+    71→
+    72→    log_level = raw.get(&quot;log_level&quot;, DEFAULT_LOG_LEVEL)
+    73→    if not isinstance(log_level, str) or log_level.lower() not in VALID_LOG_LEVELS:
+    74→        log.warning(&quot;Invalid log_level &#39;%s&#39;, using default &#39;%s&#39;.&quot;, log_level, DEFAULT_LOG_LEVEL)
+    75→        log_level = DEFAULT_LOG_LEVEL
+    76→    log_level = log_level.lower()
+    77→
+    78→    watch_dirs: list[str] = []
+    79→    raw_dirs = raw.get(&quot;watch_dirs&quot;, [])
+    80→    if isinstance(raw_dirs, list):
+    81→        for d in raw_dirs:
+    82→            if isinstance(d, str):
+    83→                watch_dirs.append(d)
+    84→
+    85→    projects: list[ProjectEntry] = []
+    86→    raw_projects = raw.get(&quot;projects&quot;, [])
+    87→    if isinstance(raw_projects, list):
+    88→        for entry in raw_projects:
+    89→            if isinstance(entry, dict) and isinstance(entry.get(&quot;path&quot;), str):
+    90→                projects.append(
+    91→                    ProjectEntry(
+    92→                        path=entry[&quot;path&quot;],
+    93→                        name=str(entry.get(&quot;name&quot;, &quot;&quot;)),
+    94→                    )
+    95→                )
+    96→
+    97→    return Config(
+    98→        heartbeat_interval=interval,
+    99→        watch_dirs=watch_dirs,
+   100→        projects=projects,
+   101→        auto_push=auto_push,
+   102→        log_level=log_level,
+   103→    )
+   104→
+   105→
+   106→def interval_to_seconds(interval: str) -&gt; int:
+   107→    &quot;&quot;&quot;Convert an interval string like &#39;5m&#39; or &#39;300s&#39; to seconds.&quot;&quot;&quot;
+   108→    match = re.fullmatch(r&quot;(\d+)\s*(s|m|h)&quot;, interval.strip().lower())
+   109→    if not match:
+   110→        return interval_to_seconds(DEFAULT_HEARTBEAT_INTERVAL)
+   111→    value = int(match.group(1))
+   112→    unit = match.group(2)
+   113→    if value &lt;= 0:
+   114→        return interval_to_seconds(DEFAULT_HEARTBEAT_INTERVAL)
+   115→    multiplier = {&quot;s&quot;: 1, &quot;m&quot;: 60, &quot;h&quot;: 3600}
+   116→    return value * multiplier[unit]
+   117→
+   118→
+   119→def save_config(cfg: Config) -&gt; None:
+   120→    &quot;&quot;&quot;Write config back to config.toml.&quot;&quot;&quot;
+   121→    path = config_path()
+   122→    path.parent.mkdir(parents=True, exist_ok=True)
+   123→    lines = [
+   124→        f&#39;heartbeat_interval = &quot;{cfg.heartbeat_interval}&quot;&#39;,
+   125→        f&quot;auto_push = {&#39;true&#39; if cfg.auto_push else &#39;false&#39;}&quot;,
+   126→        f&#39;log_level = &quot;{cfg.log_level}&quot;&#39;,
+   127→    ]
+   128→    if cfg.watch_dirs:
+   129→        items = &quot;, &quot;.join(f&#39;&quot;{d}&quot;&#39; for d in cfg.watch_dirs)
+   130→        lines.append(f&quot;watch_dirs = [{items}]&quot;)
+   131→    else:
+   132→        lines.append(&quot;watch_dirs = []&quot;)
+   133→
+   134→    lines.append(&quot;&quot;)
+   135→    for project in cfg.projects:
+   136→        lines.append(&quot;[[projects]]&quot;)
+   137→        lines.append(f&#39;path = &quot;{project.path}&quot;&#39;)
+   138→        if project.name:
+   139→            lines.append(f&#39;name = &quot;{project.name}&quot;&#39;)
+   140→        lines.append(&quot;&quot;)
+   141→
+   142→    path.write_text(&quot;\n&quot;.join(lines) + &quot;\n&quot;, encoding=&quot;utf-8&quot;)
+   143→
+   144→
+   145→def register_project(cfg: Config, repo_path: Path) -&gt; Config:
+   146→    &quot;&quot;&quot;Add a project to the config if not already registered. Returns new Config.&quot;&quot;&quot;
+   147→    resolved = repo_path.resolve().as_posix()
+   148→    for entry in cfg.projects:
+   149→        if entry.resolved_path().as_posix() == resolved:
+   150→            return cfg
+   151→    new_projects = [*cfg.projects, ProjectEntry(path=resolved, name=repo_path.name)]
+   152→    return Config(
+   153→        heartbeat_interval=cfg.heartbeat_interval,
+   154→        watch_dirs=list(cfg.watch_dirs),
+   155→        projects=new_projects,
+   156→        auto_push=cfg.auto_push,
+   157→        log_level=cfg.log_level,
+   158→    )
+   159→
+   160→
+   161→def _is_valid_interval(value: str) -&gt; bool:
+   162→    match = re.fullmatch(r&quot;(\d+)\s*(s|m|h)&quot;, value.strip().lower())
+   163→    if not match:
+   164→        return False
+   165→    return int(match.group(1)) &gt; 0
+   166→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01GAk7Sm9on1kyEDF9KrWuuq Read output=1→--- 2→name: memorytree-workflow 3→description: Detect, initialize, and maintain a reusable MemoryTree project-memory workspace for any code repository. On activation, immediat..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GAk7Sm9on1kyEDF9KrWuuq</span>
+      
+      <span class="timeline-time">07:32:01</span>
+    </div>
+    <div class="timeline-title">Read output=1→--- 2→name: memorytree-workflow 3→description: Detect, initialize, and maintain a reusable MemoryTree project-memory workspace for any code repository. On activation, immediat...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→---
+     2→name: memorytree-workflow
+     3→description: Detect, initialize, and maintain a reusable MemoryTree project-memory workspace for any code repository. On activation, immediately detect and report the repo&#39;s MemoryTree state.
+     4→---
+     5→
+     6→# MemoryTree
+     7→
+     8→Use this skill for repo-level project memory. Do not treat it as an application runtime feature unless the user explicitly asks to productize it.
+     9→
+    10→## On Activation
+    11→
+    12→When this skill is invoked, immediately perform these steps without waiting for further user input:
+    13→
+    14→1. Detect the repo state (`not-installed`, `partial`, or `installed`) using `references/project-detection.md`.
+    15→2. Check `~/.memorytree/alerts.json`. If pending alerts exist, display them to the user before proceeding.
+    16→3. If `not-installed`: run `scripts/init-memorytree.py` to scaffold the workspace, then report what was created.
+    17→4. If `partial`: run `scripts/upgrade-memorytree.py` to add missing pieces, then report what was added.
+    18→5. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next. If `memorytree-daemon` is available but not registered, ask the user for their preferred heartbeat interval, auto_push preference, and scope, then offer to run `memorytree-daemon install`. Use plain-text questions compatible with all AI assistants, not client-specific UI components.
+    19→
+    20→Do not stop after detection to ask whether you should proceed. Act on the result immediately.
+    21→
+    22→## Core Behavior
+    23→
+    24→1. Detect the repo state before changing files. Use `references/project-detection.md`.
+    25→2. If MemoryTree is missing, initialize it with `scripts/init-memorytree.py`. If the script cannot run, create the files from `assets/templates/`.
+    26→3. If MemoryTree is partial, upgrade it with `scripts/upgrade-memorytree.py` before manual maintenance.
+    27→4. If MemoryTree is already installed, maintain only the active goal, bound todo, and current chat log. Use `references/update-rules.md`.
+    28→5. Keep the installation compatible with the host repo&#39;s branch, PR, CI, and review rules. Use `references/git-policy.md`.
+    29→6. Prefer safe defaults: do not add reply suffix requirements unless the host repository already requires them, do not mix code-and-memory commits by default, and do not override branch policy. MemoryTree-only git automation is allowed only inside the isolated flow in `references/git-policy.md`.
+    30→7. When locale is not explicit, choose it from repo language first, then system language. Use `references/locale-selection.md`.
+    31→8. Keep reply language aligned with user language first, then repo locale. Use `references/response-language.md`.
+    32→9. For partial repos, use the non-destructive upgrade path before manual maintenance. Use `references/upgrade-path.md`.
+    33→10. When transcript archival is enabled, import transcripts with deterministic code, preserve raw transcripts as evidence in both the current repo mirror and the global archive, generate cleaned Markdown for indexing, keep cross-project backfills and ambiguous ownership cases in the global archive only, and ask once per repository whether raw transcript files may be committed or pushed. Use `references/transcript-archive.md`.
+    34→11. When scripts are needed, prefer an existing `uv run python` environment first, then a system `python`, and only fall back to manual scaffolding or conservative manual review if no runner is available. Use `references/execution-environment.md`.
+    35→12. Transcript discovery, import, cleaning, and push are handled by the background heartbeat process. The model only writes chat log summaries and updates goals and todos. See `references/heartbeat-scheduling.md`.
+    36→13. Global configuration is stored in `~/.memorytree/config.toml`. See `references/global-configuration.md`.
+    37→14. When the user asks to see their most recent conversation, trigger an on-demand transcript sync for the current project, locate the latest session across all three clients, and generate a continuation summary. See `references/transcript-archive.md` and `references/heartbeat-scheduling.md`.
+    38→15. All interactive prompts (heartbeat install, configuration, session continuity) must use plain-text questions compatible with every AI assistant that supports this skill. Do not rely on client-specific UI components. See `references/heartbeat-scheduling.md`.
+    39→
+    40→## Read Order
+    41→
+    42→1. Repo `AGENTS.md`, if present.
+    43→2. Latest file in `Memory/01_goals/`.
+    44→3. Latest todo bound to that goal in `Memory/02_todos/`.
+    45→4. `Memory/04_knowledge/` only when needed.
+    46→5. `Memory/06_transcripts/clean/`, transcript manifests, and repo-local raw transcript mirrors only when transcript history or cross-project memory search is relevant.
+    47→6. `Memory/03_chat_logs/` and `Memory/05_archive/` only when needed.
+    48→
+    49→## Detect
+    50→
+    51→1. Check whether `Memory/` exists and matches the layout in `references/memory-layout.md`.
+    52→2. Classify the repo as `not-installed`, `partial`, or `installed`.
+    53→3. If the repo already has stronger rules than the generated templates, preserve the repo rules and only add missing MemoryTree pieces.
+    54→
+    55→## Upgrade
+    56→
+    57→1. Use `scripts/upgrade-memorytree.py` for repositories that already have `AGENTS.md`, custom policy files, or partial `Memory/` content.
+    58→2. Preserve existing repo policy files by default.
+    59→3. Create only the missing MemoryTree pieces.
+    60→4. Read the upgrade result and treat `agents_merge_required=true` as a manual review task, not an overwrite instruction.
+    61→5. If no Python runner is available, do not create a project-local environment automatically. Fall back to conservative manual inspection and only make low-risk changes unless the user explicitly approved environment setup.
+    62→
+    63→## Initialize
+    64→
+    65→1. Run `scripts/init-memorytree.py --root &lt;repo&gt;` and pass `--project-name`, `--goal-summary`, and `--locale` when the user already provided them.
+    66→2. Use fresh init only when the repo does not already have `AGENTS.md` or another repo policy source such as a policy-bearing `CONTRIBUTING.md`, PR templates, `CODEOWNERS`, or commitlint config. If repo policy already exists, switch to `scripts/upgrade-memorytree.py` instead of trying to skip `AGENTS.md`.
+    67→3. Review the generated `AGENTS.md` before keeping it. Merge it with the repo&#39;s existing policy if needed.
+    68→4. Keep the initial installation minimal: `Memory/01_goals`, `02_todos`, `03_chat_logs`, optional `04_knowledge`, `05_archive`, and `06_transcripts` only when transcript archival is enabled for the repo or needed for transcript import.
+    69→5. Use the locale-specific template files in `assets/templates/&lt;locale&gt;/` as the source of truth for first-run scaffolding.
+    70→6. Prefer `--locale auto` when the user did not request a language explicitly.
+    71→7. Use `scripts/detect-memorytree-locale.py` when you need a deterministic locale check without scaffolding files.
+    72→8. Prefer `uv run python` first, then a system `python`. If neither is available, create first-run files directly from `assets/templates/` instead of creating a project-local virtual environment by default.
+    73→9. If transcript archival is enabled for the repo, use `scripts/import-transcripts.py` for one explicit source file and `scripts/discover-transcripts.py` when scanning local client stores. Matching transcripts must update both the repo mirror and the global archive, while unrelated projects, ambiguous ownership cases, or mismatched explicit sources are archived in the global archive only. Let the scripts generate cleaned transcripts deterministically without spending model tokens on the cleaning step.
+    74→10. Ask once whether raw transcript files may also be committed to the repository. Record the answer in `AGENTS.md`, keep the files in the repo either way, and exclude `raw` files from automatic staging until the user says yes.
+    75→
+    76→## Maintain
+    77→
+    78→1. Change the active goal only after explicit user confirmation of a scope or requirement change.
+    79→2. Update the active todo when progress changes, milestones move, or the next task becomes clearer.
+    80→3. Append chat logs only. Never rewrite or delete prior entries.
+    81→4. Keep active files small. Move stale context to archive or knowledge files instead of bloating the active goal or todo.
+    82→5. Treat product ideas, architecture decisions, and operating constraints as goal or knowledge content. Treat step-by-step execution state as todo content.
+    83→6. Treat cleaned transcript indexes as discovery aids, not as the final source of truth. When exact wording matters, confirm against the raw transcript archive.
+    84→7. Prefer deterministic script-based transcript cleaning over manual rewriting. Do not spend model tokens to restate or normalize transcript content when `scripts/import-transcripts.py` can do it.
+    85→8. Reply in the user&#39;s language when clear; otherwise align with repo locale without rewriting existing files just to translate them.
+    86→
+    87→## Git And Safety
+    88→
+    89→1. Never assume MemoryTree can override the repo&#39;s branch model.
+    90→2. Default to isolated MemoryTree-only Git operations: stage only MemoryTree-owned files, use a MemoryTree-scoped commit title, push to a dedicated branch, and open a dedicated PR.
+    91→3. Enable auto-merge only for MemoryTree-only PRs, and only when the repository still enforces its required review and CI checks.
+    92→4. Keep repo-local raw transcript mirrors and the global transcript archive synchronized on every import. The global index must remain safe for concurrent multi-project updates.
+    93→5. Keep the repository mirror limited to transcripts that belong to the current repository. Unrelated or ambiguous transcripts belong in the global archive only.
+    94→6. Keep raw transcript files under `Memory/06_transcripts/raw/**` in the repo, but exclude them from automatic staging until the user explicitly approved raw transcript uploads for that repository.
+    95→7. If the diff mixes product code, shared policy files, cross-project transcript archives, or unclear ownership, stop and ask the user before committing or pushing.
+    96→8. If the repo has protected branches or PR-only rules, follow them even if older MemoryTree rules say otherwise.
+    97→9. When `auto_push` is enabled, the heartbeat process pushes automatically after committing. If no Git remote is configured, the push is skipped. If a push fails, the heartbeat retries once. In either case an alert is written to `~/.memorytree/alerts.json`. See `references/git-policy.md`.
+    98→10. During transcript cleaning, the heartbeat scans for sensitive information (API keys, passwords, tokens). Matches are logged as warnings only — no automatic deletion or redaction. See `references/heartbeat-scheduling.md`.
+    99→
+   100→## Resources
+   101→
+   102→- `references/project-detection.md`: detect install state and choose init vs maintain.
+   103→- `references/memory-layout.md`: folder and file naming rules.
+   104→- `references/update-rules.md`: when to version goals, todos, and session logs.
+   105→- `references/git-policy.md`: safe Git defaults and policy merge guidance.
+   106→- `references/locale-selection.md`: locale choice rules and alias behavior.
+   107→- `references/response-language.md`: reply-language precedence and translation safety.
+   108→- `references/transcript-archive.md`: raw transcript archival, clean transcript indexing, per-client source rules, and repo upload confirmation rules.
+   109→- `references/upgrade-path.md`: safe adoption flow for partial repos.
+   110→- `references/execution-environment.md`: how to run MemoryTree scripts without assuming a project-local Python environment.
+   111→- `references/heartbeat-scheduling.md`: background heartbeat architecture, daemon CLI, and execution flow.
+   112→- `references/global-configuration.md`: `~/.memorytree/` directory layout, `config.toml` schema, and `alerts.json` format.
+   113→- `assets/templates/en/` and `assets/templates/zh-cn/`: seed files for English and Simplified Chinese initialization.
+   114→- `scripts/heartbeat.py`: background heartbeat entry point.
+   115→- `scripts/memorytree_daemon.py`: heartbeat lifecycle manager (install/uninstall/run-once/watch/status).
+   116→- `scripts/recall-session.py`: on-demand transcript sync and latest session recall for cross-session context recovery.
+   117→- `scripts/detect-memorytree-locale.py`: print the effective locale for a target repository.
+   118→- `scripts/discover-transcripts.py`: scan supported local client stores, mirror current-project transcripts into the repo, and backfill other projects into the global archive only.
+   119→- `scripts/import-transcripts.py`: import one transcript into the repo mirror and global archive, then generate clean Markdown deterministically by code.
+   120→- `scripts/upgrade-memorytree.py`: safely add missing MemoryTree pieces to a partial repository.
+   121→- `scripts/init-memorytree.py`: deterministic scaffold script.
+   122→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01RaN5PaGNdrBcMSJFiqyYS6 Glob output=D:\demo1\memorytree-workflow\scripts\_locale_utils.py D:\demo1\memorytree-workflow\scripts\_scaffold_utils.py D:\demo1\memorytree-workflow\scripts\_log_utils.py D:\demo1\memoryt..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01RaN5PaGNdrBcMSJFiqyYS6</span>
+      
+      <span class="timeline-time">07:32:01</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\memorytree-workflow\scripts\_locale_utils.py D:\demo1\memorytree-workflow\scripts\_scaffold_utils.py D:\demo1\memorytree-workflow\scripts\_log_utils.py D:\demo1\memoryt...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\scripts\_locale_utils.py
+D:\demo1\memorytree-workflow\scripts\_scaffold_utils.py
+D:\demo1\memorytree-workflow\scripts\_log_utils.py
+D:\demo1\memorytree-workflow\scripts\_alert_utils.py
+D:\demo1\memorytree-workflow\scripts\_config_utils.py
+D:\demo1\memorytree-workflow\scripts\_lock_utils.py
+D:\demo1\memorytree-workflow\scripts\_transcript_index.py
+D:\demo1\memorytree-workflow\scripts\_transcript_discover.py
+D:\demo1\memorytree-workflow\scripts\_transcript_import.py
+D:\demo1\memorytree-workflow\scripts\_transcript_common.py
+D:\demo1\memorytree-workflow\scripts\_transcript_parse.py
+D:\demo1\memorytree-workflow\scripts\_transcript_utils.py</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_01DYXYc6AQmMUqAUdfoLzZyt Bash output=(Bash completed with no output)" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01DYXYc6AQmMUqAUdfoLzZyt</span>
+      
+      <span class="timeline-time">07:32:01</span>
+    </div>
+    <div class="timeline-title">Bash output=(Bash completed with no output)</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>(Bash completed with no output)</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me search for any references to &quot;install&quot; or &quot;first-time&quot; triggers and check for heartbeat-scheduling reference:" id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#20</span>
+      
+      <span class="timeline-time">07:32:04</span>
+    </div>
+    <div class="message-body"><p>Now let me search for any references to &quot;install&quot; or &quot;first-time&quot; triggers and check for heartbeat-scheduling reference:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_01VaRazUe2xpuQt67H8tVB2k Bash input={&quot;command&quot;:&quot;find /d/demo1/memorytree-workflow -name \&quot;*.md\&quot; -type f 2&gt;/dev/null | head -20&quot;,&quot;description&quot;:&quot;List markdown files in the project&quot;}" id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01VaRazUe2xpuQt67H8tVB2k</span>
+      <span class="timeline-time">07:32:04</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find /d/demo1/memorytree-workflow -name \&quot;*.md\&quot; -type f 2&gt;/dev/null | head -20&quot;,&quot;description&quot;:&quot;List markdown files in the project&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find /d/demo1/memorytree-workflow -name \&quot;*.md\&quot; -type f 2&gt;/dev/null | head -20&quot;,
+  &quot;description&quot;: &quot;List markdown files in the project&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Grep toolu_01QuWEDvoci2xjHjYWcY82Vz Grep input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow&quot;,&quot;pattern&quot;:&quot;first.install|on.activation|activate&quot;,&quot;type&quot;:&quot;md&quot;}" id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01QuWEDvoci2xjHjYWcY82Vz</span>
+      <span class="timeline-time">07:32:04</span>
+    </div>
+    <div class="timeline-title">Grep input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow&quot;,&quot;pattern&quot;:&quot;first.install|on.activation|activate&quot;,&quot;type&quot;:&quot;md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;first.install|on.activation|activate&quot;,
+  &quot;path&quot;: &quot;/d/demo1/memorytree-workflow&quot;,
+  &quot;type&quot;: &quot;md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Grep toolu_01QuWEDvoci2xjHjYWcY82Vz Grep output=Found 2 files references\global-configuration.md references\heartbeat-scheduling.md" id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01QuWEDvoci2xjHjYWcY82Vz</span>
+      
+      <span class="timeline-time">07:32:05</span>
+    </div>
+    <div class="timeline-title">Grep output=Found 2 files references\global-configuration.md references\heartbeat-scheduling.md</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Found 2 files
+references\global-configuration.md
+references\heartbeat-scheduling.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_01VaRazUe2xpuQt67H8tVB2k Bash output=/d/demo1/memorytree-workflow/assets/templates/en/agents.md /d/demo1/memorytree-workflow/assets/templates/en/chat-log.md /d/demo1/memorytree-workflow/assets/templates/en/goal.md ..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01VaRazUe2xpuQt67H8tVB2k</span>
+      
+      <span class="timeline-time">07:32:05</span>
+    </div>
+    <div class="timeline-title">Bash output=/d/demo1/memorytree-workflow/assets/templates/en/agents.md /d/demo1/memorytree-workflow/assets/templates/en/chat-log.md /d/demo1/memorytree-workflow/assets/templates/en/goal.md ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>/d/demo1/memorytree-workflow/assets/templates/en/agents.md
+/d/demo1/memorytree-workflow/assets/templates/en/chat-log.md
+/d/demo1/memorytree-workflow/assets/templates/en/goal.md
+/d/demo1/memorytree-workflow/assets/templates/en/todo.md
+/d/demo1/memorytree-workflow/assets/templates/zh-cn/agents.md
+/d/demo1/memorytree-workflow/assets/templates/zh-cn/chat-log.md
+/d/demo1/memorytree-workflow/assets/templates/zh-cn/goal.md
+/d/demo1/memorytree-workflow/assets/templates/zh-cn/todo.md
+/d/demo1/memorytree-workflow/README.md
+/d/demo1/memorytree-workflow/references/execution-environment.md
+/d/demo1/memorytree-workflow/references/git-policy.md
+/d/demo1/memorytree-workflow/references/global-configuration.md
+/d/demo1/memorytree-workflow/references/heartbeat-scheduling.md
+/d/demo1/memorytree-workflow/references/locale-selection.md
+/d/demo1/memorytree-workflow/references/memory-layout.md
+/d/demo1/memorytree-workflow/references/project-detection.md
+/d/demo1/memorytree-workflow/references/response-language.md
+/d/demo1/memorytree-workflow/references/transcript-archive.md
+/d/demo1/memorytree-workflow/references/update-rules.md
+/d/demo1/memorytree-workflow/references/upgrade-path.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Perfect! Let me read the heartbeat-scheduling reference:" id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#25</span>
+      
+      <span class="timeline-time">07:32:07</span>
+    </div>
+    <div class="message-body"><p>Perfect! Let me read the heartbeat-scheduling reference:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01HnBAyWUmtZAm2bkMKe5evP Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/references/heartbeat-scheduling.md&quot;}" id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01HnBAyWUmtZAm2bkMKe5evP</span>
+      <span class="timeline-time">07:32:07</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/references/heartbeat-scheduling.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/references/heartbeat-scheduling.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01KEcojtBNrw59GGZcnb8U6X Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/references/global-configuration.md&quot;}" id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01KEcojtBNrw59GGZcnb8U6X</span>
+      <span class="timeline-time">07:32:08</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/references/global-configuration.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/references/global-configuration.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01UoWJ2hZMjtzGEVj7isfE7x Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow/scripts&quot;,&quot;pattern&quot;:&quot;*.py&quot;}" id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01UoWJ2hZMjtzGEVj7isfE7x</span>
+      <span class="timeline-time">07:32:08</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;/d/demo1/memorytree-workflow/scripts&quot;,&quot;pattern&quot;:&quot;*.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;path&quot;: &quot;/d/demo1/memorytree-workflow/scripts&quot;,
+  &quot;pattern&quot;: &quot;*.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01KEcojtBNrw59GGZcnb8U6X Read output=1→# Global Configuration 2→ 3→Use this file when MemoryTree needs to read or write user-level configuration, state, or cross-project data outside any single repository. 4→ 5→## ..." id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#29</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01KEcojtBNrw59GGZcnb8U6X</span>
+      
+      <span class="timeline-time">07:32:08</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Global Configuration 2→ 3→Use this file when MemoryTree needs to read or write user-level configuration, state, or cross-project data outside any single repository. 4→ 5→## ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Global Configuration
+     2→
+     3→Use this file when MemoryTree needs to read or write user-level configuration, state, or cross-project data outside any single repository.
+     4→
+     5→## Goal
+     6→
+     7→Provide a single user-level location for global state, configuration, and cross-project data so that heartbeat, daemon, and multi-project features have a shared, predictable root.
+     8→
+     9→## Directory Layout
+    10→
+    11→```text
+    12→~/.memorytree/
+    13→  config.toml              # User-level settings
+    14→  alerts.json              # Pending notifications for the next interactive session
+    15→  heartbeat.lock           # Single-instance lock for the heartbeat process
+    16→  logs/
+    17→    heartbeat-&lt;date&gt;.log   # Heartbeat execution logs, rotated by date
+    18→  transcripts/             # Global transcript archive (see references/transcript-archive.md)
+    19→    raw/
+    20→    clean/
+    21→    index/
+    22→      sessions.jsonl
+    23→      search.sqlite
+    24→```
+    25→
+    26→Path roots:
+    27→
+    28→- Windows: `%USERPROFILE%`
+    29→- macOS and Linux: `$HOME`
+    30→
+    31→## config.toml Schema
+    32→
+    33→| Field                | Type       | Default          | Description |
+    34→|----------------------|------------|------------------|-------------|
+    35→| `heartbeat_interval` | string     | `&quot;5m&quot;`           | Interval between heartbeat executions. Passed to the OS scheduler. |
+    36→| `watch_dirs`         | string[]   | `[]`             | Additional directories to scan for transcript sources beyond the default client stores. |
+    37→| `projects`           | table[]    | `[]`             | Registered project entries. Each entry has `path` (repo root) and optional `name`. |
+    38→| `auto_push`          | boolean    | `true`           | Whether the heartbeat pushes after committing. See `references/git-policy.md`. |
+    39→| `log_level`          | string     | `&quot;info&quot;`         | Log verbosity: `debug`, `info`, `warn`, `error`. |
+    40→
+    41→Projects are added automatically when the skill activates in a repository and can also be added manually.
+    42→
+    43→### Validation
+    44→
+    45→If `config.toml` contains invalid values, the heartbeat uses built-in defaults for those fields and logs a warning:
+    46→
+    47→- `heartbeat_interval`: must be a positive duration string (e.g., `&quot;5m&quot;`, `&quot;300s&quot;`). Invalid or zero values fall back to `&quot;5m&quot;`.
+    48→- `watch_dirs`: non-existent directories are silently skipped during scanning.
+    49→- `projects`: entries with non-existent `path` values are skipped during the heartbeat run (not removed from config).
+    50→- `auto_push`: non-boolean values fall back to `true`.
+    51→- `log_level`: unrecognized values fall back to `&quot;info&quot;`.
+    52→
+    53→If the file itself is malformed TOML, the heartbeat logs an error, uses all built-in defaults, and continues.
+    54→
+    55→## alerts.json
+    56→
+    57→A JSON array of alert objects. Each object has:
+    58→
+    59→```json
+    60→{
+    61→  &quot;timestamp&quot;: &quot;2026-03-15T08:30:00Z&quot;,
+    62→  &quot;project&quot;: &quot;/path/to/repo&quot;,
+    63→  &quot;type&quot;: &quot;no_remote&quot;,
+    64→  &quot;message&quot;: &quot;Push skipped: no Git remote configured.&quot;,
+    65→  &quot;count&quot;: 1
+    66→}
+    67→```
+    68→
+    69→Alert types:
+    70→
+    71→| Type              | Trigger |
+    72→|-------------------|---------|
+    73→| `no_remote`       | Push skipped because the repository has no configured Git remote. |
+    74→| `sensitive_match` | A transcript contains a pattern that looks like a secret. |
+    75→| `push_failed`     | Push attempted but failed (network, auth, protected branch). |
+    76→| `lock_held`       | Heartbeat exited because another instance held the lock. |
+    77→
+    78→When the skill activates in an interactive session, it reads `alerts.json`, displays pending alerts to the user, and clears all displayed entries (display = acknowledgement, no explicit dismiss required).
+    79→
+    80→Alert lifecycle rules:
+    81→
+    82→1. **Deduplication**: Before appending a new alert, check if an existing alert with the same `project` and `type` exists. If so, increment its `count` and update its `timestamp` instead of adding a duplicate.
+    83→2. **Maximum entries**: Keep at most 100 alert entries. When the limit is reached, drop the oldest entries first.
+    84→3. **Clearing**: After the skill displays alerts to the user, remove all displayed entries from the file. If the file becomes empty, delete it.
+    85→4. **Failure threshold**: The heartbeat writes a `push_failed` alert only after 3 consecutive failures for the same project. The count resets on a successful push.
+    86→
+    87→## Python Version
+    88→
+    89→Scripts in this project require Python 3.11 or later. The `tomllib` module (stdlib in 3.11+) is used for `config.toml` parsing. No third-party TOML packages are needed.
+    90→
+    91→## Project Registration
+    92→
+    93→- **Automatic**: When the memorytree-workflow skill activates in a repository, it adds the repo to `config.toml` `projects` if not already present.
+    94→- **Manual**: The user can edit `config.toml` directly to add or remove projects.
+    95→- **Deregistration**: Removing a project entry stops the heartbeat from scanning it. Existing transcripts in the global archive are not deleted.
+    96→
+    97→## Stop And Ask
+    98→
+    99→Stop and ask the user before proceeding when any of these are true:
+   100→
+   101→1. `config.toml` does not exist and would be created for the first time. Confirm default values.
+   102→2. A project registration would add a path that does not look like a Git repository.
+   103→3. Changing `auto_push` from `false` to `true` would enable pushing for all registered projects.
+   104→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01UoWJ2hZMjtzGEVj7isfE7x Glob output=D:\demo1\memorytree-workflow\scripts\detect-memorytree-locale.py D:\demo1\memorytree-workflow\scripts\init-memorytree.py D:\demo1\memorytree-workflow\scripts\upgrade-memorytree...." id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#30</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01UoWJ2hZMjtzGEVj7isfE7x</span>
+      
+      <span class="timeline-time">07:32:08</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\memorytree-workflow\scripts\detect-memorytree-locale.py D:\demo1\memorytree-workflow\scripts\init-memorytree.py D:\demo1\memorytree-workflow\scripts\upgrade-memorytree....</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\scripts\detect-memorytree-locale.py
+D:\demo1\memorytree-workflow\scripts\init-memorytree.py
+D:\demo1\memorytree-workflow\scripts\upgrade-memorytree.py
+D:\demo1\memorytree-workflow\scripts\_locale_utils.py
+D:\demo1\memorytree-workflow\scripts\_scaffold_utils.py
+D:\demo1\memorytree-workflow\scripts\_log_utils.py
+D:\demo1\memorytree-workflow\scripts\memorytree_daemon.py
+D:\demo1\memorytree-workflow\scripts\_alert_utils.py
+D:\demo1\memorytree-workflow\scripts\_config_utils.py
+D:\demo1\memorytree-workflow\scripts\_lock_utils.py
+D:\demo1\memorytree-workflow\scripts\_transcript_index.py
+D:\demo1\memorytree-workflow\scripts\heartbeat.py
+D:\demo1\memorytree-workflow\scripts\recall-session.py
+D:\demo1\memorytree-workflow\scripts\discover-transcripts.py
+D:\demo1\memorytree-workflow\scripts\import-transcripts.py
+D:\demo1\memorytree-workflow\scripts\_transcript_discover.py
+D:\demo1\memorytree-workflow\scripts\_transcript_import.py
+D:\demo1\memorytree-workflow\scripts\_transcript_common.py
+D:\demo1\memorytree-workflow\scripts\_transcript_parse.py
+D:\demo1\memorytree-workflow\scripts\_transcript_utils.py</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01HnBAyWUmtZAm2bkMKe5evP Read output=1→# Heartbeat Scheduling 2→ 3→Use this file when MemoryTree needs to automate transcript import, cleaning, and push without human intervention or model tokens. 4→ 5→## Goal 6→ 7..." id="event-30">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#31</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01HnBAyWUmtZAm2bkMKe5evP</span>
+      
+      <span class="timeline-time">07:32:08</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Heartbeat Scheduling 2→ 3→Use this file when MemoryTree needs to automate transcript import, cleaning, and push without human intervention or model tokens. 4→ 5→## Goal 6→ 7...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Heartbeat Scheduling
+     2→
+     3→Use this file when MemoryTree needs to automate transcript import, cleaning, and push without human intervention or model tokens.
+     4→
+     5→## Goal
+     6→
+     7→Complete transcript discovery, import, cleaning, commit, and push without consuming model tokens or requiring human intervention.
+     8→
+     9→## Core Rules
+    10→
+    11→1. `heartbeat.py` executes once and exits. It is stateless and idempotent — safe to re-run at any interval.
+    12→2. The OS-native scheduler invokes `heartbeat.py` on a fixed interval. Use cron (Linux), launchd (macOS), or Task Scheduler (Windows).
+    13→3. One computer runs exactly one scheduled heartbeat task. Multiple registrations on the same machine are not supported.
+    14→4. Each execution scans all three supported client directories (Codex, Claude Code, Gemini CLI).
+    15→5. Each execution follows the sequence: scan → incremental import → clean → commit + push → exit.
+    16→6. The `memorytree-daemon watch` mode (continuous loop) exists only for development and debugging. Production use must rely on the OS scheduler.
+    17→
+    18→## Daemon CLI
+    19→
+    20→The `memorytree-daemon` command manages the heartbeat lifecycle:
+    21→
+    22→| Subcommand  | Description |
+    23→|-------------|-------------|
+    24→| `install`   | Register the heartbeat task with the OS scheduler at the configured interval. Refuses to overwrite an existing registration. |
+    25→| `uninstall` | Remove the heartbeat task from the OS scheduler. |
+    26→| `run-once`  | Execute a single heartbeat cycle immediately, then exit. |
+    27→| `watch`     | Run a continuous loop for development and debugging only. |
+    28→| `status`    | Show whether a heartbeat task is registered and its last execution result. |
+    29→
+    30→## OS Scheduler Integration
+    31→
+    32→`memorytree-daemon install` detects the current platform and registers the heartbeat using the native scheduler:
+    33→
+    34→### Linux (cron)
+    35→
+    36→```text
+    37→*/5 * * * * /path/to/python /path/to/heartbeat.py &gt;&gt; ~/.memorytree/logs/heartbeat-cron.log 2&gt;&amp;1
+    38→```
+    39→
+    40→Detection: check for existing entry with `crontab -l | grep memorytree`.
+    41→Removal: `crontab -l | grep -v memorytree | crontab -`.
+    42→
+    43→### macOS (launchd)
+    44→
+    45→Write a plist to `~/Library/LaunchAgents/com.memorytree.heartbeat.plist`:
+    46→
+    47→```xml
+    48→&lt;key&gt;ProgramArguments&lt;/key&gt;
+    49→&lt;array&gt;
+    50→  &lt;string&gt;/path/to/python&lt;/string&gt;
+    51→  &lt;string&gt;/path/to/heartbeat.py&lt;/string&gt;
+    52→&lt;/array&gt;
+    53→&lt;key&gt;StartInterval&lt;/key&gt;
+    54→&lt;integer&gt;300&lt;/integer&gt;
+    55→```
+    56→
+    57→Load with `launchctl load`, unload with `launchctl unload`.
+    58→
+    59→### Windows (Task Scheduler)
+    60→
+    61→```text
+    62→schtasks /create /tn &quot;MemoryTree Heartbeat&quot; /sc minute /mo 5 /tr &quot;python heartbeat.py&quot; /f
+    63→```
+    64→
+    65→Detection: `schtasks /query /tn &quot;MemoryTree Heartbeat&quot;`.
+    66→Removal: `schtasks /delete /tn &quot;MemoryTree Heartbeat&quot; /f`.
+    67→
+    68→## Execution Flow
+    69→
+    70→1. Acquire `~/.memorytree/heartbeat.lock`. If the lock is held by a live process, exit immediately.
+    71→2. Load `~/.memorytree/config.toml`. If the file is missing or malformed, use built-in defaults and log a warning.
+    72→3. Iterate over registered projects in `config.toml`.
+    73→4. For each project: discover new transcripts → import → clean → commit. If any step fails for one project, log the error, write an alert, and continue to the next project. Never abort the entire heartbeat run because of a single project failure.
+    74→5. If `auto_push = true` and a Git remote exists, push. If the push fails, retry once. On second failure, write an alert and continue.
+    75→6. Release the lock and exit.
+    76→
+    77→## Lock Mechanism
+    78→
+    79→The heartbeat uses a PID-based lock file at `~/.memorytree/heartbeat.lock`:
+    80→
+    81→1. On startup, check if the lock file exists.
+    82→2. If it exists, read the PID from the file. Check whether that PID is still alive (`os.kill(pid, 0)` on Unix, `OpenProcess` on Windows).
+    83→3. If the PID is alive, the lock is held — exit immediately with a `lock_held` alert.
+    84→4. If the PID is not alive (stale lock from a crashed process), delete the lock file, log a warning, and proceed.
+    85→5. Write the current PID to the lock file.
+    86→6. On exit (normal or error), always delete the lock file. Use `try/finally` to ensure cleanup.
+    87→
+    88→## Error Handling
+    89→
+    90→- **Per-project isolation**: A failure in one project must not prevent other projects from being processed. Catch exceptions at the project level, log the error, write an alert, and continue.
+    91→- **Failure threshold**: After 3 consecutive failures for the same project across heartbeat runs, write a `push_failed` or relevant alert to `~/.memorytree/alerts.json`. The count resets on a successful run.
+    92→- **Config errors**: If `config.toml` contains invalid values (e.g., negative interval, non-existent path), use built-in defaults for those fields and log a warning. Do not abort.
+    93→- **Git errors**: If `git add` or `git commit` fails, skip the push for that project and write an alert. Do not attempt to push uncommitted state.
+    94→
+    95→## Sensitive Info Scanning
+    96→
+    97→During the cleaning step, scan each transcript for patterns that match API keys, passwords, tokens, and other secrets. When a match is found:
+    98→
+    99→- Log a warning with the file path and match location.
+   100→- Write an alert to `~/.memorytree/alerts.json`.
+   101→- Do **not** automatically delete or redact the content.
+   102→
+   103→The user reviews alerts and decides how to handle sensitive content.
+   104→
+   105→## Git Remote Pre-Check
+   106→
+   107→Before pushing, verify that the target repository has a configured Git remote:
+   108→
+   109→- If a remote exists, push the current branch.
+   110→- If no remote is configured, skip the push, log a warning, and write an alert to `~/.memorytree/alerts.json`.
+   111→
+   112→## First Install
+   113→
+   114→When the skill activates for the first time and `memorytree-daemon` is not registered, use an interactive prompt to configure the heartbeat before installing. Ask the user for:
+   115→
+   116→1. Heartbeat interval (default: 5 minutes).
+   117→2. Whether `auto_push` should be enabled (default: true).
+   118→3. Confirmation of the project scope (which directories to scan).
+   119→
+   120→After confirmation, run `memorytree-daemon install` with the chosen settings.
+   121→
+   122→The prompt must use plain-text questions and wait for the user&#39;s reply. Do not rely on client-specific UI components (buttons, checkboxes, multi-select widgets) — the same prompt must work in Claude Code, Codex, and Gemini CLI.
+   123→
+   124→Do not register the heartbeat task silently during initialization.
+   125→
+   126→## On-Demand Sync
+   127→
+   128→When the user asks to see their most recent conversation (e.g., &quot;look at my last chat&quot;), trigger an immediate sync instead of waiting for the next scheduled heartbeat:
+   129→
+   130→1. Scan all three client transcript directories for the current project.
+   131→2. Incrementally import any new transcripts into the global archive and project mirror.
+   132→3. Query the global index (`sessions.jsonl` / `search.sqlite`) with `project = current directory`, sorted by timestamp descending.
+   133→4. Exclude the current session: record the skill activation timestamp when the session starts. Any transcript with `started_at` &gt;= activation timestamp is considered the current session and excluded. This approach is cross-client and does not require knowing client-specific session IDs.
+   134→5. If no matching previous session is found, inform the user: &quot;No previous session found for this project.&quot; Do not generate a summary.
+   135→6. Load the matched transcript and generate a continuation summary using model tokens.
+   136→
+   137→The continuation summary should extract:
+   138→
+   139→- What problem was being discussed.
+   140→- What approaches were tried.
+   141→- How far the work progressed.
+   142→- What remains unresolved and where it got stuck.
+   143→
+   144→This path is distinct from the scheduled heartbeat: it is user-triggered, immediate, scoped to one project, and produces a model-generated summary. The scheduled heartbeat is background-only and never consumes model tokens.
+   145→
+   146→See `references/transcript-archive.md` for the session continuity search flow.
+   147→
+   148→## Stop And Ask
+   149→
+   150→Stop and ask the user before proceeding when any of these are true:
+   151→
+   152→1. The `install` subcommand would register a new OS-level scheduled task. Confirm the interval, auto_push preference, and scope first.
+   153→2. A push target has no configured Git remote.
+   154→3. An existing heartbeat registration would be overwritten by a new `install`.
+   155→
+   156→## Cross-Client Compatibility
+   157→
+   158→All interactive prompts in this skill (heartbeat install, configuration, on-demand sync confirmation) must work across every AI assistant that supports the skill:
+   159→
+   160→1. Use plain-text questions and wait for the user&#39;s text reply. Do not use client-specific UI components.
+   161→2. Follow the user&#39;s language or the repo locale for prompt text. Do not hardcode a single language.
+   162→3. Keep script CLI interfaces uniform regardless of which client invokes them.
+   163→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check a few more utility files and look at what actually exists in one project:" id="event-31">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#32</span>
+      
+      <span class="timeline-time">07:32:10</span>
+    </div>
+    <div class="message-body"><p>Now let me check a few more utility files and look at what actually exists in one project:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01KyzwxN556PXnesstzC2oEU Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/_lock_utils.py&quot;}" id="event-32">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#33</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01KyzwxN556PXnesstzC2oEU</span>
+      <span class="timeline-time">07:32:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/_lock_utils.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/scripts/_lock_utils.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01Xbp8Ec424z941Vpf5yzTyH Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/_alert_utils.py&quot;}" id="event-33">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#34</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Xbp8Ec424z941Vpf5yzTyH</span>
+      <span class="timeline-time">07:32:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;/d/demo1/memorytree-workflow/scripts/_alert_utils.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;/d/demo1/memorytree-workflow/scripts/_alert_utils.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_01G76HQGKa6auUpUQmPLmx5N Bash input={&quot;command&quot;:&quot;ls -la /d/demo1/memorytree/Memory/ 2&gt;/dev/null | head -20&quot;,&quot;description&quot;:&quot;Check what&#39;s in an existing Memory directory&quot;}" id="event-34">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#35</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01G76HQGKa6auUpUQmPLmx5N</span>
+      <span class="timeline-time">07:32:11</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;ls -la /d/demo1/memorytree/Memory/ 2&gt;/dev/null | head -20&quot;,&quot;description&quot;:&quot;Check what&#39;s in an existing Memory directory&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;ls -la /d/demo1/memorytree/Memory/ 2&gt;/dev/null | head -20&quot;,
+  &quot;description&quot;: &quot;Check what&#39;s in an existing Memory directory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01KyzwxN556PXnesstzC2oEU Read output=1→&quot;&quot;&quot;PID-based lock file for heartbeat single-instance enforcement.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import logging 6→import os 7→import sys 8→from pathlib import..." id="event-35">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#36</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01KyzwxN556PXnesstzC2oEU</span>
+      
+      <span class="timeline-time">07:32:11</span>
+    </div>
+    <div class="timeline-title">Read output=1→&quot;&quot;&quot;PID-based lock file for heartbeat single-instance enforcement.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import logging 6→import os 7→import sys 8→from pathlib import...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&quot;&quot;&quot;PID-based lock file for heartbeat single-instance enforcement.&quot;&quot;&quot;
+     2→
+     3→from __future__ import annotations
+     4→
+     5→import logging
+     6→import os
+     7→import sys
+     8→from pathlib import Path
+     9→
+    10→log = logging.getLogger(&quot;memorytree&quot;)
+    11→
+    12→
+    13→def lock_path() -&gt; Path:
+    14→    return Path.home() / &quot;.memorytree&quot; / &quot;heartbeat.lock&quot;
+    15→
+    16→
+    17→def acquire_lock() -&gt; bool:
+    18→    &quot;&quot;&quot;Try to acquire the heartbeat lock. Returns True on success.&quot;&quot;&quot;
+    19→    path = lock_path()
+    20→    path.parent.mkdir(parents=True, exist_ok=True)
+    21→
+    22→    if path.exists():
+    23→        try:
+    24→            stored_pid = int(path.read_text(encoding=&quot;utf-8&quot;).strip())
+    25→        except (OSError, ValueError):
+    26→            # Corrupt lock file — treat as stale
+    27→            log.warning(&quot;Corrupt lock file detected, removing: %s&quot;, path)
+    28→            _remove_lock(path)
+    29→        else:
+    30→            if _is_process_alive(stored_pid):
+    31→                return False
+    32→            # Stale lock from a dead process
+    33→            log.warning(&quot;Stale lock detected (PID %d is dead), reclaiming.&quot;, stored_pid)
+    34→            _remove_lock(path)
+    35→
+    36→    # Use exclusive create to prevent TOCTOU race
+    37→    try:
+    38→        fd = os.open(str(path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    39→        os.write(fd, str(os.getpid()).encode(&quot;utf-8&quot;))
+    40→        os.close(fd)
+    41→    except FileExistsError:
+    42→        # Another process created the lock between our check and create
+    43→        return False
+    44→    except OSError:
+    45→        return False
+    46→    return True
+    47→
+    48→
+    49→def release_lock() -&gt; None:
+    50→    &quot;&quot;&quot;Release the heartbeat lock.&quot;&quot;&quot;
+    51→    _remove_lock(lock_path())
+    52→
+    53→
+    54→def read_lock_pid() -&gt; int | None:
+    55→    &quot;&quot;&quot;Read the PID from the lock file, or None if not locked.&quot;&quot;&quot;
+    56→    path = lock_path()
+    57→    if not path.exists():
+    58→        return None
+    59→    try:
+    60→        return int(path.read_text(encoding=&quot;utf-8&quot;).strip())
+    61→    except (OSError, ValueError):
+    62→        return None
+    63→
+    64→
+    65→def _is_process_alive(pid: int) -&gt; bool:
+    66→    &quot;&quot;&quot;Check whether a process with the given PID is still running.&quot;&quot;&quot;
+    67→    if pid &lt;= 0:
+    68→        return False
+    69→    if sys.platform == &quot;win32&quot;:
+    70→        return _is_process_alive_windows(pid)
+    71→    return _is_process_alive_unix(pid)
+    72→
+    73→
+    74→def _is_process_alive_unix(pid: int) -&gt; bool:
+    75→    try:
+    76→        os.kill(pid, 0)
+    77→        return True
+    78→    except ProcessLookupError:
+    79→        return False
+    80→    except PermissionError:
+    81→        # Process exists but we can&#39;t signal it
+    82→        return True
+    83→
+    84→
+    85→def _is_process_alive_windows(pid: int) -&gt; bool:
+    86→    try:
+    87→        import ctypes
+    88→        kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+    89→        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+    90→        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+    91→        if handle:
+    92→            kernel32.CloseHandle(handle)
+    93→            return True
+    94→        return False
+    95→    except Exception:
+    96→        return False
+    97→
+    98→
+    99→def _remove_lock(path: Path) -&gt; None:
+   100→    try:
+   101→        path.unlink(missing_ok=True)
+   102→    except OSError:
+   103→        pass
+   104→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01Xbp8Ec424z941Vpf5yzTyH Read output=1→&quot;&quot;&quot;Manage ~/.memorytree/alerts.json — create, dedup, read, clear.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import json 6→from datetime import datetime, timezone 7→from ..." id="event-36">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#37</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Xbp8Ec424z941Vpf5yzTyH</span>
+      
+      <span class="timeline-time">07:32:12</span>
+    </div>
+    <div class="timeline-title">Read output=1→&quot;&quot;&quot;Manage ~/.memorytree/alerts.json — create, dedup, read, clear.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import json 6→from datetime import datetime, timezone 7→from ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&quot;&quot;&quot;Manage ~/.memorytree/alerts.json — create, dedup, read, clear.&quot;&quot;&quot;
+     2→
+     3→from __future__ import annotations
+     4→
+     5→import json
+     6→from datetime import datetime, timezone
+     7→from pathlib import Path
+     8→
+     9→MAX_ALERTS = 100
+    10→ALERT_TYPES = {&quot;no_remote&quot;, &quot;sensitive_match&quot;, &quot;push_failed&quot;, &quot;lock_held&quot;}
+    11→FAILURE_THRESHOLD = 3
+    12→
+    13→
+    14→def alerts_path() -&gt; Path:
+    15→    return Path.home() / &quot;.memorytree&quot; / &quot;alerts.json&quot;
+    16→
+    17→
+    18→def _failure_state_path() -&gt; Path:
+    19→    return Path.home() / &quot;.memorytree&quot; / &quot;failure_counts.json&quot;
+    20→
+    21→
+    22→def read_alerts() -&gt; list[dict]:
+    23→    &quot;&quot;&quot;Read all pending alerts. Returns empty list if file missing or malformed.&quot;&quot;&quot;
+    24→    path = alerts_path()
+    25→    if not path.exists():
+    26→        return []
+    27→    try:
+    28→        data = json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+    29→    except (OSError, json.JSONDecodeError):
+    30→        return []
+    31→    if not isinstance(data, list):
+    32→        return []
+    33→    return data
+    34→
+    35→
+    36→def write_alert(
+    37→    project: str,
+    38→    alert_type: str,
+    39→    message: str,
+    40→) -&gt; None:
+    41→    &quot;&quot;&quot;Append or dedup an alert. Dedup key is (project, type).&quot;&quot;&quot;
+    42→    alerts = read_alerts()
+    43→    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace(&quot;+00:00&quot;, &quot;Z&quot;)
+    44→
+    45→    # Dedup: find existing alert with same project+type, build new list
+    46→    found = False
+    47→    new_alerts = []
+    48→    for alert in alerts:
+    49→        if alert.get(&quot;project&quot;) == project and alert.get(&quot;type&quot;) == alert_type:
+    50→            new_alerts.append(
+    51→                {
+    52→                    **alert,
+    53→                    &quot;timestamp&quot;: now,
+    54→                    &quot;message&quot;: message,
+    55→                    &quot;count&quot;: alert.get(&quot;count&quot;, 1) + 1,
+    56→                }
+    57→            )
+    58→            found = True
+    59→        else:
+    60→            new_alerts.append(alert)
+    61→
+    62→    if not found:
+    63→        new_alerts.append(
+    64→            {
+    65→                &quot;timestamp&quot;: now,
+    66→                &quot;project&quot;: project,
+    67→                &quot;type&quot;: alert_type,
+    68→                &quot;message&quot;: message,
+    69→                &quot;count&quot;: 1,
+    70→            }
+    71→        )
+    72→
+    73→    # Cap at MAX_ALERTS, drop oldest first
+    74→    if len(new_alerts) &gt; MAX_ALERTS:
+    75→        new_alerts = new_alerts[-MAX_ALERTS:]
+    76→
+    77→    _save_alerts(new_alerts)
+    78→
+    79→
+    80→def write_alert_with_threshold(
+    81→    project: str,
+    82→    alert_type: str,
+    83→    message: str,
+    84→) -&gt; None:
+    85→    &quot;&quot;&quot;Write an alert only after FAILURE_THRESHOLD consecutive failures for the same project+type.&quot;&quot;&quot;
+    86→    counts = _read_failure_counts()
+    87→    key = f&quot;{project}::{alert_type}&quot;
+    88→    current = counts.get(key, 0) + 1
+    89→    new_counts = {**counts, key: current}
+    90→    _save_failure_counts(new_counts)
+    91→
+    92→    if current &gt;= FAILURE_THRESHOLD:
+    93→        write_alert(project, alert_type, message)
+    94→
+    95→
+    96→def reset_failure_count(project: str, alert_type: str) -&gt; None:
+    97→    &quot;&quot;&quot;Reset the consecutive failure counter on success.&quot;&quot;&quot;
+    98→    counts = _read_failure_counts()
+    99→    key = f&quot;{project}::{alert_type}&quot;
+   100→    if key in counts:
+   101→        new_counts = {k: v for k, v in counts.items() if k != key}
+   102→        _save_failure_counts(new_counts)
+   103→
+   104→
+   105→def clear_alerts() -&gt; None:
+   106→    &quot;&quot;&quot;Remove all alerts (called after displaying to user).&quot;&quot;&quot;
+   107→    path = alerts_path()
+   108→    if path.exists():
+   109→        try:
+   110→            path.unlink()
+   111→        except OSError:
+   112→            pass
+   113→
+   114→
+   115→def format_alerts_for_display(alerts: list[dict]) -&gt; str:
+   116→    &quot;&quot;&quot;Format alerts as a human-readable text block.&quot;&quot;&quot;
+   117→    if not alerts:
+   118→        return &quot;&quot;
+   119→    lines = []
+   120→    for alert in alerts:
+   121→        count_suffix = f&quot; (x{alert[&#39;count&#39;]})&quot; if alert.get(&quot;count&quot;, 1) &gt; 1 else &quot;&quot;
+   122→        lines.append(
+   123→            f&quot;  [{alert.get(&#39;type&#39;, &#39;unknown&#39;)}] {alert.get(&#39;project&#39;, &#39;?&#39;)}: &quot;
+   124→            f&quot;{alert.get(&#39;message&#39;, &#39;&#39;)}{count_suffix}&quot;
+   125→        )
+   126→    return &quot;\n&quot;.join(lines)
+   127→
+   128→
+   129→def _save_alerts(alerts: list[dict]) -&gt; None:
+   130→    path = alerts_path()
+   131→    path.parent.mkdir(parents=True, exist_ok=True)
+   132→    path.write_text(
+   133→        json.dumps(alerts, ensure_ascii=False, indent=2) + &quot;\n&quot;,
+   134→        encoding=&quot;utf-8&quot;,
+   135→    )
+   136→
+   137→
+   138→def _read_failure_counts() -&gt; dict[str, int]:
+   139→    path = _failure_state_path()
+   140→    if not path.exists():
+   141→        return {}
+   142→    try:
+   143→        data = json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+   144→    except (OSError, json.JSONDecodeError):
+   145→        return {}
+   146→    if not isinstance(data, dict):
+   147→        return {}
+   148→    return data
+   149→
+   150→
+   151→def _save_failure_counts(counts: dict[str, int]) -&gt; None:
+   152→    path = _failure_state_path()
+   153→    path.parent.mkdir(parents=True, exist_ok=True)
+   154→    path.write_text(
+   155→        json.dumps(counts, ensure_ascii=False, indent=2) + &quot;\n&quot;,
+   156→        encoding=&quot;utf-8&quot;,
+   157→    )
+   158→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_01G76HQGKa6auUpUQmPLmx5N Bash output=total 16 drwxr-xr-x 1 ai 197121 0 3月 14 19:20 . drwxr-xr-x 1 ai 197121 0 3月 15 12:37 .. drwxr-xr-x 1 ai 197121 0 3月 14 22:21 01_goals drwxr-xr-x 1 ai 197121 0 3月 14 22:21 02_tod..." id="event-37">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#38</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01G76HQGKa6auUpUQmPLmx5N</span>
+      
+      <span class="timeline-time">07:32:12</span>
+    </div>
+    <div class="timeline-title">Bash output=total 16 drwxr-xr-x 1 ai 197121 0 3月 14 19:20 . drwxr-xr-x 1 ai 197121 0 3月 15 12:37 .. drwxr-xr-x 1 ai 197121 0 3月 14 22:21 01_goals drwxr-xr-x 1 ai 197121 0 3月 14 22:21 02_tod...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>total 16
+drwxr-xr-x 1 ai 197121 0  3月 14 19:20 .
+drwxr-xr-x 1 ai 197121 0  3月 15 12:37 ..
+drwxr-xr-x 1 ai 197121 0  3月 14 22:21 01_goals
+drwxr-xr-x 1 ai 197121 0  3月 14 22:21 02_todos
+drwxr-xr-x 1 ai 197121 0  3月 15 11:57 03_chat_logs
+drwxr-xr-x 1 ai 197121 0  3月 14 22:46 04_knowledge
+drwxr-xr-x 1 ai 197121 0  3月 10 10:32 05_archive
+drwxr-xr-x 1 ai 197121 0  3月 14 19:20 06_transcripts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Perfect! Now I have a comprehensive understanding. Let me generate the complete report: ## Exploration Complete: MemoryTree Daemon Infrastructure I&#39;ve thoroughly explored the memorytree-workflow codebase. Here&#39;s what exists, what&#39;s stubbed, and what&#39;s missing: --- ### CLI Subcommands (memorytree_daemon.py, lines 32-172) **FULLY IMPLEMENTED:** - **`install`** — Registers heartbeat with OS scheduler (lines..." id="event-38">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#39</span>
+      
+      <span class="timeline-time">07:32:44</span>
+    </div>
+    <p class="event-preview">Perfect! Now I have a comprehensive understanding. Let me generate the complete report: ## Exploration Complete: MemoryTree Daemon Infrastructure I&#39;ve thoroughly explored the memorytree-workflow codebase. Here&#39;s what ...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Perfect! Now I have a comprehensive understanding. Let me generate the complete report:</p><p>## Exploration Complete: MemoryTree Daemon Infrastructure</p><p>I&#39;ve thoroughly explored the memorytree-workflow codebase. Here&#39;s what exists, what&#39;s stubbed, and what&#39;s missing:</p><p>---</p><p>### CLI Subcommands (memorytree_daemon.py, lines 32-172)</p><p><strong>FULLY IMPLEMENTED:</strong><br>- <strong><code>install</code></strong> — Registers heartbeat with OS scheduler (lines 68-101)<br>  - Detects platform (Linux/Darwin/Windows)<br>  - Saves config.toml with optional interval/auto_push overrides<br>  - Creates OS-native scheduler entry (cron/launchd/schtasks)<br>  - Refuses to overwrite existing registration<br>  <br>- <strong><code>uninstall</code></strong> — Removes heartbeat registration (lines 104-114)<br>  - Per-platform cleanup (deletes cron entry, plist, or scheduled task)</p><p>- <strong><code>run-once</code></strong> — Execute single heartbeat cycle (lines 117-121)<br>  - Invokes heartbeat.py once and exits with its return code</p><p>- <strong><code>watch</code></strong> — Development/debug continuous loop (lines 124-138)<br>  - Runs heartbeat.py in a loop at configured interval<br>  - Catchable with Ctrl+C</p><p>- <strong><code>status</code></strong> — Show registration and lock state (lines 141-172)<br>  - Platform detection<br>  - Scheduler registration check (per-platform)<br>  - Lock state from <code>~/.memorytree/heartbeat.lock</code><br>  - Config summary (interval, auto_push, project count)</p><p>---</p><p>### OS Scheduler Integration (FULLY IMPLEMENTED)</p><p><strong>Linux (cron)</strong> — lines 178-223:<br>- <code>_install_cron()</code>: Adds cron entry with shell quoting, logs to <code>~/.memorytree/logs/heartbeat-cron.log</code><br>- <code>_uninstall_cron()</code>: Filters out <code>memorytree</code> comment from crontab<br>- <code>_is_cron_registered()</code>: Checks for &quot;memorytree&quot; in crontab -l<br>- <code>_get_crontab()</code>: Safely reads current crontab</p><p><strong>macOS (launchd)</strong> — lines 229-288:<br>- <code>_install_launchd()</code>: Generates plist in <code>~/Library/LaunchAgents/com.memorytree.heartbeat.plist</code><br>  - Sets <code>StartInterval</code> in seconds<br>  - Configures stdout/stderr logging<br>  - Calls <code>launchctl load</code><br>- <code>_uninstall_launchd()</code>: Unloads and removes plist<br>- <code>_is_launchd_registered()</code>: Checks plist existence</p><p><strong>Windows (Task Scheduler)</strong> — lines 294-340:<br>- <code>_install_schtasks()</code>: Creates task named &quot;MemoryTree Heartbeat&quot; via schtasks<br>  - Interval in minutes (rounded from seconds)<br>  - Uses <code>/mo</code> flag for repeat interval<br>  - Adds <code>/f</code> flag to force overwrite prevention check<br>- <code>_uninstall_schtasks()</code>: Deletes task with <code>/f</code> flag<br>- <code>_is_schtasks_registered()</code>: Queries task existence</p><p>---</p><p>### Heartbeat Entry Point (heartbeat.py, FULLY IMPLEMENTED)</p><p><strong>Main flow</strong> (lines 39-79):<br>1. Load config from <code>~/.memorytree/config.toml</code> (uses defaults if missing)<br>2. Acquire PID-based lock from <code>~/.memorytree/heartbeat.lock</code><br>3. Iterate over registered projects<br>4. For each: discover transcripts → parse → import → scan for sensitive info → git commit/push<br>5. Release lock on exit (try/finally ensures cleanup)</p><p><strong>Per-project processing</strong> (lines 82-127):<br>- Calls <code>discover_source_files()</code> (scans Codex, Claude Code, Gemini client stores)<br>- Parses transcripts per client<br>- Checks <code>transcript_has_content()</code> and <code>transcript_matches_repo()</code><br>- Imports with <code>import_transcript()</code> to both repo mirror and global archive<br>- Commits with message: <code>&quot;memorytree(transcripts): import X transcript(s)&quot;</code><br>- Conditionally pushes if <code>auto_push=true</code> and remote exists</p><p><strong>Sensitive info scanning</strong> (lines 130-147):<br>- 5 regex patterns for API keys, passwords, secrets, tokens, Bearer auth<br>- Logs warnings, writes alert, does NOT automatically delete/redact</p><p><strong>Git integration</strong> (lines 150-220):<br>- Checks for changes in Memory/ before committing<br>- One-retry push logic for robustness<br>- Logs detailed state at each step</p><p>---</p><p>### Configuration Management (_config_utils.py, FULLY IMPLEMENTED)</p><p><strong>Config schema</strong> (lines 20-35):</p><pre><code>@dataclass
+class Config:
+    heartbeat_interval: str = &quot;5m&quot;       # e.g., &quot;5m&quot;, &quot;300s&quot;, &quot;1h&quot;
+    watch_dirs: list[str] = []           # Additional scan directories
+    projects: list[ProjectEntry] = []    # Repo entries with path + optional name
+    auto_push: bool = True               # Push after commit
+    log_level: str = &quot;info&quot;              # debug, info, warn, error
+</code></pre><p><strong>Key functions:</strong><br>- <code>memorytree_root()</code> → <code>~/.memorytree</code> (lines 38-39)<br>- <code>config_path()</code> → <code>~/.memorytree/config.toml</code> (lines 42-43)<br>- <code>load_config()</code> → Gracefully fallback to defaults on missing/malformed file (lines 46-58)<br>- <code>save_config(cfg)</code> → Writes TOML with proper formatting (lines 119-142)<br>- <code>register_project(cfg, repo_path)</code> → Immutably adds project entry (lines 145-158)<br>- <code>interval_to_seconds(interval)</code> → Parses &quot;5m&quot; → 300, &quot;1h&quot; → 3600, etc. (lines 106-116)</p><p>---</p><p>### Global State Management</p><p><strong>Lock mechanism</strong> (_lock_utils.py, FULLY IMPLEMENTED):<br>- <code>acquire_lock()</code> — Exclusive O_CREAT | O_EXCL to prevent TOCTOU race<br>- <code>release_lock()</code> — Unlink lock file<br>- <code>read_lock_pid()</code> — Get PID from lock<br>- Per-platform alive check (Unix: <code>os.kill(pid, 0)</code>, Windows: ctypes OpenProcess)</p><p><strong>Alerts</strong> (_alert_utils.py, FULLY IMPLEMENTED):<br>- <code>write_alert()</code> — Append or dedup (key: project+type)<br>- <code>write_alert_with_threshold()</code> — Only after 3 consecutive failures<br>- <code>reset_failure_count()</code> — Clear counter on success<br>- <code>clear_alerts()</code> — Remove all after display<br>- Alert types: <code>no_remote</code>, <code>sensitive_match</code>, <code>push_failed</code>, <code>lock_held</code></p><p>---</p><p>### First-Install Trigger (DOCUMENTED BUT NOT YET IMPLEMENTED)</p><p><strong>Referenced in SKILL.md (line 18) and heartbeat-scheduling.md (lines 112-124):</strong></p><p>The spec requires an interactive first-install prompt:</p><pre><code>When the skill activates for the first time and memorytree-daemon is not registered:
+1. Ask for heartbeat interval (default: 5m)
+2. Ask for auto_push preference (default: true)
+3. Ask for project scope confirmation
+4. Run `memorytree-daemon install` with those settings
+</code></pre><p><strong>Status: Not yet implemented</strong> — The daemon CLI exists and all subcommands work, but there&#39;s <strong>no code in the skill activation hook</strong> that triggers this flow. The logic needs to be added to whichever agent/model handles <code>SKILL.md</code> activation (likely in a Python script like <code>init-memorytree.py</code> or <code>upgrade-memorytree.py</code>).</p><p>---</p><p>### Python Packaging &amp; Entry Points</p><p><strong>NO <code>pyproject.toml</code> or <code>setup.py</code></strong> — The project is script-based:<br>- Scripts are invoked directly: <code>uv run python scripts/heartbeat.py</code><br>- <code>_python_path()</code> (line 350-354) detects <code>uv</code> first, falls back to sys.executable<br>- No package installation or CLI entry points registered</p><p>---</p><p>### What Exists (Summary)</p><p>| Component | Status | Location |<br>|-----------|--------|----------|<br>| Daemon CLI (install/uninstall/run-once/watch/status) | ✅ COMPLETE | <code>memorytree_daemon.py</code> |<br>| Linux cron integration | ✅ COMPLETE | Lines 178-223 |<br>| macOS launchd integration | ✅ COMPLETE | Lines 229-288 |<br>| Windows Task Scheduler integration | ✅ COMPLETE | Lines 294-340 |<br>| Heartbeat entry point | ✅ COMPLETE | <code>heartbeat.py</code> |<br>| Transcript discovery, import, commit, push | ✅ COMPLETE | <code>heartbeat.py</code> + transcript modules |<br>| Lock mechanism (PID-based, per-platform) | ✅ COMPLETE | <code>_lock_utils.py</code> |<br>| Alert system (dedup, threshold, display) | ✅ COMPLETE | <code>_alert_utils.py</code> |<br>| Config loading/saving/validation | ✅ COMPLETE | <code>_config_utils.py</code> |<br>| Sensitive info scanning | ✅ COMPLETE | <code>heartbeat.py</code> lines 30-36, 130-147 |<br>| Global directory structure | ✅ COMPLETE | <code>~/.memorytree/{config.toml,alerts.json,heartbeat.lock,logs/,transcripts/}</code> |</p><p>---</p><p>### What&#39;s Missing</p><p>1. <strong>First-install trigger in skill activation</strong> — The SKILL.md spec requires interactive prompts when <code>memorytree-daemon</code> is not registered. This logic is <strong>not yet in any script</strong>. The daemon CLI exists but needs a wrapper/hook to call it during first activation.</p><p>2. <strong>No pyproject.toml / entry points</strong> — Scripts run directly; no formal package installation.</p><p>3. <strong>Transcripts modules are complete</strong> but not shown in detail here (P1 dedup work is done per memory).</p><p>---</p><p>### Absolute File Paths</p><p>Core daemon infrastructure:<br>- <code>/d/demo1/memorytree-workflow/scripts/memorytree_daemon.py</code><br>- <code>/d/demo1/memorytree-workflow/scripts/heartbeat.py</code><br>- <code>/d/demo1/memorytree-workflow/scripts/_config_utils.py</code><br>- <code>/d/demo1/memorytree-workflow/scripts/_lock_utils.py</code><br>- <code>/d/demo1/memorytree-workflow/scripts/_alert_utils.py</code></p><p>Documentation:<br>- <code>/d/demo1/memorytree-workflow/SKILL.md</code> — Skill activation spec<br>- <code>/d/demo1/memorytree-workflow/references/heartbeat-scheduling.md</code> — Daemon spec + first-install requirement<br>- <code>/d/demo1/memorytree-workflow/references/global-configuration.md</code> — Config schema + directory layout</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

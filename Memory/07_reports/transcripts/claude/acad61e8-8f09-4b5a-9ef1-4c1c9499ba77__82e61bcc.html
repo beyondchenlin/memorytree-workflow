@@ -1,0 +1,4414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-adc9cae9183b14521 — MemoryTree</title>
+<meta property="og:title" content="agent-adc9cae9183b14521">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-adc9cae9183b14521</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>7</strong> Messages</span>
+      <span class="transcript-pill"><strong>52</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>59</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 05:01:42</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-adc9cae9183b14521</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">acad61e8-8f09-4b5a-9ef1-4c1c9499ba77</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">82e61bcc8d9010ba...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">59</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">7</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">52</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>7</strong> dialog</span>
+    <span class="transcript-pill"><strong>52</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>7</strong> Messages</span>
+          <span class="transcript-pill"><strong>52</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>59 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Thoroughly explore these directories and read all relevant files: 1. D:/demo1/agentree/plan/ - read all files, especially any plan files, roadmaps, or task lists 2. D:/demo1/agentree/plan/plan11/ - read all files 3. D:/demo1/memorytree/Memory/ - list all subdirectories and read any goal files, todo files, or planning documents 4. D:/demo1/openmnemo/Memory/ - list all subdirectories and read any goal files in ..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">05:01:42</span>
+    </div>
+    <div class="message-body"><p>Thoroughly explore these directories and read all relevant files:</p><p>1. D:/demo1/agentree/plan/ - read all files, especially any plan files, roadmaps, or task lists<br>2. D:/demo1/agentree/plan/plan11/ - read all files<br>3. D:/demo1/memorytree/Memory/ - list all subdirectories and read any goal files, todo files, or planning documents<br>4. D:/demo1/openmnemo/Memory/ - list all subdirectories and read any goal files in 01_goals/, todo files in 02_todos/</p><p>I need to understand the project roadmap, what&#39;s been planned, what&#39;s been done, and what&#39;s next. Be very thorough - read every planning/goal/todo file.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll thoroughly explore these directories to understand the project roadmap and planning. Let me start by listing and reading all relevant files." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll thoroughly explore these directories to understand the project roadmap and planning. Let me start by listing and reading all relevant files.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_7DbA5Qg2VmECx4cLUhLuoh Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/agentree/plan\&quot; -type f -name \&quot;*.md\&quot; -o -name \&quot;*.txt\&quot; -o -name \&quot;*.json\&quot; 2&gt;/dev/null | head -50&quot;,&quot;description&quot;:&quot;List all files in agentree/plan ..." id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_7DbA5Qg2VmECx4cLUhLuoh</span>
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/agentree/plan\&quot; -type f -name \&quot;*.md\&quot; -o -name \&quot;*.txt\&quot; -o -name \&quot;*.json\&quot; 2&gt;/dev/null | head -50&quot;,&quot;description&quot;:&quot;List all files in agentree/plan ...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;D:/demo1/agentree/plan\&quot; -type f -name \&quot;*.md\&quot; -o -name \&quot;*.txt\&quot; -o -name \&quot;*.json\&quot; 2&gt;/dev/null | head -50&quot;,
+  &quot;description&quot;: &quot;List all files in agentree/plan directory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_zetIhWrp9ByIpPPCQwotKD Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/agentree/plan/plan11\&quot; -type f -name \&quot;*.md\&quot; -o -name \&quot;*.txt\&quot; -o -name \&quot;*.json\&quot; 2&gt;/dev/null | head -50&quot;,&quot;description&quot;:&quot;List all files in agentre..." id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_zetIhWrp9ByIpPPCQwotKD</span>
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/agentree/plan/plan11\&quot; -type f -name \&quot;*.md\&quot; -o -name \&quot;*.txt\&quot; -o -name \&quot;*.json\&quot; 2&gt;/dev/null | head -50&quot;,&quot;description&quot;:&quot;List all files in agentre...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;D:/demo1/agentree/plan/plan11\&quot; -type f -name \&quot;*.md\&quot; -o -name \&quot;*.txt\&quot; -o -name \&quot;*.json\&quot; 2&gt;/dev/null | head -50&quot;,
+  &quot;description&quot;: &quot;List all files in agentree/plan/plan11 directory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_ifMEFeClbB3vUfffrLRHFW Bash input={&quot;command&quot;:&quot;ls -la \&quot;D:/demo1/memorytree/Memory/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List subdirectories in memorytree/Memory&quot;}" id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_ifMEFeClbB3vUfffrLRHFW</span>
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;ls -la \&quot;D:/demo1/memorytree/Memory/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List subdirectories in memorytree/Memory&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;ls -la \&quot;D:/demo1/memorytree/Memory/\&quot; 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List subdirectories in memorytree/Memory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_7DbA5Qg2VmECx4cLUhLuoh Bash output=D:/demo1/agentree/plan/archive/AI驱动全链路数据采集系统商业机会书.md D:/demo1/agentree/plan/archive/doubao_20260225112807_用OpenClaw作为整个爬虫系统的顶层总控大脑_完整控制.txt D:/demo1/agentree/plan/archive/doubao..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_7DbA5Qg2VmECx4cLUhLuoh</span>
+      
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash output=D:/demo1/agentree/plan/archive/AI驱动全链路数据采集系统商业机会书.md D:/demo1/agentree/plan/archive/doubao_20260225112807_用OpenClaw作为整个爬虫系统的顶层总控大脑_完整控制.txt D:/demo1/agentree/plan/archive/doubao...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/agentree/plan/archive/AI驱动全链路数据采集系统商业机会书.md
+D:/demo1/agentree/plan/archive/doubao_20260225112807_用OpenClaw作为整个爬虫系统的顶层总控大脑_完整控制.txt
+D:/demo1/agentree/plan/archive/doubao_20260303140852_你还记得我有个项目是用表格加维基百科的那个开源系统_再加以A.txt
+D:/demo1/agentree/plan/archive/doubao_20260304104052_gitea是什么开源项目_详细的介绍一下.txt
+D:/demo1/agentree/plan/archive/doubao_20260305224510_逐字输出文档里的所有内容.txt
+D:/demo1/agentree/plan/archive/plan0_20260301/AgentCrawl 产品手册.md
+D:/demo1/agentree/plan/archive/plan0_20260301/AgentCrawl 商业计划书.md
+D:/demo1/agentree/plan/archive/plan0_20260301/AgentCrawl 技术架构白皮书.md
+D:/demo1/agentree/plan/archive/plan1/AgentCrawl 产品手册 v2.0.md
+D:/demo1/agentree/plan/archive/plan1/AgentCrawl 商业计划书 v2.0.md
+D:/demo1/agentree/plan/archive/plan1/AgentCrawl 技术架构白皮书 v2.0.md
+D:/demo1/agentree/plan/archive/plan1/Gitea记忆系统整合方案.md
+D:/demo1/agentree/plan/archive/plan1/review-aggregator-plugin-spec.md
+D:/demo1/agentree/plan/archive/plan1/TECH_BASELINE_LOCK_v2.0.md
+D:/demo1/agentree/plan/archive/plan1/TECH_COMPONENT_BOM_v2.0.md
+D:/demo1/agentree/plan/archive/plan1/任务管理交互模式设计方案.md
+D:/demo1/agentree/plan/archive/plan1/方案审查报告与改进建议.md
+D:/demo1/agentree/plan/archive/plan1/评测数据聚合插件正式方案.md
+D:/demo1/agentree/plan/archive/plan10/INDEX.md
+D:/demo1/agentree/plan/archive/plan10/Plan10完善方案与补充清单.md
+D:/demo1/agentree/plan/archive/plan10/商业计划书.md
+D:/demo1/agentree/plan/archive/plan10/技术架构白皮书.md
+D:/demo1/agentree/plan/archive/plan1对话记录_三层信任架构设计与商业计划v2.md
+D:/demo1/agentree/plan/archive/plan2/AgentCrawl v3.0 商业与技术可行性分析报告.md
+D:/demo1/agentree/plan/archive/plan2/AgentCrawl 产品手册 v3.0.md
+D:/demo1/agentree/plan/archive/plan2/AgentCrawl 商业计划书 v3.0.md
+D:/demo1/agentree/plan/archive/plan2/AgentCrawl 技术架构白皮书 v3.0.md
+D:/demo1/agentree/plan/archive/plan2/商业机会分析.md
+D:/demo1/agentree/plan/archive/plan3/01-执行摘要.md
+D:/demo1/agentree/plan/archive/plan3/02-技术架构.md
+D:/demo1/agentree/plan/archive/plan3/03-产品路线图与财务规划.md
+D:/demo1/agentree/plan/archive/plan3/README.md
+D:/demo1/agentree/plan/archive/plan4/00-快速参考.md
+D:/demo1/agentree/plan/archive/plan4/01-产品设计.md
+D:/demo1/agentree/plan/archive/plan4/02-技术架构.md
+D:/demo1/agentree/plan/archive/plan4/03-商业计划.md
+D:/demo1/agentree/plan/archive/plan4/04-技术验证报告.md
+D:/demo1/agentree/plan/archive/plan4/05-实施路线图.md
+D:/demo1/agentree/plan/archive/plan4/06-计划演进总结.md
+D:/demo1/agentree/plan/archive/plan4/07-Gitea办公协作平台洞察.md
+D:/demo1/agentree/plan/archive/plan4/08-插件系统技术实现指南.md
+D:/demo1/agentree/plan/archive/plan4/09-Gitea功能验证与讨论区方案.md
+D:/demo1/agentree/plan/archive/plan4/09-Plan4扩展完成总结.md
+D:/demo1/agentree/plan/archive/plan4/INDEX.md
+D:/demo1/agentree/plan/archive/plan4/README.md
+D:/demo1/agentree/plan/archive/plan4/SUMMARY.md
+D:/demo1/agentree/plan/archive/plan5/DEPLOYMENT.md
+D:/demo1/agentree/plan/archive/plan5/INDEX.md
+D:/demo1/agentree/plan/archive/plan5/QUICKREF.md
+D:/demo1/agentree/plan/archive/plan5/README.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_zetIhWrp9ByIpPPCQwotKD Bash output=D:/demo1/agentree/plan/plan11/INDEX.md D:/demo1/agentree/plan/plan11/商业计划书.md D:/demo1/agentree/plan/plan11/执行路线图.md D:/demo1/agentree/plan/plan11/技术架构白皮书.md D:/demo1/agentree/p..." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_zetIhWrp9ByIpPPCQwotKD</span>
+      
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash output=D:/demo1/agentree/plan/plan11/INDEX.md D:/demo1/agentree/plan/plan11/商业计划书.md D:/demo1/agentree/plan/plan11/执行路线图.md D:/demo1/agentree/plan/plan11/技术架构白皮书.md D:/demo1/agentree/p...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/agentree/plan/plan11/INDEX.md
+D:/demo1/agentree/plan/plan11/商业计划书.md
+D:/demo1/agentree/plan/plan11/执行路线图.md
+D:/demo1/agentree/plan/plan11/技术架构白皮书.md
+D:/demo1/agentree/plan/plan11/数据采集插件规范.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_ifMEFeClbB3vUfffrLRHFW Bash output=total 20 drwxr-xr-x 1 ai 197121 0 3月 14 19:20 . drwxr-xr-x 1 ai 197121 0 3月 15 18:56 .. drwxr-xr-x 1 ai 197121 0 3月 15 23:24 01_goals drwxr-xr-x 1 ai 197121 0 3月 16 11:16 02_tod..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_ifMEFeClbB3vUfffrLRHFW</span>
+      
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash output=total 20 drwxr-xr-x 1 ai 197121 0 3月 14 19:20 . drwxr-xr-x 1 ai 197121 0 3月 15 18:56 .. drwxr-xr-x 1 ai 197121 0 3月 15 23:24 01_goals drwxr-xr-x 1 ai 197121 0 3月 16 11:16 02_tod...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>total 20
+drwxr-xr-x 1 ai 197121 0  3月 14 19:20 .
+drwxr-xr-x 1 ai 197121 0  3月 15 18:56 ..
+drwxr-xr-x 1 ai 197121 0  3月 15 23:24 01_goals
+drwxr-xr-x 1 ai 197121 0  3月 16 11:16 02_todos
+drwxr-xr-x 1 ai 197121 0  3月 16 11:16 03_chat_logs
+drwxr-xr-x 1 ai 197121 0  3月 16 11:26 04_knowledge
+drwxr-xr-x 1 ai 197121 0  3月 10 10:32 05_archive
+drwxr-xr-x 1 ai 197121 0  3月 14 19:20 06_transcripts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_vzYJqgrX4LJkVqsfOjsCDv Bash input={&quot;command&quot;:&quot;ls -la \&quot;D:/demo1/openmnemo/Memory/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List subdirectories in openmnemo/Memory&quot;}" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_vzYJqgrX4LJkVqsfOjsCDv</span>
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;ls -la \&quot;D:/demo1/openmnemo/Memory/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List subdirectories in openmnemo/Memory&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;ls -la \&quot;D:/demo1/openmnemo/Memory/\&quot; 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List subdirectories in openmnemo/Memory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_vzYJqgrX4LJkVqsfOjsCDv Bash output=total 16 drwxr-xr-x 1 ai 197121 0 3月 16 18:34 . drwxr-xr-x 1 ai 197121 0 3月 18 13:03 .. drwxr-xr-x 1 ai 197121 0 3月 16 18:34 .report-cache drwxr-xr-x 1 ai 197121 0 3月 16 12:06 0..." id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_vzYJqgrX4LJkVqsfOjsCDv</span>
+      
+      <span class="timeline-time">05:01:47</span>
+    </div>
+    <div class="timeline-title">Bash output=total 16 drwxr-xr-x 1 ai 197121 0 3月 16 18:34 . drwxr-xr-x 1 ai 197121 0 3月 18 13:03 .. drwxr-xr-x 1 ai 197121 0 3月 16 18:34 .report-cache drwxr-xr-x 1 ai 197121 0 3月 16 12:06 0...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>total 16
+drwxr-xr-x 1 ai 197121 0  3月 16 18:34 .
+drwxr-xr-x 1 ai 197121 0  3月 18 13:03 ..
+drwxr-xr-x 1 ai 197121 0  3月 16 18:34 .report-cache
+drwxr-xr-x 1 ai 197121 0  3月 16 12:06 01_goals
+drwxr-xr-x 1 ai 197121 0  3月 16 12:06 02_todos
+drwxr-xr-x 1 ai 197121 0  3月 16 12:06 03_chat_logs
+drwxr-xr-x 1 ai 197121 0  3月 17 17:06 04_knowledge
+drwxr-xr-x 1 ai 197121 0  3月 16 12:06 05_archive
+drwxr-xr-x 1 ai 197121 0  3月 16 12:39 06_transcripts
+drwxr-xr-x 1 ai 197121 0  3月 17 19:32 07_reports</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me read the current planning documents and goal/todo files:" id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#11</span>
+      
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="message-body"><p>Now let me read the current planning documents and goal/todo files:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_g9ESoTZcwJkxy79ElOeE5s Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/INDEX.md&quot;}" id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_g9ESoTZcwJkxy79ElOeE5s</span>
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/INDEX.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/agentree/plan/plan11/INDEX.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_iPawUomxjMWpfI3jEwRG3s Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/执行路线图.md&quot;}" id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_iPawUomxjMWpfI3jEwRG3s</span>
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/执行路线图.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/agentree/plan/plan11/执行路线图.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_coqjfreH4u7fVnNHWfAkRu Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals&quot;}" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_coqjfreH4u7fVnNHWfAkRu</span>
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/01_goals&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_g9ESoTZcwJkxy79ElOeE5s Read output=1→# AgentCrawl Plan11 索引 2→ 3→&gt; 版本：v11.0 4→&gt; 日期：2026-03-06 5→&gt; 说明：基于 Plan10 完善方案，整合补充清单，形成可执行的最终方案 6→ 7→--- 8→ 9→## 核心文档 10→ 11→### 1. [商业计划书](./商业计划书.md) 12→- 完整的成本结构（服务器 + 团队薪..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_g9ESoTZcwJkxy79ElOeE5s</span>
+      
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read output=1→# AgentCrawl Plan11 索引 2→ 3→&gt; 版本：v11.0 4→&gt; 日期：2026-03-06 5→&gt; 说明：基于 Plan10 完善方案，整合补充清单，形成可执行的最终方案 6→ 7→--- 8→ 9→## 核心文档 10→ 11→### 1. [商业计划书](./商业计划书.md) 12→- 完整的成本结构（服务器 + 团队薪...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# AgentCrawl Plan11 索引
+     2→
+     3→&gt; 版本：v11.0
+     4→&gt; 日期：2026-03-06
+     5→&gt; 说明：基于 Plan10 完善方案，整合补充清单，形成可执行的最终方案
+     6→
+     7→---
+     8→
+     9→## 核心文档
+    10→
+    11→### 1. [商业计划书](./商业计划书.md)
+    12→- 完整的成本结构（服务器 + 团队薪资 + 前端开发）
+    13→- 优化的免费版策略（滥用防护 + 升级引导）
+    14→- 三年财务预测（整合所有成本项）
+    15→- 数据主权作为核心营销武器
+    16→
+    17→### 2. [技术架构白皮书](./技术架构白皮书.md)
+    18→- 完整的插件安全验证自动化流程
+    19→- 数据采集能力的最终定位（官方插件）
+    20→- 前端开发现状与对接方案
+    21→- Promotion Pipeline 详细设计
+    22→- 轻量模式 vs 高级模式功能对比
+    23→- 离线桌面端技术方案
+    24→
+    25→### 3. [执行路线图](./执行路线图.md)
+    26→- Phase 1-3 详细任务分解
+    27→- 关键里程碑与验收标准
+    28→- 风险评估与缓解措施
+    29→- 团队配置与招聘策略
+    30→
+    31→---
+    32→
+    33→## Plan11 核心升级（vs Plan10）
+    34→
+    35→### 1. 成本透明化
+    36→
+    37→**Plan10 遗漏**：服务器成本、团队薪资、前端开发成本未详细列出
+    38→
+    39→**Plan11 补充**：
+    40→- Year 1-3 服务器成本明细：$828 → $2,364 → $7,488
+    41→- Year 1-3 团队配置：3.5 人 → 5.5 人 → 8.5 人
+    42→- 前端开发成本：$12K（2 个月，已有项目对接）
+    43→- 总成本结构完整可审计
+    44→
+    45→### 2. 插件安全验证完整化
+    46→
+    47→**Plan10 遗漏**：插件安全验证流程不够详细
+    48→
+    49→**Plan11 补充**：
+    50→- 完整的 CI/CD 验证管道（Trivy + Snyk + 权限审计）
+    51→- 验证失败处理机制（阻断 PR + 自动修复建议）
+    52→- 权限审计规则（permission-auditor）
+    53→- Gitea Actions 配置示例
+    54→
+    55→### 3. 免费版策略精细化
+    56→
+    57→**Plan10 遗漏**：免费版限制和滥用防护不够具体
+    58→
+    59→**Plan11 补充**：
+    60→- 详细的免费版配额设计（3 仓库、500MB/仓库、100 次 API/天）
+    61→- 滥用防护机制（邮箱验证、IP 限制、设备指纹、内容审核）
+    62→- 付费升级引导（触发点 + 优惠策略）
+    63→
+    64→### 4. 数据采集能力定位明确
+    65→
+    66→**Plan10 模糊**：数据采集能力是核心还是插件？
+    67→
+    68→**Plan11 明确**：
+    69→- 数据采集作为**官方插件系统的首个重点插件**
+    70→- Phase 1 核心平台不包含数据采集
+    71→- Phase 2 官方数据采集插件上线
+    72→- 避免适配器维护成本失控
+    73→
+    74→### 5. 前端开发现状确认
+    75→
+    76→**Plan10 假设**：前端需要从零开发
+    77→
+    78→**Plan11 确认**：
+    79→- 前端项目已在开发中，马上可以上线对接
+    80→- 开发周期从 4-6 月缩短至 1-2 月
+    81→- Year 1 研发成本降低 $30K-50K
+    82→- 技术栈确认：React 18 + Vite 5 + Zustand
+    83→
+    84→### 6. Promotion Pipeline 详细设计
+    85→
+    86→**Plan10 概念**：仅提出概念，未详细设计
+    87→
+    88→**Plan11 补充**：
+    89→- 三级晋升机制（OpenClaw 探索 → CLI 命令 → 工作流插件）
+    90→- 晋升触发条件（重复 3 次以上操作）
+    91→- 自动生成 CLI 命令
+    92→- 工作流分享到插件市场
+    93→
+    94→### 7. 离线桌面端技术方案
+    95→
+    96→**Plan10 规划**：Phase 3 规划，未详细设计
+    97→
+    98→**Plan11 补充**：
+    99→- 技术栈：Tauri 2.0（Rust + Web 前端）
+   100→- 完全离线功能：仓库管理、会话管理、全文检索
+   101→- 需要联网功能：对话生成、插件安装、多用户协作
+   102→- 打包大小 &lt; 10MB
+   103→
+   104→---
+   105→
+   106→## 关键指标总结
+   107→
+   108→### 商业指标
+   109→
+   110→| 指标 | Year 1 | Year 2 | Year 3 |
+   111→|------|--------|--------|--------|
+   112→| 免费用户数 | 1,000 | 4,000 | 10,000 |
+   113→| 付费用户数 | 75 | 300 | 750 |
+   114→| ARR | $45K | $180K | $450K |
+   115→| 总收入 | $60K | $260K | $730K |
+   116→| 总成本 | $394K | $712K | $1,296K |
+   117→| 净利润 | -$334K | -$452K | -$566K |
+   118→| 累计亏损 | -$334K | -$786K | -$1,352K |
+   119→| 盈亏平衡 | - | - | Year 4 Q3（月 42） |
+   120→
+   121→### 成本结构（完整）
+   122→
+   123→| 成本类型 | Year 1 | Year 2 | Year 3 |
+   124→|---------|--------|--------|--------|
+   125→| 研发人力 | $276K | $432K | $780K |
+   126→| 团队规模 | 3.5 人 | 5.5 人 | 8.5 人 |
+   127→| 市场营销 | $40K | $100K | $180K |
+   128→| 服务器 | $0.8K | $2.4K | $7.5K |
+   129→| LLM API | $12K | $36K | $72K |
+   130→| 运营 | $30K | $60K | $120K |
+   131→| 管理 | $24K | $48K | $72K |
+   132→| 其他 | $11.2K | $33.6K | $64.5K |
+   133→
+   134→### 单位经济模型
+   135→
+   136→| 版本 | ARPU（月） | CAC | LTV | LTV/CAC | Plan10 LTV/CAC |
+   137→|------|-----------|-----|-----|---------|--------------|
+   138→| 个人版 | $19 | $50-150 | $271.7 | 1.8-5.4x | 1.8-5.4x |
+   139→| 团队版 | $80 | $200-400 | $2,000 | 5.0-10.0x | 5.0-10.0x |
+   140→| 企业版 | $240 | $600-1,200 | $9,600 | 8.0-16.0x | 8.0-16.0x |
+   141→
+   142→---
+   143→
+   144→## 技术架构要点
+   145→
+   146→### 四层架构
+   147→
+   148→```
+   149→[自研 Web 前端]
+   150→    ↓
+   151→[适配网关层]（核心中枢）
+   152→    ├── 轻量模式 → [大模型 API 直连]
+   153→    └── 高级模式 → [OpenClaw] → [CLI Gateway] → [Workflow Engine]
+   154→    ↓
+   155→[Gitea（唯一数据底座）] + [索引层]
+   156→```
+   157→
+   158→### 架构红线规则（11 条）
+   159→
+   160→Plan9 的 8 条 + Plan10 新增 3 条：
+   161→1. 关键状态写必须经适配网关层或 CLI Gateway
+   162→2. 工作流层仅调用已发布且版本冻结的插件
+   163→3. 所有写操作必须可追溯
+   164→4. audit replay 默认 dry-run
+   165→5. 采集一期必须具备：账号池、代理池、会话租约、断点续爬
+   166→6. 免费试用默认只读
+   167→7. 合规边界优先
+   168→8. 密钥零硬编码
+   169→9. **（新增）前端不直接暴露 Gateway 地址**
+   170→10. **（新增）会话存储格式不可随意变更**
+   171→11. **（新增）禁止修改 OpenClaw 底层代码**
+   172→
+   173→---
+   174→
+   175→## 工程路线图
+   176→
+   177→### Phase 1（0-3 月）：核心平台开发
+   178→
+   179→**Week 1-4：基础架构**
+   180→- Gitea 3.0 部署与配置
+   181→- PostgreSQL 16 主从复制
+   182→- Redis 7 集群配置
+   183→- Nginx 反向代理 + SSL
+   184→
+   185→**Week 5-8：适配网关层**
+   186→- 轻量模式 API 开发
+   187→- 大模型 API 适配（OpenAI/Anthropic/Gemini）
+   188→- WebSocket 流式输出
+   189→- 错误处理与重试机制
+   190→
+   191→**Week 9-12：Web 前端对接**
+   192→- 前端项目对接适配网关层
+   193→- 会话管理 UI 完善
+   194→- Markdown 渲染优化
+   195→- 文件上传/下载功能
+   196→
+   197→### Phase 2（3-6 月）：插件系统与数据采集
+   198→
+   199→**Week 13-16：插件系统基础**
+   200→- 插件元数据规范（plugin.yaml）
+   201→- 插件安全验证工具链
+   202→- 插件市场 UI
+   203→- 插件安装/卸载机制
+   204→
+   205→**Week 17-20：官方数据采集插件**
+   206→- Playwright 网页采集
+   207→- Scrapy 框架集成
+   208→- 账号池管理
+   209→- 代理池管理
+   210→- 定时任务调度
+   211→
+   212→**Week 21-24：高级模式开发**
+   213→- OpenClaw Agent 集成
+   214→- 本地文件操作
+   215→- 工作流执行引擎
+   216→- 向量检索（Qdrant）
+   217→
+   218→### Phase 3（6-12 月）：企业功能与商业化
+   219→
+   220→**Week 25-32：IM 集成**
+   221→- 飞书机器人开发
+   222→- 钉钉机器人开发
+   223→- 企业微信机器人开发
+   224→- IM 消息同步到仓库
+   225→
+   226→**Week 33-40：多用户协作**
+   227→- 权限管理系统
+   228→- 审计日志
+   229→- 多人实时协作
+   230→- 冲突解决机制
+   231→
+   232→**Week 41-48：商业化准备**
+   233→- 付费订阅系统
+   234→- 发票管理
+   235→- 企业合规认证
+   236→- 安全审计报告
+   237→
+   238→---
+   239→
+   240→## 验收标准
+   241→
+   242→| 阶段 | 验收标准 | 量化指标 |
+   243→|------|---------|---------|
+   244→| Phase 1（月 3） | 轻量模式完成&quot;新建仓库-创建会话-对话-生成README&quot;闭环 | 端到端成功率 &gt;95% |
+   245→| Phase 1（月 3） | 会话数据可写入 Gitea 并可检索 | 写入延迟 &lt;2s，检索 P95 &lt;1s |
+   246→| Phase 2（月 6） | 高级模式对接 OpenClaw 完成 | 双模式切换 &lt;3s，无数据丢失 |
+   247→| Phase 2（月 6） | 插件从发现到安装运行全流程自动化 | 安装成功率 &gt;98%，10+ 可用插件 |
+   248→| Phase 3（月 12） | 插件市场上线，含自动化安全验证 | 30+ 插件，CI 验证覆盖率 100% |
+   249→| Phase 3（月 12） | 生产环境可观测性完备 | 核心链路可用性 99.9%，P95 &lt;2s |
+   250→| 全阶段 | 架构红线规则通过检查 | 11 条红线 100% 合规 |
+   251→
+   252→---
+   253→
+   254→## 与历史方案的关系
+   255→
+   256→- **Plan7**：技术深度的基础
+   257→- **Plan8**：架构治理的来源
+   258→- **Plan9**：融合 Plan7+8，三层信任 + 红线规则
+   259→- **Plan10**：基于 Plan9，融入双模式引擎 + 适配网关 + 对话即仓库 + Git 唯一存储
+   260→- **Plan11**：基于 Plan10，整合完善方案与补充清单，形成可执行的最终方案
+   261→
+   262→---
+   263→
+   264→## 结论
+   265→
+   266→Plan11 是 AgentCrawl 的**可执行最终方案**：
+   267→
+   268→1. **商业上**：成本透明化 + 免费版策略精细化 + 数据主权营销武器化
+   269→2. **技术上**：插件安全验证完整化 + 数据采集定位明确化 + 前端开发现状确认
+   270→3. **产品上**：Promotion Pipeline 详细化 + 离线桌面端方案化
+   271→4. **执行上**：路线图可落地 + 验收标准可量化 + 风险缓解可操作
+   272→
+   273→核心定位：**以 Git 为底座的、模型无关的、数据完全私有的通用协作对话平台**。
+   274→
+   275→---
+   276→
+   277→**文档版本**：v11.0
+   278→**最后更新**：2026-03-06
+   279→**状态**：可执行
+   280→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_iPawUomxjMWpfI3jEwRG3s Read output=1→# AgentCrawl 执行路线图 v11.0 2→ 3→&gt; 版本：v11.0 | 日期：2026-03-06 4→&gt; 5→&gt; 说明：Phase 1-3 详细任务分解、关键里程碑与验收标准、风险评估与缓解措施 6→ 7→--- 8→ 9→## 执行摘要 10→ 11→Plan11 执行路线图将 18 个月的开发周期划分为 3 个 Phase，每个..." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_iPawUomxjMWpfI3jEwRG3s</span>
+      
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read output=1→# AgentCrawl 执行路线图 v11.0 2→ 3→&gt; 版本：v11.0 | 日期：2026-03-06 4→&gt; 5→&gt; 说明：Phase 1-3 详细任务分解、关键里程碑与验收标准、风险评估与缓解措施 6→ 7→--- 8→ 9→## 执行摘要 10→ 11→Plan11 执行路线图将 18 个月的开发周期划分为 3 个 Phase，每个...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# AgentCrawl 执行路线图 v11.0
+     2→
+     3→&gt; 版本：v11.0 | 日期：2026-03-06
+     4→&gt;
+     5→&gt; 说明：Phase 1-3 详细任务分解、关键里程碑与验收标准、风险评估与缓解措施
+     6→
+     7→---
+     8→
+     9→## 执行摘要
+    10→
+    11→Plan11 执行路线图将 18 个月的开发周期划分为 3 个 Phase，每个 Phase 包含详细的任务分解、时间节点、验收标准和风险缓解措施。
+    12→
+    13→**关键里程碑**：
+    14→- **月 3**：轻量模式 MVP 上线
+    15→- **月 6**：高级模式 + 插件系统上线
+    16→- **月 12**：企业版 + IM 集成上线
+    17→- **月 36**：盈亏平衡
+    18→
+    19→---
+    20→
+    21→## Phase 1（0-3 月）：核心平台开发
+    22→
+    23→### 目标
+    24→
+    25→打通轻量模式核心链路：自研 Web 前端 → 适配网关层 → 大模型 API → Gitea 存储
+    26→
+    27→### Week 1-4：基础架构
+    28→
+    29→**任务清单**：
+    30→- [ ] Gitea 3.0 部署与配置
+    31→  - PostgreSQL 16 主从复制
+    32→  - Redis 7 集群配置
+    33→  - Nginx 反向代理 + SSL
+    34→  - 备份策略配置（每日增量 + 每周全量）
+    35→- [ ] 域名与 DNS 配置
+    36→  - agentcrawl.com（主站）
+    37→  - api.agentcrawl.com（适配网关）
+    38→  - git.agentcrawl.com（Gitea）
+    39→- [ ] 监控与日志系统
+    40→  - Prometheus + Grafana
+    41→  - Loki 日志聚合
+    42→  - 告警规则配置
+    43→
+    44→**验收标准**：
+    45→- Gitea 可正常访问，支持用户注册/登录
+    46→- PostgreSQL 主从复制延迟 &lt; 1s
+    47→- Redis 集群可用性 99.9%
+    48→- 监控面板可展示核心指标
+    49→
+    50→**风险与缓解**：
+    51→- **风险**：Gitea 3.0 稳定性未知
+    52→- **缓解**：先在测试环境运行 2 周，观察稳定性
+    53→
+    54→### Week 5-8：适配网关层
+    55→
+    56→**任务清单**：
+    57→- [ ] 适配网关基础框架
+    58→  - Node.js + Express / Go + Gin
+    59→  - WebSocket 服务器
+    60→  - JWT 认证中间件
+    61→  - CORS 配置
+    62→- [ ] 大模型 API 适配
+    63→  - OpenAI Adapter
+    64→  - Anthropic Adapter
+    65→  - Gemini Adapter
+    66→  - 通义千问 Adapter
+    67→  - DeepSeek Adapter
+    68→- [ ] Gitea 读写代理
+    69→  - 创建仓库 API
+    70→  - 读取仓库列表 API
+    71→  - 写入会话文件 API
+    72→  - 生成 README API
+    73→- [ ] 错误处理与重试机制
+    74→  - 指数退避重试
+    75→  - 熔断器模式
+    76→  - 降级策略
+    77→
+    78→**验收标准**：
+    79→- 适配网关可正常启动，健康检查通过
+    80→- 大模型 API 调用成功率 &gt;99%
+    81→- Gitea 读写延迟 P95 &lt; 500ms
+    82→- WebSocket 连接稳定性 &gt;99.5%
+    83→
+    84→**风险与缓解**：
+    85→- **风险**：大模型 API 限流或不稳定
+    86→- **缓解**：实现多模型自动切换 + 本地队列缓冲
+    87→
+    88→### Week 9-12：Web 前端对接
+    89→
+    90→**任务清单**：
+    91→- [ ] 前端项目对接适配网关层
+    92→  - API 客户端封装
+    93→  - WebSocket 连接管理
+    94→  - 断线重连机制
+    95→  - 心跳保活
+    96→- [ ] 会话管理 UI 完善
+    97→  - 仓库列表页
+    98→  - 会话列表页
+    99→  - 对话界面
+   100→  - 设置页面
+   101→- [ ] Markdown 渲染优化
+   102→  - 代码高亮（Prism.js）
+   103→  - 表格渲染
+   104→  - 图片预览
+   105→  - LaTeX 公式支持
+   106→- [ ] 文件上传/下载功能
+   107→  - 拖拽上传
+   108→  - 进度条显示
+   109→  - 断点续传
+   110→
+   111→**验收标准**：
+   112→- 前端可正常访问，无控制台错误
+   113→- 对话流式输出延迟 &lt; 200ms
+   114→- Markdown 渲染正确率 100%
+   115→- 文件上传成功率 &gt;99%
+   116→
+   117→**风险与缓解**：
+   118→- **风险**：前端性能不达标
+   119→- **缓解**：使用 React.memo + useMemo 优化渲染
+   120→
+   121→### Phase 1 里程碑
+   122→
+   123→**验收标准**：
+   124→- 用户可注册/登录
+   125→- 用户可创建仓库
+   126→- 用户可在仓库内创建会话
+   127→- 用户可在会话中对话（流式输出）
+   128→- 用户可使用 `/readme` 命令生成 README
+   129→- 端到端成功率 &gt;95%
+   130→
+   131→**交付物**：
+   132→- 可访问的 Web 应用（https://agentcrawl.com）
+   133→- 适配网关 API 文档
+   134→- 部署文档
+   135→- 用户使用手册
+   136→
+   137→---
+   138→
+   139→## Phase 2（3-6 月）：插件系统与数据采集
+   140→
+   141→### 目标
+   142→
+   143→上线插件系统 + 官方数据采集插件 + 高级模式（OpenClaw 集成）
+   144→
+   145→### Week 13-16：插件系统基础
+   146→
+   147→**任务清单**：
+   148→- [ ] 插件元数据规范（plugin.yaml）
+   149→  - Schema 定义
+   150→  - 验证工具开发
+   151→- [ ] 插件安全验证工具链
+   152→  - agentcrawl-plugin-validator
+   153→  - permission-auditor
+   154→  - Trivy + Snyk 集成
+   155→- [ ] 插件市场 UI
+   156→  - 插件列表页
+   157→  - 插件详情页
+   158→  - 安装/卸载界面
+   159→  - 评分与评论系统
+   160→- [ ] 插件安装/卸载机制
+   161→  - Docker Compose 自动化
+   162→  - 健康检查
+   163→  - 日志收集
+   164→
+   165→**验收标准**：
+   166→- 插件元数据验证通过率 100%
+   167→- 插件安全扫描覆盖率 100%
+   168→- 插件安装成功率 &gt;98%
+   169→- 插件市场 UI 可正常访问
+   170→
+   171→**风险与缓解**：
+   172→- **风险**：插件安全验证工具开发周期长
+   173→- **缓解**：优先实现核心验证规则，其他规则迭代添加
+   174→
+   175→### Week 17-20：官方数据采集插件
+   176→
+   177→**任务清单**：
+   178→- [ ] Playwright 网页采集
+   179→  - 浏览器自动化
+   180→  - 反爬虫绕过
+   181→  - 截图与录屏
+   182→- [ ] Scrapy 框架集成
+   183→  - 分布式爬虫
+   184→  - 增量采集
+   185→  - 数据清洗
+   186→- [ ] 账号池管理
+   187→  - 账号轮换
+   188→  - 登录状态保持
+   189→  - 账号健康检查
+   190→- [ ] 代理池管理
+   191→  - 代理轮换
+   192→  - 代理健康检查
+   193→  - IP 封禁检测
+   194→- [ ] 定时任务调度
+   195→  - Cron 表达式支持
+   196→  - 任务队列
+   197→  - 失败重试
+   198→
+   199→**验收标准**：
+   200→- 数据采集成功率 &gt;90%
+   201→- 账号池可用率 &gt;95%
+   202→- 代理池可用率 &gt;90%
+   203→- 定时任务准时率 &gt;99%
+   204→
+   205→**风险与缓解**：
+   206→- **风险**：反爬虫机制导致采集失败
+   207→- **缓解**：实现多种反爬虫绕过策略 + 人工审核机制
+   208→
+   209→### Week 21-24：高级模式开发
+   210→
+   211→**任务清单**：
+   212→- [ ] OpenClaw Agent 集成
+   213→  - 适配网关对接 OpenClaw Gateway
+   214→  - 意图识别
+   215→  - 插件调度
+   216→- [ ] 本地文件操作
+   217→  - 文件读写权限控制
+   218→  - 沙箱隔离
+   219→  - 审计日志
+   220→- [ ] 工作流执行引擎
+   221→  - 工作流定义（YAML）
+   222→  - 节点执行
+   223→  - 错误处理
+   224→- [ ] 向量检索（Qdrant）
+   225→  - 向量化模型集成
+   226→  - 索引构建
+   227→  - 相似度搜索
+   228→
+   229→**验收标准**：
+   230→- 高级模式可正常切换，无数据丢失
+   231→- 本地文件操作成功率 &gt;99%
+   232→- 工作流执行成功率 &gt;95%
+   233→- 向量检索 P95 延迟 &lt; 100ms
+   234→
+   235→**风险与缓解**：
+   236→- **风险**：OpenClaw 集成复杂度高
+   237→- **缓解**：先实现最小功能集，逐步扩展
+   238→
+   239→### Phase 2 里程碑
+   240→
+   241→**验收标准**：
+   242→- 插件市场上线，至少 3 个官方插件可用 + 插件开发文档完整
+   243→- 官方数据采集插件可正常使用
+   244→- 高级模式可正常切换
+   245→- 双模式切换 &lt;3s，无数据丢失
+   246→
+   247→**交付物**：
+   248→- 插件市场（https://agentcrawl.com/plugins）
+   249→- 插件开发文档
+   250→- 官方数据采集插件
+   251→- 高级模式使用手册
+   252→
+   253→---
+   254→
+   255→## Phase 3（6-12 月）：企业功能与商业化
+   256→
+   257→### 目标
+   258→
+   259→上线 IM 集成 + 多用户协作 + 付费订阅系统 + 安全审计
+   260→
+   261→### Week 25-32：IM 集成
+   262→
+   263→**任务清单**：
+   264→- [ ] 飞书机器人开发
+   265→  - 消息接收与发送
+   266→  - 卡片消息
+   267→  - 事件订阅
+   268→- [ ] 钉钉机器人开发
+   269→  - 消息接收与发送
+   270→  - 卡片消息
+   271→  - 事件订阅
+   272→- [ ] 企业微信机器人开发
+   273→  - 消息接收与发送
+   274→  - 卡片消息
+   275→  - 事件订阅
+   276→- [ ] IM 消息同步到仓库
+   277→  - 消息格式转换
+   278→  - 会话关联
+   279→  - 历史消息导入
+   280→
+   281→**验收标准**：
+   282→- IM 机器人可正常接收/发送消息
+   283→- 消息同步成功率 &gt;99%
+   284→- 消息延迟 P95 &lt; 2s
+   285→
+   286→**风险与缓解**：
+   287→- **风险**：IM 平台 API 限流
+   288→- **缓解**：实现消息队列 + 限流控制
+   289→
+   290→### Week 33-40：多用户协作
+   291→
+   292→**任务清单**：
+   293→- [ ] 权限管理系统
+   294→  - 组织/团队/仓库三级权限
+   295→  - 角色定义（Owner/Admin/Member/Guest）
+   296→  - 权限继承
+   297→- [ ] 审计日志
+   298→  - 操作日志记录
+   299→  - 日志查询与导出
+   300→  - 合规报告生成
+   301→- [ ] 多人实时协作
+   302→  - WebSocket 广播
+   303→  - 冲突检测
+   304→  - 自动合并
+   305→- [ ] 冲突解决机制
+   306→  - Git merge 策略
+   307→  - 手动解决界面
+   308→  - 冲突历史记录
+   309→
+   310→**验收标准**：
+   311→- 权限控制准确率 100%
+   312→- 审计日志完整性 100%
+   313→- 多人协作冲突率 &lt; 5%
+   314→- 冲突解决成功率 &gt;95%
+   315→
+   316→**风险与缓解**：
+   317→- **风险**：多人协作冲突频繁
+   318→- **缓解**：实现乐观锁 + 自动合并策略
+   319→
+   320→### Week 41-48：商业化准备
+   321→
+   322→**任务清单**：
+   323→- [ ] 付费订阅系统
+   324→  - 微信支付 / 支付宝集成（国内）
+   325→  - Stripe / Paddle 集成（海外）
+   326→  - 订阅计划管理
+   327→  - 发票生成
+   328→  - 自动续费
+   329→- [ ] 发票管理
+   330→  - 发票模板
+   331→  - 自动开票
+   332→  - 发票查询与下载
+   333→- [ ] 企业合规认证
+   334→  - 等保 2.0 三级
+   335→  - ISO 27001
+   336→  - SOC 2
+   337→- [ ] 安全审计报告
+   338→  - 漏洞扫描
+   339→  - 渗透测试
+   340→  - 安全加固
+   341→
+   342→**验收标准**：
+   343→- 付费订阅流程完整，支付成功率 &gt;99%
+   344→- 发票生成准确率 100%
+   345→- 企业合规认证通过
+   346→- 安全审计无高危漏洞
+   347→
+   348→**风险与缓解**：
+   349→- **风险**：合规认证周期长
+   350→- **缓解**：提前 3 个月启动认证流程
+   351→
+   352→### Phase 3 里程碑
+   353→
+   354→**验收标准**：
+   355→- IM 集成上线，支持飞书/钉钉/企业微信
+   356→- 多用户协作功能完整
+   357→- 付费订阅系统上线
+   358→- 企业合规认证通过
+   359→
+   360→**交付物**：
+   361→- IM 集成文档
+   362→- 多用户协作手册
+   363→- 付费订阅系统
+   364→- 企业合规报告
+   365→
+   366→---
+   367→
+   368→## 团队配置与招聘策略
+   369→
+   370→### Year 1（3.5 人）
+   371→
+   372→| 角色 | 人数 | 薪资 | 职责 |
+   373→|------|------|------|------|
+   374→| Tech Lead | 1 | $96K | 架构设计、技术决策、代码审查 |
+   375→| 后端工程师 | 1 | $72K | 适配网关、插件系统、数据采集 |
+   376→| 前端工程师 | 1 | $72K | Web 前端开发、UI/UX 优化 |
+   377→| DevOps（兼职） | 0.5 | $36K | 部署、监控、运维 |
+   378→
+   379→### Year 2（5.5 人）
+   380→
+   381→| 角色 | 人数 | 薪资 | 职责 |
+   382→|------|------|------|------|
+   383→| Tech Lead | 1 | $96K | 架构设计、技术决策、代码审查 |
+   384→| 后端工程师 | 2 | $144K | 适配网关、插件系统、数据采集 |
+   385→| 前端工程师 | 1 | $72K | Web 前端开发、UI/UX 优化 |
+   386→| DevOps | 1 | $72K | 部署、监控、运维 |
+   387→| 产品经理（兼职） | 0.5 | $48K | 产品规划、需求管理 |
+   388→
+   389→### Year 3（8.5 人）
+   390→
+   391→| 角色 | 人数 | 薪资 | 职责 |
+   392→|------|------|------|------|
+   393→| Tech Lead | 1 | $120K | 架构设计、技术决策、代码审查 |
+   394→| 后端工程师 | 3.5 | $252K | 适配网关、插件系统、数据采集 |
+   395→| 前端工程师 | 2 | $168K | Web 前端、桌面端开发 |
+   396→| DevOps | 1 | $84K | 部署、监控、运维 |
+   397→| 产品经理 | 1 | $96K | 产品规划、需求管理 |
+   398→| 安全工程师（兼职） | 0.5 | $60K | 安全审计、漏洞修复 |
+   399→
+   400→---
+   401→
+   402→## 风险评估与缓解措施
+   403→
+   404→### 技术风险
+   405→
+   406→| 风险 | 影响 | 概率 | 缓解措施 |
+   407→|------|------|------|---------|
+   408→| Gitea 性能瓶颈 | 高 | 中 | 提前压测 + 集群化方案 |
+   409→| 大模型 API 不稳定 | 高 | 高 | 多模型自动切换 + 本地队列 |
+   410→| OpenClaw 供应商风险 | 中 | 低 | 已降级为可选模块 |
+   411→| 插件安全漏洞 | 高 | 中 | 完整的安全验证管道 |
+   412→| 前端性能问题 | 中 | 中 | React.memo + useMemo 优化 |
+   413→
+   414→### 商业风险
+   415→
+   416→| 风险 | 影响 | 概率 | 缓解措施 |
+   417→|------|------|------|---------|
+   418→| 用户增长不达预期 | 高 | 中 | 免费版零成本拉新 + 数据锁定 |
+   419→| 付费转化率低 | 高 | 中 | 优化升级引导 + 首月折扣 |
+   420→| 竞争对手进入 | 中 | 高 | 数据主权 + Git 底座护城河 |
+   421→| 合规认证失败 | 高 | 低 | 提前 3 个月启动认证流程 |
+   422→
+   423→### 团队风险
+   424→
+   425→| 风险 | 影响 | 概率 | 缓解措施 |
+   426→|------|------|------|---------|
+   427→| 核心成员离职 | 高 | 中 | 知识文档化 + 代码审查制度 |
+   428→| 招聘困难 | 中 | 中 | 远程办公 + 股权激励 |
+   429→| 团队协作问题 | 中 | 低 | 敏捷开发 + 每日站会 |
+   430→
+   431→---
+   432→
+   433→## 关键指标与监控
+   434→
+   435→### 技术指标
+   436→
+   437→| 指标 | 目标 | 监控频率 |
+   438→|------|------|---------|
+   439→| API 可用性 | &gt;99.9% | 实时 |
+   440→| API 响应时间 P95 | &lt;2s | 实时 |
+   441→| WebSocket 连接稳定性 | &gt;99.5% | 实时 |
+   442→| 数据库查询延迟 P95 | &lt;100ms | 实时 |
+   443→| 插件安装成功率 | &gt;98% | 每日 |
+   444→
+   445→### 业务指标
+   446→
+   447→| 指标 | 目标 | 监控频率 |
+   448→|------|------|---------|
+   449→| 新用户注册数 | 见商业计划书 | 每日 |
+   450→| 付费转化率 | 7.5% | 每周 |
+   451→| 用户留存率（月） | &gt;85% | 每月 |
+   452→| NPS 评分 | &gt;50 | 每季度 |
+   453→| 客户支持响应时间 | &lt;4h | 每日 |
+   454→
+   455→---
+   456→
+   457→## 结论
+   458→
+   459→Plan11 执行路线图提供了清晰的 18 个月开发计划，包含：
+   460→
+   461→1. **详细的任务分解**：每个 Phase 细化到周级任务
+   462→2. **明确的验收标准**：每个任务都有量化指标
+   463→3. **完整的风险评估**：识别技术/商业/团队风险并提供缓解措施
+   464→4. **清晰的团队配置**：Year 1-3 团队规模与薪资预算
+   465→
+   466→这份路线图确保 AgentCrawl 从&quot;概念设计&quot;到&quot;可执行方案&quot;的顺利落地。
+   467→
+   468→---
+   469→
+   470→**文档版本**：v11.0
+   471→**最后更新**：2026-03-06
+   472→**状态**：可执行
+   473→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_coqjfreH4u7fVnNHWfAkRu Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\memorytree\Memory\01_goals&#39;" id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_coqjfreH4u7fVnNHWfAkRu</span>
+      
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\memorytree\Memory\01_goals&#39;</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>EISDIR: illegal operation on a directory, read &#39;D:\demo1\memorytree\Memory\01_goals&#39;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_R6cghZcjraui323ILkpdyo Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos&quot;}" id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_R6cghZcjraui323ILkpdyo</span>
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/02_todos&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_mZi7F1Wxv2l2br2oUkrxnL Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/01_goals&quot;}" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_mZi7F1Wxv2l2br2oUkrxnL</span>
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/01_goals&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/Memory/01_goals&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_azrtiMpsTyvx1RgL5wy6Un Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/02_todos&quot;}" id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_azrtiMpsTyvx1RgL5wy6Un</span>
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/02_todos&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/Memory/02_todos&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_R6cghZcjraui323ILkpdyo Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\memorytree\Memory\02_todos&#39;" id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_R6cghZcjraui323ILkpdyo</span>
+      
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\memorytree\Memory\02_todos&#39;</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>EISDIR: illegal operation on a directory, read &#39;D:\demo1\memorytree\Memory\02_todos&#39;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_azrtiMpsTyvx1RgL5wy6Un Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\openmnemo\Memory\02_todos&#39;" id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_azrtiMpsTyvx1RgL5wy6Un</span>
+      
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\openmnemo\Memory\02_todos&#39;</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>EISDIR: illegal operation on a directory, read &#39;D:\demo1\openmnemo\Memory\02_todos&#39;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_mZi7F1Wxv2l2br2oUkrxnL Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\openmnemo\Memory\01_goals&#39;" id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_mZi7F1Wxv2l2br2oUkrxnL</span>
+      
+      <span class="timeline-time">05:01:52</span>
+    </div>
+    <div class="timeline-title">Read output=EISDIR: illegal operation on a directory, read &#39;D:\demo1\openmnemo\Memory\01_goals&#39;</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>EISDIR: illegal operation on a directory, read &#39;D:\demo1\openmnemo\Memory\01_goals&#39;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me continue reading the goal and todo files by listing their contents:" id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#24</span>
+      
+      <span class="timeline-time">05:02:01</span>
+    </div>
+    <div class="message-body"><p>Let me continue reading the goal and todo files by listing their contents:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_OvRpOtFXV91MVk9qrYNaAQ Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/memorytree/Memory/01_goals\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List goal files in memorytree&quot;}" id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_OvRpOtFXV91MVk9qrYNaAQ</span>
+      <span class="timeline-time">05:02:01</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/memorytree/Memory/01_goals\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List goal files in memorytree&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;D:/demo1/memorytree/Memory/01_goals\&quot; -type f 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List goal files in memorytree&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_Oj3hPvyzY8lZvdKNtlFL3I Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/memorytree/Memory/02_todos\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List todo files in memorytree&quot;}" id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_Oj3hPvyzY8lZvdKNtlFL3I</span>
+      <span class="timeline-time">05:02:01</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/memorytree/Memory/02_todos\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List todo files in memorytree&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;D:/demo1/memorytree/Memory/02_todos\&quot; -type f 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List todo files in memorytree&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_JGxoVx2NySC5VPC1xBHBJr Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/openmnemo/Memory/01_goals\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List goal files in openmnemo&quot;}" id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_JGxoVx2NySC5VPC1xBHBJr</span>
+      <span class="timeline-time">05:02:01</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/openmnemo/Memory/01_goals\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List goal files in openmnemo&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;D:/demo1/openmnemo/Memory/01_goals\&quot; -type f 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List goal files in openmnemo&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_c5uXHkJzfq1fhFBcxqutG7 Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/openmnemo/Memory/02_todos\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List todo files in openmnemo&quot;}" id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_c5uXHkJzfq1fhFBcxqutG7</span>
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;D:/demo1/openmnemo/Memory/02_todos\&quot; -type f 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List todo files in openmnemo&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;D:/demo1/openmnemo/Memory/02_todos\&quot; -type f 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List todo files in openmnemo&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_ezinqZ0rzuJf8wTv3XYwUX Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/商业计划书.md&quot;,&quot;limit&quot;:100}" id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#29</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_ezinqZ0rzuJf8wTv3XYwUX</span>
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/商业计划书.md&quot;,&quot;limit&quot;:100}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/agentree/plan/plan11/商业计划书.md&quot;,
+  &quot;limit&quot;: 100
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_IPKQBAeQ0joO0W73s5elvC Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/技术架构白皮书.md&quot;,&quot;limit&quot;:100}" id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#30</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_IPKQBAeQ0joO0W73s5elvC</span>
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/agentree/plan/plan11/技术架构白皮书.md&quot;,&quot;limit&quot;:100}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/agentree/plan/plan11/技术架构白皮书.md&quot;,
+  &quot;limit&quot;: 100
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_Oj3hPvyzY8lZvdKNtlFL3I Bash output=D:/demo1/memorytree/Memory/02_todos/todo_v001_001_20260310.md D:/demo1/memorytree/Memory/02_todos/todo_v001_002_20260311.md D:/demo1/memorytree/Memory/02_todos/todo_v002_001_202..." id="event-30">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#31</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_Oj3hPvyzY8lZvdKNtlFL3I</span>
+      
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Bash output=D:/demo1/memorytree/Memory/02_todos/todo_v001_001_20260310.md D:/demo1/memorytree/Memory/02_todos/todo_v001_002_20260311.md D:/demo1/memorytree/Memory/02_todos/todo_v002_001_202...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/memorytree/Memory/02_todos/todo_v001_001_20260310.md
+D:/demo1/memorytree/Memory/02_todos/todo_v001_002_20260311.md
+D:/demo1/memorytree/Memory/02_todos/todo_v002_001_20260314.md
+D:/demo1/memorytree/Memory/02_todos/todo_v003_001_20260315.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_OvRpOtFXV91MVk9qrYNaAQ Bash output=D:/demo1/memorytree/Memory/01_goals/goal_v001_20260310.md D:/demo1/memorytree/Memory/01_goals/goal_v002_20260314.md D:/demo1/memorytree/Memory/01_goals/goal_v003_20260315.md" id="event-31">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#32</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_OvRpOtFXV91MVk9qrYNaAQ</span>
+      
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Bash output=D:/demo1/memorytree/Memory/01_goals/goal_v001_20260310.md D:/demo1/memorytree/Memory/01_goals/goal_v002_20260314.md D:/demo1/memorytree/Memory/01_goals/goal_v003_20260315.md</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/memorytree/Memory/01_goals/goal_v001_20260310.md
+D:/demo1/memorytree/Memory/01_goals/goal_v002_20260314.md
+D:/demo1/memorytree/Memory/01_goals/goal_v003_20260315.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_JGxoVx2NySC5VPC1xBHBJr Bash output=D:/demo1/openmnemo/Memory/01_goals/goal_v001_20260316.md" id="event-32">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#33</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_JGxoVx2NySC5VPC1xBHBJr</span>
+      
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Bash output=D:/demo1/openmnemo/Memory/01_goals/goal_v001_20260316.md</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/openmnemo/Memory/01_goals/goal_v001_20260316.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_IPKQBAeQ0joO0W73s5elvC Read output=1→# AgentCrawl 技术架构白皮书 v11.0 2→ 3→&gt; 版本：v11.0 | 日期：2026-03-06 4→&gt; 5→&gt; 读者：架构师、后端/前端工程师、平台运维、技术负责人 6→&gt; 7→&gt; 说明：基于 Plan10，整合插件安全验证、Promotion Pipeline、数据采集定位等补充内容 8→&gt; 9→&gt; 重要：本文档为 Plan..." id="event-33">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#34</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_IPKQBAeQ0joO0W73s5elvC</span>
+      
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Read output=1→# AgentCrawl 技术架构白皮书 v11.0 2→ 3→&gt; 版本：v11.0 | 日期：2026-03-06 4→&gt; 5→&gt; 读者：架构师、后端/前端工程师、平台运维、技术负责人 6→&gt; 7→&gt; 说明：基于 Plan10，整合插件安全验证、Promotion Pipeline、数据采集定位等补充内容 8→&gt; 9→&gt; 重要：本文档为 Plan...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# AgentCrawl 技术架构白皮书 v11.0
+     2→
+     3→&gt; 版本：v11.0 | 日期：2026-03-06
+     4→&gt;
+     5→&gt; 读者：架构师、后端/前端工程师、平台运维、技术负责人
+     6→&gt;
+     7→&gt; 说明：基于 Plan10，整合插件安全验证、Promotion Pipeline、数据采集定位等补充内容
+     8→&gt;
+     9→&gt; 重要：本文档为 Plan10 技术架构白皮书的**增量补充**，Plan10 白皮书中的适配网关层核心接口设计、会话文件格式规范、对话即仓库完整设计、Git 唯一存储架构（读写流程/解析层/性能优化）、记忆系统、素材管理与多模态索引、讨论与社区架构、安全与合规、部署与运维基线等内容**全部继承保留**，本文档仅记录 Plan11 新增/变更的部分。完整技术方案请同时参阅 [Plan10 技术架构白皮书](../plan10/技术架构白皮书.md)。
+    10→
+    11→---
+    12→
+    13→## 执行摘要
+    14→
+    15→Plan11 技术架构在 Plan10 基础上完成以下关键补充：
+    16→
+    17→1. **插件安全验证自动化流程**：完整的 CI/CD 验证管道（Trivy + Snyk + 权限审计）
+    18→2. **Promotion Pipeline 详细设计**：三级晋升机制（探索 → CLI → 插件）
+    19→3. **数据采集能力定位明确**：作为官方插件，Phase 2 上线
+    20→4. **前端开发现状确认**：已有项目对接，开发周期缩短至 1-2 月
+    21→5. **离线桌面端技术方案**：Tauri 2.0，完全离线功能
+    22→
+    23→---
+    24→
+    25→## 1. 四层架构（Plan10/11 核心）
+    26→
+    27→```text
+    28→[用户层]
+    29→自研 Web 前端 | IM 入口（高级模式，通过 OpenClaw）
+    30→        |
+    31→        v
+    32→[适配网关层 / Adapter Gateway（Plan10 新增，自研，核心中枢）]
+    33→身份认证 | 模型引擎路由 | 内容安全审核 | Gitea 读写代理 | 审计日志
+    34→        |
+    35→        ├── 轻量模式 ──&gt; [大模型 API 直连]
+    36→        |                 通义千问 / DeepSeek / 文心一言 / OpenAI
+    37→        |
+    38→        └── 高级模式 ──&gt; [探索层 / OpenClaw Gateway]
+    39→                          意图解析 | 术语翻译 | 插件调度 | IM 入口
+    40→                              |
+    41→                              v
+    42→                         [命令层 / CLI Gateway (Rust)]
+    43→                          Schema 校验 | 权限校验 | 快照管理
+    44→                              |
+    45→                              v
+    46→                         [工作流层 / Workflow Engine]
+    47→                          确定性执行 | 节点持久化 | 重试补偿
+    48→        |
+    49→        v
+    50→[存储与索引层]
+    51→Gitea（唯一数据底座） + Meilisearch + Qdrant + Redis
+    52→```
+    53→
+    54→**vs Plan9 三层架构的变化**：
+    55→- 新增适配网关层：前端不再直连 OpenClaw，所有请求先经适配网关
+    56→- 轻量模式分支：不经过 OpenClaw，直接调大模型 API
+    57→- 高级模式保留 Plan9 的三层信任架构（探索层→命令层→工作流层）
+    58→
+    59→---
+    60→
+    61→## 2. 架构红线规则（11 条）
+    62→
+    63→Plan9 的 8 条 + Plan10 新增 3 条：
+    64→
+    65→1. **关键状态写必须经适配网关层或 CLI Gateway**：禁止前端直写 Gitea
+    66→2. **工作流层仅调用已发布且版本冻结的插件**：禁止调用开发中或未审核插件
+    67→3. **所有写操作必须可追溯**：记录请求、执行者、结果、快照
+    68→4. **audit replay 默认 dry-run**：重放审计日志时默认模拟执行，不实际写入
+    69→5. **采集一期必须具备**：账号池、代理池、会话租约、断点续爬
+    70→6. **免费试用默认只读**：限制高风险写操作（删除、批量修改）
+    71→7. **合规边界优先**：禁止绕过访问控制，禁止采集受限内容
+    72→8. **密钥零硬编码**：所有密钥通过环境变量或密钥管理服务注入
+    73→9. **（新增）前端不直接暴露 Gateway 地址**：所有请求必须经适配网关中转，防止 API Key 泄露
+    74→10. **（新增）会话存储格式不可随意变更**：统一 Markdown 格式为架构基石，变更需经架构评审
+    75→11. **（新增）禁止修改 OpenClaw 底层代码**：所有定制在适配网关层和前端完成，确保 OpenClaw 版本可无缝升级
+    76→
+    77→---
+    78→
+    79→## 3. 插件安全验证自动化流程（Plan11 补充）
+    80→
+    81→### 3.1 验证管道
+    82→
+    83→```yaml
+    84→name: Plugin Validation
+    85→on: [push, pull_request]
+    86→
+    87→jobs:
+    88→  validate:
+    89→    runs-on: ubuntu-latest
+    90→    steps:
+    91→      - uses: actions/checkout@v3
+    92→
+    93→      - name: Validate plugin.yaml
+    94→        run: agentcrawl-plugin-validator validate plugin.yaml
+    95→
+    96→      - name: Scan Docker image
+    97→        run: trivy image --severity HIGH,CRITICAL .
+    98→
+    99→      - name: Scan dependencies
+   100→        run: snyk test --severity-threshold=high
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_ezinqZ0rzuJf8wTv3XYwUX Read output=1→# AgentCrawl 商业计划书 v11.0 2→ 3→&gt; 版本：v11.0 | 日期：2026-03-06 4→&gt; 5→&gt; 定位：AI 原生的办公协作平台（不是开发者工具） 6→&gt; 7→&gt; 说明：基于 Plan10，整合完善方案与补充清单，成本透明化、免费版策略精细化 8→ 9→--- 10→ 11→## 执行摘要 12→ 13→AgentC..." id="event-34">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#35</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_ezinqZ0rzuJf8wTv3XYwUX</span>
+      
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Read output=1→# AgentCrawl 商业计划书 v11.0 2→ 3→&gt; 版本：v11.0 | 日期：2026-03-06 4→&gt; 5→&gt; 定位：AI 原生的办公协作平台（不是开发者工具） 6→&gt; 7→&gt; 说明：基于 Plan10，整合完善方案与补充清单，成本透明化、免费版策略精细化 8→ 9→--- 10→ 11→## 执行摘要 12→ 13→AgentC...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# AgentCrawl 商业计划书 v11.0
+     2→
+     3→&gt; 版本：v11.0 | 日期：2026-03-06
+     4→&gt;
+     5→&gt; 定位：AI 原生的办公协作平台（不是开发者工具）
+     6→&gt;
+     7→&gt; 说明：基于 Plan10，整合完善方案与补充清单，成本透明化、免费版策略精细化
+     8→
+     9→---
+    10→
+    11→## 执行摘要
+    12→
+    13→AgentCrawl 以 **Gitea 为唯一数据底座**，通过**自研适配网关**实现模型/Agent 引擎热插拔，将项目管理、任务协作、知识沉淀、素材检索和自动化流程统一到一个可私有部署的平台。
+    14→
+    15→**核心差异化**：
+    16→1. **数据完全私有**：用户可 `git clone` 带走全部数据，真正的数据主权
+    17→2. **模型无关**：双模式引擎，不绑定任何大模型或 Agent 框架
+    18→3. **对话即仓库**：每段对话都是可管理、可关联、可汇总的 Git 仓库
+    19→4. **零成本入门**：自带 API Key 即可免费使用，数据沉淀驱动付费转化
+    20→
+    21→**Year 3 目标**：750 付费客户，ARR $450K，累计亏损 $1,004K，Year 4 Q1 盈亏平衡。
+    22→
+    23→---
+    24→
+    25→## 1. 市场机会
+    26→
+    27→### 1.1 核心痛点
+    28→
+    29→- **工具碎片化**：团队同时使用多个系统（聊天、任务、知识库、网盘、审批）
+    30→- **数据主权缺失**：核心数据锁在第三方平台，无法完整导出
+    31→- **AI 对话即用即弃**：传统大模型对话无法沉淀、无法关联、无法复用
+    32→- **版本混乱**：文档反复复制，缺少可信历史
+    33→
+    34→### 1.2 市场规模
+    35→
+    36→| 层级 | 规模 | 定义 |
+    37→|------|------|------|
+    38→| TAM | $50B+ | 全球企业 AI 应用开发市场 |
+    39→| SAM | $5B | AI 代理协作与管理细分 |
+    40→| SOM | $500M | 亚太中小团队（5-200 人） |
+    41→| 可触达市场 | $50M | 3 年内可实际触达（~5,000 团队） |
+    42→
+    43→**Year 3 目标市场占有率**：0.9%（750 客户 / 5,000 可触达团队）
+    44→
+    45→---
+    46→
+    47→## 2. 产品方案
+    48→
+    49→### 2.1 核心定位
+    50→
+    51→`GitHub/Gitea 的能力 + 普通人的界面和词汇`
+    52→
+    53→- 底层：Gitea 提供版本化数据底座 + 唯一存储层
+    54→- 中间：自研适配网关实现模型/Agent 引擎热插拔
+    55→- 前端：自研 Web 界面，用办公词汇交互
+    56→- 用户看到：&quot;项目、任务、审批、知识库&quot;，而非 Repository、Issue、PR
+    57→
+    58→### 2.2 双模式引擎
+    59→
+    60→| 维度 | 轻量模式（默认） | 高级模式（可选） |
+    61→|------|----------------|----------------|
+    62→| 核心定位 | 纯语义对话与协作 | 全能力执行与自动化 |
+    63→| 适用用户 | 普通办公用户、个人用户 | 进阶用户、企业用户 |
+    64→| 底层对接 | 直连大模型 API | 对接 OpenClaw Gateway |
+    65→| 核心能力 | 对话分组、会话管理、上下文继承、README 生成、全文检索 | 轻量模式全能力 + 本地文件操作、插件系统、IM 入口、工作流执行 |
+    66→| 部署要求 | 零额外部署，注册即用 | 用户自行部署 OpenClaw 或使用平台托管 |
+    67→
+    68→### 2.3 对话即仓库
+    69→
+    70→**核心创新**：将&quot;一切皆仓库&quot;从技术理念延伸到用户对话层
+    71→
+    72→- 每个规划/项目的对话分组 = 一个 Git 仓库
+    73→- 仓库内多会话各自独立又可关联
+    74→- `/readme` 命令一键汇总所有会话到 README.md
+    75→- 用户可 `git clone` 带走全部对话数据
+    76→
+    77→**用户操作逻辑**：
+    78→```
+    79→新建仓库（项目/分组）
+    80→  → 仓库内建多个会话
+    81→  → 会话间可继承仓库全局上下文
+    82→  → /readme 一键汇总 → 生成 README.md
+    83→  → 打开仓库首页即看项目全貌
+    84→```
+    85→
+    86→### 2.4 Git 唯一存储
+    87→
+    88→**核心变化**：Gitea 从&quot;存储层之一&quot;升级为&quot;唯一数据底座&quot;
+    89→
+    90→**不可替代的优势**：
+    91→- 开发成本减少 80%：不用设计数据库表、不用开发 CRUD 接口
+    92→- 天生版本控制：每次对话都有 commit 记录，可回溯任意时间点
+    93→- 权限原生适配：Gitea 四级权限体系直接复用
+    94→- 数据主权拉满：用户可 `git clone` 所有数据到本地
+    95→- 多用户协作零成本：Git merge/commit 天然支持多人协作
+    96→
+    97→---
+    98→
+    99→## 3. 商业模式
+   100→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_c5uXHkJzfq1fhFBcxqutG7 Bash output=D:/demo1/openmnemo/Memory/02_todos/todo_v001_001_20260316.md" id="event-35">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#36</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_c5uXHkJzfq1fhFBcxqutG7</span>
+      
+      <span class="timeline-time">05:02:02</span>
+    </div>
+    <div class="timeline-title">Bash output=D:/demo1/openmnemo/Memory/02_todos/todo_v001_001_20260316.md</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/openmnemo/Memory/02_todos/todo_v001_001_20260316.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me read the actual goal and todo files:" id="event-36">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#37</span>
+      
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="message-body"><p>Now let me read the actual goal and todo files:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_rnEz8QOYVPtyEQz8I4gdyg Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/01_goals/goal_v001_20260316.md&quot;}" id="event-37">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#38</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_rnEz8QOYVPtyEQz8I4gdyg</span>
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/01_goals/goal_v001_20260316.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/Memory/01_goals/goal_v001_20260316.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_tGKbTkwp3m1qVRwOzLVK2s Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/02_todos/todo_v001_001_20260316.md&quot;}" id="event-38">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#39</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_tGKbTkwp3m1qVRwOzLVK2s</span>
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/Memory/02_todos/todo_v001_001_20260316.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/Memory/02_todos/todo_v001_001_20260316.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_2CgWSkUDxLgzmf2M270pwK Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals/goal_v001_20260310.md&quot;}" id="event-39">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#40</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_2CgWSkUDxLgzmf2M270pwK</span>
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals/goal_v001_20260310.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/01_goals/goal_v001_20260310.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_rnEz8QOYVPtyEQz8I4gdyg Read output=1→# Project Goal v001 2→ 3→## Metadata 4→- Version: v001 5→- Created: 2026-03-16 6→- Previous: none 7→ 8→## North Star 9→Build a cross-platform AI conversation memory tool that ..." id="event-40">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#41</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_rnEz8QOYVPtyEQz8I4gdyg</span>
+      
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Project Goal v001 2→ 3→## Metadata 4→- Version: v001 5→- Created: 2026-03-16 6→- Previous: none 7→ 8→## North Star 9→Build a cross-platform AI conversation memory tool that ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Project Goal v001
+     2→
+     3→## Metadata
+     4→- Version: v001
+     5→- Created: 2026-03-16
+     6→- Previous: none
+     7→
+     8→## North Star
+     9→Build a cross-platform AI conversation memory tool that aggregates, searches, and version-controls coding sessions across Claude Code, Codex, and Gemini CLI.
+    10→
+    11→## Scope
+    12→- Define the stable objective.
+    13→- Define constraints and non-goals.
+    14→
+    15→## Acceptance Signals
+    16→- Describe the observable project-level outcomes.
+    17→- Describe what success looks like.
+    18→
+    19→## Change Log
+    20→- 2026-03-16: Initial goal version created.
+    21→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_tGKbTkwp3m1qVRwOzLVK2s Read output=1→# Project Todo 2→ 3→## Binding 4→- Goal version: goal_v001 5→- Todo version: v001_001 6→- Created: 2026-03-16 7→- Status: active 8→ 9→## Milestones 10→- [ ] Milestone 1 11→- [..." id="event-41">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#42</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_tGKbTkwp3m1qVRwOzLVK2s</span>
+      
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Project Todo 2→ 3→## Binding 4→- Goal version: goal_v001 5→- Todo version: v001_001 6→- Created: 2026-03-16 7→- Status: active 8→ 9→## Milestones 10→- [ ] Milestone 1 11→- [...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Project Todo
+     2→
+     3→## Binding
+     4→- Goal version: goal_v001
+     5→- Todo version: v001_001
+     6→- Created: 2026-03-16
+     7→- Status: active
+     8→
+     9→## Milestones
+    10→- [ ] Milestone 1
+    11→- [ ] Milestone 2
+    12→
+    13→## In Progress
+    14→- Define the current execution focus.
+    15→
+    16→## Done
+    17→- None yet.
+    18→
+    19→## Pending
+    20→- Break down the next concrete tasks.
+    21→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_2CgWSkUDxLgzmf2M270pwK Read output=1→# 核心目标 v001 版本 2→ 3→## 版本信息 4→- 版本号: v001 5→- 创建日期: 2026-03-10 6→- 变更来源: 用户初始需求确认 7→- 上一版本: 无(初始版本) 8→ 9→## 【终极核心目标】 10→ 11→构建一个基于 Git 版本管理的分层记忆开发体系,用于 AI 辅助编程开发场景,解决大模型在长上下文对..." id="event-42">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#43</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_2CgWSkUDxLgzmf2M270pwK</span>
+      
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read output=1→# 核心目标 v001 版本 2→ 3→## 版本信息 4→- 版本号: v001 5→- 创建日期: 2026-03-10 6→- 变更来源: 用户初始需求确认 7→- 上一版本: 无(初始版本) 8→ 9→## 【终极核心目标】 10→ 11→构建一个基于 Git 版本管理的分层记忆开发体系,用于 AI 辅助编程开发场景,解决大模型在长上下文对...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# 核心目标 v001 版本
+     2→
+     3→## 版本信息
+     4→- 版本号: v001
+     5→- 创建日期: 2026-03-10
+     6→- 变更来源: 用户初始需求确认
+     7→- 上一版本: 无(初始版本)
+     8→
+     9→## 【终极核心目标】
+    10→
+    11→构建一个基于 Git 版本管理的分层记忆开发体系,用于 AI 辅助编程开发场景,解决大模型在长上下文对话中的核心痛点:目标漂移、记忆缺失、需求与代码脱节、信息不对称。
+    12→
+    13→## 【核心需求边界与约束】
+    14→
+    15→1. 技术架构: 纯 Markdown 文件 + Git 版本管理,无额外依赖
+    16→2. 记忆分层: 三层必选(目标、待办、对话日志) + 两层可选(知识库、归档)
+    17→3. 读取策略: 冷热分离,每轮只读取最新目标+待办,历史对话按需检索
+    18→4. Git 联动: 每轮对话后自动提交,需求变更、进度更新、对话记录、代码修改绑定在同一 commit
+    19→5. 多模型兼容: 支持 Claude Code、Codex、Gemini 等多种大模型
+    20→6. 可追溯性: 从代码能追溯到需求、对话、决策的完整链路
+    21→7. 目标与待办强绑定: 任何待办变更必须同步更新目标文件
+    22→
+    23→## 【需求变更记录】
+    24→
+    25→- 2026-03-10 17:09: 新增“目标与待办强绑定”规则,原因是需要在具体项目中目标与执行同步;用户确认来源为当日对话
+    26→- 2026-03-11 00:08: 同步待办版本至 v001_002（修复 skill 规则）
+    27→
+    28→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_wStJQ1QgWEXlxmdzRhaZOd Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals/goal_v002_20260314.md&quot;}" id="event-43">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#44</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_wStJQ1QgWEXlxmdzRhaZOd</span>
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals/goal_v002_20260314.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/01_goals/goal_v002_20260314.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_ENl6t4HDePM37iqKZeJHzJ Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals/goal_v003_20260315.md&quot;}" id="event-44">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#45</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_ENl6t4HDePM37iqKZeJHzJ</span>
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/01_goals/goal_v003_20260315.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/01_goals/goal_v003_20260315.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_6PC8Cu6sTazGgVCVQFx1Kk Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v001_001_20260310.md&quot;}" id="event-45">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#46</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_6PC8Cu6sTazGgVCVQFx1Kk</span>
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v001_001_20260310.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/02_todos/todo_v001_001_20260310.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_wStJQ1QgWEXlxmdzRhaZOd Read output=1→# 核心目标 v002 版本 2→ 3→## 版本信息 4→- 版本号: v002 5→- 创建日期: 2026-03-14 6→- 变更来源: 用户确认新方向 7→- 上一版本: v001（构建记忆体系，已基本完成） 8→ 9→## 【终极核心目标】 10→ 11→完善 memorytree-workflow Skill（独立仓库），增加心跳机制..." id="event-46">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#47</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_wStJQ1QgWEXlxmdzRhaZOd</span>
+      
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read output=1→# 核心目标 v002 版本 2→ 3→## 版本信息 4→- 版本号: v002 5→- 创建日期: 2026-03-14 6→- 变更来源: 用户确认新方向 7→- 上一版本: v001（构建记忆体系，已基本完成） 8→ 9→## 【终极核心目标】 10→ 11→完善 memorytree-workflow Skill（独立仓库），增加心跳机制...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# 核心目标 v002 版本
+     2→
+     3→## 版本信息
+     4→- 版本号: v002
+     5→- 创建日期: 2026-03-14
+     6→- 变更来源: 用户确认新方向
+     7→- 上一版本: v001（构建记忆体系，已基本完成）
+     8→
+     9→## 【终极核心目标】
+    10→
+    11→完善 memorytree-workflow Skill（独立仓库），增加心跳机制和自动化能力，减少对大模型上下文的依赖，让记忆系统的采集、清洗、归档由后台进程确定性执行。
+    12→
+    13→## 【核心需求边界与约束】
+    14→
+    15→1. Skill 代码维护在独立仓库 `beyondchenlin/memorytree-workflow`
+    16→2. 本仓库 `beyondchenlin/memorytree` 作为 Skill 的消费端（普通项目）
+    17→3. 心跳机制: 后台进程定时扫描客户端 transcript，自动导入、清洗、提交
+    18→4. 大模型职责最小化: 只负责写 chat_log 摘要和更新 goal/todo 状态
+    19→5. 后台进程职责: transcript 发现、raw 复制、clean 生成、manifest 写入、git commit+push
+    20→6. 远期目标: OpenMnemo 项目（以 Gitea 为底座的 SaaS 记忆平台），本阶段仅做技术预研
+    21→
+    22→## 【需求变更记录】
+    23→
+    24→- 2026-03-14 21:11: 初始创建，用户确认从 v001 升级方向
+    25→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_ENl6t4HDePM37iqKZeJHzJ Read output=1→# 核心目标 v003 版本 2→ 3→## 版本信息 4→- 版本号: v003 5→- 创建日期: 2026-03-15 6→- 变更来源: 用户提供 OpenMnemo Phase 1 执行路线图 7→- 上一版本: v002（心跳机制与自动化，已移植至 OpenMnemo monorepo） 8→ 9→## 【终极核心目标】 10→ 11→..." id="event-47">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#48</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_ENl6t4HDePM37iqKZeJHzJ</span>
+      
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read output=1→# 核心目标 v003 版本 2→ 3→## 版本信息 4→- 版本号: v003 5→- 创建日期: 2026-03-15 6→- 变更来源: 用户提供 OpenMnemo Phase 1 执行路线图 7→- 上一版本: v002（心跳机制与自动化，已移植至 OpenMnemo monorepo） 8→ 9→## 【终极核心目标】 10→ 11→...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# 核心目标 v003 版本
+     2→
+     3→## 版本信息
+     4→- 版本号: v003
+     5→- 创建日期: 2026-03-15
+     6→- 变更来源: 用户提供 OpenMnemo Phase 1 执行路线图
+     7→- 上一版本: v002（心跳机制与自动化，已移植至 OpenMnemo monorepo）
+     8→
+     9→## 【终极核心目标】
+    10→
+    11→将 OpenMnemo monorepo 从&quot;代码编译通过&quot;推进到&quot;MVP 可用&quot;：394 测试通过、CI 自动验证、Gitea 本机可用、npm 可安装。
+    12→
+    13→## 【核心需求边界与约束】
+    14→
+    15→1. Monorepo 位于 `openmnemo/openmnemo`，4 个包：types/core/sync/cli
+    16→2. 里程碑 1：从上游 memorytree-workflow ts 分支移植 17 个测试文件（394 测试用例），pnpm test 全通过
+    17→3. 里程碑 2：GitHub Actions CI（typecheck → lint → build → test），2 OS × 2 Node 矩阵
+    18→4. 里程碑 3：Gitea + PostgreSQL Docker 部署，StorageAdapter 抽象，FTS5 全文索引
+    19→5. 里程碑 4：npm 发布 @openmnemo/* 0.1.0
+    20→6. 里程碑 3 和 2 可并行，里程碑 4 依赖 1+2 完成
+    21→
+    22→## 【需求变更记录】
+    23→
+    24→- 2026-03-15: 初始创建，用户确认 OpenMnemo Phase 1 执行路线图
+    25→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_6PC8Cu6sTazGgVCVQFx1Kk Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v001 5→- 待办版本: v001_001 6→- 创建日期: 2026-03-10 7→- 激活状态: 当前生效中 8→ 9→## 【项目里程碑拆分】 10→ 11→✅ 里程碑1: 项目初始化与记忆体系搭建 12→⏳ 里程碑2: 核心功能开发与测试 13→⏳ 里..." id="event-48">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#49</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_6PC8Cu6sTazGgVCVQFx1Kk</span>
+      
+      <span class="timeline-time">05:02:11</span>
+    </div>
+    <div class="timeline-title">Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v001 5→- 待办版本: v001_001 6→- 创建日期: 2026-03-10 7→- 激活状态: 当前生效中 8→ 9→## 【项目里程碑拆分】 10→ 11→✅ 里程碑1: 项目初始化与记忆体系搭建 12→⏳ 里程碑2: 核心功能开发与测试 13→⏳ 里...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# 项目执行待办清单
+     2→
+     3→## 绑定信息
+     4→- 对应目标版本: goal_v001
+     5→- 待办版本: v001_001
+     6→- 创建日期: 2026-03-10
+     7→- 激活状态: 当前生效中
+     8→
+     9→## 【项目里程碑拆分】
+    10→
+    11→✅ 里程碑1: 项目初始化与记忆体系搭建
+    12→⏳ 里程碑2: 核心功能开发与测试
+    13→⏳ 里程碑3: 文档完善与使用指南
+    14→⏳ 里程碑4: 实际项目应用与优化
+    15→
+    16→## 【任务进度明细】
+    17→
+    18→### 已完成任务
+    19→1. 创建项目目录结构(Memory/01_goals, 02_todos, 03_chat_logs, 04_knowledge, 05_archive)
+    20→2. 创建 AGENTS.md 总控规则文件
+    21→3. 创建初始目标文件 goal_v001_20260310.md
+    22→4. 创建初始待办文件 todo_v001_001_20260310.md
+    23→5. 初始化 Git 仓库并完成首次提交
+    24→6. 优化对话日志规则,采用更简洁的格式
+    25→7. 按新规范创建对话日志文件
+    26→8. 重构 AGENTS.md 为极简 Section 格式
+    27→9. 进一步精简 AGENTS.md,去掉所有说明性文字
+    28→10. 删除冗余的 Section 1,直接从读取优先级开始
+    29→11. 创建 git 文件夹,包含 commit-rules.md 和 pr-rules.md
+    30→12. 添加回复结尾格式要求和 yes长官 结束语
+    31→13. 精简 Section 1 为 3 条核心规则
+    32→14. 补全缺失的对话日志(轮次10-13)
+    33→15. 增加未配置远程仓库时仅本地 commit 缓存的规则
+    34→16. 修复 AGENTS 规则冲突并统一对话日志命名
+    35→17. 明确新会话必须新建对话日志文件
+    36→18. 补充缺失日志结尾并完善 memory 类型描述
+    37→19. 明确新会话导致目标与待办变动时新建文件规则
+    38→20. 明确自动提交固定命令与“AI只输出 commit 内容”规则
+    39→21. 修复 .claude/settings.local.json 允许列表与 PowerShell 环境一致
+    40→22. 测试完整的对话-归档-提交流程
+    41→23. 统一提交规则为有 origin 即自动推送并提供判定/日志方案
+    42→24. 创建项目内 memorytree-workflow skill
+    43→25. 修复 skill 与目标/待办/日志规则一致性
+    44→
+    45→### 进行中任务(本轮聚焦)
+    46→（无）
+    47→
+    48→### 待完成任务
+    49→1. 编写使用指南文档
+    50→2. 在实际项目中应用并验证体系有效性
+    51→3. 根据实际使用反馈优化规则
+    52→
+    53→## 【本轮对话更新记录】
+    54→- 2026-03-10 第1轮对话: 完成项目初始化,创建目录结构和核心文件
+    55→- 2026-03-10 第3轮对话: 优化对话日志规则,采用更简洁的时间戳格式
+    56→- 2026-03-10 第4轮对话: 重构 AGENTS.md 为极简 Section 格式,去掉冗余描述
+    57→- 2026-03-10 第5轮对话: 进一步精简 AGENTS.md,去掉所有说明性文字
+    58→- 2026-03-10 第6轮对话: 删除冗余的 Section 1,Section 编号从 1-7
+    59→- 2026-03-10 第7轮对话: 创建 git 文件夹,包含详细的 commit 和 PR 规则文档
+    60→- 2026-03-10 第8-9轮对话: 确认对话日志规则完整性,添加回复结尾格式要求
+    61→- 2026-03-10 第10-13轮对话: 精简Section 1,补全缺失日志
+    62→- 2026-03-10 第14轮对话: 增加未配置远程仓库时仅本地commit缓存规则
+    63→- 2026-03-10 第15轮对话: 修复AGENTS规则冲突,统一日志命名,调整commit规则
+    64→- 2026-03-10 第16轮对话: 明确新会话日志必须新建文件
+    65→- 2026-03-10 第17轮对话: 补充日志缺失结尾并完善memory描述
+    66→- 2026-03-10 第18轮对话: 明确新会话导致目标/待办变动的新建规则
+    67→- 2026-03-10 第19轮对话: 解释需求变更确认规则作用
+    68→- 2026-03-10 第20轮对话: 完成全量遍历双重review并输出缺陷清单
+    69→- 2026-03-10 第21轮对话: 固定自动提交命令并修复 .claude 允许列表,输出 review2 方案
+    70→- 2026-03-10 第22轮对话: 解释固定提交命令与新会话判定建议
+    71→- 2026-03-10 第23轮对话: 提供新会话判定的可执行方案
+    72→- 2026-03-10 第24轮对话: 讨论基于内容/API的新会话判定并请求确认
+    73→- 2026-03-10 第25轮对话: 解释仅一轮无法判断新会话,给出可执行标记方案
+    74→- 2026-03-10 第26轮对话: 解释仅轮次数量无法作为判定依据并请求确认规则
+    75→- 2026-03-10 第27轮对话: 指出“仅一轮即新会话”逻辑问题并请求确认替代表述
+    76→- 2026-03-10 第28轮对话: 解释模型无法获知按钮/API并给出可行接入方案
+    77→- 2026-03-10 第29轮对话: 解释 conversation_id/new_session 的判定来源并询问环境
+    78→- 2026-03-10 第30轮对话: 说明身份并归档新会话日志
+    79→- 2026-03-10 第31轮对话: 提供初始化适配任意项目的清理建议并请求确认需求变更
+    80→- 2026-03-10 第32轮对话: 解释未推送原因并询问是否需要推送
+    81→- 2026-03-10 第33轮对话: 指出规则来源位置并解释推送条件
+    82→- 2026-03-10 第34轮对话: 解释推送规则应写法并确认是否更新规则
+    83→- 2026-03-10 第35轮对话: 请求确认更新 AGENTS 推送规则的具体表述
+    84→- 2026-03-10 第36轮对话: 更新 AGENTS 推送规则为显式请求
+    85→- 2026-03-10 第37轮对话: 识别推送规则变更并请求确认
+    86→- 2026-03-10 第38轮对话: 更新 AGENTS 推送规则为自动推送
+    87→- 2026-03-10 第39轮对话: 评估AGENTS合理性,完成日志与待办更新并执行自动提交流程
+    88→- 2026-03-10 第40轮对话: 更新 commit-rules 推送规则并提供判定与日志方案
+    89→- 2026-03-10 第41轮对话: 解释目标文件未变原因并确认是否变更核心目标
+    90→- 2026-03-10 第42轮对话: 识别目标与待办同步变更需求并请求确认具体改动
+    91→- 2026-03-10 第43轮对话: 创建 memorytree-workflow skill 并等待目标新表述确认
+    92→- 2026-03-10 第44轮对话: 按请求完成两次review并输出问题清单
+    93→- 2026-03-10 第45轮对话: 修复skill一致性并更新目标规则
+    94→- 2026-03-10 第46轮对话: 记录目标转为skill的需求变更并等待确认
+    95→- 2026-03-10 本轮对话 完成对 memorytree-workflow skill 的两次评审并输出问题清单
+    96→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me read a few more recent todo files to get the complete picture:" id="event-49">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#50</span>
+      
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="message-body"><p>Let me read a few more recent todo files to get the complete picture:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_VdVNKHHXDL3nWB81l4tKCq Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v002_001_20260314.md&quot;}" id="event-50">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#51</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_VdVNKHHXDL3nWB81l4tKCq</span>
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v002_001_20260314.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/02_todos/todo_v002_001_20260314.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_gOs4uZrSSgyQPfYByw0RL9 Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v003_001_20260315.md&quot;}" id="event-51">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#52</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_gOs4uZrSSgyQPfYByw0RL9</span>
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v003_001_20260315.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/02_todos/todo_v003_001_20260315.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_HaxAK9UlNF94OGtHPOfJCt Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v001_002_20260311.md&quot;}" id="event-52">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#53</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_HaxAK9UlNF94OGtHPOfJCt</span>
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree/Memory/02_todos/todo_v001_002_20260311.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree/Memory/02_todos/todo_v001_002_20260311.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_VdVNKHHXDL3nWB81l4tKCq Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v002 5→- 待办版本: v002_001 6→- 创建日期: 2026-03-14 7→- 激活状态: 当前生效中 8→ 9→## 【项目里程碑拆分】 10→ 11→⏳ 里程碑1: 心跳机制设计与实现 12→⏳ 里程碑2: 自动化 transcript 导入管道..." id="event-53">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#54</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_VdVNKHHXDL3nWB81l4tKCq</span>
+      
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="timeline-title">Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v002 5→- 待办版本: v002_001 6→- 创建日期: 2026-03-14 7→- 激活状态: 当前生效中 8→ 9→## 【项目里程碑拆分】 10→ 11→⏳ 里程碑1: 心跳机制设计与实现 12→⏳ 里程碑2: 自动化 transcript 导入管道...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# 项目执行待办清单
+     2→
+     3→## 绑定信息
+     4→- 对应目标版本: goal_v002
+     5→- 待办版本: v002_001
+     6→- 创建日期: 2026-03-14
+     7→- 激活状态: 当前生效中
+     8→
+     9→## 【项目里程碑拆分】
+    10→
+    11→⏳ 里程碑1: 心跳机制设计与实现
+    12→⏳ 里程碑2: 自动化 transcript 导入管道
+    13→⏳ 里程碑3: 大模型职责最小化改造
+    14→⏳ 里程碑4: OpenMnemo 技术预研
+    15→
+    16→## 【任务进度明细】
+    17→
+    18→### 已完成任务
+    19→1. 创建 CLAUDE.md 指向 AGENTS.md（单一来源）
+    20→2. 创建 goal_v002 和 todo_v002_001
+    21→
+    22→### 进行中任务(本轮聚焦)
+    23→（无）
+    24→
+    25→### 待完成任务
+    26→1. 在 Skill 仓库中设计心跳 daemon 架构（watchdog/cron 方案选型）
+    27→2. 实现心跳进程: 定时扫描 ~/.claude/projects/、~/.codex/sessions/ 等客户端目录
+    28→3. 实现自动 transcript 导入: raw 复制 → clean 生成 → manifest 写入 → git commit+push
+    29→4. 优化大模型职责: chat_log 只写摘要，不做 transcript 处理
+    30→5. 修复 transcript cleaning 逻辑中的重复消息问题（从 v001 继承）
+    31→6. 编写心跳机制的测试用例
+    32→7. OpenMnemo 技术预研: Gitea API 批量写入、多租户仓库结构、语义检索方案
+    33→
+    34→## 【本轮对话更新记录】
+    35→- 2026-03-14 21:11: 创建 v002 目标和待办，确认新方向
+    36→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_gOs4uZrSSgyQPfYByw0RL9 Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v003 5→- 待办版本: v003_001 6→- 创建日期: 2026-03-15 7→- 激活状态: 已完成 8→ 9→## 【项目里程碑拆分】 10→ 11→✅ 里程碑1: 测试移植（391 测试用例全部通过） 12→✅ 里程碑2: CI 搭建（GitHub..." id="event-54">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#55</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_gOs4uZrSSgyQPfYByw0RL9</span>
+      
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="timeline-title">Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v003 5→- 待办版本: v003_001 6→- 创建日期: 2026-03-15 7→- 激活状态: 已完成 8→ 9→## 【项目里程碑拆分】 10→ 11→✅ 里程碑1: 测试移植（391 测试用例全部通过） 12→✅ 里程碑2: CI 搭建（GitHub...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# 项目执行待办清单
+     2→
+     3→## 绑定信息
+     4→- 对应目标版本: goal_v003
+     5→- 待办版本: v003_001
+     6→- 创建日期: 2026-03-15
+     7→- 激活状态: 已完成
+     8→
+     9→## 【项目里程碑拆分】
+    10→
+    11→✅ 里程碑1: 测试移植（391 测试用例全部通过）
+    12→✅ 里程碑2: CI 搭建（GitHub Actions 4 矩阵全绿）
+    13→✅ 里程碑3: Gitea 部署方案（Docker Compose + API 验证通过）
+    14→✅ 里程碑4: npm 发布（@openmnemo/* 0.1.0 + cli 0.1.2）
+    15→
+    16→## 【任务进度明细】
+    17→
+    18→### 已完成任务
+    19→1. 创建 goal_v003 和 todo_v003_001
+    20→2. 修复 vitest 依赖 + RecallResult 类型导出
+    21→3. 移植 17 个测试文件到对应包（core 8 + sync 5 + cli 4）
+    22→4. 批量替换 import 路径 + 每个包添加 vitest.config.ts
+    23→5. pnpm test 全部通过: core 223 + sync 69 + cli 99 = 391
+    24→6. GitHub Actions CI: ci.yml + eslint.config.mjs + lint/typecheck 脚本
+    25→7. 修复 CLI type 错误: heartbeatMain + formatRecallText
+    26→8. 移除 tsconfig project references，改用 skipLibCheck
+    27→9. CI 4 矩阵全绿: ubuntu×node20, ubuntu×node22, windows×node20, windows×node22
+    28→10. deploy/docker-compose.yml (Gitea + PostgreSQL + INSTALL_LOCK)
+    29→11. StorageAdapter 接口 + LocalAdapter + GiteaAdapter
+    30→12. FTS5 全文搜索 searchTranscripts()
+    31→13. 修复 toPosixPath Linux 兼容性
+    32→14. 4 个包版本升级到 0.1.0 + npm 元数据
+    33→15. CLI shebang 通过 tsup.config.ts banner 注入（修复双 shebang → 0.1.2）
+    34→16. npm 发布: types/core/sync 0.1.0 + cli 0.1.2 全部上线
+    35→17. npx @openmnemo/cli --help 验证通过
+    36→18. README 添加 CI badge + npm badge + 安装说明
+    37→19. docker compose up 验证: Gitea API 创建仓库/写入文件/读取文件全部通过
+    38→
+    39→### 待完成任务（后续优化）
+    40→1. 轮换 npm token（本次会话中暴露）
+    41→
+    42→## 【本轮对话更新记录】
+    43→- 2026-03-15: 创建 v003 目标和待办，开始里程碑1
+    44→- 2026-03-15: 里程碑1 完成 — 391 测试全部通过
+    45→- 2026-03-15: 里程碑2 完成 — CI 4 矩阵全绿
+    46→- 2026-03-15: 里程碑3 完成 — StorageAdapter + FTS5 + Docker Compose
+    47→- 2026-03-15: 里程碑4 完成 — 0.1.0 元数据 + shebang
+    48→- 2026-03-16: npm 发布 + npx 验证 + README badge + Gitea API 验证
+    49→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_HaxAK9UlNF94OGtHPOfJCt Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v001 5→- 待办版本: v001_002 6→- 创建日期: 2026-03-11 7→- 激活状态: 当前生效中 8→ 9→## 【项目里程碑拆分】 10→ 11→✅ 里程碑1: 项目初始化与记忆体系搭建 12→⏳ 里程碑2: 核心功能开发与测试 13→⏳ 里..." id="event-55">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#56</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_HaxAK9UlNF94OGtHPOfJCt</span>
+      
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="timeline-title">Read output=1→# 项目执行待办清单 2→ 3→## 绑定信息 4→- 对应目标版本: goal_v001 5→- 待办版本: v001_002 6→- 创建日期: 2026-03-11 7→- 激活状态: 当前生效中 8→ 9→## 【项目里程碑拆分】 10→ 11→✅ 里程碑1: 项目初始化与记忆体系搭建 12→⏳ 里程碑2: 核心功能开发与测试 13→⏳ 里...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# 项目执行待办清单
+     2→
+     3→## 绑定信息
+     4→- 对应目标版本: goal_v001
+     5→- 待办版本: v001_002
+     6→- 创建日期: 2026-03-11
+     7→- 激活状态: 当前生效中
+     8→
+     9→## 【项目里程碑拆分】
+    10→
+    11→✅ 里程碑1: 项目初始化与记忆体系搭建
+    12→⏳ 里程碑2: 核心功能开发与测试
+    13→⏳ 里程碑3: 文档完善与使用指南
+    14→⏳ 里程碑4: 实际项目应用与优化
+    15→
+    16→## 【任务进度明细】
+    17→
+    18→### 已完成任务
+    19→1. 创建项目目录结构(Memory/01_goals, 02_todos, 03_chat_logs, 04_knowledge, 05_archive)
+    20→2. 创建 AGENTS.md 总控规则文件
+    21→3. 创建初始目标文件 goal_v001_20260310.md
+    22→4. 创建初始待办文件 todo_v001_001_20260310.md
+    23→5. 初始化 Git 仓库并完成首次提交
+    24→6. 优化对话日志规则,采用更简洁的格式
+    25→7. 按新规范创建对话日志文件
+    26→8. 重构 AGENTS.md 为极简 Section 格式
+    27→9. 进一步精简 AGENTS.md,去掉所有说明性文字
+    28→10. 删除冗余的 Section 1,直接从读取优先级开始
+    29→11. 创建 git 文件夹,包含 commit-rules.md 和 pr-rules.md
+    30→12. 添加回复结尾格式要求和 yes长官 结束语
+    31→13. 精简 Section 1 为 3 条核心规则
+    32→14. 补全缺失的对话日志(轮次10-13)
+    33→15. 增加未配置远程仓库时仅本地 commit 缓存的规则
+    34→16. 修复 AGENTS 规则冲突并统一对话日志命名
+    35→17. 明确新会话必须新建对话日志文件
+    36→18. 补充缺失日志结尾并完善 memory 类型描述
+    37→19. 明确新会话导致目标与待办变动时新建文件规则
+    38→20. 明确自动提交固定命令与“AI只输出 commit 内容”规则
+    39→21. 修复 .claude/settings.local.json 允许列表与 PowerShell 环境一致
+    40→22. 测试完整的对话-归档-提交流程
+    41→23. 统一提交规则为有 origin 即自动推送并提供判定/日志方案
+    42→24. 创建项目内 memorytree-workflow skill
+    43→25. 修复 skill 与目标/待办/日志规则一致性
+    44→
+    45→### 进行中任务(本轮聚焦)
+    46→（无）
+    47→
+    48→### 待完成任务
+    49→1. 编写使用指南文档
+    50→2. 在实际项目中应用并验证体系有效性
+    51→3. 根据实际使用反馈优化规则
+    52→4. 修复 transcript cleaning 逻辑中的重复消息问题(基于 timestamp+role+content hash 去重)
+    53→
+    54→## 【本轮对话更新记录】
+    55→- 2026-03-10 第1轮对话: 完成项目初始化,创建目录结构和核心文件
+    56→- 2026-03-10 第3轮对话: 优化对话日志规则,采用更简洁的时间戳格式
+    57→- 2026-03-10 第4轮对话: 重构 AGENTS.md 为极简 Section 格式,去掉冗余描述
+    58→- 2026-03-10 第5轮对话: 进一步精简 AGENTS.md,去掉所有说明性文字
+    59→- 2026-03-10 第6轮对话: 删除冗余的 Section 1,Section 编号从 1-7
+    60→- 2026-03-10 第7轮对话: 创建 git 文件夹,包含详细的 commit 和 PR 规则文档
+    61→- 2026-03-10 第8-9轮对话: 确认对话日志规则完整性,添加回复结尾格式要求
+    62→- 2026-03-10 第10-13轮对话: 精简Section 1,补全缺失日志
+    63→- 2026-03-10 第14轮对话: 增加未配置远程仓库时仅本地commit缓存规则
+    64→- 2026-03-10 第15轮对话: 修复AGENTS规则冲突,统一日志命名,调整commit规则
+    65→- 2026-03-10 第16轮对话: 明确新会话日志必须新建文件
+    66→- 2026-03-10 第17轮对话: 补充日志缺失结尾并完善memory描述
+    67→- 2026-03-10 第18轮对话: 明确新会话导致目标/待办变动的新建规则
+    68→- 2026-03-10 第19轮对话: 解释需求变更确认规则作用
+    69→- 2026-03-10 第20轮对话: 完成全量遍历双重review并输出缺陷清单
+    70→- 2026-03-10 第21轮对话: 固定自动提交命令并修复 .claude 允许列表,输出 review2 方案
+    71→- 2026-03-10 第22轮对话: 解释固定提交命令与新会话判定建议
+    72→- 2026-03-10 第23轮对话: 提供新会话判定的可执行方案
+    73→- 2026-03-10 第24轮对话: 讨论基于内容/API的新会话判定并请求确认
+    74→- 2026-03-10 第25轮对话: 解释仅一轮无法判断新会话,给出可执行标记方案
+    75→- 2026-03-10 第26轮对话: 解释仅轮次数量无法作为判定依据并请求确认规则
+    76→- 2026-03-10 第27轮对话: 指出“仅一轮即新会话”逻辑问题并请求确认替代表述
+    77→- 2026-03-10 第28轮对话: 解释模型无法获知按钮/API并给出可行接入方案
+    78→- 2026-03-10 第29轮对话: 解释 conversation_id/new_session 的判定来源并询问环境
+    79→- 2026-03-10 第30轮对话: 说明身份并归档新会话日志
+    80→- 2026-03-10 第31轮对话: 提供初始化适配任意项目的清理建议并请求确认需求变更
+    81→- 2026-03-10 第32轮对话: 解释未推送原因并询问是否需要推送
+    82→- 2026-03-10 第33轮对话: 指出规则来源位置并解释推送条件
+    83→- 2026-03-10 第34轮对话: 解释推送规则应写法并确认是否更新规则
+    84→- 2026-03-10 第35轮对话: 请求确认更新 AGENTS 推送规则的具体表述
+    85→- 2026-03-10 第36轮对话: 更新 AGENTS 推送规则为显式请求
+    86→- 2026-03-10 第37轮对话: 识别推送规则变更并请求确认
+    87→- 2026-03-10 第38轮对话: 更新 AGENTS 推送规则为自动推送
+    88→- 2026-03-10 第39轮对话: 评估AGENTS合理性,完成日志与待办更新并执行自动提交流程
+    89→- 2026-03-10 第40轮对话: 更新 commit-rules 推送规则并提供判定与日志方案
+    90→- 2026-03-10 第41轮对话: 解释目标文件未变原因并确认是否变更核心目标
+    91→- 2026-03-10 第42轮对话: 识别目标与待办同步变更需求并请求确认具体改动
+    92→- 2026-03-10 第43轮对话: 创建 memorytree-workflow skill 并等待目标新表述确认
+    93→- 2026-03-10 第44轮对话: 按请求完成两次review并输出问题清单
+    94→- 2026-03-10 第45轮对话: 修复skill一致性并更新目标规则
+    95→- 2026-03-10 第46轮对话: 记录目标转为skill的需求变更并等待确认
+    96→- 2026-03-10 本轮对话 完成对 memorytree-workflow skill 的两次评审并输出问题清单
+    97→
+    98→- 2026-03-11 本轮对话 修复 memorytree-workflow skill 规则并更新对话日志/待办文件
+    99→- 2026-03-13 本轮对话 完成项目二次审查,重点验证 skill 可用性并输出结论
+   100→- 2026-03-14 本轮对话 完成对 memorytree-workflow skill 的二轮审查,确认中文模板乱码、init 漏检常见策略文件、transcript 归属误判
+   101→- 2026-03-14 本轮对话 讨论 memorytree-workflow skill 修复方案,确定先修中文模板、再补策略文件检测、最后收紧 transcript 归属判定
+   102→- 2026-03-14 本轮对话 解释 transcript_matches_repo() 的判定逻辑与误判原因,明确应从宽松猜测改为保守匹配
+   103→- 2026-03-14 本轮对话 继续细化 transcript_matches_repo() 的现状流程与推荐新流程,形成通俗判断图
+   104→- 2026-03-14 本轮对话 确认继续沿 transcript 判定与测试样例方向讨论
+   105→- 2026-03-14 本轮对话 继续整理 transcript_matches_repo() 的最小测试样例与期望结果,用于后续修复验收
+   106→- 2026-03-14 本轮对话 实际修复 memorytree-workflow: 补全 .github/CONTRIBUTING* 策略检测、收紧 transcript 归属匹配、更新文档并新增 7 个回归测试; 同时核实 zh-cn 模板文件实际为 UTF-8 正常
+   107→- 2026-03-14 本轮对话 继续完成 memorytree-workflow 收尾: 同步 openai agent 描述、纳入 .gitignore 并清理本轮生成的 __pycache__ 目录
+   108→- 2026-03-14 本轮对话 确认项目结构匹配 skill 设置,将 AGENTS.md 和 git/commit-rules.md 的固定提交命令从 PowerShell 更新为 bash heredoc
+   109→- 2026-03-14 本轮对话 完成 transcript 发现与导入: 扫描 195 个源文件,导入 160 个,14 个镜像到项目,146 个进全局归档; AGENTS.md 新增 transcript 归档规则并批准 raw 上传
+   110→- 2026-03-14 本轮对话 验证 transcript clean 文件内容正确,发现 codex 重复消息问题记入待办
+   111→- 2026-03-14 本轮对话 修复 SKILL.md 触发体验: 精简 description,新增 On Activation 段实现触发即执行
+   112→- 2026-03-14 本轮对话 创建独立 GitHub 仓库 beyondchenlin/memorytree-workflow,发布 skill 供全球用户安装
+   113→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash tooluse_bycXr8BtXw5zasdgugTeKT Bash input={&quot;command&quot;:&quot;ls -lah \&quot;D:/demo1/agentree/plan/\&quot; | grep -E \&quot;^d\&quot; | head -20&quot;,&quot;description&quot;:&quot;List main plan directories&quot;}" id="event-56">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#57</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_bycXr8BtXw5zasdgugTeKT</span>
+      <span class="timeline-time">05:02:17</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;ls -lah \&quot;D:/demo1/agentree/plan/\&quot; | grep -E \&quot;^d\&quot; | head -20&quot;,&quot;description&quot;:&quot;List main plan directories&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;ls -lah \&quot;D:/demo1/agentree/plan/\&quot; | grep -E \&quot;^d\&quot; | head -20&quot;,
+  &quot;description&quot;: &quot;List main plan directories&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash tooluse_bycXr8BtXw5zasdgugTeKT Bash output=drwxr-xr-x 1 ai 197121 0 3月 11 16:36 . drwxr-xr-x 1 ai 197121 0 3月 11 17:03 .. drwxr-xr-x 1 ai 197121 0 3月 6 15:10 archive drwxr-xr-x 1 ai 197121 0 3月 6 15:01 plan11" id="event-57">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#58</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">tooluse_bycXr8BtXw5zasdgugTeKT</span>
+      
+      <span class="timeline-time">05:02:18</span>
+    </div>
+    <div class="timeline-title">Bash output=drwxr-xr-x 1 ai 197121 0 3月 11 16:36 . drwxr-xr-x 1 ai 197121 0 3月 11 17:03 .. drwxr-xr-x 1 ai 197121 0 3月 6 15:10 archive drwxr-xr-x 1 ai 197121 0 3月 6 15:01 plan11</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>drwxr-xr-x 1 ai 197121    0  3月 11 16:36 .
+drwxr-xr-x 1 ai 197121    0  3月 11 17:03 ..
+drwxr-xr-x 1 ai 197121    0  3月  6 15:10 archive
+drwxr-xr-x 1 ai 197121    0  3月  6 15:01 plan11</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Based on my thorough exploration of all planning and goal/todo files across the three directories, here&#39;s a comprehensive summary of the project roadmap, what&#39;s been planned, completed, and what&#39;s next: --- ## PROJECT ROADMAP &amp; STATUS SUMMARY ### **Three Interconnected Projects** #### **1. MEMORYTREE PROJECT** (D:/demo1/memorytree/Memory/) **Status**: Core infrastructure complete, moving to automation ph..." id="event-58">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#59</span>
+      
+      <span class="timeline-time">05:02:41</span>
+    </div>
+    <p class="event-preview">Based on my thorough exploration of all planning and goal/todo files across the three directories, here&#39;s a comprehensive summary of the project roadmap, what&#39;s been planned, completed, and what&#39;s next: --- ## PROJECT...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Based on my thorough exploration of all planning and goal/todo files across the three directories, here&#39;s a comprehensive summary of the project roadmap, what&#39;s been planned, completed, and what&#39;s next:</p><p>---</p><p>## PROJECT ROADMAP &amp; STATUS SUMMARY</p><p>### <strong>Three Interconnected Projects</strong></p><p>#### <strong>1. MEMORYTREE PROJECT</strong> (D:/demo1/memorytree/Memory/)<br><strong>Status</strong>: Core infrastructure complete, moving to automation phase</p><p><strong>Goal Evolution</strong>:<br>- <strong>v001</strong> (2026-03-10): Build Git-based layered memory system for AI-assisted coding<br>- <strong>v002</strong> (2026-03-14): Add heartbeat mechanism + automation to reduce LLM context dependency<br>- <strong>v003</strong> (2026-03-15): Moved to OpenMnemo (see below)</p><p><strong>Completed (v001_002)</strong>:<br>- 25 tasks completed: project initialization, memory structure (01_goals, 02_todos, 03_chat_logs, 04_knowledge, 05_archive)<br>- AGENTS.md rules system with git commit automation<br>- memorytree-workflow Skill created and published to GitHub (beyondchenlin/memorytree-workflow)<br>- 160 transcripts imported + cleaned, 146 archived globally<br>- Skill trigger optimization complete</p><p><strong>In Progress (v002_001)</strong>:<br>- Heartbeat daemon architecture (watchdog/cron selection)<br>- Auto transcript import pipeline (raw copy → clean generation → manifest → git commit+push)<br>- LLM responsibility minimization (chat_log summaries only)<br>- Transcript deduplication fix (timestamp+role+content hash)<br>- OpenMnemo tech research</p><p>---</p><p>#### <strong>2. OPENMNEMO PROJECT</strong> (D:/demo1/openmnemo/Memory/)<br><strong>Status</strong>: MVP complete and published to npm</p><p><strong>Goal (v001)</strong>: Cross-platform AI conversation memory tool aggregating sessions across Claude Code, Codex, Gemini CLI</p><p><strong>Completed (v003_001 - 2026-03-15/16)</strong>:<br>- <strong>Milestone 1</strong>: 391 tests migrated from memorytree-workflow ts branch, all passing<br>  - core: 223 tests<br>  - sync: 69 tests  <br>  - cli: 99 tests<br>- <strong>Milestone 2</strong>: GitHub Actions CI (4 matrix: ubuntu×node20/22, windows×node20/22) all green<br>- <strong>Milestone 3</strong>: Gitea deployment (Docker Compose + PostgreSQL + StorageAdapter abstraction + FTS5 full-text search)<br>- <strong>Milestone 4</strong>: npm published (@openmnemo/types, @openmnemo/core, @openmnemo/sync v0.1.0 + @openmnemo/cli v0.1.2)<br>- CLI verified working: <code>npx @openmnemo/cli --help</code><br>- Docker Compose verified: Gitea API repo creation/file write/read all passing</p><p><strong>Monorepo Structure</strong>: 4 packages (types/core/sync/cli) at D:/demo1/openmnemo/openmnemo</p><p><strong>Next</strong>: Rotate npm token (exposed in session)</p><p>---</p><p>#### <strong>3. AGENTCRAWL PROJECT</strong> (D:/demo1/agentree/plan/)<br><strong>Status</strong>: Strategic planning complete, ready for execution</p><p><strong>Plan11 (v11.0 - 2026-03-06)</strong>: Final executable plan integrating all previous iterations (Plan0-10)</p><p><strong>Core Documents</strong>:<br>- <strong>商业计划书 (Business Plan)</strong>: AI-native office collaboration platform, Gitea as sole data foundation<br>  - Year 1-3 financial projections: ARR $45K → $180K → $450K<br>  - Cost structure: R&amp;D $276K → $432K → $780K; Team 3.5 → 5.5 → 8.5 people<br>  - Break-even: Year 4 Q3 (month 42)<br>  - Unit economics: ARPU $19-240, LTV/CAC 1.8-16.0x</p><p>- <strong>技术架构白皮书 (Tech Architecture)</strong>: <br>  - Four-layer architecture: Web frontend → Adapter Gateway → (Lightweight: direct LLM API | Advanced: OpenClaw) → Gitea storage<br>  - 11 architectural red-line rules (Plan9&#39;s 8 + Plan10&#39;s 3 new)<br>  - Plugin security validation pipeline (Trivy + Snyk + permission audit)<br>  - Promotion Pipeline: 3-tier elevation (exploration → CLI → workflow plugin)<br>  - Offline desktop client: Tauri 2.0 (Rust + Web frontend)</p><p>- <strong>执行路线图 (Execution Roadmap)</strong>:<br>  - <strong>Phase 1 (0-3 months)</strong>: Core platform MVP<br>    - Week 1-4: Infrastructure (Gitea 3.0, PostgreSQL 16, Redis 7, Nginx)<br>    - Week 5-8: Adapter Gateway (LLM API adapters, WebSocket, error handling)<br>    - Week 9-12: Web frontend integration<br>    - Acceptance: &quot;new repo → create session → chat → generate README&quot; end-to-end &gt;95% success<br>  <br>  - <strong>Phase 2 (3-6 months)</strong>: Plugin system + data collection<br>    - Week 13-16: Plugin system basics (plugin.yaml, security validation, marketplace UI)<br>    - Week 17-20: Official data collection plugin (Playwright, Scrapy, account pool, proxy pool)<br>    - Week 21-24: Advanced mode (OpenClaw integration, local file ops, workflow engine, vector search)<br>    - Acceptance: 10+ plugins available, plugin install &gt;98% success<br>  <br>  - <strong>Phase 3 (6-12 months)</strong>: Enterprise features + commercialization<br>    - Week 25-32: IM integration (Feishu, DingTalk, WeChat Work)<br>    - Week 33-40: Multi-user collaboration (permissions, audit logs, conflict resolution)<br>    - Week 41-48: Monetization (payment systems, invoicing, compliance certifications)<br>    - Acceptance: 30+ plugins, 99.9% availability, all 11 red-line rules compliant</p><p><strong>Key Metrics</strong>:<br>- Year 1: 1,000 free users, 75 paid users, -$334K net loss<br>- Year 2: 4,000 free users, 300 paid users, -$452K cumulative loss<br>- Year 3: 10,000 free users, 750 paid users, -$566K cumulative loss</p><p><strong>Team Scaling</strong>:<br>- Year 1: Tech Lead + Backend + Frontend + DevOps (0.5) = 3.5 FTE<br>- Year 2: Add 1 Backend + 1 DevOps + PM (0.5) = 5.5 FTE<br>- Year 3: Add 1.5 Backend + 1 Frontend + Security (0.5) = 8.5 FTE</p><p><strong>Risk Mitigation</strong>: <br>- Gitea performance → pre-load testing + clustering<br>- LLM API instability → multi-model auto-switching + local queue<br>- Plugin security → complete CI/CD validation pipeline<br>- User growth shortfall → free tier zero-cost acquisition + data lock-in</p><p>---</p><p>## EXECUTION STATUS TIMELINE</p><p>| Date | Project | Milestone | Status |<br>|------|---------|-----------|--------|<br>| 2026-03-10 | MemoryTree | v001 complete | ✅ 25 tasks done |<br>| 2026-03-11 | MemoryTree | Skill published | ✅ GitHub live |<br>| 2026-03-14 | MemoryTree | v002 initiated | ⏳ Heartbeat design |<br>| 2026-03-15 | OpenMnemo | v003 all 4 milestones | ✅ npm published |<br>| 2026-03-16 | OpenMnemo | CLI verified | ✅ npx working |<br>| 2026-03-06 | AgentCrawl | Plan11 finalized | 📋 Ready for Phase 1 |</p><p>---</p><p>## WHAT&#39;S NEXT (Priority Order)</p><p>1. <strong>MemoryTree v002</strong>: Heartbeat daemon + auto-import pipeline (in progress)<br>2. <strong>OpenMnemo</strong>: Rotate npm token (security), then Phase 2 features<br>3. <strong>AgentCrawl</strong>: Begin Phase 1 execution (infrastructure setup, adapter gateway, frontend integration)</p><p>---</p><p><strong>Key Files Located</strong>:<br>- Plan11 docs: <code>/D:/demo1/agentree/plan/plan11/</code> (INDEX.md, 商业计划书.md, 技术架构白皮书.md, 执行路线图.md)<br>- MemoryTree goals/todos: <code>/D:/demo1/memorytree/Memory/01_goals/</code> and <code>/02_todos/</code><br>- OpenMnemo goals/todos: <code>/D:/demo1/openmnemo/Memory/01_goals/</code> and <code>/02_todos/</code></p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

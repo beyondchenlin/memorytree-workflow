@@ -1,0 +1,2739 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a8cd80f513d39361c — MemoryTree</title>
+<meta property="og:title" content="agent-a8cd80f513d39361c">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a8cd80f513d39361c</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>6</strong> Messages</span>
+      <span class="transcript-pill"><strong>22</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>28</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 05:41:15</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-a8cd80f513d39361c</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">b51330ae-55d8-485a-b349-6f840b1aeb0b</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">c4a1959c42dfd35e...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">28</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">6</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">22</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>6</strong> dialog</span>
+    <span class="transcript-pill"><strong>22</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>6</strong> Messages</span>
+          <span class="transcript-pill"><strong>22</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>28 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Search the web for the best practices for using @changesets/cli in a monorepo with automated publishing. Specifically: 1. What is the recommended workflow for changesets in a small team / solo developer monorepo? 2. Is it best practice to run `changeset version` locally and commit, or let the changesets GitHub Action create a Version PR? 3. What are the pros and cons of each approach? 4. Is there a way to mak..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">05:41:15</span>
+    </div>
+    <div class="message-body"><p>Search the web for the best practices for using @changesets/cli in a monorepo with automated publishing. Specifically:</p><p>1. What is the recommended workflow for changesets in a small team / solo developer monorepo?<br>2. Is it best practice to run <code>changeset version</code> locally and commit, or let the changesets GitHub Action create a Version PR?<br>3. What are the pros and cons of each approach?<br>4. Is there a way to make changesets/action publish directly without creating a PR (when org doesn&#39;t allow Actions to create PRs)?</p><p>Search for:<br>- &quot;changesets best practices monorepo&quot;<br>- &quot;changesets workflow without PR&quot;<br>- &quot;changesets/action publish without version PR&quot;<br>- &quot;changesets solo developer workflow&quot;</p><p>Summarize the findings clearly.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me search for information on each of these topics." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">05:41:25</span>
+    </div>
+    <div class="message-body"><p>Let me search for information on each of these topics.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_bXUdeYPRmIPiBrf1X8VqYn WebFetch input={&quot;prompt&quot;:&quot;Extract the full documentation about automating changesets, including the recommended workflow, how the GitHub Action works, and options for publishing without creati..." id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_bXUdeYPRmIPiBrf1X8VqYn</span>
+      <span class="timeline-time">05:41:25</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract the full documentation about automating changesets, including the recommended workflow, how the GitHub Action works, and options for publishing without creati...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/changesets/changesets/blob/main/docs/automating-changesets.md&quot;,
+  &quot;prompt&quot;: &quot;Extract the full documentation about automating changesets, including the recommended workflow, how the GitHub Action works, and options for publishing without creating a Version PR.&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_imhTh7m6Py7GpG8ffmu5tR WebFetch input={&quot;prompt&quot;:&quot;Extract the full README for changesets/action. Focus on: how it works, configuration options, whether it can publish directly without creating a Version PR, the \&quot;pub..." id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_imhTh7m6Py7GpG8ffmu5tR</span>
+      <span class="timeline-time">05:41:25</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract the full README for changesets/action. Focus on: how it works, configuration options, whether it can publish directly without creating a Version PR, the \&quot;pub...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/changesets/action/blob/main/README.md&quot;,
+  &quot;prompt&quot;: &quot;Extract the full README for changesets/action. Focus on: how it works, configuration options, whether it can publish directly without creating a Version PR, the \&quot;publish\&quot; input, and any options to skip the PR creation step.&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_JOyR04sFdetAxL1R08RkFQ WebFetch input={&quot;prompt&quot;:&quot;Extract information about snapshot releases and any alternative workflows that don&#39;t require the Version PR approach.&quot;,&quot;url&quot;:&quot;https://github.com/changesets/changesets..." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_JOyR04sFdetAxL1R08RkFQ</span>
+      <span class="timeline-time">05:41:25</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract information about snapshot releases and any alternative workflows that don&#39;t require the Version PR approach.&quot;,&quot;url&quot;:&quot;https://github.com/changesets/changesets...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md&quot;,
+  &quot;prompt&quot;: &quot;Extract information about snapshot releases and any alternative workflows that don&#39;t require the Version PR approach.&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_bXUdeYPRmIPiBrf1X8VqYn WebFetch output=# Automating Changesets: Key Concepts ## Recommended Automation Flow The quickest path involves two steps: 1. Install the changeset bot into your repository 2. Add the GitHub Ac..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_bXUdeYPRmIPiBrf1X8VqYn</span>
+      
+      <span class="timeline-time">05:41:35</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Automating Changesets: Key Concepts ## Recommended Automation Flow The quickest path involves two steps: 1. Install the changeset bot into your repository 2. Add the GitHub Ac...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Automating Changesets: Key Concepts
+
+## Recommended Automation Flow
+
+The quickest path involves two steps:
+
+1. Install the changeset bot into your repository
+2. Add the GitHub Action to your repository
+
+## Ensuring Pull Requests Have Changesets
+
+There are two main approaches:
+
+**Non-blocking approach:** Pull requests can merge without changesets, and missing changesets don&#39;t fail CI. The changeset bot prompts contributors and offers maintainers a convenient link to add changesets themselves.
+
+**Blocking approach:** To enforce changesets, add this CI step:
+```
+changeset status --since=main
+```
+
+This exits with code 1 if no new changesets exist since the main branch. For changes that shouldn&#39;t trigger releases (like test or build-only updates), use `changeset --empty` to create a special changeset that doesn&#39;t release anything.
+
+## Running Version and Publish Commands
+
+**Using the GitHub Action:**
+The action automatically creates and maintains a version PR with an up-to-date `changeset version` run. It recreates the PR when merged and optionally handles releases when changes reach the base branch.
+
+**Manual workflow alternative:**
+If you prefer not using the action, the recommended process involves a release coordinator who:
+- Halts merging to the base branch
+- Pulls the branch, runs `changeset version`, and creates a versioning PR
+- Merges versioning changes back
+- Pulls again and runs `changeset publish`
+- Pushes release tags with `git push --follow-tags`
+- Resumes merging
+
+The documentation notes this manual approach requires multiple pulls and can be finicky, so teams should adapt it to their circumstances.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_JOyR04sFdetAxL1R08RkFQ WebFetch output=# Snapshot Releases Overview Snapshot releases enable testing of changes without permanent version updates. The workflow uses modified versioning and publishing commands to gene..." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_JOyR04sFdetAxL1R08RkFQ</span>
+      
+      <span class="timeline-time">05:41:38</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Snapshot Releases Overview Snapshot releases enable testing of changes without permanent version updates. The workflow uses modified versioning and publishing commands to gene...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Snapshot Releases Overview
+
+Snapshot releases enable testing of changes without permanent version updates. The workflow uses modified versioning and publishing commands to generate temporary release versions.
+
+## Core Workflow
+
+The process involves two main steps:
+
+1. **Versioning**: Run `yarn changeset version --snapshot` to set all package versions to `0.0.0-TIMESTAMP` format. You can customize this with a tag: `yarn changeset version --snapshot [tag-name]` produces versions like `0.0.0-tag-name-TIMESTAMP`.
+
+2. **Publishing**: Execute `changeset publish --tag [tag-name]` to release packages. The `--tag` flag prevents the snapshot from becoming the `latest` npm release, which is critical—without it, standard installations would pull the snapshot version.
+
+## Key Alternative: `--no-git-tag` Flag
+
+For teams publishing snapshots locally or from CI environments, the `--no-git-tag` flag offers flexibility. When running `changeset publish --no-git-tag`, the tool &quot;skip[s] creating git tags for published snapshot packages.&quot; This allows stable releases to maintain proper git tags while snapshot releases avoid cluttering the repository.
+
+## Important Branching Consideration
+
+Unlike standard releases, snapshot branch changes should **not** be merged to main. The documentation emphasizes: &quot;the snapshot is intended for installation only, not to represent the correct published state of the repo.&quot; Teams should preserve the version and tag information separately without integrating snapshot changes back into the primary codebase.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_imhTh7m6Py7GpG8ffmu5tR WebFetch output=# Changesets Release Action Overview **How It Works:** The action monitors your repository&#39;s base branch for changesets. When new changesets are detected, it automatically creat..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_imhTh7m6Py7GpG8ffmu5tR</span>
+      
+      <span class="timeline-time">05:41:41</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Changesets Release Action Overview **How It Works:** The action monitors your repository&#39;s base branch for changesets. When new changesets are detected, it automatically creat...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Changesets Release Action Overview
+
+**How It Works:**
+The action monitors your repository&#39;s base branch for changesets. When new changesets are detected, it automatically creates or updates a pull request with bumped package versions and updated changelogs. Once merged, you can either publish manually or have the action handle publishing.
+
+**Key Configuration Options:**
+
+- **publish** – Command to build and publish packages (optional)
+- **version** – Command for versioning; defaults to `changeset version` if not provided
+- **commit** – Commit message (defaults to &quot;Version Packages&quot;)
+- **title** – PR title (defaults to &quot;Version Packages&quot;)
+- **setupGitUser** – Configures git user as &quot;github-actions[bot]&quot; (defaults to true)
+- **createGithubReleases** – Whether to create GitHub releases after publishing (defaults to true)
+- **commitMode** – Choose between &quot;git-cli&quot; or &quot;github-api&quot; for pushing changes (defaults to git-cli)
+- **cwd** – Specify project directory if not at repository root
+
+**Publishing Behavior:**
+The action cannot skip PR creation entirely. However, it offers two publishing approaches:
+
+1. **Automatic Publishing** – Provide the `publish` input with your build/publish command. The action creates the PR, and upon merge, automatically publishes.
+
+2. **Custom Publishing** – Omit the `publish` input and use the `hasChangesets` output to trigger your own publishing logic in a separate workflow step when changesets are absent.
+
+**Outputs:**
+- `published` – Boolean indicating if publishing occurred
+- `publishedPackages` – JSON array of published packages with names and versions</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me search for more specific information about solo developer workflows and workarounds for environments where Actions can&#39;t create PRs." id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#9</span>
+      
+      <span class="timeline-time">05:41:44</span>
+    </div>
+    <div class="message-body"><p>Let me search for more specific information about solo developer workflows and workarounds for environments where Actions can&#39;t create PRs.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch tooluse_Fpoki3Lu1WMHKFtfaMgkwv WebSearch input={&quot;query&quot;:&quot;changesets solo developer workflow monorepo best practices 2025&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">tooluse_Fpoki3Lu1WMHKFtfaMgkwv</span>
+      <span class="timeline-time">05:41:45</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;changesets solo developer workflow monorepo best practices 2025&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;changesets solo developer workflow monorepo best practices 2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch tooluse_KIzShdrBM7fUrk4v7RLQqK WebSearch input={&quot;query&quot;:&quot;changesets/action publish without version PR workaround&quot;}" id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">tooluse_KIzShdrBM7fUrk4v7RLQqK</span>
+      <span class="timeline-time">05:41:45</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;changesets/action publish without version PR workaround&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;changesets/action publish without version PR workaround&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch tooluse_tTIe9lKCHCnOGt4pkiRt0e WebSearch input={&quot;query&quot;:&quot;changesets workflow without PR GitHub Actions publish directly&quot;}" id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">tooluse_tTIe9lKCHCnOGt4pkiRt0e</span>
+      <span class="timeline-time">05:41:46</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;changesets workflow without PR GitHub Actions publish directly&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;changesets workflow without PR GitHub Actions publish directly&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch tooluse_Fpoki3Lu1WMHKFtfaMgkwv WebSearch output=Web search results for query: &quot;changesets solo developer workflow monorepo best practices 2025&quot; Links: [{&quot;title&quot;:&quot;pnpm + Workspace + Changesets (2025)&quot;,&quot;url&quot;:&quot;https://jsdev.spac..." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">tooluse_Fpoki3Lu1WMHKFtfaMgkwv</span>
+      
+      <span class="timeline-time">05:41:48</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;changesets solo developer workflow monorepo best practices 2025&quot; Links: [{&quot;title&quot;:&quot;pnpm + Workspace + Changesets (2025)&quot;,&quot;url&quot;:&quot;https://jsdev.spac...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;changesets solo developer workflow monorepo best practices 2025&quot;
+
+Links: [{&quot;title&quot;:&quot;pnpm + Workspace + Changesets (2025)&quot;,&quot;url&quot;:&quot;https://jsdev.space/complete-monorepo-guide/&quot;},{&quot;title&quot;:&quot;How a Monorepo, pnpm, and Changesets Transformed My Multi-Package Workflow&quot;,&quot;url&quot;:&quot;https://medium.com/@anandkumar.code/how-a-monorepo-pnpm-and-changesets-transformed-my-multi-package-workflow-7c1771bba898&quot;},{&quot;title&quot;:&quot;Building a Robust JS/TS Monorepo: Best Practices with Yarn, NX and Changesets&quot;,&quot;url&quot;:&quot;https://hackernoon.com/building-a-robust-jsts-monorepo-best-practices-with-yarn-nx-and-changesets&quot;},{&quot;title&quot;:&quot;changesets/changesets: 🦋       A way to manage your versioning and changelogs with a focus on monorepos&quot;,&quot;url&quot;:&quot;https://github.com/changesets/changesets&quot;},{&quot;title&quot;:&quot;Complete Guide: Publishing NPM Packages with Changesets&quot;,&quot;url&quot;:&quot;https://dtech.vision/guides/npm-changesets-complete-guide/&quot;},{&quot;title&quot;:&quot;Complete Monorepo Guide – pnpm  Workspaces  Changesets (2025)&quot;,&quot;url&quot;:&quot;https://peerlist.nestorescobar.com/saxenashikhil/articles/complete-monorepo-guide--pnpm--workspaces--changesets-2025&quot;},{&quot;title&quot;:&quot;muravjev/configs: Config for monorepo with pnpm + eslint + prettier + husky + lintstaged + commitlint + changesets&quot;,&quot;url&quot;:&quot;https://github.com/muravjev/configs&quot;},{&quot;title&quot;:&quot;Automating Releases of @apollo/client&quot;,&quot;url&quot;:&quot;https://aless.co/automatic-release-management&quot;},{&quot;title&quot;:&quot;Monorepo version management with the changesets NPM package&quot;,&quot;url&quot;:&quot;https://blog.alec.coffee/monorepo-version-management-with-the-changesets-npm-package&quot;},{&quot;title&quot;:&quot;Release Workflows Made Easy With Changesets&quot;,&quot;url&quot;:&quot;https://blog.openreplay.com/release-workflows-changesets/&quot;}]
+
+Here are the search results for &quot;changesets solo developer workflow monorepo best practices 2025&quot;:
+
+1. **pnpm + Workspace + Changesets (2025)**
+   Built‑in Workspaces: no extra tool needed for monorepos. Strict node_modules: prevents phantom dependencies. Performance: parallel install/link improves speed. Active Maintenance: regular updates an...
+   Source: https://jsdev.space/complete-monorepo-guide/
+
+2. **How a Monorepo, pnpm, and Changesets Transformed My Multi-Package Workflow**
+   Consistency: Shared code style, testing setups, and configurations across packages. Simpler Releases: With automated versioning and publishing, updating npm packages becomes almost effortless.
+   Source: https://medium.com/@anandkumar.code/how-a-monorepo-pnpm-and-changesets-transformed-my-multi-package-workflow-7c1771bba898
+
+3. **Building a Robust JS/TS Monorepo: Best Practices with Yarn, NX and Changesets**
+   Building a Robust JS/TS Monorepo: Best Practices with Yarn, NX and Changesets
+by
+Teimur Gasanov
+by Teimur Gasanov @ teimurjan
+I am an engineer with significant experience in web development.
+   Source: https://hackernoon.com/building-a-robust-jsts-monorepo-best-practices-with-yarn-nx-and-changesets
+
+4. **changesets/changesets: 🦋       A way to manage your versioning and changelogs with a focus on monorepos**
+   Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session.
+   Source: https://github.com/changesets/changesets
+
+5. **Complete Guide: Publishing NPM Packages with Changesets**
+   Changesets help you manage versions and releases in packages, monorepos and multi-package projects. This comprehensive guide walks you through the complete setup, workflow, and automation for publishi...
+   Source: https://dtech.vision/guides/npm-changesets-complete-guide/
+
+6. **Complete Monorepo Guide – pnpm  Workspaces  Changesets (2025)**
+   Monorepos are a powerful way to manage multiple related packages in a single repository. This guide walks through building a modern monorepo using pnpm, Workspaces, and Changesets, with a focus on per...
+   Source: https://peerlist.nestorescobar.com/saxenashikhil/articles/complete-monorepo-guide--pnpm--workspaces--changesets-2025
+
+7. **muravjev/configs: Config for monorepo with pnpm + eslint + prettier + husky + lintstaged + commitlint + changesets**
+   You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session.
+   Source: https://github.com/muravjev/configs
+
+8. **Automating Releases of @apollo/client**
+   In a monorepo, more than one package can be specified in the frontmatter block at the top. Once the PR containing the relevant change + changeset is merged to main the release workflow kicks off.
+   Source: https://aless.co/automatic-release-management
+
+9. **Monorepo version management with the changesets NPM package**
+   changesets is a tool created to help with the work of version management inside mono-repos. It provides a CLI interface for contributors to describe their changes in a pull request alongside the semve...
+   Source: https://blog.alec.coffee/monorepo-version-management-with-the-changesets-npm-package
+
+10. **Release Workflows Made Easy With Changesets**
+   Changesets solves this by capturing release intent at contribution time, then automating the rest. This article covers how to build a modern Changesets release workflow—including npm trusted publish...
+   Source: https://blog.openreplay.com/release-workflows-changesets/
+
+
+Please note that these are web search results and may not be fully accurate or up-to-date.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch tooluse_KIzShdrBM7fUrk4v7RLQqK WebSearch output=Web search results for query: &quot;changesets/action publish without version PR workaround&quot; Links: [{&quot;title&quot;:&quot;Usage without pull request · Issue #77 · changesets/action · GitHub&quot;,&quot;u..." id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">tooluse_KIzShdrBM7fUrk4v7RLQqK</span>
+      
+      <span class="timeline-time">05:41:48</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;changesets/action publish without version PR workaround&quot; Links: [{&quot;title&quot;:&quot;Usage without pull request · Issue #77 · changesets/action · GitHub&quot;,&quot;u...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;changesets/action publish without version PR workaround&quot;
+
+Links: [{&quot;title&quot;:&quot;Usage without pull request · Issue #77 · changesets/action · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/changesets/action/issues/77&quot;},{&quot;title&quot;:&quot;Ability to combine `version` &amp; `publish` commands together for protected branches · Issue #936 · changesets/changesets · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/changesets/changesets/issues/936&quot;},{&quot;title&quot;:&quot;pushing to pypi via github actions: how to manage changes with no version number update?&quot;,&quot;url&quot;:&quot;https://stackoverflow.com/questions/76045431/pushing-to-pypi-via-github-actions-how-to-manage-changes-with-no-version-number&quot;},{&quot;title&quot;:&quot;trying to publish when not needed · Issue #300 · changesets/action · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/changesets/action/issues/300&quot;},{&quot;title&quot;:&quot;Setup versioning and NPM publication using Github Actions and changesets · GitHub&quot;,&quot;url&quot;:&quot;https://gist.github.com/egdelgadillo/2294da4d387765c0ae993c27787a3491&quot;},{&quot;title&quot;:&quot;updating Version Packages PR uses GITHUB_TOKEN instead of PAT · Issue #70 · changesets/action · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/changesets/action/issues/70&quot;},{&quot;title&quot;:&quot;How can i release snapshot for PR packages only? · changesets changesets · Discussion #1083 · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/changesets/changesets/discussions/1083&quot;},{&quot;title&quot;:&quot;Ditching manual releases with Changesets&quot;,&quot;url&quot;:&quot;https://dnlytras.com/blog/using-changesets&quot;},{&quot;title&quot;:&quot;PUT for published packages · Issue #98 · changesets/action · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/changesets/action/issues/98&quot;},{&quot;title&quot;:&quot;Automating Changesets&quot;,&quot;url&quot;:&quot;https://changesets-docs.vercel.app/automating-changesets.html&quot;}]
+
+Here are the search results for &quot;changesets/action publish without version PR workaround&quot;:
+
+1. **Usage without pull request · Issue #77 · changesets/action · GitHub**
+   The workflow I am thinking about has 2 jobs, the first simply runs changeset actions. If it versions any packages the second job will not run, the push would trigger master again which would release.
+   Source: https://github.com/changesets/action/issues/77
+
+2. **Ability to combine `version` &amp; `publish` commands together for protected branches · Issue #936 · changesets/changesets · GitHub**
+   In monorepos with main branch protected with pull request necessity, I think it is better to only add changesets to the pull request (summary &amp; bump types can be reviewed by contributors also) &amp; final...
+   Source: https://github.com/changesets/changesets/issues/936
+
+3. **pushing to pypi via github actions: how to manage changes with no version number update?**
+   For good reasons, publication on PyPI will fail if the version number is not updated (&quot;HTTP Error 400: File already exists.&quot;).
+   Source: https://stackoverflow.com/questions/76045431/pushing-to-pypi-via-github-actions-how-to-manage-changes-with-no-version-number
+
+4. **trying to publish when not needed · Issue #300 · changesets/action · GitHub**
+   It executes publish when it should not.
+   Source: https://github.com/changesets/action/issues/300
+
+5. **Setup versioning and NPM publication using Github Actions and changesets · GitHub**
+   You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session.
+   Source: https://gist.github.com/egdelgadillo/2294da4d387765c0ae993c27787a3491
+
+6. **updating Version Packages PR uses GITHUB_TOKEN instead of PAT · Issue #70 · changesets/action · GitHub**
+   uses
+   Source: https://github.com/changesets/action/issues/70
+
+7. **How can i release snapshot for PR packages only? · changesets changesets · Discussion #1083 · GitHub**
+   sh &quot;rm -rf.changeset/*.md&quot;
+sh &quot;git diff --name-only origin/master..HEAD | grep.changeset/ | xargs git checkout --&quot;
+sh &quot;yarn changeset version --snapshot ${snapshot}&quot;
+   Source: https://github.com/changesets/changesets/discussions/1083
+
+8. **Ditching manual releases with Changesets**
+   Push the changes or merge the PR - essentially just get the updates to the base branch. A GitHub action will check for any number of these specific markdown files, calculate the final semver and final...
+   Source: https://dnlytras.com/blog/using-changesets
+
+9. **PUT for published packages · Issue #98 · changesets/action · GitHub**
+   I&#39;m using changesets github action to publish packages after running changesets version locally.
+   Source: https://github.com/changesets/action/issues/98
+
+10. **Automating Changesets**
+   Our github changeset bot is the best way to prompt for changesets without making them blocking. As a handy extra feature, they give you a link to add your own changeset as a maintainer to smooth over ...
+   Source: https://changesets-docs.vercel.app/automating-changesets.html
+
+
+Please note that these are web search results and may not be fully accurate or up-to-date.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch tooluse_tTIe9lKCHCnOGt4pkiRt0e WebSearch output=Web search results for query: &quot;changesets workflow without PR GitHub Actions publish directly&quot; Links: [{&quot;title&quot;:&quot;Usage without pull request · Issue #77 · changesets/action · Git..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">tooluse_tTIe9lKCHCnOGt4pkiRt0e</span>
+      
+      <span class="timeline-time">05:41:52</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;changesets workflow without PR GitHub Actions publish directly&quot; Links: [{&quot;title&quot;:&quot;Usage without pull request · Issue #77 · changesets/action · Git...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;changesets workflow without PR GitHub Actions publish directly&quot;
+
+Links: [{&quot;title&quot;:&quot;Usage without pull request · Issue #77 · changesets/action · GitHub&quot;,&quot;url&quot;:&quot;https://github.com/changesets/action/issues/77&quot;},{&quot;title&quot;:&quot;Ditching manual releases with Changesets&quot;,&quot;url&quot;:&quot;https://dnlytras.com/blog/using-changesets&quot;},{&quot;title&quot;:&quot;Complete Guide: Publishing NPM Packages with Changesets&quot;,&quot;url&quot;:&quot;https://dtech.vision/guides/npm-changesets-complete-guide/&quot;},{&quot;title&quot;:&quot;seek-oss/changesets-snapshot: A GitHub Action for publishing snapshot releases when using changesets&quot;,&quot;url&quot;:&quot;https://github.com/seek-oss/changesets-snapshot&quot;},{&quot;title&quot;:&quot;darkbasic/changesets-snapshot-action: A GitHub Action for making Snapshot releases using Changesets&quot;,&quot;url&quot;:&quot;https://github.com/darkbasic/changesets-snapshot-action&quot;},{&quot;title&quot;:&quot;edenlabllc/changesets-action: A GitHub Action for making Snapshot releases using Changesets&quot;,&quot;url&quot;:&quot;https://github.com/edenlabllc/changesets-action&quot;},{&quot;title&quot;:&quot;GitHub Actions + Changesets + OIDC Auto-Publish to npm&quot;,&quot;url&quot;:&quot;https://phphe.com/blog/oidc-npm-github-workflow&quot;},{&quot;title&quot;:&quot;Adding Changesets to Your GitHub Repository&quot;,&quot;url&quot;:&quot;https://davistobias.com/articles/adding-changeset&quot;},{&quot;title&quot;:&quot;Automating Changesets&quot;,&quot;url&quot;:&quot;https://changesets-docs.vercel.app/automating-changesets.html&quot;},{&quot;title&quot;:&quot;Release Workflows Made Easy With Changesets&quot;,&quot;url&quot;:&quot;https://blog.openreplay.com/release-workflows-changesets/&quot;}]
+
+Here are the search results for &quot;changesets workflow without PR GitHub Actions publish directly&quot;:
+
+1. **Usage without pull request · Issue #77 · changesets/action · GitHub**
+   The workflow I am thinking about has 2 jobs, the first simply runs changeset actions. If it versions any packages the second job will not run, the push would trigger master again which would release.
+   Source: https://github.com/changesets/action/issues/77
+
+2. **Ditching manual releases with Changesets**
+   Push the changes or merge the PR - essentially just get the updates to the base branch. A GitHub action will check for any number of these specific markdown files, calculate the final semver and final...
+   Source: https://dnlytras.com/blog/using-changesets
+
+3. **Complete Guide: Publishing NPM Packages with Changesets**
+   Changesets help you manage versions and releases in packages, monorepos and multi-package projects. This comprehensive guide walks you through the complete setup, workflow, and automation for publishi...
+   Source: https://dtech.vision/guides/npm-changesets-complete-guide/
+
+4. **seek-oss/changesets-snapshot: A GitHub Action for publishing snapshot releases when using changesets**
+   You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session.
+   Source: https://github.com/seek-oss/changesets-snapshot
+
+5. **darkbasic/changesets-snapshot-action: A GitHub Action for making Snapshot releases using Changesets**
+   A tag already exists with the provided branch name. Many Git commands accept both tag and branch names, so creating this branch may cause unexpected behavior.
+   Source: https://github.com/darkbasic/changesets-snapshot-action
+
+6. **edenlabllc/changesets-action: A GitHub Action for making Snapshot releases using Changesets**
+   This action for Changesets runs the Snapshot workflow for your repository, based on changes done in Pull Requests.
+This action is helpful if you wish to create an automated release flow in trunk branc...
+   Source: https://github.com/edenlabllc/changesets-action
+
+7. **GitHub Actions + Changesets + OIDC Auto-Publish to npm**
+   In GitHub repo → Settings → Actions → General → Workflow permissions, check Read and write permissions, and also check Allow GitHub Actions to create and pull requests.
+   Source: https://phphe.com/blog/oidc-npm-github-workflow
+
+8. **Adding Changesets to Your GitHub Repository**
+   Designing better software systems.
+   Source: https://davistobias.com/articles/adding-changeset
+
+9. **Automating Changesets**
+   Our github changeset bot is the best way to prompt for changesets without making them blocking. As a handy extra feature, they give you a link to add your own changeset as a maintainer to smooth over ...
+   Source: https://changesets-docs.vercel.app/automating-changesets.html
+
+10. **Release Workflows Made Easy With Changesets**
+   npm trusted publishing using OIDC tokens is now the preferred method. Instead of storing credentials, your GitHub Actions workflow requests a short-lived token directly from npm during the publish ste...
+   Source: https://blog.openreplay.com/release-workflows-changesets/
+
+
+Please note that these are web search results and may not be fully accurate or up-to-date.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me fetch the key issue and articles that discuss the no-PR workflow in detail." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#16</span>
+      
+      <span class="timeline-time">05:41:58</span>
+    </div>
+    <div class="message-body"><p>Let me fetch the key issue and articles that discuss the no-PR workflow in detail.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_AbBPXVssrb2fLlRQqqNnRl WebFetch input={&quot;prompt&quot;:&quot;Extract all discussion about how to use changesets/action without creating a pull request. What workarounds do people suggest? Is there an official way to skip the Ve..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_AbBPXVssrb2fLlRQqqNnRl</span>
+      <span class="timeline-time">05:41:59</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract all discussion about how to use changesets/action without creating a pull request. What workarounds do people suggest? Is there an official way to skip the Ve...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/changesets/action/issues/77&quot;,
+  &quot;prompt&quot;: &quot;Extract all discussion about how to use changesets/action without creating a pull request. What workarounds do people suggest? Is there an official way to skip the Version PR and publish directly?&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_eMB6fjpIEcsteWQNHYnmKb WebFetch input={&quot;prompt&quot;:&quot;Extract the discussion about combining version and publish commands for protected branches. What workarounds are suggested for monorepos where the main branch is prot..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_eMB6fjpIEcsteWQNHYnmKb</span>
+      <span class="timeline-time">05:42:00</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract the discussion about combining version and publish commands for protected branches. What workarounds are suggested for monorepos where the main branch is prot...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/changesets/changesets/issues/936&quot;,
+  &quot;prompt&quot;: &quot;Extract the discussion about combining version and publish commands for protected branches. What workarounds are suggested for monorepos where the main branch is protected and Actions can&#39;t create PRs?&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_tN6Sp4IIQPYv3bPNV3vIQI WebFetch input={&quot;prompt&quot;:&quot;Extract the recommended workflow for changesets, especially for solo developers or small teams. What are the different approaches described (manual vs automated)? Any..." id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_tN6Sp4IIQPYv3bPNV3vIQI</span>
+      <span class="timeline-time">05:42:02</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract the recommended workflow for changesets, especially for solo developers or small teams. What are the different approaches described (manual vs automated)? Any...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://dtech.vision/guides/npm-changesets-complete-guide/&quot;,
+  &quot;prompt&quot;: &quot;Extract the recommended workflow for changesets, especially for solo developers or small teams. What are the different approaches described (manual vs automated)? Any tips for simplified workflows?&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_eMB6fjpIEcsteWQNHYnmKb WebFetch output=# Changesets Version &amp; Publish Workarounds for Protected Branches ## Core Challenge The fundamental issue is that &quot;you need to bump versions and remove the changeset files from ..." id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_eMB6fjpIEcsteWQNHYnmKb</span>
+      
+      <span class="timeline-time">05:42:11</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Changesets Version &amp; Publish Workarounds for Protected Branches ## Core Challenge The fundamental issue is that &quot;you need to bump versions and remove the changeset files from ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Changesets Version &amp; Publish Workarounds for Protected Branches
+
+## Core Challenge
+
+The fundamental issue is that &quot;you need to bump versions and remove the changeset files from git - both of those usually require an additional commit to be created.&quot; This creates friction in protected branch workflows where direct commits aren&#39;t allowed.
+
+## Suggested Workarounds
+
+**Auto-merge approach:** One practical solution involves using GitHub Actions to automatically merge the version PR. A workflow listens for the Release action completion, then uses `actions/github-script` to merge the changeset-release PR via the GitHub API with a squash merge strategy.
+
+**Combined workflow:** A more comprehensive approach chains multiple steps: create the version PR, automatically merge it, then immediately run the publish step. This achieves the desired &quot;version and publish&quot; sequence in a single workflow execution, eliminating the manual approval step between operations.
+
+**Configuration flag:** Community members suggested adding an `automerge: true` configuration option to changesets, allowing developers to skip manual PR approval while still maintaining an audit trail of version changes.
+
+## Architectural Considerations
+
+Maintainers noted that supporting true combined execution would require architectural changes—specifically, tracking package versions via git tags rather than updating `package.json` files, which would eliminate the need for version-bump commits entirely.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_AbBPXVssrb2fLlRQqqNnRl WebFetch output=# Changesets/Action Without Pull Requests: Workarounds &amp; Discussion Based on the GitHub issue thread, there is **no official built-in way** to skip the version PR and publish di..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_AbBPXVssrb2fLlRQqqNnRl</span>
+      
+      <span class="timeline-time">05:42:11</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Changesets/Action Without Pull Requests: Workarounds &amp; Discussion Based on the GitHub issue thread, there is **no official built-in way** to skip the version PR and publish di...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Changesets/Action Without Pull Requests: Workarounds &amp; Discussion
+
+Based on the GitHub issue thread, there is **no official built-in way** to skip the version PR and publish directly. However, the community has developed several workarounds:
+
+## Community Workarounds
+
+**1. Manual Two-Job Workflow**
+One user created a custom approach that runs `changeset version` directly on the main branch, detecting whether changes occurred by checking for the &quot;No unreleased changesets found&quot; message. If versions were bumped, it commits and pushes; otherwise, it triggers a separate build job.
+
+**2. Auto-Merge Strategy (TanStack Query)**
+A more sophisticated solution uses the official changesets action but automatically merges the generated PR for non-major changes. The workflow:
+- Runs the standard changesets action
+- Checks if any changesets are marked as &quot;major&quot;
+- Auto-merges patch/minor PRs using `gh pr merge`
+- Triggers a repository dispatch event to initiate publishing
+
+**3. Manual Workflow Dispatch**
+Teams using `workflow_dispatch` triggers noted they could manually version and publish without PR creation, avoiding race condition concerns since execution is serialized.
+
+**4. Third-Party Action**
+One contributor referenced an external action: &quot;autopublish-changesets-action&quot; for automated publishing workflows.
+
+## Key Concerns Raised
+
+Maintainers highlighted potential **race conditions** when versioning directly on the main branch during rapid successive merges. The suggested mitigation is using GitHub Actions&#39; `concurrency` key to serialize workflows.
+
+## Current Status
+
+The issue remains open with no official feature implementation, suggesting this remains a community-driven solution space rather than a supported use case.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_tN6Sp4IIQPYv3bPNV3vIQI WebFetch output=# Changesets Workflow for Small Teams The guide outlines two distinct approaches: ## Automated Workflow (Recommended) The primary workflow uses GitHub Actions to handle releases..." id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_tN6Sp4IIQPYv3bPNV3vIQI</span>
+      
+      <span class="timeline-time">05:42:11</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Changesets Workflow for Small Teams The guide outlines two distinct approaches: ## Automated Workflow (Recommended) The primary workflow uses GitHub Actions to handle releases...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Changesets Workflow for Small Teams
+
+The guide outlines two distinct approaches:
+
+## Automated Workflow (Recommended)
+
+The primary workflow uses GitHub Actions to handle releases automatically:
+
+1. **Development**: Create feature branches and make changes
+2. **Changeset Creation**: Run `bun changeset` to document version bumps and changes
+3. **PR &amp; Merge**: Submit PR with changeset file included
+4. **Automated Release**: Merging triggers a release PR, which when merged publishes to NPM
+
+As the guide states, &quot;No need to manually bump version in package.json files. Changesets handle versioning automatically.&quot;
+
+## Manual Workflow (Fallback)
+
+For teams without GitHub Actions permissions, the guide suggests using `npm publish` directly after running `bun run changeset-publish`. This requires:
+- Local environment setup with NPM token
+- Manual version bumping via `bun run changeset-version`
+- Direct registry publishing
+
+## Tips for Simplified Workflows
+
+**For solo developers or small teams:**
+
+- Set `&quot;commit&quot;: true` in config to auto-commit changeset files, reducing manual steps
+- Use the `&quot;ignore&quot;` configuration to exclude non-publishable packages from tracking
+- Run `changeset status` before merging to preview version changes
+- Keep changesets focused on single features per file for clarity
+
+The guide emphasizes that &quot;Traditional versioning is manual, error-prone, and doesn&#39;t scale,&quot; making automation the preferred path even for small teams.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me fetch one more source to round out the picture on the direct-publish-without-PR approach." id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#23</span>
+      
+      <span class="timeline-time">05:42:15</span>
+    </div>
+    <div class="message-body"><p>Let me fetch one more source to round out the picture on the direct-publish-without-PR approach.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_vnLOTQt6bpqwqIJGikI7dV WebFetch input={&quot;prompt&quot;:&quot;Extract the complete workflow example for changesets with GitHub Actions. Focus on any alternative approaches that skip the Version PR, and any discussion of running ..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_vnLOTQt6bpqwqIJGikI7dV</span>
+      <span class="timeline-time">05:42:18</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract the complete workflow example for changesets with GitHub Actions. Focus on any alternative approaches that skip the Version PR, and any discussion of running ...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Extract the complete workflow example for changesets with GitHub Actions. Focus on any alternative approaches that skip the Version PR, and any discussion of running changeset version locally vs in CI.&quot;,
+  &quot;url&quot;: &quot;https://blog.openreplay.com/release-workflows-changesets/&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_erYO5pFgls0R0sNEMDXwAE WebFetch input={&quot;prompt&quot;:&quot;Extract the changesets configuration options, especially the \&quot;commit\&quot; option and any options that affect the workflow for solo developers.&quot;,&quot;url&quot;:&quot;https://github.co..." id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_erYO5pFgls0R0sNEMDXwAE</span>
+      <span class="timeline-time">05:42:19</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Extract the changesets configuration options, especially the \&quot;commit\&quot; option and any options that affect the workflow for solo developers.&quot;,&quot;url&quot;:&quot;https://github.co...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Extract the changesets configuration options, especially the \&quot;commit\&quot; option and any options that affect the workflow for solo developers.&quot;,
+  &quot;url&quot;: &quot;https://github.com/changesets/changesets/blob/main/docs/config-file-options.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_vnLOTQt6bpqwqIJGikI7dV WebFetch output=Based on the article content provided, here&#39;s what I found: **Standard Workflow (with Version PR)** The article describes a three-phase approach: 1. &quot;Contributors add changeset ..." id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_vnLOTQt6bpqwqIJGikI7dV</span>
+      
+      <span class="timeline-time">05:42:25</span>
+    </div>
+    <div class="timeline-title">WebFetch output=Based on the article content provided, here&#39;s what I found: **Standard Workflow (with Version PR)** The article describes a three-phase approach: 1. &quot;Contributors add changeset ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Based on the article content provided, here&#39;s what I found:
+
+**Standard Workflow (with Version PR)**
+
+The article describes a three-phase approach:
+
+1. &quot;Contributors add changeset files describing what changed and how significant it is&quot;
+2. &quot;CI creates a versioning PR that aggregates all changesets into version bumps&quot;
+3. &quot;Merging the PR triggers publishing to npm&quot;
+
+The piece notes: &quot;Most teams run the Changesets action on every push to main. The action either opens or updates a &#39;Version Packages&#39; PR when unreleased changesets exist, or publishes packages when the version PR merges.&quot;
+
+**Alternative Approaches**
+
+The article doesn&#39;t discuss skipping the Version PR or alternative publishing workflows. It presents the Version PR as the standard pattern without mentioning direct-to-publish alternatives.
+
+**Local vs CI Execution**
+
+The content doesn&#39;t address running changeset versioning locally versus in CI. It focuses entirely on the CI-based workflow using GitHub Actions, specifically mentioning the `changesets/action` and how it handles PR creation and publishing automation.
+
+**Key Technical Detail**
+
+The article emphasizes using npm trusted publishing with OIDC tokens instead of `NPM_TOKEN` secrets, noting this approach provides &quot;short-lived token&quot; security benefits and cryptographic provenance for published packages.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_erYO5pFgls0R0sNEMDXwAE WebFetch output=# Changesets Configuration for Solo Developers ## Commit Option The `commit` setting controls whether changesets automatically commits files after running `changeset add` or `ch..." id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_erYO5pFgls0R0sNEMDXwAE</span>
+      
+      <span class="timeline-time">05:42:32</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Changesets Configuration for Solo Developers ## Commit Option The `commit` setting controls whether changesets automatically commits files after running `changeset add` or `ch...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Changesets Configuration for Solo Developers
+
+## Commit Option
+
+The `commit` setting controls whether changesets automatically commits files after running `changeset add` or `changeset version` commands. &quot;By default, we do not commit the files, and leave it to the user to commit the files.&quot;
+
+You can configure it three ways:
+- `false` (default): Manual commits required
+- `true`: Uses built-in commit message generator
+- Custom path: Points to your own commit message functions
+
+## Solo Developer Considerations
+
+For individual developers, these options matter most:
+
+**baseBranch** - Specifies the comparison branch (typically `main`). Ensure this branch exists locally and stays current for accurate change detection.
+
+**access** - Controls npm publishing visibility. Defaults to `&quot;restricted&quot;` for scoped packages. Solo developers typically want `&quot;public&quot;` for open-source work.
+
+**changelog** - Determines changelog generation. Can be disabled with `false` or customized with alternative generators like `@changesets/changelog-github`.
+
+**ignore** - Temporarily prevents specific packages from publishing without marking them permanently private.
+
+The minimal default configuration suits solo developers well, requiring changes only when you need automated commits or custom workflows.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Here is a consolidated summary of the findings. --- ## 1. Recommended Workflow for Changesets in a Small Team / Solo Developer Monorepo The standard changesets workflow is: 1. Make changes on a feature branch. 2. Run `changeset` (or `changeset add`) to create a changeset markdown file describing the bump type and summary. 3. Commit the changeset file alongside your code changes. 4. Merge to main. 5. Eith..." id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#28</span>
+      
+      <span class="timeline-time">05:43:09</span>
+    </div>
+    <p class="event-preview">Here is a consolidated summary of the findings. --- ## 1. Recommended Workflow for Changesets in a Small Team / Solo Developer Monorepo The standard changesets workflow is: 1. Make changes on a feature branch. 2. Run ...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Here is a consolidated summary of the findings.</p><p>---</p><p>## 1. Recommended Workflow for Changesets in a Small Team / Solo Developer Monorepo</p><p>The standard changesets workflow is:</p><p>1. Make changes on a feature branch.<br>2. Run <code>changeset</code> (or <code>changeset add</code>) to create a changeset markdown file describing the bump type and summary.<br>3. Commit the changeset file alongside your code changes.<br>4. Merge to main.<br>5. Either the CI creates a &quot;Version Packages&quot; PR, or you run <code>changeset version</code> locally.<br>6. After versioning, <code>changeset publish</code> pushes to npm.</p><p>For solo developers, the workflow can be simplified:<br>- Set <code>&quot;commit&quot;: true</code> in <code>.changeset/config.json</code> so that <code>changeset version</code> auto-commits the version bumps and changelog updates, reducing manual git steps.<br>- Use <code>changeset status</code> before merging to preview what will be released.<br>- Use <code>changeset --empty</code> for commits that should not trigger a release (test-only, docs-only changes).<br>- The <code>ignore</code> config option can exclude internal/non-publishable packages from versioning.</p><p>---</p><p>## 2. Local <code>changeset version</code> + Commit vs. Letting the GitHub Action Create a Version PR</p><p>There are two distinct approaches:</p><p>### Approach A: Let <code>changesets/action</code> create a Version PR (the &quot;official&quot; way)</p><p>The action detects changeset files on main, runs <code>changeset version</code>, and opens/updates a PR titled &quot;Version Packages.&quot; Merging that PR triggers the publish step.</p><p>Pros:<br>- Fully automated -- no local steps beyond adding changeset files.<br>- Provides a reviewable PR with the exact version bumps and changelog diffs before publishing.<br>- Works well for teams where multiple people need to review releases.<br>- The action keeps the PR up to date as more changesets land on main.</p><p>Cons:<br>- Requires GitHub Actions to have permission to create PRs (Settings &gt; Actions &gt; General &gt; &quot;Allow GitHub Actions to create and approve pull requests&quot;).<br>- Adds an extra merge step between &quot;code lands on main&quot; and &quot;packages are published.&quot;<br>- Can feel like overhead for a solo developer -- you&#39;re reviewing your own version bump PR.<br>- Race conditions are possible if multiple merges happen in quick succession (mitigated with the <code>concurrency</code> key in the workflow).</p><p>### Approach B: Run <code>changeset version</code> locally, commit, then let CI publish</p><p>You run <code>changeset version</code> on your machine, commit the resulting version bumps and changelog updates, push to main, and CI detects there are no remaining changeset files and runs <code>changeset publish</code>.</p><p>Pros:<br>- No PR creation needed from Actions -- works in orgs that restrict Actions from creating PRs.<br>- Simpler mental model for solo developers: you control exactly when versions are bumped.<br>- Fewer moving parts in CI.<br>- You can review the version changes locally before pushing.</p><p>Cons:<br>- Manual step that can be forgotten or done inconsistently.<br>- The official docs call this approach &quot;finicky&quot; because it requires pulling, versioning, committing, pushing, then publishing in sequence.<br>- No built-in audit trail of the version bump as a separate reviewable PR.<br>- You must remember to run <code>git push --follow-tags</code> to push the git tags created by <code>changeset version</code>.</p><p>---</p><p>## 3. Publishing Directly Without a Version PR (When Actions Cannot Create PRs)</p><p>The <code>changesets/action</code> does not have a built-in flag to skip PR creation. However, there are several proven workarounds:</p><p>### Option1: Custom CI workflow (recommended for your situation)</p><p>Write your own GitHub Actions workflow that runs <code>changeset version</code> and <code>changeset publish</code> directly on main, without using <code>changesets/action</code> at all:</p><pre><code>name: Release
+on:
+  push:
+    branches: [main]
+concurrency: release-${{ github.ref }}
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npx changeset version
+      - run: |
+          git config user.name &quot;github-actions[bot]&quot;
+          git config user.email &quot;github-actions[bot]@users.noreply.github.com&quot;
+          git add -A
+          git diff-index --quiet HEAD || git commit -m &quot;chore: version packages&quot;
+          git push- run: npx changeset publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: git push --follow-tags
+</code></pre><p>The <code>concurrency</code> key serializes runs to avoid race conditions. This approach versions and publishes in a single workflow run with no PR involved.</p><p>### Option 2: Local version + CI publish only</p><p>Run <code>changeset version</code> locally, commit and push. In CI, detect that there are no changeset files remaining and run <code>changeset publish</code>. The <code>changesets/action</code> supports this via its <code>hasChangesets</code> output -- when <code>hasChangesets</code> is <code>false</code>, it means versions have already been bumped and you can publish.</p><p>### Option 3: Auto-merge the Version PR</p><p>If you can enable PR creation but want to skip manual approval, add a step after the changesets action that auto-merges the Version PR using <code>gh pr merge --squash</code>. This is the approach used by TanStack and others.</p><p>### Option 4: Run <code>changeset version</code> locally (simplest)</p><p>For a solo developer, the simplest path: run <code>changeset version</code> locally when you&#39;re ready to release, commit the results, push, and let CI handle only the <code>changeset publish</code> step. This avoids the Version PR entirely and keeps full control in your hands.</p><p>---</p><p>## Summary / Recommendation for Your Setup</p><p>Given that you are a solo developer on the openmnemo monorepo and may have restrictions on Actions creating PRs, the pragmatic choice is:</p><p>- Add changesets during development as usual (<code>changeset add</code>).<br>- When ready to release, run <code>changeset version</code> locally, review the bumps, commit, and push.<br>- CI workflow triggers on push to main, detects no remaining changesets, and runs <code>changeset publish</code>.<br>- Alternatively, use the custom workflow above (Option 1) to have CI do both version + publish in one shot with no PR.</p><p>Either way, the <code>concurrency</code> key on the workflow is important to prevent race conditions.</p><p>Sources:<br>- [changesets/action README](https://github.com/changesets/action/blob/main/README.md)<br>- [Automating Changesets (official docs)](https://github.com/changesets/changesets/blob/main/docs/automating-changesets.md)<br>- [Usage without pull request -- Issue #77](https://github.com/changesets/action/issues/77)<br>- [Combine version &amp; publish for protected branches -- Issue #936](https://github.com/changesets/changesets/issues/936)<br>- [Complete Guide: Publishing NPM Packages with Changesets](https://dtech.vision/guides/npm-changesets-complete-guide/)<br>- [Release Workflows Made Easy With Changesets](https://blog.openreplay.com/release-workflows-changesets/)<br>- [Changesets config file options](https://github.com/changesets/changesets/blob/main/docs/config-file-options.md)<br>- [Snapshot releases docs](https://github.com/changesets/changesets/blob/main/docs/snapshot-releases.md)</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

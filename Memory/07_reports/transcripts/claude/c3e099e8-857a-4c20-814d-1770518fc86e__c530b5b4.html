@@ -1,0 +1,3742 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>c3e099e8-857a-4c20-814d-1770518fc86e — MemoryTree</title>
+<meta property="og:title" content="c3e099e8-857a-4c20-814d-1770518fc86e">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>c3e099e8-857a-4c20-814d-1770518fc86e</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>18</strong> Messages</span>
+      <span class="transcript-pill"><strong>50</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>68</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-19 08:47:43</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">c3e099e8-857a-4c20-814d-1770518fc86e</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">c3e099e8-857a-4c20-814d-1770518fc86e</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">c530b5b4dd28d0fe...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">68</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">18</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">50</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>18</strong> dialog</span>
+    <span class="transcript-pill"><strong>50</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>18</strong> Messages</span>
+          <span class="transcript-pill"><strong>50</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>68 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user d:\demo1\openmnemo\Memory\02_todos\todo_v002_001_20260319.mdd:\demo1\openmnemo\Memory\01_goals\goal_v002_20260319.md 审计一下我们的方案和todo ultrathink" id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">08:47:43</span>
+    </div>
+    <div class="message-body"><p>d:\demo1\openmnemo\Memory\02_todos\todo_v002_001_20260319.mdd:\demo1\openmnemo\Memory\01_goals\goal_v002_20260319.md 审计一下我们的方案和todo  ultrathink</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me read both files first." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">08:47:52</span>
+    </div>
+    <div class="message-body"><p>Let me read both files first.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_bT7ogYJPxhQnLA35dIbvWA Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\Memory\\01_goals\\goal_v002_20260319.md&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_bT7ogYJPxhQnLA35dIbvWA</span>
+      <span class="timeline-time">08:47:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\Memory\\01_goals\\goal_v002_20260319.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\Memory\\01_goals\\goal_v002_20260319.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read tooluse_RyupFJChNRZuawAgzdcj6l Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\Memory\\02_todos\\todo_v002_001_20260319.md&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_RyupFJChNRZuawAgzdcj6l</span>
+      <span class="timeline-time">08:47:52</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\Memory\\02_todos\\todo_v002_001_20260319.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\Memory\\02_todos\\todo_v002_001_20260319.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_RyupFJChNRZuawAgzdcj6l Read output=1→# Project Todo 2→ 3→## Binding 4→- Goal version: goal_v002 5→- Todo version: v002_001 6→- Created: 2026-03-19 7→- Status: active 8→ 9→## Milestones 10→- [ ] Milestone 1: 数据层夯实..." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_RyupFJChNRZuawAgzdcj6l</span>
+      
+      <span class="timeline-time">08:47:52</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Project Todo 2→ 3→## Binding 4→- Goal version: goal_v002 5→- Todo version: v002_001 6→- Created: 2026-03-19 7→- Status: active 8→ 9→## Milestones 10→- [ ] Milestone 1: 数据层夯实...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Project Todo
+     2→
+     3→## Binding
+     4→- Goal version: goal_v002
+     5→- Todo version: v002_001
+     6→- Created: 2026-03-19
+     7→- Status: active
+     8→
+     9→## Milestones
+    10→- [ ] Milestone 1: 数据层夯实（Phase 0）
+    11→- [ ] Milestone 2: 推理层 MVP（Phase 1）
+    12→- [ ] Milestone 3: 协作层 Alpha（Phase 2）
+    13→- [ ] Milestone 4: 商业化（Phase 3）
+    14→
+    15→---
+    16→
+    17→## In Progress（当前执行焦点）
+    18→
+    19→### ⚠️ 紧急安全项（先于一切执行）
+    20→- [ ] 轮换 npm token（历史 session 中曾暴露，立即处理）
+    21→
+    22→### Milestone 1 — 数据层夯实
+    23→
+    24→#### 1.1 FTS 全文检索扩展
+    25→- [ ] 分析现有 `db.ts` 的 FTS4 表结构，确认当前索引字段
+    26→- [ ] 在 SQLite FTS 表中新增 `content` 字段，写入 clean markdown 对话全文
+    27→- [ ] 在 SQLite FTS 表中新增 `commit_layer` 字段，写入关联 git commit message + changed files
+    28→- [ ] 实现分层检索逻辑：Layer1(commit) → Layer2(manifest) → Layer3(fulltext)
+    29→- [ ] 更新 `recall.ts` 支持全文检索模式
+    30→- [ ] 补充测试覆盖（保持 80%+ 覆盖率）
+    31→
+    32→#### 1.2 Git Commit 关联索引
+    33→- [ ] 在 `sync` 包中实现 `git log` 解析，提取 commit 元数据（sha/message/timestamp/files）
+    34→- [ ] 建立 commit 与 session 的时间窗口关联算法
+    35→- [ ] 写入 SQLite commit_index 表
+    36→- [ ] 在 `openmnemo search` 命令中支持按 commit 关键词检索
+    37→
+    38→#### 1.3 GiteaAdapter 完整链路验证
+    39→- [ ] 端到端测试：对话导入 → Gitea 私有仓库 → FTS 全文检索可用
+    40→- [ ] 写文档说明如何配置 Gitea 作为存储后端
+    41→
+    42→#### 1.4 API 边界定义
+    43→- [ ] 定义 `DataLayerAPI` 接口，供推理层调用
+    44→  - `search(query, options)` — 分层检索
+    45→  - `getSession(id)` — 获取单个 session 全文
+    46→  - `getCommitContext(sessionId)` — 获取关联 commit
+    47→  - `listSessions(filter)` — 列表 + 分页
+    48→- [ ] 在 `@openmnemo/core` 中导出这些接口
+    49→
+    50→---
+    51→
+    52→## Pending（待启动）
+    53→
+    54→### Milestone 2 — 推理层 MVP
+    55→- [ ] 调研 EvoScientist 架构，评估 fork vs 从零构建
+    56→- [ ] 设计 Reasoning Engine 与 DataLayerAPI 的集成方式
+    57→- [ ] 实现跨 session 记忆推断原型：「你上周在 X 项目讨论过 Y」
+    58→- [ ] 飞书/Telegram Webhook 富文本卡片（带摘要 + 关联 commit）
+    59→- [ ] 开源发布推理层仓库
+    60→
+    61→### Milestone 3 — 协作层 Alpha
+    62→- [ ] 多用户 Gitea 仓库权限设计
+    63→- [ ] 团队记忆共享 API
+    64→- [ ] 插件系统基础架构（插件注册/加载/隔离）
+    65→- [ ] 插件式解析器重构（当前 4 个 client 解析器改为插件化）
+    66→- [ ] 扩展客户端解析器：Cursor / Copilot Chat / ChatGPT 导出（增加覆盖面，提升用户价值）
+    67→
+    68→### Milestone 4 — 商业化
+    69→- [ ] 插件市场 MVP（上传/审核/安装）
+    70→- [ ] SaaS 托管版基础设施
+    71→- [ ] 企业 License 方案设计
+    72→- [ ] IM 双向交互（飞书/钉钉 bot）
+    73→
+    74→---
+    75→
+    76→## Done
+    77→- OpenMnemo 5 包（types/core/sync/report/cli）**v0.4.1** 发布到 npm
+    78→- ~602 tests 通过（core 237, sync 71, report 196, cli 99）
+    79→- CI 矩阵（Ubuntu + Windows × Node 22/24）全绿
+    80→- Gitea StorageAdapter 抽象实现
+    81→- HTML 报告生成（仪表盘/知识图谱/全文搜索/i18n/暗亮主题）
+    82→- Doubao TXT 解析器
+    83→- 心跳守护进程（cron/launchd/schtasks 跨平台）
+    84→- GitHub Actions SHA-pinned + dependabot.yml
+    85→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read tooluse_bT7ogYJPxhQnLA35dIbvWA Read output=1→# Project Goal v002 2→ 3→## Metadata 4→- Version: v002 5→- Created: 2026-03-19 6→- Previous: goal_v001_20260316.md 7→ 8→## North Star 9→ 10→以 OpenMnemo 为数据底座，构建 AI 原生协作平台（Agen..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">tooluse_bT7ogYJPxhQnLA35dIbvWA</span>
+      
+      <span class="timeline-time">08:47:52</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Project Goal v002 2→ 3→## Metadata 4→- Version: v002 5→- Created: 2026-03-19 6→- Previous: goal_v001_20260316.md 7→ 8→## North Star 9→ 10→以 OpenMnemo 为数据底座，构建 AI 原生协作平台（Agen...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Project Goal v002
+     2→
+     3→## Metadata
+     4→- Version: v002
+     5→- Created: 2026-03-19
+     6→- Previous: goal_v001_20260316.md
+     7→
+     8→## North Star
+     9→
+    10→以 OpenMnemo 为数据底座，构建 AI 原生协作平台（AgentCrawl）。
+    11→平台采用分层开源策略：数据层/存储层/推理层全部开源引流，协作层与插件层商业化变现。
+    12→用数据主权（私有部署 Gitea）对抗云端锁定型竞品，用插件生态形成网络效应护城河。
+    13→
+    14→## 产品分层架构
+    15→
+    16→```
+    17→【开源 · 引流 · 生态基础】
+    18→  Layer 1 数据层   → OpenMnemo
+    19→                   跨客户端对话归档、Git 版本控制、分层 SQLite FTS 检索
+    20→                   支持 Claude/Codex/Gemini/Doubao，可扩展插件式解析器
+    21→
+    22→  Layer 2 存储层   → Gitea（自托管）/ GitHub
+    23→                   私有部署、数据主权、版本历史
+    24→
+    25→  Layer 3 推理层   → AgentCrawl Reasoning Engine（类 EvoScientist 架构）
+    26→                   多 LLM 提供商、多 agent 协作、跨 session 记忆推断
+    27→                   开源 → 社区贡献 agent/prompt/workflow → 反哺插件生态
+    28→
+    29→【商业化 · 护城河】
+    30→  Layer 4 协作层   → 多用户权限、团队记忆共享、审计日志、冲突解决
+    31→                   企业愿意付费 / 开源社区没动力做
+    32→
+    33→  Layer 5 插件层   → 插件市场（审核/分发/计费）+ 企业专属插件
+    34→                   网络效应：插件生态越丰富，用户迁移成本越高
+    35→```
+    36→
+    37→## 商业模式
+    38→
+    39→- **模型参考**：GitLab CE/EE 分层模式
+    40→- **免费**：Layer 1-3 全部开源，个人开发者/小团队免费自托管
+    41→- **付费**：Layer 4-5，按席位/功能收费，SaaS 托管版 + 私有部署授权
+    42→- **定价预期**：个人 Pro $19/月，团队 $49/席位/月，企业私有部署 License
+    43→
+    44→## 差异化优势
+    45→
+    46→1. **数据主权**：用户数据存在自己的 Gitea，不依赖云端第三方
+    47→2. **跨客户端归档**：唯一同时支持 Claude/Codex/Gemini/Doubao 的开源工具
+    48→3. **Git 关联记忆**：对话与 commit 关联，能检索「做某个功能时的思考过程」
+    49→4. **分层检索速度**：commit 元数据 → session 元数据 → 全文内容，大多数查询在前两层命中
+    50→5. **插件生态壁垒**：协作层 + 插件市场一旦形成，迁移成本极高
+    51→
+    52→## 竞品对比
+    53→
+    54→| 竞品 | 定位 | 我们的差异 |
+    55→|------|------|------------|
+    56→| Mem0 | 语义向量记忆 | 我们有 Git 版本历史 + 跨客户端 + 离线 |
+    57→| Letta/MemGPT | 分层 agent 记忆 | 我们更轻量，不绑定特定 agent 框架 |
+    58→| EvoScientist | 自主科研 agent | 我们做平台底座，可集成 EvoSkills |
+    59→| Notion AI | 云端协作 | 我们私有部署，数据主权 |
+    60→| Confluence AI | 企业知识库 | 我们 AI-native，从对话记录自动构建知识 |
+    61→
+    62→## 执行阶段
+    63→
+    64→### Phase 0（当前）：数据层夯实
+    65→- OpenMnemo FTS 扩展到对话内容 + Git commit 关联索引
+    66→- GiteaAdapter 完整链路验证
+    67→- 清晰定义 API 边界（供推理层调用）
+    68→
+    69→### Phase 1（3 个月内）：推理层 MVP
+    70→- Fork/借鉴 EvoScientist 架构，构建推理层，作为**独立开源仓库**发布（引流 + 社区贡献）
+    71→- 跨 session 记忆推断：「你上周讨论过这个问题，当时的结论是…」
+    72→- 多渠道增强分两步：先做单向 Webhook 富文本卡片（飞书/Telegram 摘要卡片，ROI 最高），再做双向 IM 交互（Phase 3）
+    73→- 发布 EvoSkill 插件，让 EvoScientist 用户能把研究对话自动归档到 OpenMnemo
+    74→
+    75→### Phase 2（3-6 个月）：协作层 Alpha
+    76→- 多用户 + 权限控制
+    77→- 团队记忆共享（基于 Gitea 多用户仓库）
+    78→- 插件系统基础架构
+    79→
+    80→### Phase 3（6-12 个月）：商业化
+    81→- 插件市场上线
+    82→- SaaS 托管版
+    83→- 企业 License
+    84→- IM 双向交互（飞书/钉钉 bot）
+    85→
+    86→## 成功信号
+    87→
+    88→- Phase 0：OpenMnemo FTS 全文检索可用，GiteaAdapter 端到端跑通
+    89→- Phase 1：推理层能回答「我上周在某项目里讨论过什么」
+    90→- Phase 2：2+ 用户共享同一 Gitea 记忆仓库并协作
+    91→- Phase 3：插件市场有 10+ 社区插件，付费用户 &gt; 50
+    92→
+    93→## 非目标（当前阶段）
+    94→
+    95→- 不做向量数据库（SQLite FTS 够用）
+    96→- 不做 LLM 训练/微调
+    97→- 不做通用 IM 应用
+    98→- 不在 Phase 0-1 考虑多用户架构
+    99→
+   100→## Change Log
+   101→- 2026-03-19: v002 创建，基于分层开源策略重写，明确平台化路线和商业模式。
+   102→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check the actual codebase state to audit against these plans." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#7</span>
+      
+      <span class="timeline-time">08:48:08</span>
+    </div>
+    <div class="message-body"><p>Now let me check the actual codebase state to audit against these plans.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Agent tooluse_urlYEFc2lOIDvrFhNsrCF2 Agent input={&quot;description&quot;:&quot;Audit codebase against plan&quot;,&quot;prompt&quot;:&quot;I need to audit the OpenMnemo codebase at D:\\demo1\\openmnemo against a project plan. Please investigate the following an..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Agent</span>
+      <span class="timeline-chip">tooluse_urlYEFc2lOIDvrFhNsrCF2</span>
+      <span class="timeline-time">08:48:08</span>
+    </div>
+    <div class="timeline-title">Agent input={&quot;description&quot;:&quot;Audit codebase against plan&quot;,&quot;prompt&quot;:&quot;I need to audit the OpenMnemo codebase at D:\\demo1\\openmnemo against a project plan. Please investigate the following an...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;description&quot;: &quot;Audit codebase against plan&quot;,
+  &quot;prompt&quot;: &quot;I need to audit the OpenMnemo codebase at D:\\demo1\\openmnemo against a project plan. Please investigate the following and report back with detailed findings:\n\n1. **FTS/Search current state**: Look at packages/core/src/ and packages/sync/src/ for any FTS (full-text search) related code, especially db.ts, recall.ts, or any SQLite FTS tables. What fields are currently indexed? Is there a `content` field or `commit_layer` field?\n\n2. **Git commit indexing**: Is there any git log parsing in the sync package? Any commit_index table? Any commit-session association logic?\n\n3. **GiteaAdapter**: Find the GiteaAdapter implementation. Is there an end-to-end test? Any documentation for Gitea configuration?\n\n4. **DataLayerAPI**: Is there a defined DataLayerAPI interface? Check packages/core/src/ and packages/types/src/ for any such interface with methods like search(), getSession(), getCommitContext(), listSessions().\n\n5. **Package versions**: Check package.json files in packages/* to see current versions (the plan says v0.4.1 in Done section, memory says v0.2.2).\n\n6. **Test count**: Check if there&#39;s a way to see test counts. Look at vitest configs.\n\n7. **Heartbeat/daemon**: Is there heartbeat/cron/daemon code? The Done section claims this exists.\n\n8. **Plugin system**: Any plugin-related code or interfaces?\n\n9. **Reasoning engine**: Any reasoning/inference code?\n\n10. **npm token security**: Any .npmrc or token references in the codebase?\n\nReport findings for each point with file paths and relevant details.&quot;,
+  &quot;subagent_type&quot;: &quot;Explore&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Agent tooluse_urlYEFc2lOIDvrFhNsrCF2 Agent output=[{&quot;text&quot;:&quot;Now let me compile my comprehensive audit findings:\n\n## OpenMnemo Codebase Audit Report\n\n### 1. **FTS/Search Current State** ✅ IMPLEMENTED\n**File:** `/d/demo1/ope..." id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Agent</span>
+      <span class="timeline-chip">tooluse_urlYEFc2lOIDvrFhNsrCF2</span>
+      
+      <span class="timeline-time">08:50:23</span>
+    </div>
+    <div class="timeline-title">Agent output=[{&quot;text&quot;:&quot;Now let me compile my comprehensive audit findings:\n\n## OpenMnemo Codebase Audit Report\n\n### 1. **FTS/Search Current State** ✅ IMPLEMENTED\n**File:** `/d/demo1/ope...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>[
+  {
+    &quot;text&quot;: &quot;Now let me compile my comprehensive audit findings:\n\n## OpenMnemo Codebase Audit Report\n\n### 1. **FTS/Search Current State** ✅ IMPLEMENTED\n**File:** `/d/demo1/openmnemo/packages/core/src/transcript/db.ts`\n\n- **FTS4 Implementation:** Uses FTS4 (not FTS5) via sql.js WASM because default build lacks FTS5\n- **Current Indexed Fields:** `title`, `cwd`, `branch` only\n- **Missing Fields:** \n  - ❌ `content` field (full conversation text) — NOT implemented\n  - ❌ `commit_layer` field (git commit association) — NOT implemented\n- **Search Logic:** `sanitizeFtsQuery()` sanitizes input, `searchTranscripts()` performs FTS4 MATCH queries ordered by `started_at DESC`\n- **Lazy Rebuild:** One-time rebuild on first search if FTS index is empty (legacy DB support)\n\n### 2. **Git Commit Indexing** ❌ NOT IMPLEMENTED\n**File:** `/d/demo1/openmnemo/packages/sync/src/heartbeat.ts`\n\n- **Git Integration:** Basic git operations exist via `git()` utility in `/d/demo1/openmnemo/packages/core/src/utils/exec.ts`\n- **Current Functionality:** \n  - `git status`, `git add`, `git commit`, `git push` for transcript syncing\n  - Sensitive pattern detection (API keys, tokens, passwords)\n- **Missing:**\n  - ❌ No `git log` parsing\n  - ❌ No `commit_index` table in SQLite\n  - ❌ No commit-session association logic\n  - ❌ No commit metadata extraction (sha/message/timestamp/files)\n\n### 3. **GiteaAdapter** ✅ IMPLEMENTED (No E2E Tests)\n**File:** `/d/demo1/openmnemo/packages/core/src/storage/gitea-adapter.ts`\n\n- **Implementation:** Complete StorageAdapter interface implementation\n- **Methods:** `writeFile()`, `readFile()`, `exists()`, `mkdir()`, `copyFile()`, `appendFile()`\n- **API Usage:** Gitea Contents API v1 with base64 encoding\n- **Authentication:** Token-based via Authorization header\n- **Branch Support:** Configurable branch (default: `main`)\n- **E2E Tests:** ❌ **NONE FOUND** — No test files reference GiteaAdapter\n- **Documentation:** ❌ **NONE** — No docs on Gitea configuration\n\n### 4. **DataLayerAPI** ❌ NOT DEFINED\n**Files Checked:** `/d/demo1/openmnemo/packages/types/src/index.ts`, all packages\n\n- **Current Interfaces:** Only `ParsedTranscript`, `TranscriptMessage`, `TranscriptToolEvent`, `ManifestEntry`\n- **Missing:** No `DataLayerAPI` interface with methods:\n  - ❌ `search(query, options)`\n  - ❌ `getSession(id)`\n  - ❌ `getCommitContext(sessionId)`\n  - ❌ `listSessions(filter)`\n\n### 5. **Package Versions** ✅ VERIFIED\nAll 5 packages at **v0.4.1** (matches plan&#39;s \&quot;Done\&quot; section):\n- `@openmnemo/types` v0.4.1\n- `@openmnemo/core` v0.4.1\n- `@openmnemo/sync` v0.4.1\n- `@openmnemo/report` v0.4.1\n- `@openmnemo/cli` v0.4.1\n\n### 6. **Test Count** ✅ VERIFIED\n- **Total Test Cases:** ~855 test/describe/it statements across 37 test files\n- **Breakdown:**\n  - Core: 8 test files (recall, transcript subdirs)\n  - Sync: 1 test dir (heartbeat)\n  - Report: 7 test files (build, i18n, stats, summarize, tags, deploy)\n  - CLI: 9 test files (cli, helpers, project subdirs)\n- **Coverage Target:** 80%+ (configured in vitest.config.ts with `testTimeout: 15000`)\n- **Memory claim:** \&quot;~602 tests\&quot; — actual count is higher (~855 statements)\n\n### 7. **Heartbeat/Daemon** ✅ IMPLEMENTED\n**File:** `/d/demo1/openmnemo/packages/sync/src/heartbeat.ts`\n\n- **Functionality:** Single-execution, stateless, idempotent heartbeat\n- **Features:**\n  - Per-project transcript discovery and import\n  - Sensitive pattern scanning (detects API keys, tokens, passwords)\n  - Git commit + push on new imports\n  - Report generation (if `generate_report: true`)\n  - Lock-based concurrency control\n- **Config Fields:** `heartbeat_interval`, `auto_push`, `log_level`, `generate_report`, `locale`, `ai_summary_model`, `gh_pages_branch`, `cname`, `webhook_url`, `report_base_url`\n- **CLI Integration:** `openmnemo daemon install/status/run-once/uninstall` (cross-platform: cron/launchd/schtasks)\n\n### 8. **Plugin System** ❌ NOT IMPLEMENTED\n**Search Results:** No references to \&quot;plugin\&quot;, \&quot;Plugin\&quot;, \&quot;reasoning\&quot;, \&quot;inference\&quot; in codebase\n\n- **Current Architecture:** Hardcoded 4 client parsers (Claude, Codex, Gemini, Doubao)\n- **Missing:** No plugin registration, loading, or isolation infrastructure\n- **Plan Status:** Listed as Milestone 3 (Phase 2) — \&quot;待启动\&quot; (pending)\n\n### 9. **Reasoning Engine** ❌ NOT IMPLEMENTED\n**Search Results:** Only found `SKIP_BLOCK_TYPES` containing `&#39;thinking&#39;` and `&#39;reasoning&#39;` (for filtering transcript blocks)\n\n- **Current State:** No reasoning/inference engine code\n- **Plan Status:** Listed as Milestone 2 (Phase 1) — \&quot;待启动\&quot; (pending)\n- **Planned Approach:** Fork/adapt EvoScientist architecture (per goal_v002)\n\n### 10. **npm Token Security** ⚠️ POTENTIAL ISSUE\n**Findings:**\n- ❌ No `.npmrc` file found in repo (good — tokens not committed)\n- ⚠️ **Plan flags urgent action:** \&quot;轮换 npm token（历史 session 中曾暴露，立即处理）\&quot; — token rotation needed\n- **CI/CD:** Uses `NPM_TOKEN` secret in GitHub Actions (SHA-pinned, dependabot.yml configured)\n- **Recommendation:** Rotate npm token immediately; audit publish history\n\n---\n\n## Summary: Plan vs. Reality\n\n| Item | Plan Claims | Actual Status |\n|------|-------------|---------------|\n| FTS Search | ✅ Done | ✅ Partial (title/cwd/branch only; missing content + commit_layer) |\n| Git Commit Index | ❌ In Progress | ❌ Not started |\n| GiteaAdapter | ✅ Done | ✅ Implemented, but no E2E tests or docs |\n| DataLayerAPI | ❌ In Progress | ❌ Not defined |\n| Package Versions | ✅ v0.4.1 | ✅ Verified |\n| Test Count | ✅ ~602 | ✅ ~855 (higher than claimed) |\n| Heartbeat/Daemon | ✅ Done | ✅ Fully implemented |\n| Plugin System | ❌ Phase 2 | ❌ Not started |\n| Reasoning Engine | ❌ Phase 1 | ❌ Not started |\n| npm Token | ⚠️ Urgent | ⚠️ Needs rotation (flagged in plan) |\n\n**Critical Gap:** The plan&#39;s \&quot;Done\&quot; section claims GiteaAdapter is complete, but lacks end-to-end tests and configuration documentation. FTS is partially done (missing content + commit_layer fields). DataLayerAPI is not defined despite being listed as \&quot;In Progress.\&quot;&quot;,
+    &quot;type&quot;: &quot;text&quot;
+  },
+  {
+    &quot;type&quot;: &quot;text&quot;,
+    &quot;text&quot;: &quot;agentId: a119342d3df59978f (use SendMessage with to: &#39;a119342d3df59978f&#39; to continue this agent)\n&lt;usage&gt;total_tokens: 40066\ntool_uses: 48\nduration_ms: 135755&lt;/usage&gt;&quot;
+  }
+]</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant 审计完成，以下是 Goal v002 + Todo v002_001 与代码库实际状态的对照分析： --- ## 一、Goal v002 方案审计 方案整体结构清晰，分层逻辑（数据→存储→推理→协作→插件）合理，商业模式参考 GitLab CE/EE 是成熟路径。几个值得注意的点： 1. 竞品对比中 Mem0 的差异写的是&quot;Git 版本历史 + 跨客户端 + 离线&quot;，但目前 Git commit 关联索引还没实现，这个差异化优势暂时只存在于规划中，不是已交付能力。 2. &quot;不做向量数据库（SQLite FTS 够用）&quot;这个非目标判断在 Phase 0-1 是对的，但到推理层做跨 session 记忆推断时，纯 FTS 可能不够——语义相似性检索是 FTS 的弱项。建议在 Phase 1 启动时重新评估。 3. Phase 时间线（Phase 1 三个月内、Phase 2 三到六个月）偏乐观，尤其是推理层..." id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#10</span>
+      
+      <span class="timeline-time">08:50:56</span>
+    </div>
+    <p class="event-preview">审计完成，以下是 Goal v002 + Todo v002_001 与代码库实际状态的对照分析： --- ## 一、Goal v002 方案审计 方案整体结构清晰，分层逻辑（数据→存储→推理→协作→插件）合理，商业模式参考 GitLab CE/EE 是成熟路径。几个值得注意的点： 1. 竞品对比中 Mem0 的差异写的是&quot;Git 版本历史 + 跨客户端 + 离线&quot;，但目前 Git commit 关联索引还没实现，这个差异化优势暂...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>审计完成，以下是 Goal v002 + Todo v002_001 与代码库实际状态的对照分析：</p><p>---</p><p>## 一、Goal v002 方案审计</p><p>方案整体结构清晰，分层逻辑（数据→存储→推理→协作→插件）合理，商业模式参考 GitLab CE/EE 是成熟路径。几个值得注意的点：</p><p>1. 竞品对比中 Mem0 的差异写的是&quot;Git 版本历史 + 跨客户端 + 离线&quot;，但目前 Git commit 关联索引还没实现，这个差异化优势暂时只存在于规划中，不是已交付能力。</p><p>2. &quot;不做向量数据库（SQLite FTS 够用）&quot;这个非目标判断在 Phase 0-1 是对的，但到推理层做跨 session 记忆推断时，纯 FTS 可能不够——语义相似性检索是 FTS 的弱项。建议在 Phase 1 启动时重新评估。</p><p>3. Phase 时间线（Phase 1 三个月内、Phase 2 三到六个月）偏乐观，尤其是推理层要 fork EvoScientist + 做跨 session 推断 + Webhook 富文本，三个月内 MVP 需要非常聚焦。</p><p>---</p><p>## 二、Todo v002_001 与代码实际状态对照</p><p>| Todo 项 | 声称状态 | 实际状态 | 差异 |<br>|---------|---------|---------|------|<br>| npm token 轮换 | 紧急待办 | ⚠️ 未处理 | 仍需立即执行 |<br>| FTS 全文检索 | In Progress | 部分完成 | 当前只索引 title/cwd/branch，缺 content 和 commit_layer |<br>| Git Commit 关联索引 | In Progress | 未开始 | 无 git log 解析、无 commit_index 表、无关联算法 |<br>| GiteaAdapter 完整链路 | Done 区暗示已完成 | 代码存在但无 E2E 测试、无配置文档 | Done 区过早声明 |<br>| DataLayerAPI 接口定义 | In Progress | 未开始 | types/core 中无此接口 |<br>| 包版本 v0.4.1 | Done | ✅ 确认一致 | — |<br>| 测试 ~602 | Done | 实际 ~855 | 数字过时，应更新 |<br>| 心跳守护进程 | Done | ✅ 已实现 | — |<br>| HTML 报告生成 | Done | ✅ 已实现 | — |</p><p>---</p><p>## 三、关键问题</p><p>1. <strong>npm token 轮换标记为&quot;先于一切执行&quot;但仍未处理</strong>——这是真正的安全风险，应该在做任何功能开发之前完成。</p><p>2. <strong>Done 区的 GiteaAdapter 声明不准确</strong>——代码实现了但没有 E2E 测试和文档，不应算作&quot;完成&quot;。建议移回 In Progress 或加子任务。</p><p>3. <strong>MEMORY.md 中版本号过时</strong>——记录的是 v0.2.2，实际已经是 v0.4.1，测试数也从 602 涨到 855。</p><p>4. <strong>Milestone 1 的四个子任务（FTS/Git索引/Gitea验证/API定义）全部未完成</strong>，但 Todo 标记为 In Progress，实际只有 FTS 有部分基础代码（FTS4 表结构存在但字段不全），其余三个是零进度。</p><p>---</p><p>## 四、建议调整</p><p>1. 立即轮换 npm token，不要再拖。<br>2. 把 GiteaAdapter 从 Done 移到 In Progress，补 E2E 测试 + 配置文档。<br>3. 更新 MEMORY.md 的版本号和测试数。<br>4. Milestone 1 的优先级排序建议：FTS content 字段 → DataLayerAPI 接口定义 → Git commit 索引 → Gitea E2E，因为 API 接口定义越早越好，后续推理层依赖它。<br>5. Phase 1 时间线建议加 buffer，或者砍掉 Webhook 富文本卡片放到 Phase 1.5。</p><p>需要我帮你更新 Todo 文件或 MEMORY.md 吗？</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 我们已经更换了npm token了吧 什么是npm token" id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#11</span>
+      
+      <span class="timeline-time">09:19:02</span>
+    </div>
+    <div class="message-body"><p>我们已经更换了npm token了吧  什么是npm token</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant 关于第一个问题：Todo 文件里那个复选框还是 `[ ]` 未勾选状态，但文件可能没及时更新。你自己最清楚是否去 npm 网站上轮换过——如果已经换了，只需要把那行标记为 `[x]` 就行。 --- **什么是 npm token** npm token 是 npm（Node.js 包管理平台）颁发的访问凭证，用于在命令行或 CI/CD 流水线中以你的账户身份执行操作，最常见的用途是发布包（`npm publish`）。 它的工作方式： - 你登录 npm 网站，在账户设置里生成一个 token（一串随机字符串） - 把这个 token 配置在 CI/CD（比如 GitHub Actions secrets 里的 `NPM_TOKEN`） - 流水线运行 `npm publish` 时，用这个 token 代替密码进行身份验证 **为什么之前要求轮换？** 因为 token 曾经在 session 对话..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#12</span>
+      
+      <span class="timeline-time">09:19:25</span>
+    </div>
+    <div class="message-body"><p>关于第一个问题：Todo 文件里那个复选框还是 <code>[ ]</code> 未勾选状态，但文件可能没及时更新。你自己最清楚是否去 npm 网站上轮换过——如果已经换了，只需要把那行标记为 <code>[x]</code> 就行。</p><p>---</p><p><strong>什么是 npm token</strong></p><p>npm token 是 npm（Node.js 包管理平台）颁发的访问凭证，用于在命令行或 CI/CD 流水线中以你的账户身份执行操作，最常见的用途是发布包（<code>npm publish</code>）。</p><p>它的工作方式：<br>- 你登录 npm 网站，在账户设置里生成一个 token（一串随机字符串）<br>- 把这个 token 配置在 CI/CD（比如 GitHub Actions secrets 里的 <code>NPM_TOKEN</code>）<br>- 流水线运行 <code>npm publish</code> 时，用这个 token 代替密码进行身份验证</p><p><strong>为什么之前要求轮换？</strong></p><p>因为 token 曾经在 session 对话记录里出现过（比如命令输出或配置内容被记录进了对话文件里）。一旦 token 泄露，任何拿到它的人都可以：<br>- 以你的名义发布新版本的包<br>- 覆盖已有版本（如果是 automation token）<br>- 污染供应链</p><p><strong>轮换的操作</strong>：<br>1. 去 [npmjs.com](https://www.npmjs.com) → Account Settings → Access Tokens → 删除旧 token，生成新 token<br>2. 在 GitHub 仓库 Settings → Secrets → 把 <code>NPM_TOKEN</code> 的值替换为新 token</p><p>如果你已经做了，在 todo 里把那行勾掉就好。</p></div>
+  </div>
+</article>
+<article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 我们要做向量化的，单纯的sqlite是不行的 你查询一下这个开源仓库 evoscientist是做什么的 看看他的记忆结构" id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#13</span>
+      
+      <span class="timeline-time">09:47:14</span>
+    </div>
+    <div class="message-body"><p>我们要做向量化的，单纯的sqlite是不行的  你查询一下这个开源仓库 evoscientist是做什么的  看看他的记忆结构</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_3aadb667c41d4a08be13bd57 WebSearch input={&quot;query&quot;:&quot;EvoScientist open source GitHub repository AI scientist memory structure&quot;}" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_3aadb667c41d4a08be13bd57</span>
+      <span class="timeline-time">09:47:22</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;EvoScientist open source GitHub repository AI scientist memory structure&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;EvoScientist open source GitHub repository AI scientist memory structure&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_3aadb667c41d4a08be13bd57 WebSearch output=Web search results for query: &quot;EvoScientist open source GitHub repository AI scientist memory structure&quot; REMINDER: You MUST include the sources above in your response to the use..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_3aadb667c41d4a08be13bd57</span>
+      
+      <span class="timeline-time">09:47:28</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;EvoScientist open source GitHub repository AI scientist memory structure&quot; REMINDER: You MUST include the sources above in your response to the use...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;EvoScientist open source GitHub repository AI scientist memory structure&quot;
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_3f1e43bf89c04fdaa6d40aa4 WebSearch input={&quot;query&quot;:&quot;EvoScientist GitHub AI autonomous research agent&quot;}" id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_3f1e43bf89c04fdaa6d40aa4</span>
+      <span class="timeline-time">09:47:37</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;EvoScientist GitHub AI autonomous research agent&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;EvoScientist GitHub AI autonomous research agent&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_3f1e43bf89c04fdaa6d40aa4 WebSearch output=Web search results for query: &quot;EvoScientist GitHub AI autonomous research agent&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperli..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_3f1e43bf89c04fdaa6d40aa4</span>
+      
+      <span class="timeline-time">09:47:42</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;EvoScientist GitHub AI autonomous research agent&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperli...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;EvoScientist GitHub AI autonomous research agent&quot;
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_5ce0bac231254594be2d751f WebSearch input={&quot;query&quot;:&quot;EvoScientist evoscientist github.com&quot;}" id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_5ce0bac231254594be2d751f</span>
+      <span class="timeline-time">09:47:53</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;EvoScientist evoscientist github.com&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;EvoScientist evoscientist github.com&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_5ce0bac231254594be2d751f WebSearch output=Web search results for query: &quot;EvoScientist evoscientist github.com&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks." id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_5ce0bac231254594be2d751f</span>
+      
+      <span class="timeline-time">09:48:00</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;EvoScientist evoscientist github.com&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;EvoScientist evoscientist github.com&quot;
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch toolu_e87bb1df4f494228a991c56d WebFetch input={&quot;prompt&quot;:&quot;Find the EvoScientist repository, its description, purpose, and any information about its memory or knowledge structure&quot;,&quot;url&quot;:&quot;https://github.com/topics/evoscientist&quot;}" id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">toolu_e87bb1df4f494228a991c56d</span>
+      <span class="timeline-time">09:48:07</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Find the EvoScientist repository, its description, purpose, and any information about its memory or knowledge structure&quot;,&quot;url&quot;:&quot;https://github.com/topics/evoscientist&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/topics/evoscientist&quot;,
+  &quot;prompt&quot;: &quot;Find the EvoScientist repository, its description, purpose, and any information about its memory or knowledge structure&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch toolu_e87bb1df4f494228a991c56d WebFetch output=Based on the page content you shared, the GitHub topic page for **evoscientist** contains no repositories. The page states only that &quot;The evoscientist topic hasn&#39;t been used on ..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">toolu_e87bb1df4f494228a991c56d</span>
+      
+      <span class="timeline-time">09:48:16</span>
+    </div>
+    <div class="timeline-title">WebFetch output=Based on the page content you shared, the GitHub topic page for **evoscientist** contains no repositories. The page states only that &quot;The evoscientist topic hasn&#39;t been used on ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Based on the page content you shared, the GitHub topic page for **evoscientist** contains no repositories. The page states only that &quot;The evoscientist topic hasn&#39;t been used on any public repositories, yet.&quot;
+
+There is no repository, description, purpose, or memory/knowledge structure information available from this source. The topic exists as a GitHub label but has not been applied to any public project.
+
+If you are looking for a specific project called EvoScientist, you may want to:
+
+- Search directly on GitHub using the search bar for repositories named &quot;evoscientist&quot;
+- Check if the repository is private or under a specific organization
+- Look for related topics or alternative spellings
+
+I cannot provide details about EvoScientist&#39;s purpose or architecture from this page, as it contains none.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_27e7f750d3f54e7eafebaade WebSearch input={&quot;query&quot;:&quot;\&quot;AI Scientist\&quot; open source autonomous research memory architecture github 2024 2025&quot;}" id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_27e7f750d3f54e7eafebaade</span>
+      <span class="timeline-time">09:48:27</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;\&quot;AI Scientist\&quot; open source autonomous research memory architecture github 2024 2025&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;\&quot;AI Scientist\&quot; open source autonomous research memory architecture github 2024 2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_27e7f750d3f54e7eafebaade WebSearch output=Web search results for query: &quot;&quot;AI Scientist&quot; open source autonomous research memory architecture github 2024 2025&quot; &lt;thinking&gt; The user is asking me to perform a web search, but..." id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_27e7f750d3f54e7eafebaade</span>
+      
+      <span class="timeline-time">09:48:33</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;&quot;AI Scientist&quot; open source autonomous research memory architecture github 2024 2025&quot; &lt;thinking&gt; The user is asking me to perform a web search, but...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;&quot;AI Scientist&quot; open source autonomous research memory architecture github 2024 2025&quot;
+
+&lt;thinking&gt;
+The user is asking me to perform a web search, but I am Claude, an AI assistant by Anthropic
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch toolu_a6f204b5d5494ae5a80917f8 WebFetch input={&quot;prompt&quot;:&quot;List all repositories found, their descriptions, stars, and any details about memory structure or architecture&quot;,&quot;url&quot;:&quot;https://github.com/search?q=evoscientist&amp;type=r..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">toolu_a6f204b5d5494ae5a80917f8</span>
+      <span class="timeline-time">09:48:42</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;List all repositories found, their descriptions, stars, and any details about memory structure or architecture&quot;,&quot;url&quot;:&quot;https://github.com/search?q=evoscientist&amp;type=r...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/search?q=evoscientist&amp;type=repositories&quot;,
+  &quot;prompt&quot;: &quot;List all repositories found, their descriptions, stars, and any details about memory structure or architecture&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch toolu_a6f204b5d5494ae5a80917f8 WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub search results for &quot;evoscientist,&quot; here are the repositories found: **1. EvoScientist/EvoScientist** - Description: &quot;🔬 Harness Vibe Re..." id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">toolu_a6f204b5d5494ae5a80917f8</span>
+      
+      <span class="timeline-time">09:48:55</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub search results for &quot;evoscientist,&quot; here are the repositories found: **1. EvoScientist/EvoScientist** - Description: &quot;🔬 Harness Vibe Re...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5. Based on the GitHub search results for &quot;evoscientist,&quot; here are the repositories found:
+
+**1. EvoScientist/EvoScientist**
+- Description: &quot;🔬 Harness Vibe Research with Self-evolving AI Scientists&quot;
+- Language: Python
+- Stars: 1.1k
+- Topics: multi-agent-system, ai-agent, ai4science, vibe-research
+- Updated: 7 minutes ago
+
+**2. EvoScientist/EvoSkills**
+- Description: &quot;🧬 Extend EvoScientist with Installable Skill &amp; Knowledge Packs&quot;
+- Language: TeX
+- Stars: 35
+- Topics: skills, ai-agent, ai4science
+- Updated: 1 hour ago
+
+**3. EvoScientist/EvoScientist.github.io**
+- Description: Official website for autonomous scientific discovery using self-evolving AI scientists
+- Language: HTML
+- Stars: 0
+- Updated: yesterday
+
+**4. InNoPuzzLevaTion/evosci-interface-skill**
+- Description: &quot;Portable AgentSkill for using local EvoSci/EvoScientist as a research scout&quot;
+- Stars: 1
+- Updated: yesterday
+
+The search didn&#39;t reveal specific details about memory structure or architecture in the available content. The main repository appears to be the Python-based EvoScientist project focused on multi-agent systems for scientific research.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_ywlcpLLUXVr61yo1PeBYHj WebFetch input={&quot;prompt&quot;:&quot;Read the full README. I need to understand: 1) What is EvoScientist&#39;s purpose and architecture? 2) How does it handle memory/knowledge storage? 3) What is its memory ..." id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_ywlcpLLUXVr61yo1PeBYHj</span>
+      <span class="timeline-time">09:49:14</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Read the full README. I need to understand: 1) What is EvoScientist&#39;s purpose and architecture? 2) How does it handle memory/knowledge storage? 3) What is its memory ...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Read the full README. I need to understand: 1) What is EvoScientist&#39;s purpose and architecture? 2) How does it handle memory/knowledge storage? 3) What is its memory structure (vector DB, graph, files)? 4) How does it do cross-session memory or knowledge retrieval? 5) What LLM providers does it support? 6) How does the multi-agent system work?&quot;,
+  &quot;url&quot;: &quot;https://github.com/EvoScientist/EvoScientist&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_I87lcZjVpwZ0AzxsFRKgkH WebFetch input={&quot;prompt&quot;:&quot;Read the full README. I need to understand: 1) What are EvoSkills? 2) How do skills relate to memory/knowledge? 3) What is the skill pack structure? 4) How does knowl..." id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_I87lcZjVpwZ0AzxsFRKgkH</span>
+      <span class="timeline-time">09:49:14</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Read the full README. I need to understand: 1) What are EvoSkills? 2) How do skills relate to memory/knowledge? 3) What is the skill pack structure? 4) How does knowl...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Read the full README. I need to understand: 1) What are EvoSkills? 2) How do skills relate to memory/knowledge? 3) What is the skill pack structure? 4) How does knowledge persistence work?&quot;,
+  &quot;url&quot;: &quot;https://github.com/EvoScientist/EvoSkills&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_ywlcpLLUXVr61yo1PeBYHj WebFetch output=I&#39;m Claude Haiku 4.5. Based on the README content you provided, here&#39;s what I found: **Purpose &amp; Architecture** EvoScientist is a self-evolving AI research system. It aims to &quot;h..." id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_ywlcpLLUXVr61yo1PeBYHj</span>
+      
+      <span class="timeline-time">09:49:32</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5. Based on the README content you provided, here&#39;s what I found: **Purpose &amp; Architecture** EvoScientist is a self-evolving AI research system. It aims to &quot;h...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5. Based on the README content you provided, here&#39;s what I found:
+
+**Purpose &amp; Architecture**
+EvoScientist is a self-evolving AI research system. It aims to &quot;harness vibe research by enabling self-evolving AI scientists that autonomously explore, generate insights, and iteratively improve.&quot; The system uses a multi-agent team with 6 specialized sub-agents: plan, research, code, debug, analyze, and write.
+
+**Memory &amp; Knowledge Storage**
+The README mentions &quot;persistent memory&quot; as a core feature where &quot;context, preferences, and findings survive across sessions.&quot; However, the specific technical implementation—whether it uses vector databases, graph structures, or file-based storage—isn&#39;t detailed in this README excerpt.
+
+**Cross-Session Memory**
+The system supports session resumption through commands like `/resume` and `/threads` to list recent sessions, suggesting memory persists between interactions, though the underlying mechanism isn&#39;t explicitly described.
+
+**LLM Provider Support**
+EvoScientist supports multiple providers: Anthropic (Claude), OpenAI (GPT), Google (Gemini), and NVIDIA (NIM). Users can switch between them with a single configuration change.
+
+**Multi-Agent System**
+The six sub-agents work &quot;in concert&quot; on a scientific workflow: intake → plan → execute → evaluate → write → verify. The system also supports MCP (Model Context Protocol) integration and installable skills for extended functionality.
+
+The README emphasizes a &quot;human-on-the-loop&quot; approach rather than traditional human-in-the-loop systems.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_I87lcZjVpwZ0AzxsFRKgkH WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub page content you shared, here&#39;s what I understand about EvoSkills: **What are EvoSkills?** EvoSkills are installable knowledge packs th..." id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#29</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_I87lcZjVpwZ0AzxsFRKgkH</span>
+      
+      <span class="timeline-time">09:49:43</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub page content you shared, here&#39;s what I understand about EvoSkills: **What are EvoSkills?** EvoSkills are installable knowledge packs th...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5. Based on the GitHub page content you shared, here&#39;s what I understand about EvoSkills:
+
+**What are EvoSkills?**
+
+EvoSkills are installable knowledge packs that extend EvoScientist (an AI research agent) with specialized capabilities. The repository contains 10 skills spanning research ideation through paper publication, plus a self-evolution layer.
+
+**How skills relate to memory/knowledge:**
+
+Skills feed into and draw from a persistent memory system. The `evo-memory` skill maintains two memory stores—Ideation Memory and Experimentation Memory—that accumulate learnings across research cycles. As the docs state: &quot;skills evolve across research cycles through persistent memory (evo-memory).&quot;
+
+**Skill pack structure:**
+
+Skills organize into three phases:
+- Research phase (`research-ideation`, `idea-tournament`)
+- Experiment phase (`paper-planning`, `experiment-pipeline`, `experiment-craft`)
+- Writing phase (`paper-writing`, `paper-review`, `paper-rebuttal`, `academic-slides`)
+
+Each skill is self-contained but designed to work together sequentially.
+
+**Knowledge persistence:**
+
+Three evolution mechanisms update memory after each cycle: IDE (Idea Direction Evolution), IVE (Idea Validation Evolution), and ESE (Experiment Strategy Evolution). These mechanisms extract patterns from completed research cycles and feed insights back into memory for future ideation and experimentation phases.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_48O9iiBMUp551PyIPIx51d WebFetch input={&quot;prompt&quot;:&quot;I need to find the actual memory implementation code. Look for: 1) How evo-memory skill stores data (vector DB? files? SQLite?) 2) The Ideation Memory and Experimenta..." id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#30</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_48O9iiBMUp551PyIPIx51d</span>
+      <span class="timeline-time">09:49:54</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;I need to find the actual memory implementation code. Look for: 1) How evo-memory skill stores data (vector DB? files? SQLite?) 2) The Ideation Memory and Experimenta...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;I need to find the actual memory implementation code. Look for: 1) How evo-memory skill stores data (vector DB? files? SQLite?) 2) The Ideation Memory and Experimentation Memory data structures 3) How IDE/IVE/ESE evolution mechanisms work technically 4) Any embedding or vector search code&quot;,
+  &quot;url&quot;: &quot;https://github.com/EvoScientist/EvoSkills/tree/main/skills/evo-memory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_48O9iiBMUp551PyIPIx51d WebFetch output=I can see this is a GitHub repository page for EvoSkills, but the content provided only shows the directory structure of the `skills/evo-memory` folder, not the actual implement..." id="event-30">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#31</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_48O9iiBMUp551PyIPIx51d</span>
+      
+      <span class="timeline-time">09:50:06</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I can see this is a GitHub repository page for EvoSkills, but the content provided only shows the directory structure of the `skills/evo-memory` folder, not the actual implement...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I can see this is a GitHub repository page for EvoSkills, but the content provided only shows the directory structure of the `skills/evo-memory` folder, not the actual implementation code.
+
+From what&#39;s visible, the evo-memory skill contains:
+- `assets/` directory
+- `references/` directory  
+- `SKILL.md` file
+
+To find the technical implementation details you&#39;re looking for (data storage mechanisms, memory data structures, evolution algorithms, and vector search code), I&#39;d need to access the actual files within these directories, particularly the `SKILL.md` documentation and any code files in the `assets/` or `references/` folders.
+
+Could you share the contents of the `SKILL.md` file or point me to specific implementation files? That would let me identify how the memory system actually works technically.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_eKYP5uhAstALyTqMEYoR9f WebFetch input={&quot;prompt&quot;:&quot;Read the full content of this SKILL.md file. I need to understand: 1) How memory is stored (vector DB, files, SQLite?) 2) Ideation Memory and Experimentation Memory d..." id="event-31">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#32</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_eKYP5uhAstALyTqMEYoR9f</span>
+      <span class="timeline-time">09:50:16</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Read the full content of this SKILL.md file. I need to understand: 1) How memory is stored (vector DB, files, SQLite?) 2) Ideation Memory and Experimentation Memory d...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Read the full content of this SKILL.md file. I need to understand: 1) How memory is stored (vector DB, files, SQLite?) 2) Ideation Memory and Experimentation Memory data structures 3) How IDE/IVE/ESE evolution mechanisms work 4) Any embedding or retrieval logic&quot;,
+  &quot;url&quot;: &quot;https://raw.githubusercontent.com/EvoScientist/EvoSkills/main/skills/evo-memory/SKILL.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_eKYP5uhAstALyTqMEYoR9f WebFetch output=# Evo-Memory: Storage, Structure, and Evolution ## Storage Mechanism Memory is stored as **markdown files** in the local filesystem: - **Ideation Memory (M_I)**: `/memory/ideati..." id="event-32">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#33</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_eKYP5uhAstALyTqMEYoR9f</span>
+      
+      <span class="timeline-time">09:50:32</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Evo-Memory: Storage, Structure, and Evolution ## Storage Mechanism Memory is stored as **markdown files** in the local filesystem: - **Ideation Memory (M_I)**: `/memory/ideati...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Evo-Memory: Storage, Structure, and Evolution
+
+## Storage Mechanism
+
+Memory is stored as **markdown files** in the local filesystem:
+- **Ideation Memory (M_I)**: `/memory/ideation-memory.md`
+- **Experimentation Memory (M_E)**: `/memory/experiment-memory.md`
+- **Evolution Reports**: `/memory/evolution-reports/cycle_N_type.md`
+
+No vector database or SQLite is mentioned. The system uses &quot;embedding-based retrieval with cosine similarity&quot; conceptually, but in practice relies on &quot;semantic comparison by reading each entry&#39;s Summary/Context and Retrieval Tags.&quot;
+
+## Data Structures
+
+**Ideation Memory (M_I)** tracks research directions across two sections:
+
+| Section | Content |
+|---------|---------|
+| Feasible Directions | Promising areas with evidence (cycle number, results) |
+| Unsuccessful Directions | Failed directions classified as implementation or fundamental failure |
+
+Each entry records: direction name, summary, evidence, classification type, and date.
+
+**Experimentation Memory (M_E)** stores technical strategies in four sections:
+
+| Section | Purpose |
+|---------|---------|
+| Data Processing Strategies | Preprocessing and augmentation patterns |
+| Model Training Strategies | Hyperparameters, training tricks, schedules |
+| Architecture Strategies | Design choices and structural patterns |
+| Debugging Strategies | Diagnostic approaches that resolved failures |
+
+Each entry includes: strategy name, context (when applicable), evidence, generality assessment, and date.
+
+## Evolution Mechanisms
+
+**IDE (Idea Direction Evolution)**: Triggered after `idea-tournament` completes. Extracts promising directions using a paper prompt, abstracts them to reusable levels, and updates M_I with new or modified entries.
+
+**IVE (Idea Validation Evolution)**: Triggered when experiments fail (no executable code or underperformance). Classifies failures as implementation or fundamental using diagnostic questions, then updates M_I accordingly. &quot;If a direction has been classified as &#39;implementation failure&#39; 3 times across different cycles, escalate to careful re-evaluation.&quot;
+
+**ESE (Experiment Strategy Evolution)**: Triggered after successful `experiment-pipeline` completion. Extracts data processing and model training strategies from trajectory logs using a paper prompt, assesses generality, and updates M_E.
+
+## Retrieval Logic
+
+The system uses **semantic similarity matching** rather than automated embeddings:
+- For `idea-tournament`: Select top-k_I=2 entries by comparing user goal against entry summaries and retrieval tags
+- For `experiment-pipeline`: Select top-k_E=1 entry by comparing experiment domain against entry context
+
+&quot;Don&#39;t blindly apply old strategies. Context matters.&quot;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant ## EvoScientist 是什么 **EvoScientist** 是一个自主科研 AI 系统（1.1k stars，非常新），核心定位是&quot;自进化 AI 科学家&quot;：给定一个研究课题，6 个 sub-agent（plan/research/code/debug/analyze/write）协作完成从构思到论文的完整科研流程。 --- ## 记忆结构分析 关键发现：**EvoScientist 的记忆不是向量数据库，而是 Markdown 文件 + LLM 语义匹配。** ``` /memory/ ideation-memory.md ← 研究方向记忆（可行 + 失败方向） experiment-memory.md ← 实验策略记忆（数据处理/训练/架构/调试） evolution-reports/ cycle_N_type.md ← 每轮进化报告 ``` **两类记忆：** | 记忆类型 | 存储内..." id="event-33">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#34</span>
+      
+      <span class="timeline-time">09:51:06</span>
+    </div>
+    <div class="message-body"><p>## EvoScientist 是什么</p><p><strong>EvoScientist</strong> 是一个自主科研 AI 系统（1.1k stars，非常新），核心定位是&quot;自进化 AI 科学家&quot;：给定一个研究课题，6 个 sub-agent（plan/research/code/debug/analyze/write）协作完成从构思到论文的完整科研流程。</p><p>---</p><p>## 记忆结构分析</p><p>关键发现：<strong>EvoScientist 的记忆不是向量数据库，而是 Markdown 文件 + LLM 语义匹配。</strong></p><pre><code>/memory/
+  ideation-memory.md       ← 研究方向记忆（可行 + 失败方向）
+  experiment-memory.md     ← 实验策略记忆（数据处理/训练/架构/调试）
+  evolution-reports/
+    cycle_N_type.md        ← 每轮进化报告
+</code></pre><p><strong>两类记忆：</strong></p><p>| 记忆类型 | 存储内容 | 触发更新时机 |<br>|---------|---------|------------|<br>| M_I 构思记忆 | 研究方向、成功/失败分类、证据 | idea-tournament 完成后 |<br>| M_E 实验记忆 | 数据处理策略、训练技巧、调试方法 | 实验完成/失败后 |</p><p><strong>&quot;语义检索&quot;实现方式</strong>：不是真正的 embedding 向量，而是让 LLM 读每条记录的 Summary 和 Retrieval Tags，用自然语言判断相似度，top-k=2 取最相关的。</p><p>---</p><p>## 对 OpenMnemo 的启示</p><p>EvoScientist 的记忆体系太轻量，不适合直接套用——它是为科研场景设计的，没有跨 session 海量对话检索的需求。</p><p>你说&quot;单纯 SQLite 不够，要做向量化&quot;，这个判断是对的。几个本地可自托管的向量方案供参考：</p><p>| 方案 | 特点 | 适合 OpenMnemo 的理由 |<br>|------|------|---------------------|<br>| <strong>sqlite-vec</strong> | SQLite 扩展，直接加列存向量 | 保持现有 SQLite 架构，最小改动 |<br>| <strong>LanceDB</strong> | 嵌入式，无服务器，支持向量 + 全文混合检索 | 无需额外进程，数据文件可 git 管理 |<br>| <strong>Qdrant</strong> | 功能最完整，需独立服务 | 适合团队/SaaS 版，个人版偏重 |</p><p><strong>推荐路径</strong>：Phase 0 先用 <code>sqlite-vec</code> 扩展现有 db.ts（保持数据层统一），Phase 1 推理层上线时再评估是否引入 LanceDB 做混合检索。</p><p>要我深入调研某个方案的实现细节吗？</p></div>
+  </div>
+</article>
+<article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 那现在非常火爆的openclaw 他的记忆体系呢" id="event-34">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#35</span>
+      
+      <span class="timeline-time">09:54:43</span>
+    </div>
+    <div class="message-body"><p>那现在非常火爆的openclaw 他的记忆体系呢</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_44b31fd082b6458b84bd5047 WebSearch input={&quot;query&quot;:&quot;openclaw AI memory system open source github 2025&quot;}" id="event-35">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#36</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_44b31fd082b6458b84bd5047</span>
+      <span class="timeline-time">09:55:03</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;openclaw AI memory system open source github 2025&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;openclaw AI memory system open source github 2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_44b31fd082b6458b84bd5047 WebSearch output=Web search results for query: &quot;openclaw AI memory system open source github 2025&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperl..." id="event-36">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#37</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_44b31fd082b6458b84bd5047</span>
+      
+      <span class="timeline-time">09:55:08</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;openclaw AI memory system open source github 2025&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperl...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;openclaw AI memory system open source github 2025&quot;
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_34caf13c821c43f687c20255 WebSearch input={&quot;query&quot;:&quot;openclaw github repository&quot;}" id="event-37">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#38</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_34caf13c821c43f687c20255</span>
+      <span class="timeline-time">09:55:19</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;openclaw github repository&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;openclaw github repository&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_34caf13c821c43f687c20255 WebSearch output=Web search results for query: &quot;openclaw github repository&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks." id="event-38">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#39</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_34caf13c821c43f687c20255</span>
+      
+      <span class="timeline-time">09:55:23</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;openclaw github repository&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;openclaw github repository&quot;
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_07228a9fd9ec4851a70bd0de WebSearch input={&quot;query&quot;:&quot;openclaw AI agent popular 2025 memory&quot;}" id="event-39">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#40</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_07228a9fd9ec4851a70bd0de</span>
+      <span class="timeline-time">09:55:41</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;openclaw AI agent popular 2025 memory&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;openclaw AI agent popular 2025 memory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_989b8f39abd24b79a039def2 WebSearch input={&quot;query&quot;:&quot;\&quot;open-claw\&quot; OR \&quot;open claw\&quot; AI agent github 2025&quot;}" id="event-40">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#41</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_989b8f39abd24b79a039def2</span>
+      <span class="timeline-time">09:55:41</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;\&quot;open-claw\&quot; OR \&quot;open claw\&quot; AI agent github 2025&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;\&quot;open-claw\&quot; OR \&quot;open claw\&quot; AI agent github 2025&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_989b8f39abd24b79a039def2 WebSearch output=Web search results for query: &quot;&quot;open-claw&quot; OR &quot;open claw&quot; AI agent github 2025&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks." id="event-41">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#42</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_989b8f39abd24b79a039def2</span>
+      
+      <span class="timeline-time">09:55:47</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;&quot;open-claw&quot; OR &quot;open claw&quot; AI agent github 2025&quot; REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;&quot;open-claw&quot; OR &quot;open claw&quot; AI agent github 2025&quot;
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_07228a9fd9ec4851a70bd0de WebSearch output=Web search results for query: &quot;openclaw AI agent popular 2025 memory&quot; &lt;thinking&gt; The user wants me to perform a web search for &quot;openclaw AI agent popular 2025 memory&quot;. I should ..." id="event-42">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#43</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_07228a9fd9ec4851a70bd0de</span>
+      
+      <span class="timeline-time">09:55:49</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;openclaw AI agent popular 2025 memory&quot; &lt;thinking&gt; The user wants me to perform a web search for &quot;openclaw AI agent popular 2025 memory&quot;. I should ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;openclaw AI agent popular 2025 memory&quot;
+
+&lt;thinking&gt;
+The user wants me to perform a web search for &quot;openclaw AI agent popular 2025 memory&quot;. I should use the web_search tool to do this. However, I only have access to Cursor documentation tools (read_file and read_dir),
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebSearch toolu_b65b5cc4c7cd4348a9aaa0e3 WebSearch input={&quot;query&quot;:&quot;opencode AI assistant made by Anthropic memory 2025 github trending&quot;}" id="event-43">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#44</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_b65b5cc4c7cd4348a9aaa0e3</span>
+      <span class="timeline-time">09:56:03</span>
+    </div>
+    <div class="timeline-title">WebSearch input={&quot;query&quot;:&quot;opencode AI assistant made by Anthropic memory 2025 github trending&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;query&quot;: &quot;opencode AI assistant made by Anthropic memory 2025 github trending&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebSearch toolu_b65b5cc4c7cd4348a9aaa0e3 WebSearch output=Web search results for query: &quot;opencode AI assistant made by Anthropic memory 2025 github trending&quot; I am Claude, an AI assistant by Anthropic, API Error: Claude&#39;s response excee..." id="event-44">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#45</span>
+      <span class="timeline-chip">WebSearch</span>
+      <span class="timeline-chip">toolu_b65b5cc4c7cd4348a9aaa0e3</span>
+      
+      <span class="timeline-time">09:56:11</span>
+    </div>
+    <div class="timeline-title">WebSearch output=Web search results for query: &quot;opencode AI assistant made by Anthropic memory 2025 github trending&quot; I am Claude, an AI assistant by Anthropic, API Error: Claude&#39;s response excee...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Web search results for query: &quot;opencode AI assistant made by Anthropic memory 2025 github trending&quot;
+
+I am Claude, an AI assistant by Anthropic, API Error: Claude&#39;s response exceeded the 32000 output token maximum. To configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment variable.
+
+
+REMINDER: You MUST include the sources above in your response to the user using markdown hyperlinks.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant 搜了五次，没找到叫 &quot;openclaw&quot; 的知名项目。可能是： 1. **名字拼写不同**？比如是 &quot;OpenClaw&quot; 某个具体项目？ 2. **你说的是另一个名字**？比如： - **OpenHands**（原 OpenDevin，非常火的 AI 编程 agent） - **Open Interpreter** - **OpenManus**（字节跳动的 Manus 开源版，最近很火） - **CrewAI / AutoGen / LangGraph** 你能确认一下具体名字，或者描述一下它是做什么的？这样我能更准确地找到它的记忆架构。" id="event-45">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#46</span>
+      
+      <span class="timeline-time">09:56:31</span>
+    </div>
+    <div class="message-body"><p>搜了五次，没找到叫 &quot;openclaw&quot; 的知名项目。可能是：</p><p>1. <strong>名字拼写不同</strong>？比如是 &quot;OpenClaw&quot; 某个具体项目？<br>2. <strong>你说的是另一个名字</strong>？比如：<br>   - <strong>OpenHands</strong>（原 OpenDevin，非常火的 AI 编程 agent）<br>   - <strong>Open Interpreter</strong><br>   - <strong>OpenManus</strong>（字节跳动的 Manus 开源版，最近很火）<br>   - <strong>CrewAI / AutoGen / LangGraph</strong></p><p>你能确认一下具体名字，或者描述一下它是做什么的？这样我能更准确地找到它的记忆架构。</p></div>
+  </div>
+</article>
+<article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user https://github.com/openclaw/openclaw" id="event-46">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#47</span>
+      
+      <span class="timeline-time">10:19:05</span>
+    </div>
+    <div class="message-body"><p>https://github.com/openclaw/openclaw</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch toolu_11c3e0567de34de88684c81a WebFetch input={&quot;prompt&quot;:&quot;Read the full README and any available documentation. I need to understand: 1) What is OpenClaw&#39;s purpose and architecture? 2) How does it handle memory/knowledge sto..." id="event-47">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#48</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">toolu_11c3e0567de34de88684c81a</span>
+      <span class="timeline-time">10:19:14</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Read the full README and any available documentation. I need to understand: 1) What is OpenClaw&#39;s purpose and architecture? 2) How does it handle memory/knowledge sto...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;url&quot;: &quot;https://github.com/openclaw/openclaw&quot;,
+  &quot;prompt&quot;: &quot;Read the full README and any available documentation. I need to understand: 1) What is OpenClaw&#39;s purpose and architecture? 2) How does it handle memory/knowledge storage? 3) What is its memory structure (vector DB, graph, files, SQLite)? 4) How does it do cross-session memory or knowledge retrieval? 5) What LLM providers does it support? 6) How does the multi-agent system work? 7) What makes it popular/unique?&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch toolu_11c3e0567de34de88684c81a WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub README content you provided, here&#39;s what I found: **Purpose &amp; Architecture** OpenClaw is &quot;a personal AI assistant you run on your own d..." id="event-48">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#49</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">toolu_11c3e0567de34de88684c81a</span>
+      
+      <span class="timeline-time">10:19:31</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5. Based on the GitHub README content you provided, here&#39;s what I found: **Purpose &amp; Architecture** OpenClaw is &quot;a personal AI assistant you run on your own d...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5. Based on the GitHub README content you provided, here&#39;s what I found:
+
+**Purpose &amp; Architecture**
+OpenClaw is &quot;a personal AI assistant you run on your own devices.&quot; It operates through a local-first Gateway (WebSocket control plane at `ws://127.0.0.1:18789`) that coordinates messaging channels, agents, and tools. The system connects to 20+ messaging platforms (WhatsApp, Telegram, Slack, Discord, etc.) and routes inbound messages to isolated agent workspaces.
+
+**Memory &amp; Knowledge Storage**
+The README doesn&#39;t detail a specific memory architecture. It mentions &quot;session model&quot; with a `main` session for direct chats and group isolation, plus &quot;session pruning&quot; as a concept, but doesn&#39;t specify whether it uses vector databases, graph stores, or file-based persistence for knowledge retrieval across sessions.
+
+**Cross-Session Memory**
+OpenClaw provides `sessions_*` tools (list, history, send) for agent-to-agent coordination, allowing one agent to query another&#39;s transcript logs and message other sessions. However, the README doesn&#39;t explain persistent knowledge retrieval mechanisms between separate conversations.
+
+**LLM Providers**
+It supports multiple models with &quot;model failover&quot; and &quot;auth profile rotation&quot; (OAuth vs API keys). OpenAI is listed as a sponsor, suggesting ChatGPT/Codex integration, but the docs reference &quot;many providers/models&quot; without exhaustive listing in this excerpt.
+
+**Multi-Agent System**
+The Gateway enables &quot;multi-agent routing&quot;—inbound channels route to isolated agents (workspaces + per-agent sessions). Agents coordinate via session tools rather than shared memory.
+
+**Popularity Drivers**
+The project has 324k stars. Its appeal stems from: local-first architecture, 20+ channel support, voice capabilities (Wake/Talk modes), Canvas visual workspace, and device node pairing (iOS/Android/macOS).</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant 找到了。OpenClaw 是个 **324k stars** 的项目，跟 OpenMnemo 的方向其实差异很大： --- ## OpenClaw 是什么 **定位**：本地优先的个人 AI 助手，核心是把 20+ 消息平台（WhatsApp/Telegram/Slack/Discord 等）统一接入，通过本地 Gateway 路由给 AI agent 处理。 **记忆体系**：README 里没有专门的跨 session 记忆架构。它的&quot;记忆&quot;是： - 每个 agent 有独立的 session workspace - `sessions_*` 工具让 agent 之间可以查对方的对话历史 - 本质是**对话记录的检索**，不是语义向量记忆 --- ## 对 OpenMnemo 的参考价值 | 维度 | OpenClaw | OpenMnemo | |------|---------|--------..." id="event-49">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#50</span>
+      
+      <span class="timeline-time">10:20:01</span>
+    </div>
+    <div class="message-body"><p>找到了。OpenClaw 是个 <strong>324k stars</strong> 的项目，跟 OpenMnemo 的方向其实差异很大：</p><p>---</p><p>## OpenClaw 是什么</p><p><strong>定位</strong>：本地优先的个人 AI 助手，核心是把 20+ 消息平台（WhatsApp/Telegram/Slack/Discord 等）统一接入，通过本地 Gateway 路由给 AI agent 处理。</p><p><strong>记忆体系</strong>：README 里没有专门的跨 session 记忆架构。它的&quot;记忆&quot;是：<br>- 每个 agent 有独立的 session workspace<br>- <code>sessions_*</code> 工具让 agent 之间可以查对方的对话历史<br>- 本质是<strong>对话记录的检索</strong>，不是语义向量记忆</p><p>---</p><p>## 对 OpenMnemo 的参考价值</p><p>| 维度 | OpenClaw | OpenMnemo |<br>|------|---------|-----------|<br>| 核心定位 | 多平台消息路由 + 本地 agent | AI 对话归档 + 记忆检索 |<br>| 记忆方式 | session transcript 查询 | FTS + 计划向量化 |<br>| 数据主权 | 本地 Gateway | 自托管 Gitea |<br>| 跨 session 推断 | 无 | 计划做（Phase 1）|</p><p>OpenClaw 的记忆体系对你们没有直接参考价值——它没有解决&quot;跨 session 语义检索&quot;这个问题，只是把对话记录存下来让 agent 能读。</p><p>---</p><p>## 真正值得参考的记忆架构</p><p>你们要做向量化，更值得看的是：</p><p>- <strong>Mem0</strong>（[github.com/mem0ai/mem0](https://github.com/mem0ai/mem0)）— 专门做 AI 记忆层，向量 + 图结构混合，跨 session 语义检索，这个和 OpenMnemo Phase 1 的目标最接近<br>- <strong>Letta/MemGPT</strong> — 分层记忆（in-context / external / archival），有完整的向量检索实现</p><p>要我去查 Mem0 的记忆结构吗？它是你们竞品里技术最接近的。</p></div>
+  </div>
+</article>
+<article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 去" id="event-50">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#51</span>
+      
+      <span class="timeline-time">10:25:01</span>
+    </div>
+    <div class="message-body"><p>去</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_KOVLDo3pDEYxXuMPfmQDa1 WebFetch input={&quot;prompt&quot;:&quot;Read the full README. I need to understand: 1) What is Mem0&#39;s architecture? 2) How does it store memories - vector DB, graph, files? 3) What is the memory data struct..." id="event-51">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#52</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_KOVLDo3pDEYxXuMPfmQDa1</span>
+      <span class="timeline-time">10:25:09</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Read the full README. I need to understand: 1) What is Mem0&#39;s architecture? 2) How does it store memories - vector DB, graph, files? 3) What is the memory data struct...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Read the full README. I need to understand: 1) What is Mem0&#39;s architecture? 2) How does it store memories - vector DB, graph, files? 3) What is the memory data structure? 4) How does cross-session retrieval work? 5) What embedding models does it support? 6) How does it handle memory updates/conflicts? 7) What makes it unique vs other memory systems?&quot;,
+  &quot;url&quot;: &quot;https://github.com/mem0ai/mem0&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_KOVLDo3pDEYxXuMPfmQDa1 WebFetch output=I&#39;m Claude Haiku 4.5. Based on the README content you provided, I can give you a partial answer, but the document doesn&#39;t contain detailed architectural information for most of ..." id="event-52">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#53</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_KOVLDo3pDEYxXuMPfmQDa1</span>
+      
+      <span class="timeline-time">10:25:19</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5. Based on the README content you provided, I can give you a partial answer, but the document doesn&#39;t contain detailed architectural information for most of ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5. Based on the README content you provided, I can give you a partial answer, but the document doesn&#39;t contain detailed architectural information for most of your questions.
+
+**What the README covers:**
+
+1. **Core concept**: Mem0 is described as a &quot;universal memory layer for AI Agents&quot; that enables personalized interactions by remembering user preferences and adapting over time.
+
+2. **Memory levels**: The system supports &quot;Multi-Level Memory: Seamlessly retains User, Session, and Agent state with adaptive personalization.&quot;
+
+3. **LLM integration**: It requires an LLM to function, with GPT-4.1-nano as the default, and &quot;supports a variety of LLMs&quot; per their documentation.
+
+4. **Basic retrieval**: The example shows `memory.search(query=message, user_id=user_id, limit=3)` for retrieving relevant memories.
+
+**What&#39;s NOT in this README:**
+
+The document doesn&#39;t detail:
+- Internal storage architecture (vector DB, graph, files)
+- Memory data structure specifications
+- Cross-session retrieval mechanisms
+- Supported embedding models
+- Conflict resolution strategies
+- Competitive differentiation
+
+For these architectural details, you&#39;d need to check their full documentation at https://docs.mem0.ai or explore the actual codebase in the repository. The README focuses on getting started rather than technical internals.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_rEogRcWVel3Ym72xDkP5jj WebFetch input={&quot;prompt&quot;:&quot;I need to understand Mem0&#39;s complete memory architecture: 1) How are memories stored internally (vector DB type, graph DB type)? 2) What is the memory extraction proc..." id="event-53">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#54</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_rEogRcWVel3Ym72xDkP5jj</span>
+      <span class="timeline-time">10:25:25</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;I need to understand Mem0&#39;s complete memory architecture: 1) How are memories stored internally (vector DB type, graph DB type)? 2) What is the memory extraction proc...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;I need to understand Mem0&#39;s complete memory architecture: 1) How are memories stored internally (vector DB type, graph DB type)? 2) What is the memory extraction process - how does it decide what to remember? 3) How does the graph memory work? 4) What embedding models are supported? 5) How does conflict/update resolution work? 6) What is the difference between managed (cloud) and self-hosted versions?&quot;,
+  &quot;url&quot;: &quot;https://docs.mem0.ai/overview&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_rEogRcWVel3Ym72xDkP5jj WebFetch output=Based on the documentation provided, I can only give you partial answers—the page you shared is an overview landing page, not a technical architecture deep-dive. **What the over..." id="event-54">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#55</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_rEogRcWVel3Ym72xDkP5jj</span>
+      
+      <span class="timeline-time">10:25:32</span>
+    </div>
+    <div class="timeline-title">WebFetch output=Based on the documentation provided, I can only give you partial answers—the page you shared is an overview landing page, not a technical architecture deep-dive. **What the over...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>Based on the documentation provided, I can only give you partial answers—the page you shared is an overview landing page, not a technical architecture deep-dive.
+
+**What the overview tells us:**
+
+The platform mentions it &quot;runs the vector store, graph services, and rerankers&quot; as managed infrastructure, but doesn&#39;t specify which vector DB or graph DB technologies power it. Memory extraction logic isn&#39;t detailed here either.
+
+Graph memory is listed as an &quot;advanced feature&quot; that&#39;s &quot;ready to enable,&quot; but the actual mechanics aren&#39;t explained on this page.
+
+Embedding models and conflict resolution strategies aren&#39;t covered in this overview content.
+
+**What you need:**
+
+The page itself points you toward deeper resources: &quot;Fetch the complete documentation index at: https://docs.mem0.ai/llms.txt&quot; and recommends exploring sections like &quot;Core Concepts,&quot; &quot;Platform Features,&quot; and &quot;Advanced Memory Operations&quot; for the architectural details you&#39;re after.
+
+To get answers to your six questions, you&#39;d need to access those linked documentation pages—this overview is intentionally high-level and business-focused rather than technically detailed. If you can fetch those deeper docs, I can help you parse the architecture specifics.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_qOGdV6UZ7GHPfEJ5DhAKap WebFetch input={&quot;prompt&quot;:&quot;Get the full content of this documentation index. List all available documentation pages and their URLs.&quot;,&quot;url&quot;:&quot;https://docs.mem0.ai/llms.txt&quot;}" id="event-55">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#56</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_qOGdV6UZ7GHPfEJ5DhAKap</span>
+      <span class="timeline-time">10:25:40</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Get the full content of this documentation index. List all available documentation pages and their URLs.&quot;,&quot;url&quot;:&quot;https://docs.mem0.ai/llms.txt&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Get the full content of this documentation index. List all available documentation pages and their URLs.&quot;,
+  &quot;url&quot;: &quot;https://docs.mem0.ai/llms.txt&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_qOGdV6UZ7GHPfEJ5DhAKap WebFetch output=# Mem0 Documentation Index Based on the provided content, here&#39;s a comprehensive list of all available documentation pages: ## Getting Started - Introduction - Platform Quicksta..." id="event-56">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#57</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_qOGdV6UZ7GHPfEJ5DhAKap</span>
+      
+      <span class="timeline-time">10:25:51</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Mem0 Documentation Index Based on the provided content, here&#39;s a comprehensive list of all available documentation pages: ## Getting Started - Introduction - Platform Quicksta...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Mem0 Documentation Index
+
+Based on the provided content, here&#39;s a comprehensive list of all available documentation pages:
+
+## Getting Started
+- Introduction
+- Platform Quickstart
+- Open Source Python Quickstart
+- Open Source Node.js Quickstart
+- Platform Overview
+- Open Source Overview
+
+## Core Concepts
+- Memory Types
+- Memory Operations - Add
+- Memory Operations - Search
+- Memory Operations - Update
+- Memory Operations - Delete
+
+## Platform (Managed Solution)
+- Platform Quickstart
+- Platform vs Open Source
+- Advanced Memory Operations
+- V2 Memory Filters
+- Async Client
+- Multimodal Support
+- Custom Categories
+- Async Mode Default Changes
+- Graph Memory
+- Graph Threshold
+- Advanced Retrieval
+- Criteria-Based Retrieval
+- Contextual Add
+- Custom Instructions
+- Direct Import
+- Memory Export
+- Timestamp Support
+- Expiration Dates
+- Webhooks
+- Feedback Mechanism
+- Group Chat Support
+- FAQs
+- Contribute Guide
+
+## Open Source
+- Python Quickstart
+- Node.js Quickstart
+- Configuration Guide
+- OpenAI Compatibility
+- REST API Server
+- Graph Memory
+- Metadata Filtering
+- Reranker Search
+- Async Memory
+- Multimodal Support
+- Custom Fact Extraction
+- Custom Memory Update Prompt
+
+## Components
+- LLM Overview
+- Vector Database Overview
+- Embeddings Overview
+- 17 supported LLM providers (OpenAI, Anthropic, Google AI, Groq, AWS Bedrock, Azure OpenAI, Ollama, vLLM, LM Studio, Together, DeepSeek, Sarvam, XAI, LiteLLM, LangChain, OpenAI Structured, Azure OpenAI Structured)
+- 18 supported vector databases (Qdrant, Pinecone, Chroma, Weaviate, PGVector, Milvus, Redis, Supabase, Upstash Vector, Elasticsearch, OpenSearch, FAISS, MongoDB, Azure AI Search, Vertex AI Vector Search, Databricks, Baidu, LangChain, S3 Vectors)
+- 10 supported embedding models (OpenAI, Azure OpenAI, Google AI, AWS Bedrock, Hugging Face, Vertex AI, Ollama, Together, LM Studio, LangChain)
+
+## Integrations
+- LangChain
+- LangGraph
+- LlamaIndex
+- CrewAI
+- AutoGen
+- Vercel AI SDK
+- Flowise
+- Dify
+
+## Cookbooks and Examples
+- Cookbooks Overview
+- Building AI Companion
+- Partition Memories by Entity
+- Controlling Memory Ingestion
+- Memory Expiration
+- Tagging and Organizing Memories
+- Exporting Memories
+- Choosing Memory Architecture
+- AI Tutor
+- Travel Assistant
+- Voice Companion
+- Local Companion
+- Node.js Companion
+- YouTube Research Assistant
+- Support Inbox
+- Email Automation
+- Content Writing
+- Deep Research
+- Team Task Agent
+- OpenAI Tool Calls
+- AWS Bedrock
+- Tavily Search
+- Healthcare Google ADK
+- Mastra Agent
+- LlamaIndex React
+- LlamaIndex Multiagent
+- Eliza OS Character
+- Chrome Extension
+- Multimodal Retrieval
+
+## API Reference
+- Memory APIs
+- Add Memories
+- Search Memories
+- Get All Memories
+- Update Memory
+- Delete Memory
+
+## Optional
+- FAQs
+- Changelog
+- Contributing Guide
+- OpenMemory Overview</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant 找到了完整文档结构，现在深挖核心架构。" id="event-57">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#58</span>
+      
+      <span class="timeline-time">10:26:00</span>
+    </div>
+    <div class="message-body"><p>找到了完整文档结构，现在深挖核心架构。</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_ZjGxkZxWhvyopKT42SAlry WebFetch input={&quot;prompt&quot;:&quot;Get the full technical content about memory types, how memories are stored, extracted, and retrieved. Include all technical details about data structures and storage ..." id="event-58">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#59</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_ZjGxkZxWhvyopKT42SAlry</span>
+      <span class="timeline-time">10:26:00</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Get the full technical content about memory types, how memories are stored, extracted, and retrieved. Include all technical details about data structures and storage ...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Get the full technical content about memory types, how memories are stored, extracted, and retrieved. Include all technical details about data structures and storage mechanisms.&quot;,
+  &quot;url&quot;: &quot;https://docs.mem0.ai/core-concepts/memory-types&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_OvVUl3HI2fFfJh4GGRhjIZ WebFetch input={&quot;prompt&quot;:&quot;Get the full technical content about graph memory in the open source version. How does it work? What graph DB does it use? How are entities and relationships extracte..." id="event-59">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#60</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_OvVUl3HI2fFfJh4GGRhjIZ</span>
+      <span class="timeline-time">10:26:00</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Get the full technical content about graph memory in the open source version. How does it work? What graph DB does it use? How are entities and relationships extracte...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Get the full technical content about graph memory in the open source version. How does it work? What graph DB does it use? How are entities and relationships extracted and stored? How does retrieval work?&quot;,
+  &quot;url&quot;: &quot;https://docs.mem0.ai/open-source/graph-memory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="WebFetch tooluse_imTcCLic9T97Rbw3JxHrnc WebFetch input={&quot;prompt&quot;:&quot;Get the full technical content. How does memory add work internally? What is the extraction process? How does conflict/update resolution work? What LLM prompts are us..." id="event-60">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#61</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_imTcCLic9T97Rbw3JxHrnc</span>
+      <span class="timeline-time">10:26:00</span>
+    </div>
+    <div class="timeline-title">WebFetch input={&quot;prompt&quot;:&quot;Get the full technical content. How does memory add work internally? What is the extraction process? How does conflict/update resolution work? What LLM prompts are us...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;prompt&quot;: &quot;Get the full technical content. How does memory add work internally? What is the extraction process? How does conflict/update resolution work? What LLM prompts are used?&quot;,
+  &quot;url&quot;: &quot;https://docs.mem0.ai/core-concepts/memory-operations/add&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_imTcCLic9T97Rbw3JxHrnc WebFetch output=I&#39;m Claude Haiku 4.5. Based on the documentation provided, here&#39;s what I can tell you about Mem0&#39;s internal memory addition process: **How it works internally:** The documentati..." id="event-61">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#62</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_imTcCLic9T97Rbw3JxHrnc</span>
+      
+      <span class="timeline-time">10:26:31</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5. Based on the documentation provided, here&#39;s what I can tell you about Mem0&#39;s internal memory addition process: **How it works internally:** The documentati...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5. Based on the documentation provided, here&#39;s what I can tell you about Mem0&#39;s internal memory addition process:
+
+**How it works internally:**
+
+The documentation describes a three-step pipeline:
+
+1. **Information extraction** – &quot;Mem0 sends the messages through an LLM that pulls out key facts, decisions, or preferences to remember.&quot; The system processes conversation turns to identify what&#39;s worth storing.
+
+2. **Conflict resolution** – Existing memories are checked for duplicates or contradictions so newer information takes precedence. However, this only happens when inference is enabled (the default).
+
+3. **Storage** – Extracted memories land in vector storage and optional graph storage for fast retrieval.
+
+**Key limitation in the docs:**
+
+The page doesn&#39;t provide specifics about the exact LLM prompts used for extraction or detailed mechanics of the conflict resolution algorithm. It mentions that &quot;duplicate protection only runs during that conflict-resolution step when you let Mem0 infer memories,&quot; but the actual implementation details aren&#39;t disclosed here.
+
+**What you can control:**
+
+You can toggle `infer=True` (default) for structured extraction or `infer=False` to store raw messages without processing. The warning notes that mixing both modes creates duplicates since raw inserts skip conflict resolution.
+
+For deeper technical details on prompts and algorithms, you&#39;d need to check the full API reference or source code.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_OvVUl3HI2fFfJh4GGRhjIZ WebFetch output=# Graph Memory: How It Works I&#39;m Claude Haiku 4.5, and I can break down Mem0&#39;s Graph Memory based on the documentation provided. ## Core Mechanism Graph Memory extends Mem0 by l..." id="event-62">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#63</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_OvVUl3HI2fFfJh4GGRhjIZ</span>
+      
+      <span class="timeline-time">10:26:31</span>
+    </div>
+    <div class="timeline-title">WebFetch output=# Graph Memory: How It Works I&#39;m Claude Haiku 4.5, and I can break down Mem0&#39;s Graph Memory based on the documentation provided. ## Core Mechanism Graph Memory extends Mem0 by l...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code># Graph Memory: How It Works
+
+I&#39;m Claude Haiku 4.5, and I can break down Mem0&#39;s Graph Memory based on the documentation provided.
+
+## Core Mechanism
+
+Graph Memory extends Mem0 by layering relationship data onto vector search. Here&#39;s the flow:
+
+**Extraction &amp; Storage:** When you call `memory.add()`, an LLM identifies entities, relationships, and timestamps from your conversation. These get stored in two places simultaneously—embeddings land in your vector database while nodes and edges flow into a graph backend.
+
+**Retrieval:** During `memory.search()`, vector similarity finds candidate memories, then the graph runs in parallel to surface related entities in a `relations` array. Importantly, &quot;the ordering of `results` always comes from vector search (plus any reranker you configure); graph edges do not reorder those hits automatically.&quot;
+
+## Supported Graph Databases
+
+The system supports multiple backends:
+- **Neo4j** (Aura or self-hosted with APOC plugin)
+- **Memgraph** (Docker-based)
+- **Amazon Neptune Analytics** and **Neptune DB**
+- **Kuzu** (embedded, in-process)
+
+## Use Cases
+
+Graph Memory shines when conversations involve multiple actors and objects that vectors alone blur together, compliance auditing requires tracking who said what and when, or agent teams need shared context without duplicating memories across runs.
+
+The extraction process is customizable—you can refine which relationships become nodes, raise confidence thresholds to filter noisy edges, or toggle graph writes per request to stay vector-only when needed.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="WebFetch tooluse_ZjGxkZxWhvyopKT42SAlry WebFetch output=I&#39;m Claude Haiku 4.5, and I can help clarify what the documentation covers about Mem0&#39;s memory architecture. Based on the content provided, here&#39;s what Mem0 implements: **Memory..." id="event-63">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#64</span>
+      <span class="timeline-chip">WebFetch</span>
+      <span class="timeline-chip">tooluse_ZjGxkZxWhvyopKT42SAlry</span>
+      
+      <span class="timeline-time">10:26:32</span>
+    </div>
+    <div class="timeline-title">WebFetch output=I&#39;m Claude Haiku 4.5, and I can help clarify what the documentation covers about Mem0&#39;s memory architecture. Based on the content provided, here&#39;s what Mem0 implements: **Memory...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>I&#39;m Claude Haiku 4.5, and I can help clarify what the documentation covers about Mem0&#39;s memory architecture.
+
+Based on the content provided, here&#39;s what Mem0 implements:
+
+**Memory Layers**
+
+Mem0 organizes memory into four tiers: conversation (current turn), session (short-term task context), user (long-term personalization), and organizational (shared across agents). As the docs state, this design &quot;keeps conversations coherent without repeating instructions&quot; while enabling personalization.
+
+**Storage &amp; Retrieval**
+
+The system captures messages in the conversation layer, promotes relevant details to session or user memory based on metadata like `user_id` and `session_id`, then retrieves by ranking user memories first, followed by session notes and raw history.
+
+**Memory Categories**
+
+Mem0 maps classical memory types onto its layers:
+- Short-term: conversation history, working state, and immediate focus
+- Long-term: factual preferences, episodic summaries, and semantic relationships between concepts
+
+**Key Design Principle**
+
+The documentation emphasizes: &quot;Use `session_id` when you want short-term context to expire automatically; rely on `user_id` for lasting personalization.&quot; It also warns against storing unencrypted secrets or PII in retrievable memory layers.
+
+The content focuses on conceptual organization rather than low-level data structures or storage mechanisms. For deeper technical implementation details, the docs reference a complete index at https://docs.mem0.ai/llms.txt.</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant ## Mem0 记忆体系完整分析 ### 架构总览 Mem0 是**双存储并行**架构： ``` 输入对话 ↓ LLM 提取实体/关系/事实 ↓ ┌─────────────────┬──────────────────┐ │ 向量数据库 │ 图数据库 │ │ (18种可选) │ (Neo4j/Kuzu等) │ │ 语义相似度检索 │ 实体关系检索 │ └─────────────────┴──────────────────┘ ↓ 合并结果 memory.search() 返回 ``` ### 四层记忆结构 | 层级 | 范围 | 用途 | |------|------|------| | Conversation | 当前轮次 | 对话上下文 | | Session | 短期任务 | 自动过期，用 session_id 隔离 | | User | 长期个人化 | 偏好/习惯，用 user_id 持久..." id="event-64">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#65</span>
+      
+      <span class="timeline-time">10:26:57</span>
+    </div>
+    <div class="message-body"><p>## Mem0 记忆体系完整分析</p><p>### 架构总览</p><p>Mem0 是<strong>双存储并行</strong>架构：</p><pre><code>输入对话
+    ↓
+LLM 提取实体/关系/事实
+    ↓
+┌─────────────────┬──────────────────┐
+│   向量数据库      │    图数据库        │
+│ (18种可选)       │ (Neo4j/Kuzu等)   │
+│ 语义相似度检索    │ 实体关系检索       │
+└─────────────────┴──────────────────┘
+    ↓ 合并结果
+memory.search() 返回
+</code></pre><p>### 四层记忆结构</p><p>| 层级 | 范围 | 用途 |<br>|------|------|------|<br>| Conversation | 当前轮次 | 对话上下文 |<br>| Session | 短期任务 | 自动过期，用 session_id 隔离 |<br>| User | 长期个人化 | 偏好/习惯，用 user_id 持久化 |<br>| Organization | 跨 agent 共享 | 团队/多 agent 共享上下文 |</p><p>### 记忆写入流程</p><p>1. <code>memory.add()</code> 调用 → LLM 提取关键事实/决策/偏好<br>2. 与已有记忆做冲突检测（去重 + 新信息覆盖旧信息）<br>3. 同时写入向量库（embedding）+ 图库（节点/边）</p><p>### 图记忆的价值</p><p>图库解决了向量库的一个核心弱点：<strong>多实体关系模糊</strong>。比如&quot;张三在 A 项目里说过 B&quot;，向量检索可能把张三、A项目、B混在一起，图库能精确追踪&quot;谁说了什么、关于什么&quot;。</p><p>---</p><p>## 对 OpenMnemo 的直接启示</p><p>Mem0 和 OpenMnemo 的差异化很清晰：</p><p>| 维度 | Mem0 | OpenMnemo 的机会 |<br>|------|------|----------------|<br>| 数据来源 | API 调用写入 | <strong>自动归档</strong>，用户无需手动写入 |<br>| 存储 | 云端托管为主 | <strong>Git + 自托管</strong>，数据主权 |<br>| 版本历史 | 无 | <strong>Git commit 关联</strong>，可追溯 |<br>| 跨客户端 | 无 | Claude/Codex/Gemini/Doubao 全支持 |</p><p><strong>技术上可以借鉴的点：</strong></p><p>1. <strong>双存储模式</strong>：sqlite-vec（向量）+ 现有 SQLite FTS（全文）并行，检索时合并排序——这比单纯 FTS 强很多<br>2. <strong>LLM 提取层</strong>：heartbeat 同步时，用轻量模型（Haiku）从对话里提取关键事实存向量，不需要存全文 embedding<br>3. <strong>四层 user_id/session_id 隔离</strong>：Phase 2 协作层可以直接参考这个设计</p><p><strong>建议更新 goal_v002 的非目标</strong>：把&quot;不做向量数据库&quot;改成&quot;Phase 0 不做，Phase 1 引入 sqlite-vec&quot;，现在你们已经明确要做向量化了。</p><p>要我帮你更新 goal 和 todo 文件吗？</p></div>
+  </div>
+</article>
+<article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 向量数据库 │ 图数据库 │ │ (18种可选) │ (Neo4j/Kuzu等) │ │ 语义相似度检索 │ 实体关系检索 这些有可以用的开源项目可以复用吗。 尤其是图数据库 我们如何引入呢， 1. 双存储模式：sqlite-vec（向量）+ 现有 SQLite FTS（全文）并行，检索时合并排序——这比单纯 FTS 强很多 2. LLM 提取层：heartbeat 同步时，用轻量模型（Haiku）从对话里提取关键事实存向量，不需要存全文 embedding 3. 四层 user_id/session_id 隔离：Phase 2 协作层可以直接参考这个设计 还有你这些 可以在详细点的解释一下吗" id="event-65">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#66</span>
+      
+      <span class="timeline-time">10:31:38</span>
+    </div>
+    <div class="message-body"><p>向量数据库      │    图数据库        │<br>  │ (18种可选)       │ (Neo4j/Kuzu等)   │<br>  │ 语义相似度检索    │ 实体关系检索    这些有可以用的开源项目可以复用吗。 尤其是图数据库 我们如何引入呢，  1. 双存储模式：sqlite-vec（向量）+ 现有 SQLite FTS（全文）并行，检索时合并排序——这比单纯 FTS 强很多<br>  2. LLM 提取层：heartbeat 同步时，用轻量模型（Haiku）从对话里提取关键事实存向量，不需要存全文 embedding<br>  3. 四层 user_id/session_id 隔离：Phase 2 协作层可以直接参考这个设计  还有你这些 可以在详细点的解释一下吗</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant 详细拆解每一块。 --- ## 一、向量数据库选型 **sqlite-vec** 是最适合 OpenMnemo 的选择，原因是零额外进程、数据文件可以 git 管理、和现有 db.ts 无缝集成。 ``` npm install sqlite-vec ``` 原理：给现有 SQLite 加一个扩展，新增一种列类型 `float32[N]`，支持 KNN 近邻查询。 ```sql -- 建向量表 CREATE VIRTUAL TABLE vec_sessions USING vec0( session_id TEXT, embedding float32[1536] -- OpenAI ada-002 维度 ); -- 插入 INSERT INTO vec_sessions VALUES (&#39;sess_abc&#39;, &#39;[0.1, 0.2, ...]&#39;); -- 检索最近邻 top-5 SELECT sess..." id="event-66">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#67</span>
+      
+      <span class="timeline-time">10:32:24</span>
+    </div>
+    <p class="event-preview">详细拆解每一块。 --- ## 一、向量数据库选型 **sqlite-vec** 是最适合 OpenMnemo 的选择，原因是零额外进程、数据文件可以 git 管理、和现有 db.ts 无缝集成。 ``` npm install sqlite-vec ``` 原理：给现有 SQLite 加一个扩展，新增一种列类型 `float32[N]`，支持 KNN 近邻查询。 ```sql -- 建向量表 CREATE VIRTUAL TAB...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>详细拆解每一块。</p><p>---</p><p>## 一、向量数据库选型</p><p><strong>sqlite-vec</strong> 是最适合 OpenMnemo 的选择，原因是零额外进程、数据文件可以 git 管理、和现有 db.ts 无缝集成。</p><pre><code>npm install sqlite-vec
+</code></pre><p>原理：给现有 SQLite 加一个扩展，新增一种列类型 <code>float32[N]</code>，支持 KNN 近邻查询。</p><pre><code>-- 建向量表
+CREATE VIRTUAL TABLE vec_sessions USING vec0(
+  session_id TEXT,
+  embedding float32[1536]   -- OpenAI ada-002 维度
+);
+
+-- 插入
+INSERT INTO vec_sessions VALUES (&#39;sess_abc&#39;, &#39;[0.1, 0.2, ...]&#39;);
+
+-- 检索最近邻 top-5
+SELECT session_id, distance
+FROM vec_sessions
+WHERE embedding MATCH &#39;[0.3, 0.1, ...]&#39;
+ORDER BY distance LIMIT 5;
+</code></pre><p>现有 FTS4 表做关键词匹配，vec_sessions 做语义匹配，两个结果合并用 RRF（Reciprocal Rank Fusion）算法重排序，这就是&quot;混合检索&quot;。</p><p>---</p><p>## 二、图数据库选型</p><p>图数据库解决的问题是：<strong>&quot;张三在 openmnemo 项目里讨论过 SQLite FTS&quot;</strong> 这种三元组关系，向量检索很难精确还原，图可以。</p><p>### 可用开源项目对比</p><p>| 项目 | 部署方式 | 适合场景 | Node.js 支持 |<br>|------|---------|---------|-------------|<br>| <strong>Kuzu</strong> | 嵌入式，无服务器，单文件 | 个人/小团队，最小依赖 | ✅ 官方 npm 包 |<br>| <strong>Neo4j Community</strong> | 独立服务，Docker | 团队版/SaaS，功能最全 | ✅ 官方驱动 |<br>| <strong>Memgraph</strong> | Docker | 实时图分析 | ✅ Bolt 协议 |<br>| <strong>Apache AGE</strong> | PostgreSQL 扩展 | 已有 PG 的场景 | ✅ |</p><p><strong>推荐 Kuzu</strong>，理由和 sqlite-vec 一样——嵌入式，无需额外进程，数据文件可以放在 Memory 目录里被 git 管理。</p><pre><code>npm install kuzu
+</code></pre><pre><code>// 建图 schema
+await conn.query(`
+  CREATE NODE TABLE Entity(name STRING, type STRING, PRIMARY KEY(name));
+  CREATE NODE TABLE Session(id STRING, title STRING, PRIMARY KEY(id));
+  CREATE REL TABLE MENTIONED_IN(FROM Entity TO Session, context STRING);
+  CREATE REL TABLE RELATED_TO(FROM Entity TO Entity, relation STRING);
+`);
+
+// 写入：从对话里提取&quot;SQLite FTS&quot;在&quot;session_abc&quot;里被提到
+await conn.query(`
+  MERGE (e:Entity {name: &#39;SQLite FTS&#39;, type: &#39;technology&#39;})
+  MERGE (s:Session {id: &#39;session_abc&#39;})
+  CREATE (e)-[:MENTIONED_IN {context: &#39;讨论了 FTS4 索引字段扩展&#39;}]-&gt;(s)
+`);
+
+// 查询：找所有提到 SQLite FTS 的 session
+await conn.query(`
+  MATCH (e:Entity {name: &#39;SQLite FTS&#39;})-[:MENTIONED_IN]-&gt;(s:Session)
+  RETURN s.id, s.title
+`);
+</code></pre><p>---</p><p>## 三、LLM 提取层详解</p><p>这是整个记忆体系的&quot;大脑&quot;，在 heartbeat 同步时触发。</p><pre><code>新对话导入
+    ↓
+Haiku 读对话全文（便宜，~$0.0001/次）
+    ↓
+提取三类信息：
+  1. 关键事实   → &quot;决定用 sqlite-vec 做向量检索&quot;
+  2. 实体       → [SQLite, openmnemo, FTS, 向量检索]
+  3. 实体关系   → SQLite --用于--&gt; openmnemo
+    ↓
+┌──────────────────────────────────────┐
+│  sqlite-vec: 对&quot;关键事实&quot;做 embedding  │  ← 语义检索用
+│  Kuzu: 写入实体节点 + 关系边           │  ← 关系追踪用
+│  SQLite FTS: 写入对话全文              │  ← 关键词检索用
+└──────────────────────────────────────┘
+</code></pre><p>Haiku 的提取 prompt 大概长这样：</p><pre><code>从以下对话中提取：
+1. 关键决策/结论（1-3句话）
+2. 涉及的技术/项目/人名实体
+3. 实体之间的关系（三元组格式：主体-关系-客体）
+
+对话内容：
+{conversation_text}
+
+返回 JSON：
+{
+  &quot;facts&quot;: [&quot;决定用 sqlite-vec&quot;, &quot;FTS4 只索引了 title/cwd/branch&quot;],
+  &quot;entities&quot;: [{&quot;name&quot;: &quot;sqlite-vec&quot;, &quot;type&quot;: &quot;technology&quot;}, ...],
+  &quot;relations&quot;: [{&quot;from&quot;: &quot;sqlite-vec&quot;, &quot;relation&quot;: &quot;用于&quot;, &quot;to&quot;: &quot;openmnemo&quot;}, ...]
+}
+</code></pre><p>---</p><p>## 四、双存储混合检索流程</p><pre><code>用户查询：&quot;我上周讨论过什么向量数据库方案&quot;
+    ↓
+并行执行三路检索：
+  ① FTS4:    MATCH &quot;向量数据库&quot;  → [session_A rank:1, session_C rank:3]
+  ② sqlite-vec: KNN embedding   → [session_A rank:2, session_B rank:1]
+  ③ Kuzu:    MATCH (e:Entity {type:&#39;technology&#39;})-[:MENTIONED_IN]-&gt;(s)
+             WHERE e.name CONTAINS &#39;向量&#39; → [session_A, session_D]
+    ↓
+RRF 合并排序（每路结果按 1/(k+rank) 打分求和）
+    ↓
+返回 top-5 session，附带摘要 + 关联 commit
+</code></pre><p>---</p><p>## 五、四层隔离设计（Phase 2 协作层参考）</p><p>Mem0 的 user_id/session_id 隔离对应到 OpenMnemo：</p><pre><code>org_id      → Gitea 组织（企业客户）
+  └── user_id   → Gitea 用户
+        └── project_id → 单个代码仓库
+              └── session_id → 单次对话
+</code></pre><p>现在 Phase 0 只需要 <code>project_id + session_id</code> 两层，Phase 2 加 <code>org_id + user_id</code> 就能支持多用户协作，接口设计提前预留这两个字段就行，不需要现在实现。</p><p>---</p><p>## 落地优先级建议</p><pre><code>Phase 0（现在）:
+  1. sqlite-vec 扩展现有 db.ts，加 embedding 列
+  2. heartbeat 里加 Haiku 提取层（facts + entities）
+  3. DataLayerAPI 接口定义时把向量检索纳入
+
+Phase 1（推理层）:
+  4. 引入 Kuzu，建图 schema，写入实体关系
+  5. 实现三路混合检索 + RRF 排序
+  6. 跨 session 推断：&quot;你上周讨论过 X&quot;
+</code></pre><p>要我帮你把这些更新进 goal_v002 和 todo 文件吗？</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 需要，未来我们的向量和图schema 可以引入更强大的和mem0的方案吗" id="event-67">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#68</span>
+      
+      <span class="timeline-time">10:35:56</span>
+    </div>
+    <div class="message-body"><p>需要，未来我们的向量和图schema  可以引入更强大的和mem0的方案吗</p></div>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

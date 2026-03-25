@@ -1,0 +1,3759 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-ad0a84c405e94abb7 — MemoryTree</title>
+<meta property="og:title" content="agent-ad0a84c405e94abb7">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-ad0a84c405e94abb7</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>7</strong> Messages</span>
+      <span class="transcript-pill"><strong>18</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>25</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 04:48:09</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-ad0a84c405e94abb7</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">1dbd723e-98a4-45a1-bf09-8fc06fe75630</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">master</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\memorytree-workflow</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">18620d2daa1bd0fb...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">25</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">7</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">18</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>7</strong> dialog</span>
+    <span class="transcript-pill"><strong>18</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>7</strong> Messages</span>
+          <span class="transcript-pill"><strong>18</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>25 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Explore the transcript parsing codebase in D:\demo1\memorytree-workflow\scripts to understand the current deduplication situation. Specifically: 1. In `_transcript_parse.py`, check each of the three parsers (parse_codex_transcript, parse_claude_transcript, parse_gemini_transcript) — do any of them already have deduplication logic for messages? The Gemini parser has a `message_signatures` set — examine how it ..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">04:48:09</span>
+    </div>
+    <div class="message-body"><p>Explore the transcript parsing codebase in D:\demo1\memorytree-workflow\scripts to understand the current deduplication situation. Specifically:</p><p>1. In <code>_transcript_parse.py</code>, check each of the three parsers (parse_codex_transcript, parse_claude_transcript, parse_gemini_transcript) — do any of them already have deduplication logic for messages? The Gemini parser has a <code>message_signatures</code> set — examine how it works.</p><p>2. In <code>_transcript_common.py</code>, look for any existing dedup-related utilities.</p><p>3. In <code>tests/test_transcript_utils.py</code> (at D:\demo1\memorytree-workflow\tests\test_transcript_utils.py), check if there are any existing tests for deduplication.</p><p>4. Look at the TranscriptMessage and TranscriptToolEvent dataclasses to understand their fields.</p><p>5. Check how messages are appended in each parser — identify the exact points where dedup logic should be inserted.</p><p>Report all findings with file paths and line numbers.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll systematically explore the transcript parsing codebase to understand the current deduplication situation." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">04:48:11</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll systematically explore the transcript parsing codebase to understand the current deduplication situation.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01ML67Yh9jjpcr8Ch8EVUWyR Glob input={&quot;pattern&quot;:&quot;D:/demo1/memorytree-workflow/scripts/**/*.py&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01ML67Yh9jjpcr8Ch8EVUWyR</span>
+      <span class="timeline-time">04:48:11</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;pattern&quot;:&quot;D:/demo1/memorytree-workflow/scripts/**/*.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;D:/demo1/memorytree-workflow/scripts/**/*.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_018sf73K22Q5D8iQLrs623zX Glob input={&quot;pattern&quot;:&quot;D:/demo1/memorytree-workflow/tests/test_transcript*.py&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_018sf73K22Q5D8iQLrs623zX</span>
+      <span class="timeline-time">04:48:12</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;pattern&quot;:&quot;D:/demo1/memorytree-workflow/tests/test_transcript*.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;D:/demo1/memorytree-workflow/tests/test_transcript*.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01ML67Yh9jjpcr8Ch8EVUWyR Glob output=D:/demo1/memorytree-workflow/scripts\detect-memorytree-locale.py D:/demo1/memorytree-workflow/scripts\init-memorytree.py D:/demo1/memorytree-workflow/scripts\upgrade-memorytree...." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01ML67Yh9jjpcr8Ch8EVUWyR</span>
+      
+      <span class="timeline-time">04:48:12</span>
+    </div>
+    <div class="timeline-title">Glob output=D:/demo1/memorytree-workflow/scripts\detect-memorytree-locale.py D:/demo1/memorytree-workflow/scripts\init-memorytree.py D:/demo1/memorytree-workflow/scripts\upgrade-memorytree....</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/memorytree-workflow/scripts\detect-memorytree-locale.py
+D:/demo1/memorytree-workflow/scripts\init-memorytree.py
+D:/demo1/memorytree-workflow/scripts\upgrade-memorytree.py
+D:/demo1/memorytree-workflow/scripts\_locale_utils.py
+D:/demo1/memorytree-workflow/scripts\_scaffold_utils.py
+D:/demo1/memorytree-workflow/scripts\_log_utils.py
+D:/demo1/memorytree-workflow/scripts\memorytree_daemon.py
+D:/demo1/memorytree-workflow/scripts\_alert_utils.py
+D:/demo1/memorytree-workflow/scripts\_config_utils.py
+D:/demo1/memorytree-workflow/scripts\_lock_utils.py
+D:/demo1/memorytree-workflow/scripts\_transcript_index.py
+D:/demo1/memorytree-workflow/scripts\heartbeat.py
+D:/demo1/memorytree-workflow/scripts\recall-session.py
+D:/demo1/memorytree-workflow/scripts\discover-transcripts.py
+D:/demo1/memorytree-workflow/scripts\import-transcripts.py
+D:/demo1/memorytree-workflow/scripts\_transcript_common.py
+D:/demo1/memorytree-workflow/scripts\_transcript_parse.py
+D:/demo1/memorytree-workflow/scripts\_transcript_discover.py
+D:/demo1/memorytree-workflow/scripts\_transcript_import.py
+D:/demo1/memorytree-workflow/scripts\_transcript_utils.py</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_018sf73K22Q5D8iQLrs623zX Glob output=D:/demo1/memorytree-workflow/tests\test_transcript_utils.py" id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_018sf73K22Q5D8iQLrs623zX</span>
+      
+      <span class="timeline-time">04:48:12</span>
+    </div>
+    <div class="timeline-title">Glob output=D:/demo1/memorytree-workflow/tests\test_transcript_utils.py</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:/demo1/memorytree-workflow/tests\test_transcript_utils.py</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me read the key files to understand the deduplication situation." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#7</span>
+      
+      <span class="timeline-time">04:48:14</span>
+    </div>
+    <div class="message-body"><p>Now let me read the key files to understand the deduplication situation.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01JpXNeBgS8gwvW4ojVBHnHZ Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_parse.py&quot;}" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01JpXNeBgS8gwvW4ojVBHnHZ</span>
+      <span class="timeline-time">04:48:15</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_parse.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree-workflow/scripts/_transcript_parse.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01KSmhVRDWr3f1GMr37wjDCV Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_common.py&quot;}" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01KSmhVRDWr3f1GMr37wjDCV</span>
+      <span class="timeline-time">04:48:15</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_common.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree-workflow/scripts/_transcript_common.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01H2RxpWoJZ1yVcU9ttcFs6B Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/tests/test_transcript_utils.py&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01H2RxpWoJZ1yVcU9ttcFs6B</span>
+      <span class="timeline-time">04:48:15</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/tests/test_transcript_utils.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree-workflow/tests/test_transcript_utils.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01JpXNeBgS8gwvW4ojVBHnHZ Read output=1→&quot;&quot;&quot;Transcript parsing — dataclasses, client inference, and format-specific parsers.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import json 6→from dataclasses import datac..." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01JpXNeBgS8gwvW4ojVBHnHZ</span>
+      
+      <span class="timeline-time">04:48:15</span>
+    </div>
+    <div class="timeline-title">Read output=1→&quot;&quot;&quot;Transcript parsing — dataclasses, client inference, and format-specific parsers.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import json 6→from dataclasses import datac...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&quot;&quot;&quot;Transcript parsing — dataclasses, client inference, and format-specific parsers.&quot;&quot;&quot;
+     2→
+     3→from __future__ import annotations
+     4→
+     5→import json
+     6→from dataclasses import dataclass
+     7→from pathlib import Path
+     8→from typing import Any
+     9→
+    10→from _transcript_common import *  # noqa: F401,F403
+    11→from _transcript_common import (
+    12→    SKIP_BLOCK_TYPES,
+    13→    TEXT_BLOCK_TYPES,
+    14→    TOOL_RESULT_TYPES,
+    15→    TOOL_USE_TYPES,
+    16→    earliest_timestamp,
+    17→    ensure_dict,
+    18→    ensure_list,
+    19→    extract_gemini_text,
+    20→    extract_text_blocks,
+    21→    find_first_mapping_with_keys,
+    22→    get_nested,
+    23→    join_paragraphs,
+    24→    load_jsonl,
+    25→    normalize_timestamp,
+    26→    summarize_value,
+    27→)
+    28→
+    29→
+    30→@dataclass
+    31→class TranscriptMessage:
+    32→    role: str
+    33→    text: str
+    34→    timestamp: str | None = None
+    35→
+    36→
+    37→@dataclass
+    38→class TranscriptToolEvent:
+    39→    summary: str
+    40→    timestamp: str | None = None
+    41→
+    42→
+    43→@dataclass
+    44→class ParsedTranscript:
+    45→    client: str
+    46→    session_id: str
+    47→    title: str
+    48→    started_at: str
+    49→    cwd: str
+    50→    branch: str
+    51→    messages: list[TranscriptMessage]
+    52→    tool_events: list[TranscriptToolEvent]
+    53→    source_path: Path
+    54→
+    55→
+    56→# ---------------------------------------------------------------------------
+    57→# Client inference + dispatch
+    58→# ---------------------------------------------------------------------------
+    59→
+    60→
+    61→def infer_client(client: str, source: Path) -&gt; str:
+    62→    if client != &quot;auto&quot;:
+    63→        return client
+    64→    normalized = source.as_posix().lower()
+    65→    if &quot;/.codex/&quot; in normalized or &quot;rollout-&quot; in source.name.lower():
+    66→        return &quot;codex&quot;
+    67→    if &quot;/.claude/&quot; in normalized or &quot;/projects/&quot; in normalized:
+    68→        return &quot;claude&quot;
+    69→    if &quot;/.gemini/&quot; in normalized or &quot;checkpoint&quot; in normalized:
+    70→        return &quot;gemini&quot;
+    71→    raise SystemExit(f&quot;could not infer transcript client from source path: {source}&quot;)
+    72→
+    73→
+    74→def parse_transcript(client: str, source: Path) -&gt; ParsedTranscript:
+    75→    if client == &quot;codex&quot;:
+    76→        return parse_codex_transcript(source)
+    77→    if client == &quot;claude&quot;:
+    78→        return parse_claude_transcript(source)
+    79→    if client == &quot;gemini&quot;:
+    80→        return parse_gemini_transcript(source)
+    81→    raise SystemExit(f&quot;unsupported transcript client: {client}&quot;)
+    82→
+    83→
+    84→# ---------------------------------------------------------------------------
+    85→# Codex parser
+    86→# ---------------------------------------------------------------------------
+    87→
+    88→
+    89→def parse_codex_transcript(path: Path) -&gt; ParsedTranscript:
+    90→    records = load_jsonl(path)
+    91→    session_id = path.stem
+    92→    title = path.stem
+    93→    started_at = normalize_timestamp(path.stat().st_mtime)
+    94→    cwd = &quot;&quot;
+    95→    branch = &quot;&quot;
+    96→    messages: list[TranscriptMessage] = []
+    97→    tool_events: list[TranscriptToolEvent] = []
+    98→
+    99→    for record in records:
+   100→        record_type = str(record.get(&quot;type&quot;) or &quot;&quot;)
+   101→        timestamp = normalize_timestamp(record.get(&quot;timestamp&quot;), started_at)
+   102→        if record_type == &quot;session_meta&quot;:
+   103→            payload = ensure_dict(record.get(&quot;payload&quot;))
+   104→            session_id = str(payload.get(&quot;id&quot;) or session_id)
+   105→            title = str(payload.get(&quot;thread_name&quot;) or payload.get(&quot;title&quot;) or title)
+   106→            started_at = earliest_timestamp(started_at, payload.get(&quot;timestamp&quot;))
+   107→            cwd = str(payload.get(&quot;cwd&quot;) or cwd)
+   108→            branch = str(get_nested(payload, &quot;git&quot;, &quot;branch&quot;) or branch)
+   109→            continue
+   110→
+   111→        if record_type not in {&quot;response_item&quot;, &quot;event_msg&quot;}:
+   112→            continue
+   113→
+   114→        payload = ensure_dict(record.get(&quot;payload&quot;))
+   115→        payload_type = str(payload.get(&quot;type&quot;) or &quot;&quot;)
+   116→        if payload_type == &quot;message&quot;:
+   117→            role = str(payload.get(&quot;role&quot;) or &quot;&quot;).lower()
+   118→            if role in {&quot;user&quot;, &quot;assistant&quot;}:
+   119→                text = extract_text_blocks(payload.get(&quot;content&quot;))
+   120→                if text:
+   121→                    messages.append(TranscriptMessage(role=role, text=text, timestamp=timestamp))
+   122→            continue
+   123→
+   124→        if payload_type in {&quot;user_message&quot;, &quot;agent_message&quot;}:
+   125→            role = &quot;user&quot; if payload_type == &quot;user_message&quot; else &quot;assistant&quot;
+   126→            text = str(payload.get(&quot;message&quot;) or &quot;&quot;).strip()
+   127→            if text:
+   128→                messages.append(TranscriptMessage(role=role, text=text, timestamp=timestamp))
+   129→            continue
+   130→
+   131→        if payload_type == &quot;function_call&quot;:
+   132→            name = str(payload.get(&quot;name&quot;) or &quot;function_call&quot;)
+   133→            arguments = payload.get(&quot;arguments&quot;) or payload.get(&quot;input&quot;)
+   134→            tool_events.append(
+   135→                TranscriptToolEvent(
+   136→                    summary=f&quot;{name} input={summarize_value(arguments)}&quot;,
+   137→                    timestamp=timestamp,
+   138→                )
+   139→            )
+   140→            continue
+   141→
+   142→        if payload_type == &quot;custom_tool_call&quot;:
+   143→            name = str(payload.get(&quot;name&quot;) or payload.get(&quot;call_id&quot;) or &quot;custom_tool_call&quot;)
+   144→            tool_events.append(
+   145→                TranscriptToolEvent(
+   146→                    summary=f&quot;{name} input={summarize_value(payload.get(&#39;input&#39;))}&quot;,
+   147→                    timestamp=timestamp,
+   148→                )
+   149→            )
+   150→            continue
+   151→
+   152→        if payload_type == &quot;function_call_output&quot;:
+   153→            name = str(payload.get(&quot;name&quot;) or payload.get(&quot;call_id&quot;) or &quot;function_call_output&quot;)
+   154→            output = payload.get(&quot;output&quot;) or payload.get(&quot;content&quot;)
+   155→            tool_events.append(
+   156→                TranscriptToolEvent(
+   157→                    summary=f&quot;{name} output={summarize_value(output)}&quot;,
+   158→                    timestamp=timestamp,
+   159→                )
+   160→            )
+   161→            continue
+   162→
+   163→        if payload_type == &quot;custom_tool_call_output&quot;:
+   164→            name = str(payload.get(&quot;name&quot;) or payload.get(&quot;call_id&quot;) or &quot;custom_tool_call_output&quot;)
+   165→            output = payload.get(&quot;output&quot;) or payload.get(&quot;content&quot;)
+   166→            tool_events.append(
+   167→                TranscriptToolEvent(
+   168→                    summary=f&quot;{name} output={summarize_value(output)}&quot;,
+   169→                    timestamp=timestamp,
+   170→                )
+   171→            )
+   172→
+   173→    return ParsedTranscript(
+   174→        client=&quot;codex&quot;,
+   175→        session_id=session_id,
+   176→        title=title,
+   177→        started_at=started_at,
+   178→        cwd=cwd,
+   179→        branch=branch,
+   180→        messages=messages,
+   181→        tool_events=tool_events,
+   182→        source_path=path,
+   183→    )
+   184→
+   185→
+   186→# ---------------------------------------------------------------------------
+   187→# Claude parser
+   188→# ---------------------------------------------------------------------------
+   189→
+   190→
+   191→def parse_claude_transcript(path: Path) -&gt; ParsedTranscript:
+   192→    records = load_jsonl(path)
+   193→    session_id = path.stem
+   194→    title = path.stem
+   195→    started_at = normalize_timestamp(path.stat().st_mtime)
+   196→    cwd = &quot;&quot;
+   197→    branch = &quot;&quot;
+   198→    messages: list[TranscriptMessage] = []
+   199→    tool_events: list[TranscriptToolEvent] = []
+   200→
+   201→    for record in records:
+   202→        record_type = str(record.get(&quot;type&quot;) or &quot;&quot;)
+   203→        timestamp = normalize_timestamp(record.get(&quot;timestamp&quot;), started_at)
+   204→        session_id = str(record.get(&quot;sessionId&quot;) or session_id)
+   205→        started_at = earliest_timestamp(started_at, record.get(&quot;timestamp&quot;))
+   206→        cwd = str(record.get(&quot;cwd&quot;) or cwd)
+   207→        branch = str(record.get(&quot;gitBranch&quot;) or branch)
+   208→
+   209→        if record_type not in {&quot;user&quot;, &quot;assistant&quot;}:
+   210→            continue
+   211→
+   212→        message = ensure_dict(record.get(&quot;message&quot;))
+   213→        role = str(message.get(&quot;role&quot;) or record_type).lower()
+   214→        text_parts: list[str] = []
+   215→        content = message.get(&quot;content&quot;)
+   216→        if isinstance(content, str):
+   217→            text = content.strip()
+   218→            if role in {&quot;user&quot;, &quot;assistant&quot;} and text:
+   219→                messages.append(TranscriptMessage(role=role, text=text, timestamp=timestamp))
+   220→            continue
+   221→
+   222→        for block in ensure_list(content):
+   223→            if isinstance(block, str):
+   224→                if block.strip():
+   225→                    text_parts.append(block.strip())
+   226→                continue
+   227→            if not isinstance(block, dict):
+   228→                continue
+   229→            block_type = str(block.get(&quot;type&quot;) or &quot;&quot;).lower()
+   230→            if block_type in TEXT_BLOCK_TYPES:
+   231→                text = str(block.get(&quot;text&quot;) or &quot;&quot;).strip()
+   232→                if text:
+   233→                    text_parts.append(text)
+   234→                continue
+   235→            if block_type in SKIP_BLOCK_TYPES:
+   236→                continue
+   237→            if block_type in TOOL_USE_TYPES:
+   238→                name = str(block.get(&quot;name&quot;) or &quot;tool_use&quot;)
+   239→                tool_events.append(
+   240→                    TranscriptToolEvent(
+   241→                        summary=f&quot;{name} input={summarize_value(block.get(&#39;input&#39;))}&quot;,
+   242→                        timestamp=timestamp,
+   243→                    )
+   244→                )
+   245→                continue
+   246→            if block_type in TOOL_RESULT_TYPES:
+   247→                tool_use_id = str(block.get(&quot;tool_use_id&quot;) or &quot;tool_result&quot;)
+   248→                tool_events.append(
+   249→                    TranscriptToolEvent(
+   250→                        summary=f&quot;{tool_use_id} output={summarize_value(block.get(&#39;content&#39;))}&quot;,
+   251→                        timestamp=timestamp,
+   252→                    )
+   253→                )
+   254→
+   255→        text = join_paragraphs(text_parts)
+   256→        if role in {&quot;user&quot;, &quot;assistant&quot;} and text:
+   257→            messages.append(TranscriptMessage(role=role, text=text, timestamp=timestamp))
+   258→
+   259→    return ParsedTranscript(
+   260→        client=&quot;claude&quot;,
+   261→        session_id=session_id,
+   262→        title=title,
+   263→        started_at=started_at,
+   264→        cwd=cwd,
+   265→        branch=branch,
+   266→        messages=messages,
+   267→        tool_events=tool_events,
+   268→        source_path=path,
+   269→    )
+   270→
+   271→
+   272→# ---------------------------------------------------------------------------
+   273→# Gemini parser
+   274→# ---------------------------------------------------------------------------
+   275→
+   276→
+   277→def parse_gemini_transcript(path: Path) -&gt; ParsedTranscript:
+   278→    session_id = path.stem
+   279→    title = path.stem
+   280→    started_at = normalize_timestamp(path.stat().st_mtime)
+   281→    cwd = &quot;&quot;
+   282→    branch = &quot;&quot;
+   283→    messages: list[TranscriptMessage] = []
+   284→    tool_events: list[TranscriptToolEvent] = []
+   285→
+   286→    if path.suffix.lower() == &quot;.jsonl&quot;:
+   287→        payload: Any = load_jsonl(path)
+   288→    else:
+   289→        payload = json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+   290→
+   291→    message_signatures: set[tuple[str, str, str | None]] = set()
+   292→    first_meta = find_first_mapping_with_keys(payload, {&quot;sessionId&quot;, &quot;chatId&quot;, &quot;cwd&quot;, &quot;branch&quot;, &quot;timestamp&quot;})
+   293→    if first_meta:
+   294→        session_id = str(first_meta.get(&quot;sessionId&quot;) or first_meta.get(&quot;chatId&quot;) or first_meta.get(&quot;id&quot;) or session_id)
+   295→        started_at = earliest_timestamp(started_at, first_meta.get(&quot;timestamp&quot;))
+   296→        cwd = str(first_meta.get(&quot;cwd&quot;) or first_meta.get(&quot;projectRoot&quot;) or cwd)
+   297→        branch = str(first_meta.get(&quot;branch&quot;) or branch)
+   298→
+   299→    def visit(node: Any) -&gt; None:
+   300→        nonlocal session_id, started_at, cwd, branch
+   301→        if isinstance(node, list):
+   302→            for item in node:
+   303→                visit(item)
+   304→            return
+   305→        if not isinstance(node, dict):
+   306→            return
+   307→
+   308→        session_id = str(node.get(&quot;sessionId&quot;) or node.get(&quot;chatId&quot;) or node.get(&quot;id&quot;) or session_id)
+   309→        started_at = earliest_timestamp(started_at, node.get(&quot;timestamp&quot;))
+   310→        cwd = str(node.get(&quot;cwd&quot;) or node.get(&quot;projectRoot&quot;) or cwd)
+   311→        branch = str(node.get(&quot;branch&quot;) or branch)
+   312→
+   313→        role = str(node.get(&quot;role&quot;) or node.get(&quot;author&quot;) or node.get(&quot;sender&quot;) or &quot;&quot;).lower()
+   314→        timestamp = normalize_timestamp(node.get(&quot;timestamp&quot;), started_at)
+   315→        if role in {&quot;user&quot;, &quot;assistant&quot;, &quot;model&quot;}:
+   316→            normalized_role = &quot;assistant&quot; if role == &quot;model&quot; else role
+   317→            text = extract_gemini_text(node)
+   318→            signature = (normalized_role, text, timestamp)
+   319→            if text and signature not in message_signatures:
+   320→                message_signatures.add(signature)
+   321→                messages.append(TranscriptMessage(role=normalized_role, text=text, timestamp=timestamp))
+   322→
+   323→        tool_name = (
+   324→            get_nested(node, &quot;toolUse&quot;, &quot;name&quot;)
+   325→            or node.get(&quot;toolName&quot;)
+   326→            or node.get(&quot;functionName&quot;)
+   327→            or node.get(&quot;tool&quot;)
+   328→        )
+   329→        if tool_name:
+   330→            tool_events.append(
+   331→                TranscriptToolEvent(
+   332→                    summary=f&quot;{tool_name} input={summarize_value(node.get(&#39;args&#39;) or node.get(&#39;input&#39;))}&quot;,
+   333→                    timestamp=timestamp,
+   334→                )
+   335→            )
+   336→
+   337→        for value in node.values():
+   338→            visit(value)
+   339→
+   340→    visit(payload)
+   341→
+   342→    return ParsedTranscript(
+   343→        client=&quot;gemini&quot;,
+   344→        session_id=session_id,
+   345→        title=title,
+   346→        started_at=started_at,
+   347→        cwd=cwd,
+   348→        branch=branch,
+   349→        messages=messages,
+   350→        tool_events=tool_events,
+   351→        source_path=path,
+   352→    )
+   353→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01H2RxpWoJZ1yVcU9ttcFs6B Read output=1→from __future__ import annotations 2→ 3→import json 4→import sys 5→import tempfile 6→import unittest 7→from pathlib import Path 8→ 9→ 10→SCRIPTS_DIR = Path(__file__).resolve()..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01H2RxpWoJZ1yVcU9ttcFs6B</span>
+      
+      <span class="timeline-time">04:48:15</span>
+    </div>
+    <div class="timeline-title">Read output=1→from __future__ import annotations 2→ 3→import json 4→import sys 5→import tempfile 6→import unittest 7→from pathlib import Path 8→ 9→ 10→SCRIPTS_DIR = Path(__file__).resolve()...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→from __future__ import annotations
+     2→
+     3→import json
+     4→import sys
+     5→import tempfile
+     6→import unittest
+     7→from pathlib import Path
+     8→
+     9→
+    10→SCRIPTS_DIR = Path(__file__).resolve().parents[1] / &quot;scripts&quot;
+    11→sys.path.insert(0, str(SCRIPTS_DIR))
+    12→
+    13→from _transcript_utils import (  # noqa: E402
+    14→    ParsedTranscript,
+    15→    TranscriptMessage,
+    16→    TranscriptToolEvent,
+    17→    earliest_timestamp,
+    18→    import_transcript,
+    19→    infer_client,
+    20→    infer_project_slug,
+    21→    join_paragraphs,
+    22→    load_jsonl,
+    23→    normalize_timestamp,
+    24→    parse_claude_transcript,
+    25→    parse_codex_transcript,
+    26→    parse_gemini_transcript,
+    27→    preserve_existing_import_timestamp,
+    28→    slugify,
+    29→    summarize_value,
+    30→    timestamp_partition,
+    31→    transcript_has_content,
+    32→    transcript_matches_repo,
+    33→    yaml_escape,
+    34→)
+    35→
+    36→
+    37→def make_transcript(
+    38→    *, cwd: str = &quot;&quot;, source_path: str = &quot;C:/Users/ai/.claude/projects/demo-repo/session.jsonl&quot;,
+    39→) -&gt; ParsedTranscript:
+    40→    return ParsedTranscript(
+    41→        client=&quot;claude&quot;,
+    42→        session_id=&quot;session-1&quot;,
+    43→        title=&quot;demo&quot;,
+    44→        started_at=&quot;2026-03-14T00:00:00Z&quot;,
+    45→        cwd=cwd,
+    46→        branch=&quot;main&quot;,
+    47→        messages=[],
+    48→        tool_events=[],
+    49→        source_path=Path(source_path),
+    50→    )
+    51→
+    52→
+    53→class TranscriptMatchesRepoTests(unittest.TestCase):
+    54→    def test_matches_exact_repo_cwd(self) -&gt; None:
+    55→        parsed = make_transcript(cwd=&quot;D:/work/demo-repo&quot;)
+    56→        self.assertTrue(transcript_matches_repo(parsed, Path(&quot;D:/work/demo-repo&quot;), &quot;demo-repo&quot;))
+    57→
+    58→    def test_matches_child_directory_cwd(self) -&gt; None:
+    59→        parsed = make_transcript(cwd=&quot;D:/work/demo-repo/packages/api&quot;)
+    60→        self.assertTrue(transcript_matches_repo(parsed, Path(&quot;D:/work/demo-repo&quot;), &quot;demo-repo&quot;))
+    61→
+    62→    def test_rejects_parent_directory_cwd(self) -&gt; None:
+    63→        parsed = make_transcript(cwd=&quot;D:/work&quot;)
+    64→        self.assertFalse(transcript_matches_repo(parsed, Path(&quot;D:/work/demo-repo&quot;), &quot;demo-repo&quot;))
+    65→
+    66→    def test_matches_exact_project_slug_without_cwd(self) -&gt; None:
+    67→        parsed = make_transcript(cwd=&quot;&quot;, source_path=&quot;C:/Users/ai/.claude/projects/demo-repo/session.jsonl&quot;)
+    68→        self.assertTrue(transcript_matches_repo(parsed, Path(&quot;D:/work/demo-repo&quot;), &quot;demo-repo&quot;))
+    69→
+    70→    def test_rejects_prefix_suffix_slug_match_without_cwd(self) -&gt; None:
+    71→        parsed = make_transcript(cwd=&quot;&quot;, source_path=&quot;C:/Users/ai/.claude/projects/acme-backend/session.jsonl&quot;)
+    72→        self.assertFalse(transcript_matches_repo(parsed, Path(&quot;D:/work/backend&quot;), &quot;backend&quot;))
+    73→
+    74→
+    75→class SlugifyTests(unittest.TestCase):
+    76→    def test_simple_name(self) -&gt; None:
+    77→        self.assertEqual(slugify(&quot;demo-repo&quot;), &quot;demo-repo&quot;)
+    78→
+    79→    def test_spaces_converted(self) -&gt; None:
+    80→        self.assertEqual(slugify(&quot;My Project Name&quot;), &quot;my-project-name&quot;)
+    81→
+    82→    def test_special_chars_stripped(self) -&gt; None:
+    83→        self.assertEqual(slugify(&quot;project@v2!&quot;), &quot;project-v2&quot;)
+    84→
+    85→    def test_empty_returns_fallback(self) -&gt; None:
+    86→        self.assertEqual(slugify(&quot;&quot;, fallback=&quot;default&quot;), &quot;default&quot;)
+    87→
+    88→    def test_all_non_ascii_returns_fallback(self) -&gt; None:
+    89→        self.assertEqual(slugify(&quot;\u4e2d\u6587\u9879\u76ee&quot;, fallback=&quot;project&quot;), &quot;project&quot;)
+    90→
+    91→    def test_mixed_ascii_non_ascii(self) -&gt; None:
+    92→        result = slugify(&quot;my-\u9879\u76ee-v2&quot;)
+    93→        self.assertEqual(result, &quot;my--v2&quot;)
+    94→
+    95→    def test_leading_trailing_dots_stripped(self) -&gt; None:
+    96→        self.assertEqual(slugify(&quot;..hello..&quot;), &quot;hello&quot;)
+    97→
+    98→
+    99→class NormalizeTimestampTests(unittest.TestCase):
+   100→    def test_unix_float(self) -&gt; None:
+   101→        result = normalize_timestamp(1710374400.0)
+   102→        self.assertIn(&quot;2024-03-1&quot;, result)
+   103→        self.assertTrue(result.endswith(&quot;Z&quot;))
+   104→
+   105→    def test_unix_int(self) -&gt; None:
+   106→        result = normalize_timestamp(1710374400)
+   107→        self.assertTrue(result.endswith(&quot;Z&quot;))
+   108→
+   109→    def test_iso_string(self) -&gt; None:
+   110→        result = normalize_timestamp(&quot;2026-03-14T09:30:00Z&quot;)
+   111→        self.assertEqual(result, &quot;2026-03-14T09:30:00Z&quot;)
+   112→
+   113→    def test_iso_with_offset(self) -&gt; None:
+   114→        result = normalize_timestamp(&quot;2026-03-14T09:30:00+08:00&quot;)
+   115→        self.assertEqual(result, &quot;2026-03-14T01:30:00Z&quot;)
+   116→
+   117→    def test_empty_string_uses_fallback(self) -&gt; None:
+   118→        result = normalize_timestamp(&quot;&quot;, &quot;2026-01-01T00:00:00Z&quot;)
+   119→        self.assertEqual(result, &quot;2026-01-01T00:00:00Z&quot;)
+   120→
+   121→    def test_none_uses_fallback(self) -&gt; None:
+   122→        result = normalize_timestamp(None, &quot;2026-01-01T00:00:00Z&quot;)
+   123→        self.assertEqual(result, &quot;2026-01-01T00:00:00Z&quot;)
+   124→
+   125→    def test_unparseable_string_returned_as_is(self) -&gt; None:
+   126→        result = normalize_timestamp(&quot;not-a-date&quot;)
+   127→        self.assertEqual(result, &quot;not-a-date&quot;)
+   128→
+   129→
+   130→class EarliestTimestampTests(unittest.TestCase):
+   131→    def test_earlier_candidate_wins(self) -&gt; None:
+   132→        result = earliest_timestamp(&quot;2026-03-14T10:00:00Z&quot;, &quot;2026-03-14T08:00:00Z&quot;)
+   133→        self.assertEqual(result, &quot;2026-03-14T08:00:00Z&quot;)
+   134→
+   135→    def test_later_candidate_loses(self) -&gt; None:
+   136→        result = earliest_timestamp(&quot;2026-03-14T08:00:00Z&quot;, &quot;2026-03-14T10:00:00Z&quot;)
+   137→        self.assertEqual(result, &quot;2026-03-14T08:00:00Z&quot;)
+   138→
+   139→    def test_none_candidate_keeps_current(self) -&gt; None:
+   140→        result = earliest_timestamp(&quot;2026-03-14T08:00:00Z&quot;, None)
+   141→        self.assertEqual(result, &quot;2026-03-14T08:00:00Z&quot;)
+   142→
+   143→
+   144→class TimestampPartitionTests(unittest.TestCase):
+   145→    def test_valid_timestamp(self) -&gt; None:
+   146→        self.assertEqual(timestamp_partition(&quot;2026-03-14T09:30:00Z&quot;), (&quot;2026&quot;, &quot;03&quot;))
+   147→
+   148→    def test_invalid_timestamp(self) -&gt; None:
+   149→        self.assertEqual(timestamp_partition(&quot;invalid&quot;), (&quot;unknown&quot;, &quot;unknown&quot;))
+   150→
+   151→
+   152→class JoinParagraphsTests(unittest.TestCase):
+   153→    def test_joins_with_double_newline(self) -&gt; None:
+   154→        self.assertEqual(join_paragraphs([&quot;Hello&quot;, &quot;World&quot;]), &quot;Hello\n\nWorld&quot;)
+   155→
+   156→    def test_strips_whitespace(self) -&gt; None:
+   157→        self.assertEqual(join_paragraphs([&quot;  Hello  &quot;, &quot;  World  &quot;]), &quot;Hello\n\nWorld&quot;)
+   158→
+   159→    def test_skips_empty(self) -&gt; None:
+   160→        self.assertEqual(join_paragraphs([&quot;Hello&quot;, &quot;&quot;, &quot;  &quot;, &quot;World&quot;]), &quot;Hello\n\nWorld&quot;)
+   161→
+   162→
+   163→class SummarizeValueTests(unittest.TestCase):
+   164→    def test_none(self) -&gt; None:
+   165→        self.assertEqual(summarize_value(None), &quot;none&quot;)
+   166→
+   167→    def test_short_string(self) -&gt; None:
+   168→        self.assertEqual(summarize_value(&quot;hello&quot;), &quot;hello&quot;)
+   169→
+   170→    def test_long_string_truncated(self) -&gt; None:
+   171→        result = summarize_value(&quot;x&quot; * 200, limit=10)
+   172→        self.assertEqual(len(result), 10)
+   173→        self.assertTrue(result.endswith(&quot;...&quot;))
+   174→
+   175→    def test_dict_serialized(self) -&gt; None:
+   176→        result = summarize_value({&quot;key&quot;: &quot;value&quot;})
+   177→        self.assertIn(&quot;key&quot;, result)
+   178→
+   179→
+   180→class YamlEscapeTests(unittest.TestCase):
+   181→    def test_simple(self) -&gt; None:
+   182→        self.assertEqual(yaml_escape(&quot;hello&quot;), &#39;&quot;hello&quot;&#39;)
+   183→
+   184→    def test_quotes(self) -&gt; None:
+   185→        self.assertEqual(yaml_escape(&#39;say &quot;hi&quot;&#39;), &#39;&quot;say \\&quot;hi\\&quot;&quot;&#39;)
+   186→
+   187→    def test_newline(self) -&gt; None:
+   188→        self.assertEqual(yaml_escape(&quot;line1\nline2&quot;), &#39;&quot;line1\\nline2&quot;&#39;)
+   189→
+   190→    def test_backslash(self) -&gt; None:
+   191→        self.assertEqual(yaml_escape(&quot;C:\\path&quot;), &#39;&quot;C:\\\\path&quot;&#39;)
+   192→
+   193→
+   194→class InferClientTests(unittest.TestCase):
+   195→    def test_explicit_client(self) -&gt; None:
+   196→        self.assertEqual(infer_client(&quot;codex&quot;, Path(&quot;any/path&quot;)), &quot;codex&quot;)
+   197→
+   198→    def test_codex_from_path(self) -&gt; None:
+   199→        self.assertEqual(infer_client(&quot;auto&quot;, Path(&quot;/home/user/.codex/sessions/file.jsonl&quot;)), &quot;codex&quot;)
+   200→
+   201→    def test_claude_from_path(self) -&gt; None:
+   202→        self.assertEqual(infer_client(&quot;auto&quot;, Path(&quot;/home/user/.claude/projects/test/file.jsonl&quot;)), &quot;claude&quot;)
+   203→
+   204→    def test_gemini_from_path(self) -&gt; None:
+   205→        self.assertEqual(infer_client(&quot;auto&quot;, Path(&quot;/home/user/.gemini/tmp/checkpoint.json&quot;)), &quot;gemini&quot;)
+   206→
+   207→
+   208→class InferProjectSlugTests(unittest.TestCase):
+   209→    def test_from_cwd(self) -&gt; None:
+   210→        parsed = make_transcript(cwd=&quot;D:/work/my-project&quot;)
+   211→        self.assertEqual(infer_project_slug(parsed), &quot;my-project&quot;)
+   212→
+   213→    def test_from_claude_source_path(self) -&gt; None:
+   214→        parsed = make_transcript(cwd=&quot;&quot;, source_path=&quot;C:/Users/ai/.claude/projects/demo-repo/session.jsonl&quot;)
+   215→        self.assertEqual(infer_project_slug(parsed), &quot;demo-repo&quot;)
+   216→
+   217→
+   218→class TranscriptHasContentTests(unittest.TestCase):
+   219→    def test_no_content(self) -&gt; None:
+   220→        parsed = make_transcript()
+   221→        self.assertFalse(transcript_has_content(parsed))
+   222→
+   223→    def test_has_messages(self) -&gt; None:
+   224→        parsed = make_transcript()
+   225→        parsed.messages.append(TranscriptMessage(role=&quot;user&quot;, text=&quot;hello&quot;))
+   226→        self.assertTrue(transcript_has_content(parsed))
+   227→
+   228→    def test_has_tool_events(self) -&gt; None:
+   229→        parsed = make_transcript()
+   230→        parsed.tool_events.append(TranscriptToolEvent(summary=&quot;read file&quot;))
+   231→        self.assertTrue(transcript_has_content(parsed))
+   232→
+   233→
+   234→class LoadJsonlTests(unittest.TestCase):
+   235→    def test_valid_jsonl(self) -&gt; None:
+   236→        with tempfile.TemporaryDirectory() as tmp:
+   237→            path = Path(tmp) / &quot;test.jsonl&quot;
+   238→            path.write_text(&#39;{&quot;a&quot;: 1}\n{&quot;b&quot;: 2}\n&#39;, encoding=&quot;utf-8&quot;)
+   239→            result = load_jsonl(path)
+   240→            self.assertEqual(len(result), 2)
+   241→            self.assertEqual(result[0][&quot;a&quot;], 1)
+   242→
+   243→    def test_skips_malformed_lines(self) -&gt; None:
+   244→        with tempfile.TemporaryDirectory() as tmp:
+   245→            path = Path(tmp) / &quot;test.jsonl&quot;
+   246→            path.write_text(&#39;{&quot;a&quot;: 1}\nNOT JSON\n{&quot;b&quot;: 2}\n&#39;, encoding=&quot;utf-8&quot;)
+   247→            result = load_jsonl(path)
+   248→            self.assertEqual(len(result), 2)
+   249→
+   250→    def test_skips_empty_lines(self) -&gt; None:
+   251→        with tempfile.TemporaryDirectory() as tmp:
+   252→            path = Path(tmp) / &quot;test.jsonl&quot;
+   253→            path.write_text(&#39;{&quot;a&quot;: 1}\n\n\n{&quot;b&quot;: 2}\n&#39;, encoding=&quot;utf-8&quot;)
+   254→            result = load_jsonl(path)
+   255→            self.assertEqual(len(result), 2)
+   256→
+   257→
+   258→class ParseCodexTranscriptTests(unittest.TestCase):
+   259→    def test_basic_codex_transcript(self) -&gt; None:
+   260→        with tempfile.TemporaryDirectory() as tmp:
+   261→            path = Path(tmp) / &quot;session.jsonl&quot;
+   262→            records = [
+   263→                {&quot;type&quot;: &quot;session_meta&quot;, &quot;payload&quot;: {&quot;id&quot;: &quot;sess-1&quot;, &quot;thread_name&quot;: &quot;Test Session&quot;, &quot;cwd&quot;: &quot;/work/repo&quot;, &quot;git&quot;: {&quot;branch&quot;: &quot;main&quot;}}},
+   264→                {&quot;type&quot;: &quot;response_item&quot;, &quot;payload&quot;: {&quot;type&quot;: &quot;message&quot;, &quot;role&quot;: &quot;user&quot;, &quot;content&quot;: [{&quot;type&quot;: &quot;input_text&quot;, &quot;text&quot;: &quot;Hello&quot;}]}},
+   265→                {&quot;type&quot;: &quot;response_item&quot;, &quot;payload&quot;: {&quot;type&quot;: &quot;message&quot;, &quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: [{&quot;type&quot;: &quot;output_text&quot;, &quot;text&quot;: &quot;Hi there&quot;}]}},
+   266→            ]
+   267→            path.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   268→
+   269→            parsed = parse_codex_transcript(path)
+   270→            self.assertEqual(parsed.client, &quot;codex&quot;)
+   271→            self.assertEqual(parsed.session_id, &quot;sess-1&quot;)
+   272→            self.assertEqual(parsed.title, &quot;Test Session&quot;)
+   273→            self.assertEqual(parsed.cwd, &quot;/work/repo&quot;)
+   274→            self.assertEqual(parsed.branch, &quot;main&quot;)
+   275→            self.assertEqual(len(parsed.messages), 2)
+   276→            self.assertEqual(parsed.messages[0].role, &quot;user&quot;)
+   277→            self.assertEqual(parsed.messages[0].text, &quot;Hello&quot;)
+   278→
+   279→    def test_tool_call_events(self) -&gt; None:
+   280→        with tempfile.TemporaryDirectory() as tmp:
+   281→            path = Path(tmp) / &quot;session.jsonl&quot;
+   282→            records = [
+   283→                {&quot;type&quot;: &quot;response_item&quot;, &quot;payload&quot;: {&quot;type&quot;: &quot;function_call&quot;, &quot;name&quot;: &quot;read_file&quot;, &quot;arguments&quot;: &quot;/path/to/file&quot;}},
+   284→                {&quot;type&quot;: &quot;response_item&quot;, &quot;payload&quot;: {&quot;type&quot;: &quot;function_call_output&quot;, &quot;name&quot;: &quot;read_file&quot;, &quot;output&quot;: &quot;file contents&quot;}},
+   285→            ]
+   286→            path.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   287→
+   288→            parsed = parse_codex_transcript(path)
+   289→            self.assertEqual(len(parsed.tool_events), 2)
+   290→            self.assertIn(&quot;read_file&quot;, parsed.tool_events[0].summary)
+   291→
+   292→
+   293→class ParseClaudeTranscriptTests(unittest.TestCase):
+   294→    def test_basic_claude_transcript(self) -&gt; None:
+   295→        with tempfile.TemporaryDirectory() as tmp:
+   296→            path = Path(tmp) / &quot;session.jsonl&quot;
+   297→            records = [
+   298→                {&quot;type&quot;: &quot;user&quot;, &quot;sessionId&quot;: &quot;sess-claude-1&quot;, &quot;cwd&quot;: &quot;/work/project&quot;, &quot;gitBranch&quot;: &quot;feature&quot;,
+   299→                 &quot;message&quot;: {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is this?&quot;}},
+   300→                {&quot;type&quot;: &quot;assistant&quot;, &quot;sessionId&quot;: &quot;sess-claude-1&quot;,
+   301→                 &quot;message&quot;: {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: [{&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;This is a project.&quot;}]}},
+   302→            ]
+   303→            path.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   304→
+   305→            parsed = parse_claude_transcript(path)
+   306→            self.assertEqual(parsed.client, &quot;claude&quot;)
+   307→            self.assertEqual(parsed.session_id, &quot;sess-claude-1&quot;)
+   308→            self.assertEqual(parsed.cwd, &quot;/work/project&quot;)
+   309→            self.assertEqual(parsed.branch, &quot;feature&quot;)
+   310→            self.assertEqual(len(parsed.messages), 2)
+   311→
+   312→    def test_tool_use_extracted(self) -&gt; None:
+   313→        with tempfile.TemporaryDirectory() as tmp:
+   314→            path = Path(tmp) / &quot;session.jsonl&quot;
+   315→            records = [
+   316→                {&quot;type&quot;: &quot;assistant&quot;, &quot;message&quot;: {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: [
+   317→                    {&quot;type&quot;: &quot;tool_use&quot;, &quot;name&quot;: &quot;Read&quot;, &quot;input&quot;: {&quot;path&quot;: &quot;/a.txt&quot;}},
+   318→                ]}},
+   319→            ]
+   320→            path.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   321→
+   322→            parsed = parse_claude_transcript(path)
+   323→            self.assertEqual(len(parsed.tool_events), 1)
+   324→            self.assertIn(&quot;Read&quot;, parsed.tool_events[0].summary)
+   325→
+   326→
+   327→class ParseGeminiTranscriptTests(unittest.TestCase):
+   328→    def test_basic_gemini_json(self) -&gt; None:
+   329→        with tempfile.TemporaryDirectory() as tmp:
+   330→            path = Path(tmp) / &quot;chat.json&quot;
+   331→            data = [
+   332→                {&quot;role&quot;: &quot;user&quot;, &quot;text&quot;: &quot;Hello from Gemini&quot;, &quot;timestamp&quot;: &quot;2026-03-14T10:00:00Z&quot;},
+   333→                {&quot;role&quot;: &quot;model&quot;, &quot;text&quot;: &quot;Hello! How can I help?&quot;, &quot;timestamp&quot;: &quot;2026-03-14T10:00:01Z&quot;},
+   334→            ]
+   335→            path.write_text(json.dumps(data), encoding=&quot;utf-8&quot;)
+   336→
+   337→            parsed = parse_gemini_transcript(path)
+   338→            self.assertEqual(parsed.client, &quot;gemini&quot;)
+   339→            self.assertEqual(len(parsed.messages), 2)
+   340→            self.assertEqual(parsed.messages[0].role, &quot;user&quot;)
+   341→            self.assertEqual(parsed.messages[1].role, &quot;assistant&quot;)
+   342→
+   343→    def test_gemini_jsonl(self) -&gt; None:
+   344→        with tempfile.TemporaryDirectory() as tmp:
+   345→            path = Path(tmp) / &quot;chat.jsonl&quot;
+   346→            records = [
+   347→                {&quot;role&quot;: &quot;user&quot;, &quot;text&quot;: &quot;Question&quot;},
+   348→                {&quot;role&quot;: &quot;model&quot;, &quot;text&quot;: &quot;Answer&quot;},
+   349→            ]
+   350→            path.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   351→
+   352→            parsed = parse_gemini_transcript(path)
+   353→            self.assertEqual(len(parsed.messages), 2)
+   354→
+   355→
+   356→class PreserveExistingImportTimestampTests(unittest.TestCase):
+   357→    def test_none_existing_returns_payload(self) -&gt; None:
+   358→        payload = {&quot;session_id&quot;: &quot;s1&quot;, &quot;imported_at&quot;: &quot;2026-03-14T10:00:00Z&quot;}
+   359→        result = preserve_existing_import_timestamp(None, payload)
+   360→        self.assertEqual(result, payload)
+   361→
+   362→    def test_preserves_old_imported_at_when_signature_matches(self) -&gt; None:
+   363→        existing = {&quot;session_id&quot;: &quot;s1&quot;, &quot;imported_at&quot;: &quot;2026-03-01T00:00:00Z&quot;, &quot;raw_sha256&quot;: &quot;abc&quot;}
+   364→        payload = {&quot;session_id&quot;: &quot;s1&quot;, &quot;imported_at&quot;: &quot;2026-03-14T10:00:00Z&quot;, &quot;raw_sha256&quot;: &quot;abc&quot;}
+   365→        result = preserve_existing_import_timestamp(existing, payload)
+   366→        self.assertEqual(result[&quot;imported_at&quot;], &quot;2026-03-01T00:00:00Z&quot;)
+   367→
+   368→    def test_uses_new_imported_at_when_signature_differs(self) -&gt; None:
+   369→        existing = {&quot;session_id&quot;: &quot;s1&quot;, &quot;imported_at&quot;: &quot;2026-03-01T00:00:00Z&quot;, &quot;raw_sha256&quot;: &quot;abc&quot;}
+   370→        payload = {&quot;session_id&quot;: &quot;s1&quot;, &quot;imported_at&quot;: &quot;2026-03-14T10:00:00Z&quot;, &quot;raw_sha256&quot;: &quot;def&quot;}
+   371→        result = preserve_existing_import_timestamp(existing, payload)
+   372→        self.assertEqual(result[&quot;imported_at&quot;], &quot;2026-03-14T10:00:00Z&quot;)
+   373→
+   374→
+   375→class ImportTranscriptTests(unittest.TestCase):
+   376→    def test_full_import_pipeline(self) -&gt; None:
+   377→        with tempfile.TemporaryDirectory() as tmp:
+   378→            root = Path(tmp) / &quot;repo&quot;
+   379→            global_root = Path(tmp) / &quot;global&quot;
+   380→            root.mkdir()
+   381→            global_root.mkdir()
+   382→
+   383→            source = Path(tmp) / &quot;source.jsonl&quot;
+   384→            records = [
+   385→                {&quot;type&quot;: &quot;user&quot;, &quot;sessionId&quot;: &quot;sess-1&quot;, &quot;cwd&quot;: str(root),
+   386→                 &quot;message&quot;: {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Test message&quot;}},
+   387→                {&quot;type&quot;: &quot;assistant&quot;, &quot;sessionId&quot;: &quot;sess-1&quot;,
+   388→                 &quot;message&quot;: {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Response&quot;}},
+   389→            ]
+   390→            source.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   391→
+   392→            parsed = parse_claude_transcript(source)
+   393→            result = import_transcript(
+   394→                parsed=parsed,
+   395→                root=root,
+   396→                global_root=global_root,
+   397→                project_slug=&quot;test-project&quot;,
+   398→                raw_upload_permission=&quot;not-set&quot;,
+   399→                mirror_to_repo=True,
+   400→            )
+   401→
+   402→            self.assertEqual(result[&quot;client&quot;], &quot;claude&quot;)
+   403→            self.assertEqual(result[&quot;project&quot;], &quot;test-project&quot;)
+   404→            self.assertEqual(result[&quot;message_count&quot;], 2)
+   405→            self.assertTrue(Path(result[&quot;global_raw_path&quot;]).exists())
+   406→            self.assertTrue(Path(result[&quot;global_clean_path&quot;]).exists())
+   407→            self.assertTrue((root / result[&quot;repo_raw_path&quot;]).exists())
+   408→            self.assertTrue((root / result[&quot;repo_clean_path&quot;]).exists())
+   409→
+   410→    def test_global_only_import(self) -&gt; None:
+   411→        with tempfile.TemporaryDirectory() as tmp:
+   412→            root = Path(tmp) / &quot;repo&quot;
+   413→            global_root = Path(tmp) / &quot;global&quot;
+   414→            root.mkdir()
+   415→            global_root.mkdir()
+   416→
+   417→            source = Path(tmp) / &quot;source.jsonl&quot;
+   418→            records = [
+   419→                {&quot;type&quot;: &quot;user&quot;, &quot;message&quot;: {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Test&quot;}},
+   420→            ]
+   421→            source.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   422→
+   423→            parsed = parse_claude_transcript(source)
+   424→            result = import_transcript(
+   425→                parsed=parsed,
+   426→                root=root,
+   427→                global_root=global_root,
+   428→                project_slug=&quot;other-project&quot;,
+   429→                raw_upload_permission=&quot;not-applicable&quot;,
+   430→                mirror_to_repo=False,
+   431→            )
+   432→
+   433→            self.assertFalse(result[&quot;repo_mirror_enabled&quot;])
+   434→            self.assertTrue(Path(result[&quot;global_raw_path&quot;]).exists())
+   435→            self.assertEqual(result[&quot;repo_raw_path&quot;], &quot;&quot;)
+   436→
+   437→    def test_idempotent_reimport(self) -&gt; None:
+   438→        with tempfile.TemporaryDirectory() as tmp:
+   439→            root = Path(tmp) / &quot;repo&quot;
+   440→            global_root = Path(tmp) / &quot;global&quot;
+   441→            root.mkdir()
+   442→            global_root.mkdir()
+   443→
+   444→            source = Path(tmp) / &quot;source.jsonl&quot;
+   445→            records = [
+   446→                {&quot;type&quot;: &quot;user&quot;, &quot;message&quot;: {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Test&quot;}},
+   447→            ]
+   448→            source.write_text(&quot;\n&quot;.join(json.dumps(r) for r in records), encoding=&quot;utf-8&quot;)
+   449→
+   450→            parsed = parse_claude_transcript(source)
+   451→            result1 = import_transcript(
+   452→                parsed=parsed, root=root, global_root=global_root,
+   453→                project_slug=&quot;test&quot;, raw_upload_permission=&quot;not-set&quot;, mirror_to_repo=True,
+   454→            )
+   455→            result2 = import_transcript(
+   456→                parsed=parsed, root=root, global_root=global_root,
+   457→                project_slug=&quot;test&quot;, raw_upload_permission=&quot;not-set&quot;, mirror_to_repo=True,
+   458→            )
+   459→
+   460→            self.assertEqual(result1[&quot;raw_sha256&quot;], result2[&quot;raw_sha256&quot;])
+   461→            self.assertEqual(result1[&quot;imported_at&quot;], result2[&quot;imported_at&quot;])
+   462→
+   463→
+   464→if __name__ == &quot;__main__&quot;:
+   465→    unittest.main()
+   466→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01KSmhVRDWr3f1GMr37wjDCV Read output=1→&quot;&quot;&quot;Shared constants, data-access helpers, and text-extraction utilities.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import hashlib 6→import json 7→import re 8→from dateti..." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01KSmhVRDWr3f1GMr37wjDCV</span>
+      
+      <span class="timeline-time">04:48:15</span>
+    </div>
+    <div class="timeline-title">Read output=1→&quot;&quot;&quot;Shared constants, data-access helpers, and text-extraction utilities.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import hashlib 6→import json 7→import re 8→from dateti...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&quot;&quot;&quot;Shared constants, data-access helpers, and text-extraction utilities.&quot;&quot;&quot;
+     2→
+     3→from __future__ import annotations
+     4→
+     5→import hashlib
+     6→import json
+     7→import re
+     8→from datetime import datetime, timezone
+     9→from pathlib import Path
+    10→from typing import Any
+    11→
+    12→
+    13→# ---------------------------------------------------------------------------
+    14→# Constants
+    15→# ---------------------------------------------------------------------------
+    16→
+    17→CLIENTS = {&quot;codex&quot;, &quot;claude&quot;, &quot;gemini&quot;}
+    18→TEXT_BLOCK_TYPES = {&quot;input_text&quot;, &quot;output_text&quot;, &quot;text&quot;}
+    19→SKIP_BLOCK_TYPES = {&quot;thinking&quot;, &quot;reasoning&quot;}
+    20→TOOL_USE_TYPES = {&quot;tool_use&quot;}
+    21→TOOL_RESULT_TYPES = {&quot;tool_result&quot;}
+    22→
+    23→
+    24→# ---------------------------------------------------------------------------
+    25→# Generic utilities
+    26→# ---------------------------------------------------------------------------
+    27→
+    28→
+    29→def slugify(value: str, fallback: str = &quot;session&quot;) -&gt; str:
+    30→    ascii_value = value.encode(&quot;ascii&quot;, &quot;ignore&quot;).decode(&quot;ascii&quot;).lower()
+    31→    slug = re.sub(r&quot;[^a-z0-9._-]+&quot;, &quot;-&quot;, ascii_value).strip(&quot;-._&quot;)
+    32→    return slug or fallback
+    33→
+    34→
+    35→def sha256_file(path: Path) -&gt; str:
+    36→    digest = hashlib.sha256()
+    37→    with path.open(&quot;rb&quot;) as handle:
+    38→        for chunk in iter(lambda: handle.read(1024 * 1024), b&quot;&quot;):
+    39→            digest.update(chunk)
+    40→    return digest.hexdigest()
+    41→
+    42→
+    43→def normalize_timestamp(value: Any, fallback: str | None = None) -&gt; str:
+    44→    if isinstance(value, (int, float)):
+    45→        return (
+    46→            datetime.fromtimestamp(float(value), tz=timezone.utc)
+    47→            .replace(microsecond=0)
+    48→            .isoformat()
+    49→            .replace(&quot;+00:00&quot;, &quot;Z&quot;)
+    50→        )
+    51→    if isinstance(value, datetime):
+    52→        normalized = value.astimezone(timezone.utc) if value.tzinfo else value
+    53→        return normalized.replace(microsecond=0).isoformat().replace(&quot;+00:00&quot;, &quot;Z&quot;)
+    54→    if isinstance(value, str):
+    55→        text = value.strip()
+    56→        if not text:
+    57→            return fallback or normalize_timestamp(datetime.now(timezone.utc))
+    58→        iso_candidate = text[:-1] + &quot;+00:00&quot; if text.endswith(&quot;Z&quot;) else text
+    59→        try:
+    60→            parsed = datetime.fromisoformat(iso_candidate)
+    61→            if parsed.tzinfo is not None:
+    62→                parsed = parsed.astimezone(timezone.utc)
+    63→            return parsed.replace(microsecond=0).isoformat().replace(&quot;+00:00&quot;, &quot;Z&quot;)
+    64→        except ValueError:
+    65→            return text
+    66→    return fallback or normalize_timestamp(datetime.now(timezone.utc))
+    67→
+    68→
+    69→def earliest_timestamp(current: str, candidate: Any) -&gt; str:
+    70→    normalized = normalize_timestamp(candidate, current)
+    71→    current_dt = parse_iso_timestamp(current)
+    72→    normalized_dt = parse_iso_timestamp(normalized)
+    73→    if current_dt is not None and normalized_dt is not None:
+    74→        return normalized if normalized_dt &lt; current_dt else current
+    75→    if normalized_dt is not None:
+    76→        return normalized
+    77→    return current or normalized
+    78→
+    79→
+    80→def parse_iso_timestamp(value: str) -&gt; datetime | None:
+    81→    if not value:
+    82→        return None
+    83→    candidate = value[:-1] + &quot;+00:00&quot; if value.endswith(&quot;Z&quot;) else value
+    84→    try:
+    85→        parsed = datetime.fromisoformat(candidate)
+    86→    except ValueError:
+    87→        return None
+    88→    if parsed.tzinfo is None:
+    89→        return parsed.replace(tzinfo=timezone.utc)
+    90→    return parsed.astimezone(timezone.utc)
+    91→
+    92→
+    93→def timestamp_partition(timestamp: str) -&gt; tuple[str, str]:
+    94→    try:
+    95→        candidate = timestamp[:-1] + &quot;+00:00&quot; if timestamp.endswith(&quot;Z&quot;) else timestamp
+    96→        parsed = datetime.fromisoformat(candidate)
+    97→        return parsed.strftime(&quot;%Y&quot;), parsed.strftime(&quot;%m&quot;)
+    98→    except ValueError:
+    99→        return &quot;unknown&quot;, &quot;unknown&quot;
+   100→
+   101→
+   102→def join_paragraphs(parts: Any) -&gt; str:
+   103→    cleaned = [str(part).strip() for part in parts if str(part).strip()]
+   104→    return &quot;\n\n&quot;.join(cleaned)
+   105→
+   106→
+   107→def summarize_value(value: Any, limit: int = 180) -&gt; str:
+   108→    if value is None:
+   109→        return &quot;none&quot;
+   110→    if isinstance(value, str):
+   111→        text = &quot; &quot;.join(value.split())
+   112→        return truncate(text, limit)
+   113→    try:
+   114→        text = json.dumps(value, ensure_ascii=False, sort_keys=True)
+   115→    except TypeError:
+   116→        text = str(value)
+   117→    text = &quot; &quot;.join(text.split())
+   118→    return truncate(text, limit)
+   119→
+   120→
+   121→def truncate(text: str, limit: int) -&gt; str:
+   122→    return text if len(text) &lt;= limit else text[: limit - 3] + &quot;...&quot;
+   123→
+   124→
+   125→def yaml_escape(value: str) -&gt; str:
+   126→    escaped = value.replace(&quot;\\&quot;, &quot;\\\\&quot;).replace(&#39;&quot;&#39;, &#39;\\&quot;&#39;).replace(&quot;\n&quot;, &quot;\\n&quot;)
+   127→    return f&#39;&quot;{escaped}&quot;&#39;
+   128→
+   129→
+   130→def ensure_dict(value: Any) -&gt; dict[str, Any]:
+   131→    return value if isinstance(value, dict) else {}
+   132→
+   133→
+   134→def ensure_list(value: Any) -&gt; list[Any]:
+   135→    return value if isinstance(value, list) else []
+   136→
+   137→
+   138→def get_nested(payload: dict[str, Any], *keys: str) -&gt; Any:
+   139→    current: Any = payload
+   140→    for key in keys:
+   141→        if not isinstance(current, dict):
+   142→            return None
+   143→        current = current.get(key)
+   144→    return current
+   145→
+   146→
+   147→def load_jsonl(path: Path) -&gt; list[dict[str, Any]]:
+   148→    records: list[dict[str, Any]] = []
+   149→    with path.open(&quot;r&quot;, encoding=&quot;utf-8&quot;, errors=&quot;ignore&quot;) as handle:
+   150→        for line in handle:
+   151→            line = line.strip()
+   152→            if not line:
+   153→                continue
+   154→            try:
+   155→                records.append(json.loads(line))
+   156→            except json.JSONDecodeError:
+   157→                continue
+   158→    return records
+   159→
+   160→
+   161→def load_json(path: Path) -&gt; dict[str, Any] | None:
+   162→    if not path.exists():
+   163→        return None
+   164→    try:
+   165→        return json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+   166→    except (OSError, json.JSONDecodeError):
+   167→        return None
+   168→
+   169→
+   170→# ---------------------------------------------------------------------------
+   171→# Text extraction helpers
+   172→# ---------------------------------------------------------------------------
+   173→
+   174→
+   175→def extract_text_blocks(blocks: Any) -&gt; str:
+   176→    parts: list[str] = []
+   177→    for block in ensure_list(blocks):
+   178→        if isinstance(block, str):
+   179→            text = block.strip()
+   180→            if text:
+   181→                parts.append(text)
+   182→            continue
+   183→        if not isinstance(block, dict):
+   184→            continue
+   185→        block_type = str(block.get(&quot;type&quot;) or &quot;&quot;).lower()
+   186→        if block_type in SKIP_BLOCK_TYPES | TOOL_USE_TYPES | TOOL_RESULT_TYPES:
+   187→            continue
+   188→        if block_type in TEXT_BLOCK_TYPES:
+   189→            text = str(block.get(&quot;text&quot;) or &quot;&quot;).strip()
+   190→            if text:
+   191→                parts.append(text)
+   192→            continue
+   193→        fallback_text = extract_simple_text(block)
+   194→        if fallback_text:
+   195→            parts.append(fallback_text)
+   196→    return join_paragraphs(parts)
+   197→
+   198→
+   199→def extract_simple_text(value: Any) -&gt; str:
+   200→    if isinstance(value, str):
+   201→        return value.strip()
+   202→    if isinstance(value, list):
+   203→        return join_paragraphs(extract_simple_text(item) for item in value)
+   204→    if isinstance(value, dict):
+   205→        for key in (&quot;text&quot;, &quot;content&quot;, &quot;value&quot;):
+   206→            if key in value and isinstance(value[key], str):
+   207→                return value[key].strip()
+   208→        return &quot;&quot;
+   209→    return &quot;&quot;
+   210→
+   211→
+   212→def extract_gemini_text(node: dict[str, Any]) -&gt; str:
+   213→    parts: list[str] = []
+   214→    for candidate in (node.get(&quot;parts&quot;), node.get(&quot;content&quot;), node.get(&quot;text&quot;), node.get(&quot;message&quot;)):
+   215→        parts.extend(extract_gemini_parts(candidate))
+   216→    return join_paragraphs(parts)
+   217→
+   218→
+   219→def extract_gemini_parts(value: Any) -&gt; list[str]:
+   220→    if isinstance(value, str):
+   221→        text = value.strip()
+   222→        return [text] if text else []
+   223→    if isinstance(value, list):
+   224→        parts: list[str] = []
+   225→        for item in value:
+   226→            parts.extend(extract_gemini_parts(item))
+   227→        return parts
+   228→    if isinstance(value, dict):
+   229→        block_type = str(value.get(&quot;type&quot;) or &quot;&quot;).lower()
+   230→        if block_type in SKIP_BLOCK_TYPES | TOOL_USE_TYPES | TOOL_RESULT_TYPES:
+   231→            return []
+   232→        if &quot;text&quot; in value and isinstance(value[&quot;text&quot;], str):
+   233→            text = value[&quot;text&quot;].strip()
+   234→            return [text] if text else []
+   235→        parts: list[str] = []
+   236→        for key in (&quot;parts&quot;, &quot;content&quot;):
+   237→            if key in value:
+   238→                parts.extend(extract_gemini_parts(value[key]))
+   239→        return parts
+   240→    return []
+   241→
+   242→
+   243→def find_first_mapping_with_keys(value: Any, keys: set[str]) -&gt; dict[str, Any] | None:
+   244→    if isinstance(value, dict):
+   245→        if keys &amp; set(value.keys()):
+   246→            return value
+   247→        for candidate in value.values():
+   248→            result = find_first_mapping_with_keys(candidate, keys)
+   249→            if result is not None:
+   250→                return result
+   251→        return None
+   252→    if isinstance(value, list):
+   253→        for candidate in value:
+   254→            result = find_first_mapping_with_keys(candidate, keys)
+   255→            if result is not None:
+   256→                return result
+   257→    return None
+   258→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check the `_transcript_utils.py` file to see if there are any additional utilities:" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#14</span>
+      
+      <span class="timeline-time">04:48:18</span>
+    </div>
+    <div class="message-body"><p>Now let me check the <code>_transcript_utils.py</code> file to see if there are any additional utilities:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_019Acj2Hf6LqyuTB1U2m6kNE Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_utils.py&quot;}" id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019Acj2Hf6LqyuTB1U2m6kNE</span>
+      <span class="timeline-time">04:48:18</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_utils.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree-workflow/scripts/_transcript_utils.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_019Acj2Hf6LqyuTB1U2m6kNE Read output=1→&quot;&quot;&quot;Backward-compatible re-export hub. 2→ 3→New code should import from the specific modules directly: 4→ _transcript_common, _transcript_parse, _transcript_index, 5→ _transcri..." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019Acj2Hf6LqyuTB1U2m6kNE</span>
+      
+      <span class="timeline-time">04:48:18</span>
+    </div>
+    <div class="timeline-title">Read output=1→&quot;&quot;&quot;Backward-compatible re-export hub. 2→ 3→New code should import from the specific modules directly: 4→ _transcript_common, _transcript_parse, _transcript_index, 5→ _transcri...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&quot;&quot;&quot;Backward-compatible re-export hub.
+     2→
+     3→New code should import from the specific modules directly:
+     4→  _transcript_common, _transcript_parse, _transcript_index,
+     5→  _transcript_discover, _transcript_import
+     6→&quot;&quot;&quot;
+     7→
+     8→from _transcript_common import (  # noqa: F401
+     9→    CLIENTS,
+    10→    SKIP_BLOCK_TYPES,
+    11→    TEXT_BLOCK_TYPES,
+    12→    TOOL_RESULT_TYPES,
+    13→    TOOL_USE_TYPES,
+    14→    earliest_timestamp,
+    15→    ensure_dict,
+    16→    ensure_list,
+    17→    extract_gemini_parts,
+    18→    extract_gemini_text,
+    19→    extract_simple_text,
+    20→    extract_text_blocks,
+    21→    find_first_mapping_with_keys,
+    22→    get_nested,
+    23→    join_paragraphs,
+    24→    load_json,
+    25→    load_jsonl,
+    26→    normalize_timestamp,
+    27→    parse_iso_timestamp,
+    28→    sha256_file,
+    29→    slugify,
+    30→    summarize_value,
+    31→    timestamp_partition,
+    32→    truncate,
+    33→    yaml_escape,
+    34→)
+    35→from _transcript_discover import (  # noqa: F401
+    36→    default_client_roots,
+    37→    default_global_transcript_root,
+    38→    discover_source_files,
+    39→    infer_project_slug,
+    40→    project_slugs_match,
+    41→    safe_file_mtime,
+    42→    transcript_matches_repo,
+    43→)
+    44→from _transcript_import import (  # noqa: F401
+    45→    append_jsonl,
+    46→    copy_file,
+    47→    import_transcript,
+    48→    manifest_changed,
+    49→    manifest_signature,
+    50→    preserve_existing_import_timestamp,
+    51→    transcript_has_content,
+    52→    write_clean_markdown,
+    53→    write_json,
+    54→)
+    55→from _transcript_index import upsert_search_index  # noqa: F401
+    56→from _transcript_parse import (  # noqa: F401
+    57→    ParsedTranscript,
+    58→    TranscriptMessage,
+    59→    TranscriptToolEvent,
+    60→    infer_client,
+    61→    parse_claude_transcript,
+    62→    parse_codex_transcript,
+    63→    parse_gemini_transcript,
+    64→    parse_transcript,
+    65→)
+    66→
+    67→__all__ = [
+    68→    # _transcript_common
+    69→    &quot;CLIENTS&quot;,
+    70→    &quot;TEXT_BLOCK_TYPES&quot;,
+    71→    &quot;SKIP_BLOCK_TYPES&quot;,
+    72→    &quot;TOOL_USE_TYPES&quot;,
+    73→    &quot;TOOL_RESULT_TYPES&quot;,
+    74→    &quot;slugify&quot;,
+    75→    &quot;sha256_file&quot;,
+    76→    &quot;normalize_timestamp&quot;,
+    77→    &quot;earliest_timestamp&quot;,
+    78→    &quot;parse_iso_timestamp&quot;,
+    79→    &quot;timestamp_partition&quot;,
+    80→    &quot;join_paragraphs&quot;,
+    81→    &quot;summarize_value&quot;,
+    82→    &quot;truncate&quot;,
+    83→    &quot;yaml_escape&quot;,
+    84→    &quot;ensure_dict&quot;,
+    85→    &quot;ensure_list&quot;,
+    86→    &quot;get_nested&quot;,
+    87→    &quot;load_jsonl&quot;,
+    88→    &quot;load_json&quot;,
+    89→    &quot;extract_text_blocks&quot;,
+    90→    &quot;extract_simple_text&quot;,
+    91→    &quot;extract_gemini_text&quot;,
+    92→    &quot;extract_gemini_parts&quot;,
+    93→    &quot;find_first_mapping_with_keys&quot;,
+    94→    # _transcript_parse
+    95→    &quot;TranscriptMessage&quot;,
+    96→    &quot;TranscriptToolEvent&quot;,
+    97→    &quot;ParsedTranscript&quot;,
+    98→    &quot;infer_client&quot;,
+    99→    &quot;parse_transcript&quot;,
+   100→    &quot;parse_codex_transcript&quot;,
+   101→    &quot;parse_claude_transcript&quot;,
+   102→    &quot;parse_gemini_transcript&quot;,
+   103→    # _transcript_index
+   104→    &quot;upsert_search_index&quot;,
+   105→    # _transcript_discover
+   106→    &quot;default_global_transcript_root&quot;,
+   107→    &quot;default_client_roots&quot;,
+   108→    &quot;discover_source_files&quot;,
+   109→    &quot;infer_project_slug&quot;,
+   110→    &quot;transcript_matches_repo&quot;,
+   111→    &quot;project_slugs_match&quot;,
+   112→    &quot;safe_file_mtime&quot;,
+   113→    # _transcript_import
+   114→    &quot;import_transcript&quot;,
+   115→    &quot;transcript_has_content&quot;,
+   116→    &quot;write_clean_markdown&quot;,
+   117→    &quot;preserve_existing_import_timestamp&quot;,
+   118→    &quot;manifest_signature&quot;,
+   119→    &quot;manifest_changed&quot;,
+   120→    &quot;write_json&quot;,
+   121→    &quot;append_jsonl&quot;,
+   122→    &quot;copy_file&quot;,
+   123→]
+   124→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me search for any dedup-related code more broadly:" id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#17</span>
+      
+      <span class="timeline-time">04:48:21</span>
+    </div>
+    <div class="message-body"><p>Now let me search for any dedup-related code more broadly:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Grep toolu_01J1ZyDMYuERuwrMXqFRMzGY Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/memorytree-workflow/scripts&quot;,&quot;pattern&quot;:&quot;dedup|signature|duplicate&quot;}" id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01J1ZyDMYuERuwrMXqFRMzGY</span>
+      <span class="timeline-time">04:48:22</span>
+    </div>
+    <div class="timeline-title">Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/memorytree-workflow/scripts&quot;,&quot;pattern&quot;:&quot;dedup|signature|duplicate&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;dedup|signature|duplicate&quot;,
+  &quot;path&quot;: &quot;D:/demo1/memorytree-workflow/scripts&quot;,
+  &quot;output_mode&quot;: &quot;content&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Grep toolu_01QHYeXsgeb2DjfNti8heGRQ Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/memorytree-workflow/tests&quot;,&quot;pattern&quot;:&quot;dedup|signature|duplicate&quot;}" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01QHYeXsgeb2DjfNti8heGRQ</span>
+      <span class="timeline-time">04:48:22</span>
+    </div>
+    <div class="timeline-title">Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/memorytree-workflow/tests&quot;,&quot;pattern&quot;:&quot;dedup|signature|duplicate&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;dedup|signature|duplicate&quot;,
+  &quot;path&quot;: &quot;D:/demo1/memorytree-workflow/tests&quot;,
+  &quot;output_mode&quot;: &quot;content&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Grep toolu_01J1ZyDMYuERuwrMXqFRMzGY Grep output=D:\demo1\memorytree-workflow\scripts\_alert_utils.py:1:&quot;&quot;&quot;Manage ~/.memorytree/alerts.json — create, dedup, read, clear.&quot;&quot;&quot; D:\demo1\memorytree-workflow\scripts\_alert_utils.py:..." id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01J1ZyDMYuERuwrMXqFRMzGY</span>
+      
+      <span class="timeline-time">04:48:22</span>
+    </div>
+    <div class="timeline-title">Grep output=D:\demo1\memorytree-workflow\scripts\_alert_utils.py:1:&quot;&quot;&quot;Manage ~/.memorytree/alerts.json — create, dedup, read, clear.&quot;&quot;&quot; D:\demo1\memorytree-workflow\scripts\_alert_utils.py:...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\scripts\_alert_utils.py:1:&quot;&quot;&quot;Manage ~/.memorytree/alerts.json — create, dedup, read, clear.&quot;&quot;&quot;
+D:\demo1\memorytree-workflow\scripts\_alert_utils.py:41:    &quot;&quot;&quot;Append or dedup an alert. Dedup key is (project, type).&quot;&quot;&quot;
+D:\demo1\memorytree-workflow\scripts\_transcript_utils.py:49:    manifest_signature,
+D:\demo1\memorytree-workflow\scripts\_transcript_utils.py:118:    &quot;manifest_signature&quot;,
+D:\demo1\memorytree-workflow\scripts\_transcript_import.py:178:    if manifest_signature(existing) != manifest_signature(payload):
+D:\demo1\memorytree-workflow\scripts\_transcript_import.py:187:def manifest_signature(payload: dict[str, Any]) -&gt; dict[str, Any]:
+D:\demo1\memorytree-workflow\scripts\_transcript_parse.py:291:    message_signatures: set[tuple[str, str, str | None]] = set()
+D:\demo1\memorytree-workflow\scripts\_transcript_parse.py:318:            signature = (normalized_role, text, timestamp)
+D:\demo1\memorytree-workflow\scripts\_transcript_parse.py:319:            if text and signature not in message_signatures:
+D:\demo1\memorytree-workflow\scripts\_transcript_parse.py:320:                message_signatures.add(signature)</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Grep toolu_01QHYeXsgeb2DjfNti8heGRQ Grep output=D:\demo1\memorytree-workflow\tests\test_transcript_utils.py:362: def test_preserves_old_imported_at_when_signature_matches(self) -&gt; None: D:\demo1\memorytree-workflow\tests\test..." id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01QHYeXsgeb2DjfNti8heGRQ</span>
+      
+      <span class="timeline-time">04:48:22</span>
+    </div>
+    <div class="timeline-title">Grep output=D:\demo1\memorytree-workflow\tests\test_transcript_utils.py:362: def test_preserves_old_imported_at_when_signature_matches(self) -&gt; None: D:\demo1\memorytree-workflow\tests\test...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\tests\test_transcript_utils.py:362:    def test_preserves_old_imported_at_when_signature_matches(self) -&gt; None:
+D:\demo1\memorytree-workflow\tests\test_transcript_utils.py:368:    def test_uses_new_imported_at_when_signature_differs(self) -&gt; None:</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me look at the `_transcript_import.py` file to see the `manifest_signature` function:" id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#22</span>
+      
+      <span class="timeline-time">04:48:25</span>
+    </div>
+    <div class="message-body"><p>Let me look at the <code>_transcript_import.py</code> file to see the <code>manifest_signature</code> function:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01GKncrh2cKExomXnKJx5Lya Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_import.py&quot;}" id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GKncrh2cKExomXnKJx5Lya</span>
+      <span class="timeline-time">04:48:25</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/memorytree-workflow/scripts/_transcript_import.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/memorytree-workflow/scripts/_transcript_import.py&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01GKncrh2cKExomXnKJx5Lya Read output=1→&quot;&quot;&quot;Transcript import — orchestration, cleaning, and manifest management.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import json 6→import shutil 7→from datetime import dat..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GKncrh2cKExomXnKJx5Lya</span>
+      
+      <span class="timeline-time">04:48:25</span>
+    </div>
+    <div class="timeline-title">Read output=1→&quot;&quot;&quot;Transcript import — orchestration, cleaning, and manifest management.&quot;&quot;&quot; 2→ 3→from __future__ import annotations 4→ 5→import json 6→import shutil 7→from datetime import dat...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&quot;&quot;&quot;Transcript import — orchestration, cleaning, and manifest management.&quot;&quot;&quot;
+     2→
+     3→from __future__ import annotations
+     4→
+     5→import json
+     6→import shutil
+     7→from datetime import datetime, timezone
+     8→from pathlib import Path
+     9→from typing import Any
+    10→
+    11→from _transcript_common import (
+    12→    load_json,
+    13→    normalize_timestamp,
+    14→    sha256_file,
+    15→    slugify,
+    16→    timestamp_partition,
+    17→    yaml_escape,
+    18→)
+    19→from _transcript_index import upsert_search_index
+    20→from _transcript_parse import ParsedTranscript
+    21→
+    22→
+    23→def import_transcript(
+    24→    parsed: ParsedTranscript,
+    25→    root: Path,
+    26→    global_root: Path,
+    27→    project_slug: str,
+    28→    raw_upload_permission: str,
+    29→    mirror_to_repo: bool = True,
+    30→) -&gt; dict[str, Any]:
+    31→    imported_at = normalize_timestamp(datetime.now(timezone.utc))
+    32→    raw_sha256 = sha256_file(parsed.source_path)
+    33→    session_label = slugify(parsed.session_id, fallback=slugify(parsed.source_path.stem, fallback=&quot;session&quot;))
+    34→    artifact_stem = f&quot;{session_label}__{raw_sha256[:8]}&quot;
+    35→    source_suffix = parsed.source_path.suffix or &quot;.txt&quot;
+    36→
+    37→    year_token, month_token = timestamp_partition(parsed.started_at or imported_at)
+    38→
+    39→    repo_root = root / &quot;Memory&quot; / &quot;06_transcripts&quot;
+    40→    repo_raw_path = repo_root / &quot;raw&quot; / parsed.client / year_token / month_token / f&quot;{artifact_stem}{source_suffix}&quot;
+    41→    repo_clean_path = repo_root / &quot;clean&quot; / parsed.client / year_token / month_token / f&quot;{artifact_stem}.md&quot;
+    42→    repo_manifest_path = repo_root / &quot;manifests&quot; / parsed.client / year_token / month_token / f&quot;{artifact_stem}.json&quot;
+    43→
+    44→    global_raw_path = global_root / &quot;raw&quot; / parsed.client / project_slug / year_token / month_token / f&quot;{artifact_stem}{source_suffix}&quot;
+    45→    global_clean_path = global_root / &quot;clean&quot; / parsed.client / project_slug / year_token / month_token / f&quot;{artifact_stem}.md&quot;
+    46→    global_manifest_path = global_root / &quot;index&quot; / &quot;manifests&quot; / parsed.client / project_slug / year_token / month_token / f&quot;{artifact_stem}.json&quot;
+    47→    global_event_log_path = global_root / &quot;index&quot; / &quot;sessions.jsonl&quot;
+    48→    global_db_path = global_root / &quot;index&quot; / &quot;search.sqlite&quot;
+    49→
+    50→    for path in (
+    51→        global_raw_path,
+    52→        global_clean_path,
+    53→        global_manifest_path,
+    54→        global_event_log_path,
+    55→        global_db_path,
+    56→    ):
+    57→        path.parent.mkdir(parents=True, exist_ok=True)
+    58→    if mirror_to_repo:
+    59→        for path in (repo_raw_path, repo_clean_path, repo_manifest_path):
+    60→            path.parent.mkdir(parents=True, exist_ok=True)
+    61→
+    62→    if mirror_to_repo:
+    63→        copy_file(parsed.source_path, repo_raw_path)
+    64→    copy_file(parsed.source_path, global_raw_path)
+    65→
+    66→    manifest = {
+    67→        &quot;client&quot;: parsed.client,
+    68→        &quot;project&quot;: project_slug,
+    69→        &quot;session_id&quot;: parsed.session_id,
+    70→        &quot;title&quot;: parsed.title,
+    71→        &quot;started_at&quot;: parsed.started_at,
+    72→        &quot;imported_at&quot;: imported_at,
+    73→        &quot;cwd&quot;: parsed.cwd,
+    74→        &quot;branch&quot;: parsed.branch,
+    75→        &quot;raw_source_path&quot;: parsed.source_path.as_posix(),
+    76→        &quot;raw_sha256&quot;: raw_sha256,
+    77→        &quot;raw_upload_permission&quot;: raw_upload_permission,
+    78→        &quot;repo_raw_path&quot;: repo_raw_path.relative_to(root).as_posix() if mirror_to_repo else &quot;&quot;,
+    79→        &quot;repo_clean_path&quot;: repo_clean_path.relative_to(root).as_posix() if mirror_to_repo else &quot;&quot;,
+    80→        &quot;repo_manifest_path&quot;: repo_manifest_path.relative_to(root).as_posix() if mirror_to_repo else &quot;&quot;,
+    81→        &quot;global_raw_path&quot;: global_raw_path.as_posix(),
+    82→        &quot;global_clean_path&quot;: global_clean_path.as_posix(),
+    83→        &quot;global_manifest_path&quot;: global_manifest_path.as_posix(),
+    84→        &quot;message_count&quot;: len(parsed.messages),
+    85→        &quot;tool_event_count&quot;: len(parsed.tool_events),
+    86→        &quot;cleaning_mode&quot;: &quot;deterministic-code&quot;,
+    87→        &quot;repo_mirror_enabled&quot;: mirror_to_repo,
+    88→    }
+    89→    existing_global_manifest = load_json(global_manifest_path)
+    90→    manifest = preserve_existing_import_timestamp(existing_global_manifest, manifest)
+    91→
+    92→    if mirror_to_repo:
+    93→        write_clean_markdown(parsed, manifest, repo_clean_path)
+    94→    write_clean_markdown(parsed, manifest, global_clean_path)
+    95→    if mirror_to_repo:
+    96→        write_json(repo_manifest_path, manifest)
+    97→    append_to_event_log = existing_global_manifest is None or existing_global_manifest != manifest
+    98→    write_json(global_manifest_path, manifest)
+    99→    if append_to_event_log:
+   100→        append_jsonl(global_event_log_path, manifest)
+   101→    upsert_search_index(global_db_path, manifest)
+   102→
+   103→    result = dict(manifest)
+   104→    result[&quot;global_index_db&quot;] = global_db_path.as_posix()
+   105→    return result
+   106→
+   107→
+   108→def transcript_has_content(parsed: ParsedTranscript) -&gt; bool:
+   109→    return bool(parsed.messages or parsed.tool_events)
+   110→
+   111→
+   112→def write_clean_markdown(parsed: ParsedTranscript, manifest: dict[str, Any], path: Path) -&gt; None:
+   113→    lines = [
+   114→        &quot;---&quot;,
+   115→        f&quot;client: {manifest[&#39;client&#39;]}&quot;,
+   116→        f&quot;project: {manifest[&#39;project&#39;]}&quot;,
+   117→        f&quot;session_id: {manifest[&#39;session_id&#39;]}&quot;,
+   118→        f&quot;title: {yaml_escape(manifest[&#39;title&#39;])}&quot;,
+   119→        f&quot;started_at: {manifest[&#39;started_at&#39;]}&quot;,
+   120→        f&quot;imported_at: {manifest[&#39;imported_at&#39;]}&quot;,
+   121→        f&quot;cwd: {yaml_escape(manifest[&#39;cwd&#39;])}&quot;,
+   122→        f&quot;branch: {yaml_escape(manifest[&#39;branch&#39;])}&quot;,
+   123→        f&quot;raw_source_path: {yaml_escape(manifest[&#39;raw_source_path&#39;])}&quot;,
+   124→        f&quot;raw_sha256: {manifest[&#39;raw_sha256&#39;]}&quot;,
+   125→        f&quot;raw_upload_permission: {manifest[&#39;raw_upload_permission&#39;]}&quot;,
+   126→        f&quot;cleaning_mode: {manifest[&#39;cleaning_mode&#39;]}&quot;,
+   127→        &quot;---&quot;,
+   128→        &quot;&quot;,
+   129→        f&quot;# {manifest[&#39;title&#39;] or manifest[&#39;session_id&#39;]}&quot;,
+   130→        &quot;&quot;,
+   131→        &quot;## Metadata&quot;,
+   132→        f&quot;- Client: `{manifest[&#39;client&#39;]}`&quot;,
+   133→        f&quot;- Project: `{manifest[&#39;project&#39;]}`&quot;,
+   134→        f&quot;- Session ID: `{manifest[&#39;session_id&#39;]}`&quot;,
+   135→        f&quot;- Started At: `{manifest[&#39;started_at&#39;]}`&quot;,
+   136→        f&quot;- Imported At: `{manifest[&#39;imported_at&#39;]}`&quot;,
+   137→        f&quot;- Raw SHA256: `{manifest[&#39;raw_sha256&#39;]}`&quot;,
+   138→        f&quot;- Raw Source: `{manifest[&#39;raw_source_path&#39;]}`&quot;,
+   139→        f&quot;- Repo Raw Path: `{manifest[&#39;repo_raw_path&#39;]}`&quot;,
+   140→        f&quot;- Repo Clean Path: `{manifest[&#39;repo_clean_path&#39;]}`&quot;,
+   141→        &quot;&quot;,
+   142→        &quot;## Messages&quot;,
+   143→    ]
+   144→
+   145→    if parsed.messages:
+   146→        for index, message in enumerate(parsed.messages, start=1):
+   147→            lines.extend(
+   148→                [
+   149→                    f&quot;### {index}. {message.role}&quot;,
+   150→                    f&quot;- Timestamp: `{message.timestamp or manifest[&#39;started_at&#39;]}`&quot;,
+   151→                    &quot;&quot;,
+   152→                    message.text,
+   153→                    &quot;&quot;,
+   154→                ]
+   155→            )
+   156→    else:
+   157→        lines.extend(
+   158→            [
+   159→                &quot;No user or assistant messages were extracted deterministically from the source transcript.&quot;,
+   160→                &quot;&quot;,
+   161→            ]
+   162→        )
+   163→
+   164→    lines.append(&quot;## Tool Events&quot;)
+   165→    if parsed.tool_events:
+   166→        for event in parsed.tool_events:
+   167→            lines.append(f&quot;- `{event.timestamp or manifest[&#39;started_at&#39;]}` {event.summary}&quot;)
+   168→    else:
+   169→        lines.append(&quot;- No tool events were extracted.&quot;)
+   170→    lines.append(&quot;&quot;)
+   171→
+   172→    path.write_text(&quot;\n&quot;.join(lines), encoding=&quot;utf-8&quot;)
+   173→
+   174→
+   175→def preserve_existing_import_timestamp(existing: dict[str, Any] | None, payload: dict[str, Any]) -&gt; dict[str, Any]:
+   176→    if existing is None:
+   177→        return payload
+   178→    if manifest_signature(existing) != manifest_signature(payload):
+   179→        return payload
+   180→    preserved = dict(payload)
+   181→    imported_at = existing.get(&quot;imported_at&quot;)
+   182→    if isinstance(imported_at, str) and imported_at:
+   183→        preserved[&quot;imported_at&quot;] = imported_at
+   184→    return preserved
+   185→
+   186→
+   187→def manifest_signature(payload: dict[str, Any]) -&gt; dict[str, Any]:
+   188→    return {key: value for key, value in payload.items() if key != &quot;imported_at&quot;}
+   189→
+   190→
+   191→def manifest_changed(path: Path, payload: dict[str, Any]) -&gt; bool:
+   192→    if not path.exists():
+   193→        return True
+   194→    try:
+   195→        current = json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+   196→    except (OSError, json.JSONDecodeError):
+   197→        return True
+   198→    return current != payload
+   199→
+   200→
+   201→def write_json(path: Path, payload: dict[str, Any]) -&gt; None:
+   202→    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + &quot;\n&quot;, encoding=&quot;utf-8&quot;)
+   203→
+   204→
+   205→def append_jsonl(path: Path, payload: dict[str, Any]) -&gt; None:
+   206→    with path.open(&quot;a&quot;, encoding=&quot;utf-8&quot;) as handle:
+   207→        handle.write(json.dumps(payload, ensure_ascii=False) + &quot;\n&quot;)
+   208→
+   209→
+   210→def copy_file(source: Path, destination: Path) -&gt; None:
+   211→    if source.resolve() == destination.resolve():
+   212→        return
+   213→    shutil.copy2(source, destination)
+   214→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Perfect! Now I have all the information needed. Let me provide a comprehensive report on the deduplication situation in the transcript parsing codebase. ## Comprehensive Report: Transcript Deduplication Analysis ### 1. **Existing Deduplication Logic** #### **Gemini Parser (ONLY parser with dedup)** **File:** `D:/demo1/memorytree-workflow/scripts/_transcript_parse.py` (Lines 277-352) - **Line 291:** `mess..." id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#25</span>
+      
+      <span class="timeline-time">04:48:42</span>
+    </div>
+    <p class="event-preview">Perfect! Now I have all the information needed. Let me provide a comprehensive report on the deduplication situation in the transcript parsing codebase. ## Comprehensive Report: Transcript Deduplication Analysis ### 1...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Perfect! Now I have all the information needed. Let me provide a comprehensive report on the deduplication situation in the transcript parsing codebase.</p><p>## Comprehensive Report: Transcript Deduplication Analysis</p><p>### 1. <strong>Existing Deduplication Logic</strong></p><p>#### <strong>Gemini Parser (ONLY parser with dedup)</strong><br><strong>File:</strong> <code>D:/demo1/memorytree-workflow/scripts/_transcript_parse.py</code> (Lines 277-352)</p><p>- <strong>Line 291:</strong> <code>message_signatures: set[tuple[str, str, str | None]] = set()</code> - Creates a deduplication set<br>- <strong>Lines 318-321:</strong> Dedup check logic:</p><pre><code>  signature = (normalized_role, text, timestamp)
+  if text and signature not in message_signatures:
+      message_signatures.add(signature)
+      messages.append(TranscriptMessage(role=normalized_role, text=text, timestamp=timestamp))
+  </code></pre><p>This checks if a tuple of <code>(role, text, timestamp)</code> has been seen before.</p><p>#### <strong>Codex Parser (NO dedup)</strong><br><strong>File:</strong> <code>D:/demo1/memorytree-workflow/scripts/_transcript_parse.py</code> (Lines 89-183)</p><p>- <strong>Lines 121, 128:</strong> Messages are appended directly without any dedup check:</p><pre><code>  messages.append(TranscriptMessage(role=role, text=text, timestamp=timestamp))
+  </code></pre><p>- <strong>Lines 134-139, 144-149, 155-160, 166-171:</strong> Tool events are appended without dedup</p><p>#### <strong>Claude Parser (NO dedup)</strong><br><strong>File:</strong> <code>D:/demo1/memorytree-workflow/scripts/_transcript_parse.py</code> (Lines 191-269)</p><p>- <strong>Line 219:</strong> Messages appended directly without dedup:</p><pre><code>  messages.append(TranscriptMessage(role=role, text=text, timestamp=timestamp))
+  </code></pre><p>- <strong>Line 257:</strong> Messages appended again without dedup<br>- <strong>Lines 239-243, 248-252:</strong> Tool events appended without dedup</p><p>---</p><p>### 2. <strong>TranscriptMessage and TranscriptToolEvent Dataclasses</strong></p><p><strong>File:</strong> <code>D:/demo1/memorytree-workflow/scripts/_transcript_parse.py</code> (Lines 30-40)</p><pre><code>@dataclass
+class TranscriptMessage:
+    role: str
+    text: str
+    timestamp: str | None = None
+
+@dataclass
+class TranscriptToolEvent:
+    summary: str
+    timestamp: str | None = None
+</code></pre><p>Key observations:<br>- <code>TranscriptMessage</code> has three fields: <code>role</code>, <code>text</code>, and optional <code>timestamp</code><br>- <code>TranscriptToolEvent</code> has two fields: <code>summary</code> and optional <code>timestamp</code><br>- No natural uniqueness constraints; depends on external dedup logic</p><p>---</p><p>### 3. <strong>ParsedTranscript Dataclass</strong></p><p><strong>File:</strong> <code>D:/demo1/memorytree-workflow/scripts/_transcript_parse.py</code> (Lines 43-53)</p><pre><code>@dataclass
+class ParsedTranscript:
+    client: str
+    session_id: str
+    title: str
+    started_at: str
+    cwd: str
+    branch: str
+    messages: list[TranscriptMessage]
+    tool_events: list[TranscriptToolEvent]
+    source_path: Path
+</code></pre><p>---</p><p>### 4. <strong>Existing Dedup-Related Utilities in <code>_transcript_common.py</code></strong></p><p><strong>File:</strong> <code>D:/demo1/memorytree-workflow/scripts/_transcript_common.py</code></p><p>No dedup-specific utilities found. However, the module provides:<br>- <strong>Lines 175-240:</strong> Text extraction helpers (<code>extract_text_blocks</code>, <code>extract_gemini_text</code>, <code>extract_gemini_parts</code>, <code>extract_simple_text</code>)<br>- <strong>Lines 243-257:</strong> Nested structure navigation (<code>find_first_mapping_with_keys</code>)<br>- Constants for block type filtering (lines 17-21)</p><p>---</p><p>### 5. <strong>Existing Tests for Deduplication</strong></p><p><strong>File:</strong> <code>D:/demo1/memorytree-workflow/tests/test_transcript_utils.py</code></p><p><strong>NO dedicated dedup tests found.</strong> However, there are related tests:</p><p>- <strong>Lines 327-354:</strong> <code>ParseGeminiTranscriptTests</code> class tests basic Gemini parsing but does NOT test dedup behavior<br>- <strong>Lines 258-290:</strong> <code>ParseCodexTranscriptTests</code> - no dedup tests<br>- <strong>Lines 293-324:</strong> <code>ParseClaudeTranscriptTests</code> - no dedup tests</p><p>The only signature-related tests are in <code>PreserveExistingImportTimestampTests</code> (lines 356-372), which test the <code>manifest_signature</code> function from <code>_transcript_import.py</code> - this is for manifest-level dedup, not message-level dedup.</p><p>---</p><p>### 6. <strong>Message Append Points in Each Parser</strong></p><p>#### <strong>Codex Parser</strong><br>- <strong>Line 121:</strong> User/assistant messages from <code>response_item</code> + <code>message</code> payload<br>- <strong>Line 128:</strong> User/assistant messages from <code>event_msg</code> payload (legacy format)<br>- <strong>Lines 134-139, 144-149, 155-160, 166-171:</strong> Tool events (function calls, custom tool calls, outputs)</p><p>#### <strong>Claude Parser</strong><br>- <strong>Line 219:</strong> String content messages<br>- <strong>Line 257:</strong> List/block content messages (after text extraction from blocks)<br>- <strong>Lines 239-243, 248-252:</strong> Tool events (tool_use and tool_result blocks)</p><p>#### <strong>Gemini Parser</strong><br>- <strong>Lines 319-321:</strong> Messages inside recursive <code>visit()</code> function with dedup check<br>- <strong>Lines 330-335:</strong> Tool events (not dedup&#39;d)</p><p>---</p><p>### 7. <strong>Key Findings Summary</strong></p><p>| Aspect | Status | Details |<br>|--------|--------|---------|<br>| <strong>Gemini message dedup</strong> | ✓ YES | Using <code>(role, text, timestamp)</code> tuple signature |<br>| <strong>Codex message dedup</strong> | ✗ NO | Direct append at lines 121, 128 |<br>| <strong>Claude message dedup</strong> | ✗ NO | Direct append at lines 219, 257 |<br>| <strong>Any tool event dedup</strong> | ✗ NO | All three parsers append without checking |<br>| <strong>Dedup utility functions</strong> | ✗ NO | No helper functions in <code>_transcript_common.py</code> |<br>| <strong>Dedup tests</strong> | ✗ NO | No tests in <code>test_transcript_utils.py</code> |<br>| <strong>Dedup hook points</strong> | Clear | Identified above for each parser |</p><p>---</p><p>### 8. <strong>Related Manifest-Level Dedup (Different Level)</strong></p><p><strong>File:</strong> <code>D:/demo1/memorytree-workflow/scripts/_transcript_import.py</code></p><p>- <strong>Lines 175-189:</strong> <code>preserve_existing_import_timestamp()</code> and <code>manifest_signature()</code> handle dedup at the <strong>transcript file level</strong> (not message level), comparing full manifests to preserve timestamps on re-import.<br>- This is different from message-level deduplication needed in the parsers.</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

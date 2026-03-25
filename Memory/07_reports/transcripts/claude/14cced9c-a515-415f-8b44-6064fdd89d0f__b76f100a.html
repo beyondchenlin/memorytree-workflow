@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a30a9744b7a50ba5b — MemoryTree</title>
+<meta property="og:title" content="agent-a30a9744b7a50ba5b">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a30a9744b7a50ba5b</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>3</strong> Messages</span>
+      <span class="transcript-pill"><strong>6</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>9</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-17 07:50:28</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-a30a9744b7a50ba5b</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">14cced9c-a515-415f-8b44-6064fdd89d0f</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">b76f100a431843f7...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">9</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">3</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">6</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>3</strong> dialog</span>
+    <span class="transcript-pill"><strong>6</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>3</strong> Messages</span>
+          <span class="transcript-pill"><strong>6</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>9 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 请对以下代码变更做严格的 code review，从正确性、安全性、边界情况、Windows 兼容性角度分析。 文件：`C:/Users/ai/.codex/skills/memorytree-workflow/src/cli/cmd-daemon.ts` **变更内容（新增/替换的部分）：** ```typescript // Write a VBScript launcher that runs node silently (no console window). // wscript.exe /B suppresses the window; VBScript Run(..., 0, False) hides it. function vbsLauncherPath(): string { return resolve(homedir(), &#39;.memorytree&#39;, &#39;heartbeat-launche..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">07:50:28</span>
+    </div>
+    <p class="event-preview">请对以下代码变更做严格的 code review，从正确性、安全性、边界情况、Windows 兼容性角度分析。 文件：`C:/Users/ai/.codex/skills/memorytree-workflow/src/cli/cmd-daemon.ts` **变更内容（新增/替换的部分）：** ```typescript // Write a VBScript launcher that runs node silently (...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>请对以下代码变更做严格的 code review，从正确性、安全性、边界情况、Windows 兼容性角度分析。</p><p>文件：<code>C:/Users/ai/.codex/skills/memorytree-workflow/src/cli/cmd-daemon.ts</code></p><p><strong>变更内容（新增/替换的部分）：</strong></p><pre><code>// Write a VBScript launcher that runs node silently (no console window).
+// wscript.exe /B suppresses the window; VBScript Run(..., 0, False) hides it.
+function vbsLauncherPath(): string {
+  return resolve(homedir(), &#39;.memorytree&#39;, &#39;heartbeat-launcher.vbs&#39;)
+}
+
+function writeVbsLauncher(scriptPath: string): string {
+  const vbsPath = vbsLauncherPath()
+  mkdirSync(dirname(vbsPath), { recursive: true })
+  // Inside VBScript strings, double-quote is escaped as &quot;&quot;
+  const escaped = scriptPath.replace(/&quot;/g, &#39;&quot;&quot;&#39;)
+  const content = [
+    &#39;Set WshShell = CreateObject(&quot;WScript.Shell&quot;)&#39;,
+    `WshShell.Run &quot;node &quot;&quot;${escaped}&quot;&quot; daemon run-once&quot;, 0, False`,
+  ].join(&#39;\r\n&#39;) + &#39;\r\n&#39;
+  writeFileSync(vbsPath, content, &#39;utf-8&#39;)
+  return vbsPath
+}
+
+function installSchtasks(scriptPath: string, seconds: number): number {
+  if (isSchtasksRegistered()) {
+    process.stderr.write(&quot;Heartbeat is already registered in Task Scheduler. Use &#39;uninstall&#39; first.\n&quot;)
+    return 1
+  }
+
+  const minutes = Math.max(1, Math.floor(seconds / 60))
+  const vbsPath = writeVbsLauncher(scriptPath)
+  const trCommand = `wscript.exe /B &quot;${vbsPath}&quot;`
+
+  try {
+    execCommand(&#39;schtasks&#39;, [
+      &#39;/create&#39;, &#39;/tn&#39;, TASK_NAME, &#39;/sc&#39;, &#39;minute&#39;, &#39;/mo&#39;, String(minutes),
+      &#39;/tr&#39;, trCommand, &#39;/f&#39;,
+    ])
+  } catch {
+    process.stderr.write(&#39;Failed to create scheduled task.\n&#39;)
+    return 1
+  }
+
+  process.stdout.write(`Heartbeat registered in Task Scheduler (every ${minutes}m).\n`)
+  return 0
+}
+
+function uninstallSchtasks(): number {
+  try {
+    execCommand(&#39;schtasks&#39;, [&#39;/delete&#39;, &#39;/tn&#39;, TASK_NAME, &#39;/f&#39;], { allowFailure: true })
+  } catch {
+    // best effort
+  }
+  const vbsPath = vbsLauncherPath()
+  if (existsSync(vbsPath)) {
+    try { unlinkSync(vbsPath) } catch { /* ignore */ }
+  }
+  process.stdout.write(&#39;Heartbeat removed from Task Scheduler.\n&#39;)
+  return 0
+}
+</code></pre><p><strong>原始代码（被替换的部分）：</strong></p><pre><code>function installSchtasks(scriptPath: string, seconds: number): number {
+  if (isSchtasksRegistered()) {
+    process.stderr.write(&quot;Heartbeat is already registered in Task Scheduler. Use &#39;uninstall&#39; first.\n&quot;)
+    return 1
+  }
+
+  const minutes = Math.max(1, Math.floor(seconds / 60))
+  const trCommand = `node &quot;${scriptPath}&quot; daemon run-once`
+
+  try {
+    execCommand(&#39;schtasks&#39;, [
+      &#39;/create&#39;, &#39;/tn&#39;, TASK_NAME, &#39;/sc&#39;, &#39;minute&#39;, &#39;/mo&#39;, String(minutes),
+      &#39;/tr&#39;, trCommand, &#39;/f&#39;,
+    ])
+  } catch {
+    process.stderr.write(&#39;Failed to create scheduled task.\n&#39;)
+    return 1
+  }
+
+  process.stdout.write(`Heartbeat registered in Task Scheduler (every ${minutes}m).\n`)
+  return 0
+}
+
+function uninstallSchtasks(): number {
+  try {
+    execCommand(&#39;schtasks&#39;, [&#39;/delete&#39;, &#39;/tn&#39;, TASK_NAME, &#39;/f&#39;], { allowFailure: true })
+  } catch {
+    // best effort
+  }
+  process.stdout.write(&#39;Heartbeat removed from Task Scheduler.\n&#39;)
+  return 0
+}
+</code></pre><p><strong>背景：</strong><br>- 这是 Windows 平台专用路径<br>- 问题：schtasks 直接用 <code>node</code> 启动会弹出 cmd 黑窗口<br>- 修复：改用 <code>wscript.exe /B</code> + VBScript 包装器静默运行</p><p>请给出：<br>1. 发现的任何 CRITICAL / HIGH / MEDIUM / LOW 问题<br>2. 代码是否正确、安全、健壮<br>3. 是否有遗漏的边界情况</p><p>只做 review，不要修改文件。</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant 我来读取完整的文件以获得更多上下文。" id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">07:50:37</span>
+    </div>
+    <div class="message-body"><p>我来读取完整的文件以获得更多上下文。</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_016TMjkYxsuAuiMsnZmexGBq Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/cli/cmd-daemon.ts&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_016TMjkYxsuAuiMsnZmexGBq</span>
+      <span class="timeline-time">07:50:37</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/cli/cmd-daemon.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/cli/cmd-daemon.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_016TMjkYxsuAuiMsnZmexGBq Read output=1→/** 2→ * CLI: memorytree daemon install|uninstall|run-once|watch|status 3→ * Port of scripts/memorytree_daemon.py 4→ */ 5→ 6→import { existsSync, mkdirSync, writeFileSync, unl..." id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_016TMjkYxsuAuiMsnZmexGBq</span>
+      
+      <span class="timeline-time">07:50:37</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * CLI: memorytree daemon install|uninstall|run-once|watch|status 3→ * Port of scripts/memorytree_daemon.py 4→ */ 5→ 6→import { existsSync, mkdirSync, writeFileSync, unl...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * CLI: memorytree daemon install|uninstall|run-once|watch|status
+     3→ * Port of scripts/memorytree_daemon.py
+     4→ */
+     5→
+     6→import { existsSync, mkdirSync, writeFileSync, unlinkSync } from &#39;node:fs&#39;
+     7→import { homedir } from &#39;node:os&#39;
+     8→import { resolve, dirname } from &#39;node:path&#39;
+     9→import { platform } from &#39;node:process&#39;
+    10→
+    11→import { configPath, intervalToSeconds, loadConfig, saveConfig } from &#39;../heartbeat/config.js&#39;
+    12→import { readLockPid } from &#39;../heartbeat/lock.js&#39;
+    13→import { execCommand } from &#39;../utils/exec.js&#39;
+    14→
+    15→// ---------------------------------------------------------------------------
+    16→// Constants
+    17→// ---------------------------------------------------------------------------
+    18→
+    19→const TASK_NAME = &#39;MemoryTree Heartbeat&#39;
+    20→const LAUNCHD_LABEL = &#39;com.memorytree.heartbeat&#39;
+    21→
+    22→// ---------------------------------------------------------------------------
+    23→// Subcommands
+    24→// ---------------------------------------------------------------------------
+    25→
+    26→export function cmdInstall(options: { interval?: string; autoPush?: string }): number {
+    27→  let config = loadConfig()
+    28→
+    29→  if (options.interval) {
+    30→    config = { ...config, heartbeat_interval: options.interval }
+    31→  }
+    32→  if (options.autoPush) {
+    33→    config = { ...config, auto_push: options.autoPush === &#39;true&#39; }
+    34→  }
+    35→
+    36→  saveConfig(config)
+    37→  const seconds = intervalToSeconds(config.heartbeat_interval)
+    38→  const scriptPath = heartbeatScriptPath()
+    39→
+    40→  const sys = platform
+    41→  if (sys === &#39;linux&#39;) return installCron(scriptPath, seconds)
+    42→  if (sys === &#39;darwin&#39;) return installLaunchd(scriptPath, seconds)
+    43→  if (sys === &#39;win32&#39;) return installSchtasks(scriptPath, seconds)
+    44→
+    45→  process.stderr.write(`Unsupported platform: ${sys}\n`)
+    46→  return 1
+    47→}
+    48→
+    49→export function cmdUninstall(): number {
+    50→  const sys = platform
+    51→  if (sys === &#39;linux&#39;) return uninstallCron()
+    52→  if (sys === &#39;darwin&#39;) return uninstallLaunchd()
+    53→  if (sys === &#39;win32&#39;) return uninstallSchtasks()
+    54→
+    55→  process.stderr.write(`Unsupported platform: ${sys}\n`)
+    56→  return 1
+    57→}
+    58→
+    59→export async function cmdRunOnce(): Promise&lt;number&gt; {
+    60→  const { main } = await import(&#39;../heartbeat/heartbeat.js&#39;)
+    61→  return main()
+    62→}
+    63→
+    64→export async function cmdWatch(options: { interval?: string }): Promise&lt;number&gt; {
+    65→  const config = loadConfig()
+    66→  const intervalStr = options.interval ?? config.heartbeat_interval
+    67→  const seconds = intervalToSeconds(intervalStr)
+    68→  const { main } = await import(&#39;../heartbeat/heartbeat.js&#39;)
+    69→
+    70→  process.stdout.write(`Watch mode: running heartbeat every ${seconds}s. Press Ctrl+C to stop.\n`)
+    71→  try {
+    72→    // eslint-disable-next-line no-constant-condition
+    73→    while (true) {
+    74→      await main()
+    75→      await new Promise(r =&gt; setTimeout(r, seconds * 1000))
+    76→    }
+    77→  } catch {
+    78→    process.stdout.write(&#39;\nWatch mode stopped.\n&#39;)
+    79→  }
+    80→  return 0
+    81→}
+    82→
+    83→export function cmdStatus(): number {
+    84→  const sys = platform
+    85→
+    86→  let registered = false
+    87→  if (sys === &#39;linux&#39;) registered = isCronRegistered()
+    88→  else if (sys === &#39;darwin&#39;) registered = isLaunchdRegistered()
+    89→  else if (sys === &#39;win32&#39;) registered = isSchtasksRegistered()
+    90→
+    91→  const platformName = sys === &#39;darwin&#39; ? &#39;Darwin&#39; : sys === &#39;win32&#39; ? &#39;Windows&#39; : &#39;Linux&#39;
+    92→  process.stdout.write(`Platform:   ${platformName}\n`)
+    93→  process.stdout.write(`Registered: ${registered ? &#39;yes&#39; : &#39;no&#39;}\n`)
+    94→
+    95→  const pid = readLockPid()
+    96→  if (pid !== null) {
+    97→    process.stdout.write(`Lock:       held by PID ${pid}\n`)
+    98→  } else {
+    99→    process.stdout.write(&#39;Lock:       not held\n&#39;)
+   100→  }
+   101→
+   102→  if (existsSync(configPath())) {
+   103→    const config = loadConfig()
+   104→    process.stdout.write(`Interval:   ${config.heartbeat_interval}\n`)
+   105→    process.stdout.write(`Auto-push:  ${config.auto_push}\n`)
+   106→    process.stdout.write(`Projects:   ${config.projects.length}\n`)
+   107→  } else {
+   108→    process.stdout.write(&#39;Config:     not found (using defaults)\n&#39;)
+   109→  }
+   110→
+   111→  return 0
+   112→}
+   113→
+   114→// ---------------------------------------------------------------------------
+   115→// Linux (cron)
+   116→// ---------------------------------------------------------------------------
+   117→
+   118→function installCron(scriptPath: string, seconds: number): number {
+   119→  if (isCronRegistered()) {
+   120→    process.stderr.write(&quot;Heartbeat is already registered in cron. Use &#39;uninstall&#39; first.\n&quot;)
+   121→    return 1
+   122→  }
+   123→
+   124→  const minutes = Math.max(1, Math.floor(seconds / 60))
+   125→  const logDir = resolve(homedir(), &#39;.memorytree&#39;, &#39;logs&#39;)
+   126→  mkdirSync(logDir, { recursive: true })
+   127→
+   128→  const cronLine = `*/${minutes} * * * * node &quot;${scriptPath}&quot; daemon run-once &gt;&gt; &quot;${resolve(logDir, &#39;heartbeat-cron.log&#39;)}&quot; 2&gt;&amp;1 # memorytree`
+   129→  const existing = getCrontab()
+   130→  const newCrontab = existing.trim()
+   131→    ? existing.trimEnd() + &#39;\n&#39; + cronLine + &#39;\n&#39;
+   132→    : cronLine + &#39;\n&#39;
+   133→
+   134→  try {
+   135→    const tmpFile = resolve(homedir(), &#39;.memorytree&#39;, &#39;.crontab.tmp&#39;)
+   136→    writeFileSync(tmpFile, newCrontab)
+   137→    execCommand(&#39;crontab&#39;, [tmpFile])
+   138→    unlinkSync(tmpFile)
+   139→  } catch {
+   140→    process.stderr.write(&#39;Failed to install cron job.\n&#39;)
+   141→    return 1
+   142→  }
+   143→
+   144→  process.stdout.write(`Heartbeat registered in cron (every ${minutes}m).\n`)
+   145→  return 0
+   146→}
+   147→
+   148→function uninstallCron(): number {
+   149→  const existing = getCrontab()
+   150→  const filtered = existing.split(&#39;\n&#39;).filter(line =&gt; !line.includes(&#39;memorytree&#39;)).join(&#39;\n&#39;) + &#39;\n&#39;
+   151→  try {
+   152→    const tmpFile = resolve(homedir(), &#39;.memorytree&#39;, &#39;.crontab.tmp&#39;)
+   153→    mkdirSync(dirname(tmpFile), { recursive: true })
+   154→    writeFileSync(tmpFile, filtered)
+   155→    execCommand(&#39;crontab&#39;, [tmpFile])
+   156→    unlinkSync(tmpFile)
+   157→  } catch {
+   158→    // best effort
+   159→  }
+   160→  process.stdout.write(&#39;Heartbeat removed from cron.\n&#39;)
+   161→  return 0
+   162→}
+   163→
+   164→export function isCronRegistered(): boolean {
+   165→  return getCrontab().includes(&#39;memorytree&#39;)
+   166→}
+   167→
+   168→function getCrontab(): string {
+   169→  try {
+   170→    return execCommand(&#39;crontab&#39;, [&#39;-l&#39;], { allowFailure: true })
+   171→  } catch {
+   172→    return &#39;&#39;
+   173→  }
+   174→}
+   175→
+   176→// ---------------------------------------------------------------------------
+   177→// macOS (launchd)
+   178→// ---------------------------------------------------------------------------
+   179→
+   180→function launchdPlistPath(): string {
+   181→  return resolve(homedir(), &#39;Library&#39;, &#39;LaunchAgents&#39;, `${LAUNCHD_LABEL}.plist`)
+   182→}
+   183→
+   184→function installLaunchd(scriptPath: string, seconds: number): number {
+   185→  const plistPath = launchdPlistPath()
+   186→  if (existsSync(plistPath)) {
+   187→    process.stderr.write(&quot;Heartbeat plist already exists. Use &#39;uninstall&#39; first.\n&quot;)
+   188→    return 1
+   189→  }
+   190→
+   191→  const logDir = resolve(homedir(), &#39;.memorytree&#39;, &#39;logs&#39;)
+   192→  mkdirSync(logDir, { recursive: true })
+   193→
+   194→  const plistContent = `&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+   195→&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;
+   196→&lt;plist version=&quot;1.0&quot;&gt;
+   197→&lt;dict&gt;
+   198→    &lt;key&gt;Label&lt;/key&gt;
+   199→    &lt;string&gt;${LAUNCHD_LABEL}&lt;/string&gt;
+   200→    &lt;key&gt;ProgramArguments&lt;/key&gt;
+   201→    &lt;array&gt;
+   202→        &lt;string&gt;node&lt;/string&gt;
+   203→        &lt;string&gt;${scriptPath}&lt;/string&gt;
+   204→        &lt;string&gt;daemon&lt;/string&gt;
+   205→        &lt;string&gt;run-once&lt;/string&gt;
+   206→    &lt;/array&gt;
+   207→    &lt;key&gt;StartInterval&lt;/key&gt;
+   208→    &lt;integer&gt;${seconds}&lt;/integer&gt;
+   209→    &lt;key&gt;StandardOutPath&lt;/key&gt;
+   210→    &lt;string&gt;${resolve(logDir, &#39;heartbeat-launchd.log&#39;)}&lt;/string&gt;
+   211→    &lt;key&gt;StandardErrorPath&lt;/key&gt;
+   212→    &lt;string&gt;${resolve(logDir, &#39;heartbeat-launchd.log&#39;)}&lt;/string&gt;
+   213→&lt;/dict&gt;
+   214→&lt;/plist&gt;
+   215→`
+   216→  mkdirSync(dirname(plistPath), { recursive: true })
+   217→  writeFileSync(plistPath, plistContent, &#39;utf-8&#39;)
+   218→
+   219→  try {
+   220→    execCommand(&#39;launchctl&#39;, [&#39;load&#39;, plistPath])
+   221→  } catch {
+   222→    process.stderr.write(&#39;Failed to load plist.\n&#39;)
+   223→    return 1
+   224→  }
+   225→
+   226→  process.stdout.write(`Heartbeat registered via launchd (every ${seconds}s).\n`)
+   227→  return 0
+   228→}
+   229→
+   230→function uninstallLaunchd(): number {
+   231→  const plistPath = launchdPlistPath()
+   232→  if (existsSync(plistPath)) {
+   233→    try { execCommand(&#39;launchctl&#39;, [&#39;unload&#39;, plistPath], { allowFailure: true }) } catch { /* ignore */ }
+   234→    try { unlinkSync(plistPath) } catch { /* ignore */ }
+   235→  }
+   236→  process.stdout.write(&#39;Heartbeat removed from launchd.\n&#39;)
+   237→  return 0
+   238→}
+   239→
+   240→export function isLaunchdRegistered(): boolean {
+   241→  return existsSync(launchdPlistPath())
+   242→}
+   243→
+   244→// ---------------------------------------------------------------------------
+   245→// Windows (Task Scheduler)
+   246→// ---------------------------------------------------------------------------
+   247→
+   248→// Write a VBScript launcher that runs node silently (no console window).
+   249→// wscript.exe /B suppresses the window; VBScript Run(..., 0, False) hides it.
+   250→function vbsLauncherPath(): string {
+   251→  return resolve(homedir(), &#39;.memorytree&#39;, &#39;heartbeat-launcher.vbs&#39;)
+   252→}
+   253→
+   254→function writeVbsLauncher(scriptPath: string): string {
+   255→  const vbsPath = vbsLauncherPath()
+   256→  mkdirSync(dirname(vbsPath), { recursive: true })
+   257→  // Inside VBScript strings, double-quote is escaped as &quot;&quot;
+   258→  const escaped = scriptPath.replace(/&quot;/g, &#39;&quot;&quot;&#39;)
+   259→  const content = [
+   260→    &#39;Set WshShell = CreateObject(&quot;WScript.Shell&quot;)&#39;,
+   261→    `WshShell.Run &quot;node &quot;&quot;${escaped}&quot;&quot; daemon run-once&quot;, 0, False`,
+   262→  ].join(&#39;\r\n&#39;) + &#39;\r\n&#39;
+   263→  writeFileSync(vbsPath, content, &#39;utf-8&#39;)
+   264→  return vbsPath
+   265→}
+   266→
+   267→function installSchtasks(scriptPath: string, seconds: number): number {
+   268→  if (isSchtasksRegistered()) {
+   269→    process.stderr.write(&quot;Heartbeat is already registered in Task Scheduler. Use &#39;uninstall&#39; first.\n&quot;)
+   270→    return 1
+   271→  }
+   272→
+   273→  const minutes = Math.max(1, Math.floor(seconds / 60))
+   274→  const vbsPath = writeVbsLauncher(scriptPath)
+   275→  const trCommand = `wscript.exe /B &quot;${vbsPath}&quot;`
+   276→
+   277→  try {
+   278→    execCommand(&#39;schtasks&#39;, [
+   279→      &#39;/create&#39;, &#39;/tn&#39;, TASK_NAME, &#39;/sc&#39;, &#39;minute&#39;, &#39;/mo&#39;, String(minutes),
+   280→      &#39;/tr&#39;, trCommand, &#39;/f&#39;,
+   281→    ])
+   282→  } catch {
+   283→    process.stderr.write(&#39;Failed to create scheduled task.\n&#39;)
+   284→    return 1
+   285→  }
+   286→
+   287→  process.stdout.write(`Heartbeat registered in Task Scheduler (every ${minutes}m).\n`)
+   288→  return 0
+   289→}
+   290→
+   291→function uninstallSchtasks(): number {
+   292→  try {
+   293→    execCommand(&#39;schtasks&#39;, [&#39;/delete&#39;, &#39;/tn&#39;, TASK_NAME, &#39;/f&#39;], { allowFailure: true })
+   294→  } catch {
+   295→    // best effort
+   296→  }
+   297→  const vbsPath = vbsLauncherPath()
+   298→  if (existsSync(vbsPath)) {
+   299→    try { unlinkSync(vbsPath) } catch { /* ignore */ }
+   300→  }
+   301→  process.stdout.write(&#39;Heartbeat removed from Task Scheduler.\n&#39;)
+   302→  return 0
+   303→}
+   304→
+   305→export function isSchtasksRegistered(): boolean {
+   306→  try {
+   307→    execCommand(&#39;schtasks&#39;, [&#39;/query&#39;, &#39;/tn&#39;, TASK_NAME])
+   308→    return true
+   309→  } catch {
+   310→    return false
+   311→  }
+   312→}
+   313→
+   314→// ---------------------------------------------------------------------------
+   315→// Helpers
+   316→// ---------------------------------------------------------------------------
+   317→
+   318→export function heartbeatScriptPath(): string {
+   319→  // Use process.argv[1] which is the actual script being executed,
+   320→  // more reliable than import.meta.url which varies between tsx and bundled output
+   321→  const scriptArg = process.argv[1] ?? &#39;&#39;
+   322→  if (scriptArg &amp;&amp; scriptArg.endsWith(&#39;cli.js&#39;)) {
+   323→    return resolve(scriptArg)
+   324→  }
+   325→  // Fallback: resolve relative to import.meta.url
+   326→  const urlPath = new URL(import.meta.url).pathname.replace(/^\/([a-zA-Z]:)/, &#39;$1&#39;)
+   327→  return resolve(dirname(urlPath), &#39;..&#39;, &#39;..&#39;, &#39;dist&#39;, &#39;cli.js&#39;)
+   328→}
+   329→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check the exec utility for additional context." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#5</span>
+      
+      <span class="timeline-time">07:50:50</span>
+    </div>
+    <div class="message-body"><p>Now let me check the exec utility for additional context.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01SLgqN3h2MbckqcL2bM1LcS Glob input={&quot;path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src&quot;,&quot;pattern&quot;:&quot;**/utils/exec.ts&quot;}" id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01SLgqN3h2MbckqcL2bM1LcS</span>
+      <span class="timeline-time">07:50:51</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src&quot;,&quot;pattern&quot;:&quot;**/utils/exec.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;**/utils/exec.ts&quot;,
+  &quot;path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01SLgqN3h2MbckqcL2bM1LcS Glob output=C:\Users\ai\.codex\skills\memorytree-workflow\src\utils\exec.ts" id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01SLgqN3h2MbckqcL2bM1LcS</span>
+      
+      <span class="timeline-time">07:50:51</span>
+    </div>
+    <div class="timeline-title">Glob output=C:\Users\ai\.codex\skills\memorytree-workflow\src\utils\exec.ts</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>C:\Users\ai\.codex\skills\memorytree-workflow\src\utils\exec.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_011qwFRczHpT3EUQPxtjRCTQ Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/utils/exec.ts&quot;}" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_011qwFRczHpT3EUQPxtjRCTQ</span>
+      <span class="timeline-time">07:51:04</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/utils/exec.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/utils/exec.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_011qwFRczHpT3EUQPxtjRCTQ Read output=1→/** 2→ * Subprocess execution wrapper for git and other commands. 3→ * Port of heartbeat.py _git() and daemon subprocess calls. 4→ */ 5→ 6→import { execFileSync } from &#39;node:c..." id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_011qwFRczHpT3EUQPxtjRCTQ</span>
+      
+      <span class="timeline-time">07:51:04</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Subprocess execution wrapper for git and other commands. 3→ * Port of heartbeat.py _git() and daemon subprocess calls. 4→ */ 5→ 6→import { execFileSync } from &#39;node:c...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Subprocess execution wrapper for git and other commands.
+     3→ * Port of heartbeat.py _git() and daemon subprocess calls.
+     4→ */
+     5→
+     6→import { execFileSync } from &#39;node:child_process&#39;
+     7→
+     8→export function execCommand(
+     9→  command: string,
+    10→  args: readonly string[],
+    11→  options?: { cwd?: string; timeout?: number; allowFailure?: boolean },
+    12→): string {
+    13→  const cwd = options?.cwd
+    14→  const timeout = options?.timeout ?? 120_000
+    15→  const allowFailure = options?.allowFailure ?? false
+    16→
+    17→  try {
+    18→    const stdout = execFileSync(command, [...args], {
+    19→      cwd,
+    20→      timeout,
+    21→      encoding: &#39;utf-8&#39;,
+    22→      stdio: [&#39;pipe&#39;, &#39;pipe&#39;, &#39;pipe&#39;],
+    23→    })
+    24→    return stdout
+    25→  } catch (err: unknown) {
+    26→    if (allowFailure) {
+    27→      const e = err as { stdout?: string }
+    28→      return typeof e.stdout === &#39;string&#39; ? e.stdout : &#39;&#39;
+    29→    }
+    30→    throw err
+    31→  }
+    32→}
+    33→
+    34→export function git(cwd: string, ...args: string[]): string {
+    35→  const allowFailure = args[0] === &#39;status&#39; || args[0] === &#39;remote&#39;
+    36→  return execCommand(&#39;git&#39;, args, { cwd, allowFailure })
+    37→}
+    38→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

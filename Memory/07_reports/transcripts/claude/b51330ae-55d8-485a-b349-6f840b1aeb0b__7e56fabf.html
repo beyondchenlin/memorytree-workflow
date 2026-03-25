@@ -1,0 +1,3799 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-ab37b5083460bd449 — MemoryTree</title>
+<meta property="og:title" content="agent-ab37b5083460bd449">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-ab37b5083460bd449</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>8</strong> Messages</span>
+      <span class="transcript-pill"><strong>32</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>40</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 01:35:22</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-ab37b5083460bd449</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">b51330ae-55d8-485a-b349-6f840b1aeb0b</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">7e56fabf046fdd02...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">40</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">8</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">32</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>8</strong> dialog</span>
+    <span class="transcript-pill"><strong>32</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>8</strong> Messages</span>
+          <span class="transcript-pill"><strong>32</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>40 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Second review pass for the 5 package README.md files in `D:/demo1/openmnemo/packages/`. Issues fixed since first review: - `types/README.md`: corrected all 3 interfaces (TranscriptMessage.text not content, TranscriptToolEvent has summary+timestamp, ParsedTranscript has source_path, ManifestEntry complete) - `sync/README.md`: config path now `~/.memorytree/config.toml`, default interval `5m`, auto_push default..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">01:35:22</span>
+    </div>
+    <div class="message-body"><p>Second review pass for the 5 package README.md files in <code>D:/demo1/openmnemo/packages/</code>.</p><p>Issues fixed since first review:<br>- <code>types/README.md</code>: corrected all 3 interfaces (TranscriptMessage.text not content, TranscriptToolEvent has summary+timestamp, ParsedTranscript has source_path, ManifestEntry complete)<br>- <code>sync/README.md</code>: config path now <code>~/.memorytree/config.toml</code>, default interval <code>5m</code>, auto_push default <code>true</code><br>- <code>cli/README.md</code>: discover --client note clarified as <code>claude, codex, gemini</code>; Doubao in supported clients table now says &quot;via openmnemo import --client doubao&quot;</p><p>Please re-read all 5 README files and cross-check against source:<br>- <code>packages/types/src/index.ts</code><br>- <code>packages/core/src/index.ts</code> (check inferClient, importTranscript, searchTranscripts signatures)<br>- <code>packages/sync/src/config.ts</code> (check Config interface and defaults)<br>- <code>packages/report/src/index.ts</code> or <code>packages/report/src/build.ts</code> (check BuildReportOptions)<br>- <code>packages/cli/src/main.ts</code> (check all CLI flags)</p><p>Are there any remaining inaccuracies? Report CRITICAL / HIGH / MEDIUM / LOW. Be concise.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll re-read all 5 README files and cross-check them against the source code." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">01:35:25</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll re-read all 5 README files and cross-check them against the source code.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01VjKwneuNLgJgMB89sfUGRm Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/types/README.md&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01VjKwneuNLgJgMB89sfUGRm</span>
+      <span class="timeline-time">01:35:25</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/types/README.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/types/README.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01VjKwneuNLgJgMB89sfUGRm Read output=1→# @openmnemo/types 2→ 3→Shared TypeScript types for the OpenMnemo ecosystem. 4→ 5→## Install 6→ 7→```bash 8→npm install @openmnemo/types 9→``` 10→ 11→## Types 12→ 13→```typesc..." id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01VjKwneuNLgJgMB89sfUGRm</span>
+      
+      <span class="timeline-time">01:35:25</span>
+    </div>
+    <div class="timeline-title">Read output=1→# @openmnemo/types 2→ 3→Shared TypeScript types for the OpenMnemo ecosystem. 4→ 5→## Install 6→ 7→```bash 8→npm install @openmnemo/types 9→``` 10→ 11→## Types 12→ 13→```typesc...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# @openmnemo/types
+     2→
+     3→Shared TypeScript types for the OpenMnemo ecosystem.
+     4→
+     5→## Install
+     6→
+     7→```bash
+     8→npm install @openmnemo/types
+     9→```
+    10→
+    11→## Types
+    12→
+    13→```typescript
+    14→import type {
+    15→  Client,
+    16→  ParsedTranscript,
+    17→  TranscriptMessage,
+    18→  TranscriptToolEvent,
+    19→  ManifestEntry,
+    20→} from &#39;@openmnemo/types&#39;
+    21→```
+    22→
+    23→### `Client`
+    24→
+    25→```typescript
+    26→type Client = &#39;claude&#39; | &#39;codex&#39; | &#39;gemini&#39; | &#39;doubao&#39;
+    27→```
+    28→
+    29→### `ParsedTranscript`
+    30→
+    31→Normalised representation of a parsed AI conversation file, regardless of the original client format.
+    32→
+    33→```typescript
+    34→interface ParsedTranscript {
+    35→  client: Client
+    36→  session_id: string
+    37→  title: string
+    38→  started_at: string
+    39→  cwd: string
+    40→  branch: string
+    41→  messages: TranscriptMessage[]
+    42→  tool_events: TranscriptToolEvent[]
+    43→  source_path: string
+    44→}
+    45→```
+    46→
+    47→### `TranscriptMessage`
+    48→
+    49→```typescript
+    50→interface TranscriptMessage {
+    51→  role: string
+    52→  text: string
+    53→  timestamp: string | null
+    54→}
+    55→```
+    56→
+    57→### `TranscriptToolEvent`
+    58→
+    59→```typescript
+    60→interface TranscriptToolEvent {
+    61→  summary: string
+    62→  timestamp: string | null
+    63→}
+    64→```
+    65→
+    66→### `ManifestEntry`
+    67→
+    68→Metadata written to disk after a transcript is imported. Used by indexing and recall systems.
+    69→
+    70→```typescript
+    71→interface ManifestEntry {
+    72→  client: string
+    73→  project: string
+    74→  session_id: string
+    75→  raw_sha256: string
+    76→  title: string
+    77→  started_at: string
+    78→  imported_at: string
+    79→  cwd: string
+    80→  branch: string
+    81→  raw_source_path: string
+    82→  raw_upload_permission: string
+    83→  global_raw_path: string
+    84→  global_clean_path: string
+    85→  global_manifest_path: string
+    86→  repo_raw_path: string
+    87→  repo_clean_path: string
+    88→  repo_manifest_path: string
+    89→  message_count: number
+    90→  tool_event_count: number
+    91→  cleaning_mode: string
+    92→  repo_mirror_enabled: boolean
+    93→}
+    94→```
+    95→
+    96→## License
+    97→
+    98→MIT
+    99→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01Lt7vmupo1G1T6MHnnmv8A2 Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/README.md&quot;}" id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Lt7vmupo1G1T6MHnnmv8A2</span>
+      <span class="timeline-time">01:35:25</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/README.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/core/README.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01Lt7vmupo1G1T6MHnnmv8A2 Read output=1→# @openmnemo/core 2→ 3→Transcript parsing, import, dedup, full-text search, and recall for OpenMnemo. 4→ 5→## Install 6→ 7→```bash 8→npm install @openmnemo/core 9→``` 10→ 11→#..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Lt7vmupo1G1T6MHnnmv8A2</span>
+      
+      <span class="timeline-time">01:35:25</span>
+    </div>
+    <div class="timeline-title">Read output=1→# @openmnemo/core 2→ 3→Transcript parsing, import, dedup, full-text search, and recall for OpenMnemo. 4→ 5→## Install 6→ 7→```bash 8→npm install @openmnemo/core 9→``` 10→ 11→#...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# @openmnemo/core
+     2→
+     3→Transcript parsing, import, dedup, full-text search, and recall for OpenMnemo.
+     4→
+     5→## Install
+     6→
+     7→```bash
+     8→npm install @openmnemo/core
+     9→```
+    10→
+    11→## Features
+    12→
+    13→- Parse transcripts from Claude (JSONL), Codex/OpenAI (JSONL), Gemini (JSON), and Doubao (TXT)
+    14→- Import into a structured `Memory/` directory with deduplication
+    15→- Full-text search over imported sessions via SQLite FTS4
+    16→- Recall the most recent session for a project
+    17→
+    18→## Parsing
+    19→
+    20→```typescript
+    21→import { inferClient, parseTranscript } from &#39;@openmnemo/core&#39;
+    22→
+    23→const client = inferClient(&#39;auto&#39;, &#39;/path/to/file.jsonl&#39;)  // &#39;claude&#39; | &#39;codex&#39; | ...
+    24→const transcript = parseTranscript(client, &#39;/path/to/file.jsonl&#39;)
+    25→// → ParsedTranscript { client, session_id, title, messages, tool_events, ... }
+    26→```
+    27→
+    28→## Discovery
+    29→
+    30→```typescript
+    31→import { discoverSourceFiles, defaultGlobalTranscriptRoot } from &#39;@openmnemo/core&#39;
+    32→
+    33→// Scan default client directories (~/.claude/projects, ~/.codex/conversations, ...)
+    34→const sources = discoverSourceFiles()  // [[&#39;claude&#39;, &#39;/path/a.jsonl&#39;], ...]
+    35→```
+    36→
+    37→## Import
+    38→
+    39→```typescript
+    40→import { importTranscript, transcriptHasContent } from &#39;@openmnemo/core&#39;
+    41→
+    42→if (transcriptHasContent(transcript)) {
+    43→  const manifest = await importTranscript(
+    44→    transcript,
+    45→    &#39;/path/to/repo&#39;,      // repository root
+    46→    &#39;/path/to/Memory&#39;,    // global transcript root
+    47→    &#39;my-project&#39;,         // project slug
+    48→    &#39;not-set&#39;,            // raw upload permission
+    49→    true,                 // mirror to repo
+    50→  )
+    51→}
+    52→```
+    53→
+    54→## Full-text Search
+    55→
+    56→```typescript
+    57→import { searchTranscripts, sanitizeFtsQuery } from &#39;@openmnemo/core&#39;
+    58→
+    59→const results = await searchTranscripts(
+    60→  &#39;/path/to/Memory/index/search.sqlite&#39;,
+    61→  &#39;authentication bug&#39;,
+    62→  20,  // limit
+    63→)
+    64→// → SearchResult[] { client, project, session_id, title, cwd, branch, started_at }
+    65→```
+    66→
+    67→## Recall
+    68→
+    69→```typescript
+    70→import { recall, formatRecallText } from &#39;@openmnemo/core&#39;
+    71→
+    72→const result = await recall(
+    73→  &#39;/path/to/repo&#39;,
+    74→  &#39;my-project&#39;,
+    75→  &#39;/path/to/Memory&#39;,
+    76→  new Date().toISOString(),
+    77→)
+    78→// → RecallResult { found, session_id, title, client, clean_content, ... }
+    79→
+    80→console.log(formatRecallText(result))
+    81→```
+    82→
+    83→## License
+    84→
+    85→MIT
+    86→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01Fj2GPErp6iwijk1Dc9DW6V Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/sync/README.md&quot;}" id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Fj2GPErp6iwijk1Dc9DW6V</span>
+      <span class="timeline-time">01:35:25</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/sync/README.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/sync/README.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01Fj2GPErp6iwijk1Dc9DW6V Read output=1→# @openmnemo/sync 2→ 3→Heartbeat daemon, config management, and background sync for OpenMnemo. 4→ 5→Runs periodically to discover new AI transcripts, import them into `Memory/..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Fj2GPErp6iwijk1Dc9DW6V</span>
+      
+      <span class="timeline-time">01:35:26</span>
+    </div>
+    <div class="timeline-title">Read output=1→# @openmnemo/sync 2→ 3→Heartbeat daemon, config management, and background sync for OpenMnemo. 4→ 5→Runs periodically to discover new AI transcripts, import them into `Memory/...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# @openmnemo/sync
+     2→
+     3→Heartbeat daemon, config management, and background sync for OpenMnemo.
+     4→
+     5→Runs periodically to discover new AI transcripts, import them into `Memory/`, commit changes to git, and optionally generate HTML reports.
+     6→
+     7→## Install
+     8→
+     9→```bash
+    10→npm install @openmnemo/sync
+    11→```
+    12→
+    13→This package is primarily consumed by `@openmnemo/cli` via the `openmnemo daemon` commands. Direct usage is for programmatic control.
+    14→
+    15→## Config
+    16→
+    17→Config is stored in `~/.memorytree/config.toml`.
+    18→
+    19→```typescript
+    20→import { loadConfig, saveConfig, memorytreeRoot } from &#39;@openmnemo/sync&#39;
+    21→
+    22→const config = loadConfig()
+    23→// {
+    24→//   interval: &#39;10m&#39;,
+    25→//   auto_push: false,
+    26→//   generate_report: false,
+    27→//   locale: &#39;en&#39;,
+    28→//   ai_summary_model: &#39;claude-haiku-4-5-20251001&#39;,
+    29→//   ...
+    30→// }
+    31→```
+    32→
+    33→### Config fields
+    34→
+    35→| Field | Default | Description |
+    36→|-------|---------|-------------|
+    37→| `interval` | `&#39;5m&#39;` | Heartbeat interval (e.g. `&#39;5m&#39;`, `&#39;1h&#39;`) |
+    38→| `auto_push` | `true` | Git push after each import |
+    39→| `generate_report` | `false` | Build HTML report on each heartbeat |
+    40→| `locale` | `&#39;en&#39;` | Report locale (`&#39;en&#39;` or `&#39;zh-CN&#39;`) |
+    41→| `ai_summary_model` | `&#39;claude-haiku-4-5-20251001&#39;` | Model for AI session summaries |
+    42→| `gh_pages_branch` | `&#39;&#39;` | Deploy report to this branch (empty = skip) |
+    43→| `cname` | `&#39;&#39;` | Custom domain for GitHub Pages |
+    44→| `webhook_url` | `&#39;&#39;` | Notify Feishu/Slack/Discord/Telegram on publish |
+    45→| `report_base_url` | `&#39;&#39;` | Base URL for report RSS/OG links |
+    46→
+    47→## Programmatic heartbeat
+    48→
+    49→```typescript
+    50→import { runHeartbeat } from &#39;@openmnemo/sync&#39;
+    51→
+    52→await runHeartbeat()
+    53→```
+    54→
+    55→## Lock management
+    56→
+    57→```typescript
+    58→import { acquireLock, releaseLock, readLockPid } from &#39;@openmnemo/sync&#39;
+    59→
+    60→const acquired = acquireLock()
+    61→if (acquired) {
+    62→  // run heartbeat
+    63→  releaseLock()
+    64→}
+    65→```
+    66→
+    67→## Alerts
+    68→
+    69→```typescript
+    70→import { readAlerts, writeAlert, clearAlerts } from &#39;@openmnemo/sync&#39;
+    71→
+    72→const alerts = readAlerts()
+    73→writeAlert({ type: &#39;sensitive-content&#39;, message: &#39;API key detected&#39;, project: &#39;my-project&#39; })
+    74→clearAlerts()
+    75→```
+    76→
+    77→## License
+    78→
+    79→MIT
+    80→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01CJYKKz6U5GGEpgx5naTfpk Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/README.md&quot;}" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01CJYKKz6U5GGEpgx5naTfpk</span>
+      <span class="timeline-time">01:35:26</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/README.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/report/README.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01UuEz6yQfGKKSdcRd68GFGB Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/README.md&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01UuEz6yQfGKKSdcRd68GFGB</span>
+      <span class="timeline-time">01:35:26</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/README.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/cli/README.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01CJYKKz6U5GGEpgx5naTfpk Read output=1→# @openmnemo/report 2→ 3→Generates a static HTML dashboard from an OpenMnemo `Memory/` directory. 4→ 5→Produces an interactive site with session timelines, knowledge graph, pr..." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01CJYKKz6U5GGEpgx5naTfpk</span>
+      
+      <span class="timeline-time">01:35:26</span>
+    </div>
+    <div class="timeline-title">Read output=1→# @openmnemo/report 2→ 3→Generates a static HTML dashboard from an OpenMnemo `Memory/` directory. 4→ 5→Produces an interactive site with session timelines, knowledge graph, pr...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# @openmnemo/report
+     2→
+     3→Generates a static HTML dashboard from an OpenMnemo `Memory/` directory.
+     4→
+     5→Produces an interactive site with session timelines, knowledge graph, project dashboards, goals, todos, and full-text search — all from local Markdown and JSONL files, with no server required.
+     6→
+     7→## Install
+     8→
+     9→```bash
+    10→npm install @openmnemo/report
+    11→```
+    12→
+    13→## Usage
+    14→
+    15→```typescript
+    16→import { buildReport } from &#39;@openmnemo/report&#39;
+    17→
+    18→await buildReport({
+    19→  root: &#39;/path/to/repo&#39;,            // repository root containing Memory/
+    20→  output: &#39;/path/to/Memory/07_reports&#39;,
+    21→  noAi: true,                       // skip AI-powered session summaries
+    22→  model: &#39;claude-haiku-4-5-20251001&#39;,
+    23→  locale: &#39;en&#39;,                     // &#39;en&#39; or &#39;zh-CN&#39;
+    24→})
+    25→```
+    26→
+    27→### With AI summaries
+    28→
+    29→Set `noAi: false` and provide `ANTHROPIC_API_KEY` in the environment. The `@anthropic-ai/sdk` package is a peer dependency and only required when `noAi` is `false`.
+    30→
+    31→```typescript
+    32→await buildReport({
+    33→  root: &#39;.&#39;,
+    34→  output: &#39;./Memory/07_reports&#39;,
+    35→  noAi: false,
+    36→  model: &#39;claude-haiku-4-5-20251001&#39;,
+    37→})
+    38→```
+    39→
+    40→## Output structure
+    41→
+    42→```
+    43→Memory/07_reports/
+    44→  index.html          Dashboard (session count, recent activity, top projects)
+    45→  graph.html          Knowledge graph (topics, entities, session links)
+    46→  search.html         Full-text search UI
+    47→  projects/           Per-project pages
+    48→  transcripts/        Per-session clean transcript viewers
+    49→  goals/              Goals tracking
+    50→  todos/              Todo list view
+    51→  knowledge/          Knowledge base pages
+    52→  archive/            Archived sessions
+    53→```
+    54→
+    55→## CLI
+    56→
+    57→The easiest way to use this package is via `@openmnemo/cli`:
+    58→
+    59→```bash
+    60→openmnemo report build --root . --output ./Memory/07_reports --no-ai
+    61→openmnemo report serve --dir ./Memory/07_reports --port 3000
+    62→```
+    63→
+    64→## GitHub Pages deployment
+    65→
+    66→Set `ghPagesBranch` to deploy automatically:
+    67→
+    68→```typescript
+    69→await buildReport({
+    70→  root: &#39;.&#39;,
+    71→  output: &#39;./Memory/07_reports&#39;,
+    72→  noAi: true,
+    73→  model: &#39;claude-haiku-4-5-20251001&#39;,
+    74→  ghPagesBranch: &#39;gh-pages&#39;,
+    75→  cname: &#39;memory.mysite.com&#39;,        // optional custom domain
+    76→  webhookUrl: &#39;https://...&#39;,         // optional Feishu/Slack/Discord/Telegram notify
+    77→})
+    78→```
+    79→
+    80→## License
+    81→
+    82→MIT
+    83→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01UuEz6yQfGKKSdcRd68GFGB Read output=1→# @openmnemo/cli 2→ 3→OpenMnemo unified CLI — manage AI conversation memory across Claude, Codex, Gemini, and Doubao. 4→ 5→## Install 6→ 7→```bash 8→npm install -g @openmnemo/..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01UuEz6yQfGKKSdcRd68GFGB</span>
+      
+      <span class="timeline-time">01:35:26</span>
+    </div>
+    <div class="timeline-title">Read output=1→# @openmnemo/cli 2→ 3→OpenMnemo unified CLI — manage AI conversation memory across Claude, Codex, Gemini, and Doubao. 4→ 5→## Install 6→ 7→```bash 8→npm install -g @openmnemo/...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# @openmnemo/cli
+     2→
+     3→OpenMnemo unified CLI — manage AI conversation memory across Claude, Codex, Gemini, and Doubao.
+     4→
+     5→## Install
+     6→
+     7→```bash
+     8→npm install -g @openmnemo/cli
+     9→```
+    10→
+    11→## Commands
+    12→
+    13→### `openmnemo init`
+    14→
+    15→Initialise a MemoryTree workspace in a repository.
+    16→
+    17→```bash
+    18→openmnemo init --root . --project-name &quot;my-project&quot; --locale en
+    19→```
+    20→
+    21→### `openmnemo upgrade`
+    22→
+    23→Upgrade an existing workspace without overwriting policy files.
+    24→
+    25→```bash
+    26→openmnemo upgrade --root .
+    27→```
+    28→
+    29→### `openmnemo import`
+    30→
+    31→Import a single transcript file into Memory.
+    32→
+    33→```bash
+    34→openmnemo import --source ~/.codex/conversations/abc.jsonl --client codex
+    35→openmnemo import --source ~/doubao_session.txt --client doubao
+    36→```
+    37→
+    38→### `openmnemo discover`
+    39→
+    40→Scan default client directories and import all matching transcripts.
+    41→
+    42→```bash
+    43→# Import all transcripts for the current project
+    44→openmnemo discover --scope current-project
+    45→
+    46→# Import everything, all clients (claude, codex, gemini)
+    47→openmnemo discover --client all --scope all-projects
+    48→```
+    49→
+    50→### `openmnemo search`
+    51→
+    52→Full-text search over imported sessions.
+    53→
+    54→```bash
+    55→openmnemo search --query &quot;authentication bug&quot;
+    56→openmnemo search --query &quot;database migration&quot; --limit 10 --format json
+    57→```
+    58→
+    59→### `openmnemo recall`
+    60→
+    61→Sync transcripts and return the most recent session for the current project.
+    62→
+    63→```bash
+    64→openmnemo recall
+    65→openmnemo recall --format json
+    66→```
+    67→
+    68→### `openmnemo report build`
+    69→
+    70→Build a static HTML report from `Memory/`.
+    71→
+    72→```bash
+    73→openmnemo report build --root . --output ./Memory/07_reports --no-ai
+    74→openmnemo report build --root . --output ./Memory/07_reports --locale zh-CN
+    75→```
+    76→
+    77→### `openmnemo report serve`
+    78→
+    79→Serve a built report over HTTP.
+    80→
+    81→```bash
+    82→openmnemo report serve --dir ./Memory/07_reports --port 3000
+    83→```
+    84→
+    85→### `openmnemo daemon`
+    86→
+    87→Manage the background heartbeat that auto-imports transcripts.
+    88→
+    89→```bash
+    90→openmnemo daemon install          # register with OS scheduler (every 10 min)
+    91→openmnemo daemon uninstall        # remove scheduled task
+    92→openmnemo daemon run-once         # run a single heartbeat cycle now
+    93→openmnemo daemon status           # show registration and lock state
+    94→```
+    95→
+    96→## Supported clients
+    97→
+    98→| Client | Format | Auto-discovery |
+    99→|--------|--------|----------------|
+   100→| Claude | JSONL | `~/.claude/projects/` |
+   101→| Codex (OpenAI) | JSONL | `~/.codex/conversations/` |
+   102→| Gemini | JSON | `~/.gemini/conversations/` |
+   103→| Doubao | TXT | via `openmnemo import --client doubao` |
+   104→
+   105→## License
+   106→
+   107→MIT
+   108→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now I&#39;ll cross-check against the source code files." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#13</span>
+      
+      <span class="timeline-time">01:35:31</span>
+    </div>
+    <div class="message-body"><p>Now I&#39;ll cross-check against the source code files.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01FrDjzevfn8XXcnnTk5MLLg Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/types/src/index.ts&quot;}" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01FrDjzevfn8XXcnnTk5MLLg</span>
+      <span class="timeline-time">01:35:31</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/types/src/index.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/types/src/index.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01FrDjzevfn8XXcnnTk5MLLg Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39; 5→ 6→export int..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01FrDjzevfn8XXcnnTk5MLLg</span>
+      
+      <span class="timeline-time">01:35:31</span>
+    </div>
+    <div class="timeline-title">Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39; 5→ 6→export int...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→// Types — ParsedTranscript, Message, ToolEvent interfaces
+     2→// To be implemented in Phase 1
+     3→
+     4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39;
+     5→
+     6→export interface TranscriptMessage {
+     7→  role: string
+     8→  text: string
+     9→  timestamp: string | null
+    10→}
+    11→
+    12→export interface TranscriptToolEvent {
+    13→  summary: string
+    14→  timestamp: string | null
+    15→}
+    16→
+    17→export interface ParsedTranscript {
+    18→  client: Client
+    19→  session_id: string
+    20→  title: string
+    21→  started_at: string
+    22→  cwd: string
+    23→  branch: string
+    24→  messages: TranscriptMessage[]
+    25→  tool_events: TranscriptToolEvent[]
+    26→  source_path: string
+    27→}
+    28→
+    29→export interface ManifestEntry {
+    30→  client: string
+    31→  project: string
+    32→  session_id: string
+    33→  raw_sha256: string
+    34→  title: string
+    35→  started_at: string
+    36→  imported_at: string
+    37→  cwd: string
+    38→  branch: string
+    39→  raw_source_path: string
+    40→  raw_upload_permission: string
+    41→  global_raw_path: string
+    42→  global_clean_path: string
+    43→  global_manifest_path: string
+    44→  repo_raw_path: string
+    45→  repo_clean_path: string
+    46→  repo_manifest_path: string
+    47→  message_count: number
+    48→  tool_event_count: number
+    49→  cleaning_mode: string
+    50→  repo_mirror_enabled: boolean
+    51→}
+    52→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_0126ndeinCNgkDg1UMW6xNDF Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/index.ts&quot;}" id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_0126ndeinCNgkDg1UMW6xNDF</span>
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/core/src/index.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/core/src/index.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_0126ndeinCNgkDg1UMW6xNDF Read output=1→/** 2→ * @openmnemo/core — transcript parsing, import, dedup, indexing, and recall. 3→ */ 4→ 5→// Re-export types 6→export type { 7→ Client, 8→ ParsedTranscript, 9→ Transcript..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_0126ndeinCNgkDg1UMW6xNDF</span>
+      
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * @openmnemo/core — transcript parsing, import, dedup, indexing, and recall. 3→ */ 4→ 5→// Re-export types 6→export type { 7→ Client, 8→ ParsedTranscript, 9→ Transcript...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * @openmnemo/core — transcript parsing, import, dedup, indexing, and recall.
+     3→ */
+     4→
+     5→// Re-export types
+     6→export type {
+     7→  Client,
+     8→  ParsedTranscript,
+     9→  TranscriptMessage,
+    10→  TranscriptToolEvent,
+    11→  ManifestEntry,
+    12→} from &#39;@openmnemo/types&#39;
+    13→
+    14→export type { RecallResult } from &#39;./recall/recall.js&#39;
+    15→
+    16→// Common utilities
+    17→export {
+    18→  CLIENTS,
+    19→  TEXT_BLOCK_TYPES,
+    20→  SKIP_BLOCK_TYPES,
+    21→  TOOL_USE_TYPES,
+    22→  TOOL_RESULT_TYPES,
+    23→  slugify,
+    24→  sha256File,
+    25→  contentHash,
+    26→  normalizeTimestamp,
+    27→  earliestTimestamp,
+    28→  parseIsoTimestamp,
+    29→  timestampPartition,
+    30→  joinParagraphs,
+    31→  summarizeValue,
+    32→  truncate,
+    33→  yamlEscape,
+    34→  ensureDict,
+    35→  ensureList,
+    36→  getNested,
+    37→  loadJsonl,
+    38→  loadJson,
+    39→  extractTextBlocks,
+    40→  extractSimpleText,
+    41→  extractGeminiText,
+    42→  extractGeminiParts,
+    43→  findFirstMappingWithKeys,
+    44→  deduplicateMessages,
+    45→  deduplicateToolEvents,
+    46→} from &#39;./transcript/common.js&#39;
+    47→
+    48→// Parsing
+    49→export {
+    50→  inferClient,
+    51→  parseTranscript,
+    52→  parseCodexTranscript,
+    53→  parseClaudeTranscript,
+    54→  parseGeminiTranscript,
+    55→  parseDoubaoTranscript,
+    56→} from &#39;./transcript/parse.js&#39;
+    57→
+    58→// Database
+    59→export { upsertSearchIndex, searchTranscripts, sanitizeFtsQuery } from &#39;./transcript/db.js&#39;
+    60→export type { SearchResult } from &#39;./transcript/db.js&#39;
+    61→
+    62→// Discovery
+    63→export {
+    64→  defaultGlobalTranscriptRoot,
+    65→  defaultClientRoots,
+    66→  discoverSourceFiles,
+    67→  inferProjectSlug,
+    68→  transcriptMatchesRepo,
+    69→  projectSlugsMatch,
+    70→  safeFileMtime,
+    71→} from &#39;./transcript/discover.js&#39;
+    72→
+    73→// Import
+    74→export {
+    75→  importTranscript,
+    76→  transcriptHasContent,
+    77→  writeCleanMarkdown,
+    78→  preserveExistingImportTimestamp,
+    79→  manifestSignature,
+    80→  manifestChanged,
+    81→  writeJson,
+    82→  appendJsonl,
+    83→  copyFile,
+    84→} from &#39;./transcript/import.js&#39;
+    85→
+    86→// Recall
+    87→export {
+    88→  recall,
+    89→  syncCurrentProject,
+    90→  findLatestSession,
+    91→  findLatestFromJsonl,
+    92→  cwdMatches,
+    93→  formatText as formatRecallText,
+    94→} from &#39;./recall/recall.js&#39;
+    95→
+    96→// Utils
+    97→export { toPosixPath } from &#39;./utils/path.js&#39;
+    98→export { execCommand, git } from &#39;./utils/exec.js&#39;
+    99→
+   100→// Storage adapters
+   101→export type { StorageAdapter } from &#39;./storage/adapter.js&#39;
+   102→export { LocalAdapter } from &#39;./storage/local-adapter.js&#39;
+   103→export { GiteaAdapter } from &#39;./storage/gitea-adapter.js&#39;
+   104→export type { GiteaAdapterOptions } from &#39;./storage/gitea-adapter.js&#39;
+   105→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_016BKZ39HpJto63AfwX8W9eh Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/sync/src/config.ts&quot;}" id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_016BKZ39HpJto63AfwX8W9eh</span>
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/sync/src/config.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/sync/src/config.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_016BKZ39HpJto63AfwX8W9eh Read output=1→/** 2→ * Load, validate, and manage ~/.memorytree/config.toml. 3→ * Port of scripts/_config_utils.py 4→ */ 5→ 6→import { existsSync, readFileSync, writeFileSync, mkdirSync } f..." id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_016BKZ39HpJto63AfwX8W9eh</span>
+      
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Load, validate, and manage ~/.memorytree/config.toml. 3→ * Port of scripts/_config_utils.py 4→ */ 5→ 6→import { existsSync, readFileSync, writeFileSync, mkdirSync } f...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Load, validate, and manage ~/.memorytree/config.toml.
+     3→ * Port of scripts/_config_utils.py
+     4→ */
+     5→
+     6→import { existsSync, readFileSync, writeFileSync, mkdirSync } from &#39;node:fs&#39;
+     7→import { homedir } from &#39;node:os&#39;
+     8→import { dirname, resolve } from &#39;node:path&#39;
+     9→
+    10→import { parse as parseToml } from &#39;smol-toml&#39;
+    11→
+    12→import { toPosixPath } from &#39;@openmnemo/core&#39;
+    13→
+    14→// ---------------------------------------------------------------------------
+    15→// Constants
+    16→// ---------------------------------------------------------------------------
+    17→
+    18→const DEFAULT_HEARTBEAT_INTERVAL = &#39;5m&#39;
+    19→const DEFAULT_AUTO_PUSH = true
+    20→const DEFAULT_LOG_LEVEL = &#39;info&#39;
+    21→const VALID_LOG_LEVELS: ReadonlySet&lt;string&gt; = new Set([&#39;debug&#39;, &#39;info&#39;, &#39;warn&#39;, &#39;error&#39;])
+    22→
+    23→// ---------------------------------------------------------------------------
+    24→// Types
+    25→// ---------------------------------------------------------------------------
+    26→
+    27→export interface ProjectEntry {
+    28→  readonly path: string
+    29→  readonly name: string
+    30→}
+    31→
+    32→export interface Config {
+    33→  readonly heartbeat_interval: string
+    34→  readonly watch_dirs: readonly string[]
+    35→  readonly projects: readonly ProjectEntry[]
+    36→  readonly auto_push: boolean
+    37→  readonly log_level: string
+    38→  readonly generate_report: boolean
+    39→  readonly locale: string
+    40→  readonly ai_summary_model: string
+    41→  readonly gh_pages_branch: string
+    42→  readonly cname: string
+    43→  readonly webhook_url: string
+    44→  readonly report_base_url: string
+    45→}
+    46→
+    47→// ---------------------------------------------------------------------------
+    48→// Path helpers
+    49→// ---------------------------------------------------------------------------
+    50→
+    51→export function memorytreeRoot(): string {
+    52→  return resolve(homedir(), &#39;.memorytree&#39;)
+    53→}
+    54→
+    55→export function configPath(): string {
+    56→  return resolve(memorytreeRoot(), &#39;config.toml&#39;)
+    57→}
+    58→
+    59→// ---------------------------------------------------------------------------
+    60→// Load / Save
+    61→// ---------------------------------------------------------------------------
+    62→
+    63→export function loadConfig(): Config {
+    64→  const path = configPath()
+    65→  if (!existsSync(path)) {
+    66→    return defaultConfig()
+    67→  }
+    68→  let raw: Record&lt;string, unknown&gt;
+    69→  try {
+    70→    const text = readFileSync(path, &#39;utf-8&#39;)
+    71→    raw = parseToml(text) as Record&lt;string, unknown&gt;
+    72→  } catch {
+    73→    return defaultConfig()
+    74→  }
+    75→  return parseRaw(raw)
+    76→}
+    77→
+    78→export function saveConfig(cfg: Config): void {
+    79→  const path = configPath()
+    80→  mkdirSync(dirname(path), { recursive: true })
+    81→
+    82→  const lines: string[] = [
+    83→    `heartbeat_interval = ${tomlString(cfg.heartbeat_interval)}`,
+    84→    `auto_push = ${cfg.auto_push ? &#39;true&#39; : &#39;false&#39;}`,
+    85→    `log_level = ${tomlString(cfg.log_level)}`,
+    86→  ]
+    87→
+    88→  if (cfg.watch_dirs.length &gt; 0) {
+    89→    const items = cfg.watch_dirs.map(d =&gt; tomlString(d)).join(&#39;, &#39;)
+    90→    lines.push(`watch_dirs = [${items}]`)
+    91→  } else {
+    92→    lines.push(&#39;watch_dirs = []&#39;)
+    93→  }
+    94→
+    95→  lines.push(&#39;&#39;)
+    96→  for (const project of cfg.projects) {
+    97→    lines.push(&#39;[[projects]]&#39;)
+    98→    lines.push(`path = ${tomlString(project.path)}`)
+    99→    if (project.name) {
+   100→      lines.push(`name = ${tomlString(project.name)}`)
+   101→    }
+   102→    lines.push(&#39;&#39;)
+   103→  }
+   104→
+   105→  writeFileSync(path, lines.join(&#39;\n&#39;) + &#39;\n&#39;, &#39;utf-8&#39;)
+   106→}
+   107→
+   108→// ---------------------------------------------------------------------------
+   109→// Interval parsing
+   110→// ---------------------------------------------------------------------------
+   111→
+   112→export function intervalToSeconds(interval: string): number {
+   113→  const match = interval.trim().toLowerCase().match(/^(\d+)\s*(s|m|h)$/)
+   114→  if (!match) {
+   115→    return intervalToSeconds(DEFAULT_HEARTBEAT_INTERVAL)
+   116→  }
+   117→  const value = parseInt(match[1]!, 10)
+   118→  const unit = match[2]!
+   119→  if (value &lt;= 0) {
+   120→    return intervalToSeconds(DEFAULT_HEARTBEAT_INTERVAL)
+   121→  }
+   122→  const multiplier: Record&lt;string, number&gt; = { s: 1, m: 60, h: 3600 }
+   123→  return value * (multiplier[unit] ?? 60)
+   124→}
+   125→
+   126→// ---------------------------------------------------------------------------
+   127→// Project registration
+   128→// ---------------------------------------------------------------------------
+   129→
+   130→export function registerProject(cfg: Config, repoPath: string): Config {
+   131→  const resolved = toPosixPath(resolve(repoPath))
+   132→  for (const entry of cfg.projects) {
+   133→    if (toPosixPath(resolve(entry.path)) === resolved) {
+   134→      return cfg
+   135→    }
+   136→  }
+   137→  const name = resolved.split(&#39;/&#39;).pop() ?? &#39;&#39;
+   138→  return {
+   139→    ...cfg,
+   140→    projects: [...cfg.projects, { path: resolved, name }],
+   141→  }
+   142→}
+   143→
+   144→// ---------------------------------------------------------------------------
+   145→// Internal helpers
+   146→// ---------------------------------------------------------------------------
+   147→
+   148→function defaultConfig(): Config {
+   149→  return {
+   150→    heartbeat_interval: DEFAULT_HEARTBEAT_INTERVAL,
+   151→    watch_dirs: [],
+   152→    projects: [],
+   153→    auto_push: DEFAULT_AUTO_PUSH,
+   154→    log_level: DEFAULT_LOG_LEVEL,
+   155→    generate_report: false,
+   156→    locale: &#39;en&#39;,
+   157→    ai_summary_model: &#39;claude-haiku-4-5-20251001&#39;,
+   158→    gh_pages_branch: &#39;&#39;,
+   159→    cname: &#39;&#39;,
+   160→    webhook_url: &#39;&#39;,
+   161→    report_base_url: &#39;&#39;,
+   162→  }
+   163→}
+   164→
+   165→function parseRaw(raw: Record&lt;string, unknown&gt;): Config {
+   166→  let interval = raw[&#39;heartbeat_interval&#39;]
+   167→  if (typeof interval !== &#39;string&#39; || !isValidInterval(interval)) {
+   168→    interval = DEFAULT_HEARTBEAT_INTERVAL
+   169→  }
+   170→
+   171→  let autoPush = raw[&#39;auto_push&#39;]
+   172→  if (typeof autoPush !== &#39;boolean&#39;) {
+   173→    autoPush = DEFAULT_AUTO_PUSH
+   174→  }
+   175→
+   176→  let logLevel = raw[&#39;log_level&#39;]
+   177→  if (typeof logLevel !== &#39;string&#39; || !VALID_LOG_LEVELS.has(logLevel.toLowerCase())) {
+   178→    logLevel = DEFAULT_LOG_LEVEL
+   179→  }
+   180→  logLevel = (logLevel as string).toLowerCase()
+   181→
+   182→  const watchDirs: string[] = []
+   183→  const rawDirs = raw[&#39;watch_dirs&#39;]
+   184→  if (Array.isArray(rawDirs)) {
+   185→    for (const d of rawDirs) {
+   186→      if (typeof d === &#39;string&#39;) watchDirs.push(d)
+   187→    }
+   188→  }
+   189→
+   190→  const projects: ProjectEntry[] = []
+   191→  const rawProjects = raw[&#39;projects&#39;]
+   192→  if (Array.isArray(rawProjects)) {
+   193→    for (const entry of rawProjects) {
+   194→      if (entry !== null &amp;&amp; typeof entry === &#39;object&#39; &amp;&amp; !Array.isArray(entry)) {
+   195→        const rec = entry as Record&lt;string, unknown&gt;
+   196→        if (typeof rec[&#39;path&#39;] === &#39;string&#39;) {
+   197→          projects.push({
+   198→            path: rec[&#39;path&#39;] as string,
+   199→            name: String(rec[&#39;name&#39;] ?? &#39;&#39;),
+   200→          })
+   201→        }
+   202→      }
+   203→    }
+   204→  }
+   205→
+   206→  return {
+   207→    heartbeat_interval: interval as string,
+   208→    watch_dirs: watchDirs,
+   209→    projects,
+   210→    auto_push: autoPush as boolean,
+   211→    log_level: logLevel as string,
+   212→    generate_report: typeof raw[&#39;generate_report&#39;] === &#39;boolean&#39; ? raw[&#39;generate_report&#39;] : false,
+   213→    locale: typeof raw[&#39;locale&#39;] === &#39;string&#39; ? raw[&#39;locale&#39;] : &#39;en&#39;,
+   214→    ai_summary_model: typeof raw[&#39;ai_summary_model&#39;] === &#39;string&#39; ? raw[&#39;ai_summary_model&#39;] : &#39;claude-haiku-4-5-20251001&#39;,
+   215→    gh_pages_branch: typeof raw[&#39;gh_pages_branch&#39;] === &#39;string&#39; ? raw[&#39;gh_pages_branch&#39;] : &#39;&#39;,
+   216→    cname: typeof raw[&#39;cname&#39;] === &#39;string&#39; ? raw[&#39;cname&#39;] : &#39;&#39;,
+   217→    webhook_url: typeof raw[&#39;webhook_url&#39;] === &#39;string&#39; ? raw[&#39;webhook_url&#39;] : &#39;&#39;,
+   218→    report_base_url: typeof raw[&#39;report_base_url&#39;] === &#39;string&#39; ? raw[&#39;report_base_url&#39;] : &#39;&#39;,
+   219→  }
+   220→}
+   221→
+   222→function isValidInterval(value: string): boolean {
+   223→  const match = value.trim().toLowerCase().match(/^(\d+)\s*(s|m|h)$/)
+   224→  if (!match) return false
+   225→  return parseInt(match[1]!, 10) &gt; 0
+   226→}
+   227→
+   228→function tomlString(value: string): string {
+   229→  const escaped = value.replace(/\\/g, &#39;\\\\&#39;).replace(/&quot;/g, &#39;\\&quot;&#39;)
+   230→  return `&quot;${escaped}&quot;`
+   231→}
+   232→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01LMtteQ9fDPeaANnaRbUMfP Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/src/index.ts&quot;}" id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01LMtteQ9fDPeaANnaRbUMfP</span>
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/src/index.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/report/src/index.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01LMtteQ9fDPeaANnaRbUMfP Read output=1→export { buildReport } from &#39;./build.js&#39; 2→export type { BuildReportOptions } from &#39;./types.js&#39; 3→" id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01LMtteQ9fDPeaANnaRbUMfP</span>
+      
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read output=1→export { buildReport } from &#39;./build.js&#39; 2→export type { BuildReportOptions } from &#39;./types.js&#39; 3→</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→export { buildReport } from &#39;./build.js&#39;
+     2→export type { BuildReportOptions } from &#39;./types.js&#39;
+     3→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01TkE4JBwSuhmju9GGEAGvYz Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/main.ts&quot;}" id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01TkE4JBwSuhmju9GGEAGvYz</span>
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/main.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/cli/src/main.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01TkE4JBwSuhmju9GGEAGvYz Read output=1→/** 2→ * OpenMnemo CLI — unified entry point. 3→ * Registers all subcommands via commander. 4→ */ 5→ 6→import { createRequire } from &#39;node:module&#39; 7→import { Command } from &#39;c..." id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01TkE4JBwSuhmju9GGEAGvYz</span>
+      
+      <span class="timeline-time">01:35:32</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * OpenMnemo CLI — unified entry point. 3→ * Registers all subcommands via commander. 4→ */ 5→ 6→import { createRequire } from &#39;node:module&#39; 7→import { Command } from &#39;c...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * OpenMnemo CLI — unified entry point.
+     3→ * Registers all subcommands via commander.
+     4→ */
+     5→
+     6→import { createRequire } from &#39;node:module&#39;
+     7→import { Command } from &#39;commander&#39;
+     8→
+     9→const _require = createRequire(import.meta.url)
+    10→const { version: cliVersion } = _require(&#39;../package.json&#39;) as { version: string }
+    11→
+    12→const program = new Command()
+    13→
+    14→program
+    15→  .name(&#39;openmnemo&#39;)
+    16→  .description(&#39;OpenMnemo — cross-platform AI conversation memory manager&#39;)
+    17→  .version(cliVersion)
+    18→
+    19→// ── init ──────────────────────────────────────────────────────────────────
+    20→
+    21→program
+    22→  .command(&#39;init&#39;)
+    23→  .description(&#39;Initialize a MemoryTree workspace in a repository&#39;)
+    24→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Target repository root&#39;, &#39;.&#39;)
+    25→  .option(&#39;--project-name &lt;name&gt;&#39;, &#39;Project name&#39;, &#39;this project&#39;)
+    26→  .option(&#39;--goal-summary &lt;text&gt;&#39;, &#39;Initial goal summary&#39;, &#39;Describe the long-term project goal here.&#39;)
+    27→  .option(&#39;--locale &lt;locale&gt;&#39;, &#39;Template locale: auto, en, or zh-cn&#39;, &#39;auto&#39;)
+    28→  .option(&#39;--date &lt;date&gt;&#39;, &#39;Override date as YYYY-MM-DD&#39;)
+    29→  .option(&#39;--time &lt;time&gt;&#39;, &#39;Override time as HH:MM&#39;)
+    30→  .option(&#39;--skip-agents&#39;, &#39;Deprecated — use upgrade instead&#39;)
+    31→  .option(&#39;--force&#39;, &#39;Overwrite existing generated files&#39;)
+    32→  .action(async (opts) =&gt; {
+    33→    const { cmdInit } = await import(&#39;./cmd-init.js&#39;)
+    34→    process.exitCode = cmdInit({
+    35→      root: opts.root,
+    36→      projectName: opts.projectName,
+    37→      goalSummary: opts.goalSummary,
+    38→      locale: opts.locale,
+    39→      date: opts.date ?? &#39;&#39;,
+    40→      time: opts.time ?? &#39;&#39;,
+    41→      skipAgents: opts.skipAgents ?? false,
+    42→      force: opts.force ?? false,
+    43→    })
+    44→  })
+    45→
+    46→// ── upgrade ───────────────────────────────────────────────────────────────
+    47→
+    48→program
+    49→  .command(&#39;upgrade&#39;)
+    50→  .description(&#39;Upgrade a repository to MemoryTree without overwriting existing policy&#39;)
+    51→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Target repository root&#39;, &#39;.&#39;)
+    52→  .option(&#39;--project-name &lt;name&gt;&#39;, &#39;Project name&#39;, &#39;this project&#39;)
+    53→  .option(&#39;--goal-summary &lt;text&gt;&#39;, &#39;Fallback goal summary&#39;, &#39;Describe the long-term project goal here.&#39;)
+    54→  .option(&#39;--locale &lt;locale&gt;&#39;, &#39;Requested locale: auto, en, or zh-cn&#39;, &#39;auto&#39;)
+    55→  .option(&#39;--date &lt;date&gt;&#39;, &#39;Override date as YYYY-MM-DD&#39;)
+    56→  .option(&#39;--time &lt;time&gt;&#39;, &#39;Override time as HH:MM&#39;)
+    57→  .option(&#39;--format &lt;format&gt;&#39;, &#39;Output format: text or json&#39;, &#39;text&#39;)
+    58→  .action(async (opts) =&gt; {
+    59→    const { cmdUpgrade } = await import(&#39;./cmd-upgrade.js&#39;)
+    60→    process.exitCode = cmdUpgrade({
+    61→      root: opts.root,
+    62→      projectName: opts.projectName,
+    63→      goalSummary: opts.goalSummary,
+    64→      locale: opts.locale,
+    65→      date: opts.date ?? &#39;&#39;,
+    66→      time: opts.time ?? &#39;&#39;,
+    67→      format: opts.format,
+    68→    })
+    69→  })
+    70→
+    71→// ── import ────────────────────────────────────────────────────────────────
+    72→
+    73→program
+    74→  .command(&#39;import&#39;)
+    75→  .description(&#39;Import one local transcript into MemoryTree archives&#39;)
+    76→  .requiredOption(&#39;--source &lt;path&gt;&#39;, &#39;Raw transcript source file path&#39;)
+    77→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Target repository root&#39;, &#39;.&#39;)
+    78→  .option(&#39;--client &lt;client&gt;&#39;, &#39;Transcript client: auto, codex, claude, gemini, doubao&#39;, &#39;auto&#39;)
+    79→  .option(&#39;--project-name &lt;name&gt;&#39;, &#39;Project label&#39;, &#39;&#39;)
+    80→  .option(&#39;--global-root &lt;path&gt;&#39;, &#39;Override global transcript root&#39;)
+    81→  .option(&#39;--raw-upload-permission &lt;perm&gt;&#39;, &#39;Permission: not-set, approved, denied&#39;, &#39;not-set&#39;)
+    82→  .option(&#39;--format &lt;format&gt;&#39;, &#39;Output format: text or json&#39;, &#39;text&#39;)
+    83→  .action(async (opts) =&gt; {
+    84→    const { cmdImport } = await import(&#39;./cmd-import.js&#39;)
+    85→    process.exitCode = await cmdImport({
+    86→      root: opts.root,
+    87→      source: opts.source,
+    88→      client: opts.client,
+    89→      projectName: opts.projectName,
+    90→      globalRoot: opts.globalRoot ?? &#39;&#39;,
+    91→      rawUploadPermission: opts.rawUploadPermission,
+    92→      format: opts.format,
+    93→    })
+    94→  })
+    95→
+    96→// ── discover ──────────────────────────────────────────────────────────────
+    97→
+    98→program
+    99→  .command(&#39;discover&#39;)
+   100→  .description(&#39;Discover and import local AI transcripts&#39;)
+   101→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Target repository root&#39;, &#39;.&#39;)
+   102→  .option(&#39;--client &lt;client&gt;&#39;, &#39;Client filter: all, codex, claude, gemini&#39;, &#39;all&#39;)
+   103→  .option(&#39;--scope &lt;scope&gt;&#39;, &#39;Scope: current-project or all-projects&#39;, &#39;all-projects&#39;)
+   104→  .option(&#39;--project-name &lt;name&gt;&#39;, &#39;Project label&#39;, &#39;&#39;)
+   105→  .option(&#39;--global-root &lt;path&gt;&#39;, &#39;Override global transcript root&#39;)
+   106→  .option(&#39;--raw-upload-permission &lt;perm&gt;&#39;, &#39;Permission: not-set, approved, denied&#39;, &#39;not-set&#39;)
+   107→  .option(&#39;--limit &lt;n&gt;&#39;, &#39;Limit discovered sources&#39;, &#39;0&#39;)
+   108→  .option(&#39;--format &lt;format&gt;&#39;, &#39;Output format: text or json&#39;, &#39;text&#39;)
+   109→  .action(async (opts) =&gt; {
+   110→    const { cmdDiscover } = await import(&#39;./cmd-discover.js&#39;)
+   111→    process.exitCode = await cmdDiscover({
+   112→      root: opts.root,
+   113→      client: opts.client,
+   114→      scope: opts.scope,
+   115→      projectName: opts.projectName,
+   116→      globalRoot: opts.globalRoot ?? &#39;&#39;,
+   117→      rawUploadPermission: opts.rawUploadPermission,
+   118→      limit: parseInt(opts.limit, 10) || 0,
+   119→      format: opts.format,
+   120→    })
+   121→  })
+   122→
+   123→// ── locale ────────────────────────────────────────────────────────────────
+   124→
+   125→program
+   126→  .command(&#39;locale&#39;)
+   127→  .description(&#39;Detect the effective locale for a repository&#39;)
+   128→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Target repository root&#39;, &#39;.&#39;)
+   129→  .option(&#39;--locale &lt;locale&gt;&#39;, &#39;Requested locale value&#39;, &#39;auto&#39;)
+   130→  .option(&#39;--format &lt;format&gt;&#39;, &#39;Output format: text or json&#39;, &#39;text&#39;)
+   131→  .action(async (opts) =&gt; {
+   132→    const { cmdLocale } = await import(&#39;./cmd-locale.js&#39;)
+   133→    process.exitCode = cmdLocale({
+   134→      root: opts.root,
+   135→      locale: opts.locale,
+   136→      format: opts.format,
+   137→    })
+   138→  })
+   139→
+   140→// ── search ────────────────────────────────────────────────────────────────
+   141→
+   142→program
+   143→  .command(&#39;search&#39;)
+   144→  .description(&#39;Full-text search over the imported transcript index&#39;)
+   145→  .requiredOption(&#39;--query &lt;text&gt;&#39;, &#39;Search query&#39;)
+   146→  .option(&#39;--global-root &lt;path&gt;&#39;, &#39;Override global transcript root&#39;)
+   147→  .option(&#39;--limit &lt;n&gt;&#39;, &#39;Maximum results to return (0 = no limit)&#39;, &#39;20&#39;)
+   148→  .option(&#39;--format &lt;format&gt;&#39;, &#39;Output format: text or json&#39;, &#39;text&#39;)
+   149→  .action(async (opts) =&gt; {
+   150→    const { cmdSearch } = await import(&#39;./cmd-search.js&#39;)
+   151→    const n = parseInt(opts.limit, 10)
+   152→    process.exitCode = await cmdSearch({
+   153→      query: opts.query,
+   154→      globalRoot: opts.globalRoot ?? &#39;&#39;,
+   155→      limit: !Number.isNaN(n) &amp;&amp; n &gt; 0 ? n : 20,
+   156→      format: opts.format,
+   157→    })
+   158→  })
+   159→
+   160→// ── recall ────────────────────────────────────────────────────────────────
+   161→
+   162→program
+   163→  .command(&#39;recall&#39;)
+   164→  .description(&#39;On-demand transcript sync and latest session recall&#39;)
+   165→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Target repository root&#39;, &#39;.&#39;)
+   166→  .option(&#39;--project-name &lt;name&gt;&#39;, &#39;Project label&#39;, &#39;&#39;)
+   167→  .option(&#39;--global-root &lt;path&gt;&#39;, &#39;Override global transcript root&#39;)
+   168→  .option(&#39;--activation-time &lt;time&gt;&#39;, &#39;ISO timestamp of session activation&#39;)
+   169→  .option(&#39;--format &lt;format&gt;&#39;, &#39;Output format: text or json&#39;, &#39;text&#39;)
+   170→  .action(async (opts) =&gt; {
+   171→    const { cmdRecall } = await import(&#39;./cmd-recall.js&#39;)
+   172→    process.exitCode = await cmdRecall({
+   173→      root: opts.root,
+   174→      projectName: opts.projectName,
+   175→      globalRoot: opts.globalRoot ?? &#39;&#39;,
+   176→      activationTime: opts.activationTime ?? &#39;&#39;,
+   177→      format: opts.format,
+   178→    })
+   179→  })
+   180→
+   181→// ── daemon ────────────────────────────────────────────────────────────────
+   182→
+   183→const daemon = program
+   184→  .command(&#39;daemon&#39;)
+   185→  .description(&#39;Manage the MemoryTree heartbeat lifecycle&#39;)
+   186→
+   187→daemon
+   188→  .command(&#39;install&#39;)
+   189→  .description(&#39;Register heartbeat with the OS scheduler&#39;)
+   190→  .option(&#39;--interval &lt;interval&gt;&#39;, &#39;Override heartbeat interval (e.g., &quot;5m&quot;)&#39;)
+   191→  .option(&#39;--auto-push &lt;bool&gt;&#39;, &#39;Override auto_push setting (true/false)&#39;)
+   192→  .action(async (opts) =&gt; {
+   193→    const { cmdInstall } = await import(&#39;./cmd-daemon.js&#39;)
+   194→    process.exitCode = cmdInstall({
+   195→      interval: opts.interval,
+   196→      autoPush: opts.autoPush,
+   197→    })
+   198→  })
+   199→
+   200→daemon
+   201→  .command(&#39;uninstall&#39;)
+   202→  .description(&#39;Remove the heartbeat scheduled task&#39;)
+   203→  .action(async () =&gt; {
+   204→    const { cmdUninstall } = await import(&#39;./cmd-daemon.js&#39;)
+   205→    process.exitCode = cmdUninstall()
+   206→  })
+   207→
+   208→daemon
+   209→  .command(&#39;run-once&#39;)
+   210→  .description(&#39;Execute a single heartbeat cycle now&#39;)
+   211→  .action(async () =&gt; {
+   212→    const { cmdRunOnce } = await import(&#39;./cmd-daemon.js&#39;)
+   213→    process.exitCode = await cmdRunOnce()
+   214→  })
+   215→
+   216→daemon
+   217→  .command(&#39;watch&#39;)
+   218→  .description(&#39;Continuous heartbeat loop (development only)&#39;)
+   219→  .option(&#39;--interval &lt;interval&gt;&#39;, &#39;Override interval&#39;)
+   220→  .action(async (opts) =&gt; {
+   221→    const { cmdWatch } = await import(&#39;./cmd-daemon.js&#39;)
+   222→    process.exitCode = await cmdWatch({ interval: opts.interval })
+   223→  })
+   224→
+   225→daemon
+   226→  .command(&#39;status&#39;)
+   227→  .description(&#39;Show heartbeat registration and lock state&#39;)
+   228→  .action(async () =&gt; {
+   229→    const { cmdStatus } = await import(&#39;./cmd-daemon.js&#39;)
+   230→    process.exitCode = cmdStatus()
+   231→  })
+   232→
+   233→// ── report ────────────────────────────────────────────────────────────────
+   234→
+   235→const report = program
+   236→  .command(&#39;report&#39;)
+   237→  .description(&#39;Generate and serve MemoryTree HTML reports&#39;)
+   238→
+   239→report
+   240→  .command(&#39;build&#39;)
+   241→  .description(&#39;Build a static HTML report from Memory/ directory&#39;)
+   242→  .option(&#39;--root &lt;path&gt;&#39;, &#39;Repository root (contains Memory/)&#39;, &#39;.&#39;)
+   243→  .option(&#39;--output &lt;path&gt;&#39;, &#39;Output directory&#39;, &#39;./Memory/07_reports&#39;)
+   244→  .option(&#39;--no-ai&#39;, &#39;Skip AI summarization&#39;)
+   245→  .option(&#39;--model &lt;model&gt;&#39;, &#39;AI model for summaries&#39;, &#39;claude-haiku-4-5-20251001&#39;)
+   246→  .option(&#39;--locale &lt;locale&gt;&#39;, &#39;Report locale: en or zh-CN&#39;, &#39;en&#39;)
+   247→  .option(&#39;--report-base-url &lt;url&gt;&#39;, &#39;Base URL for RSS/OG links&#39;)
+   248→  .action(async (opts) =&gt; {
+   249→    const { cmdReportBuild } = await import(&#39;./cmd-report.js&#39;)
+   250→    process.exitCode = await cmdReportBuild({
+   251→      root: opts.root,
+   252→      output: opts.output,
+   253→      noAi: opts.ai === false,
+   254→      model: opts.model,
+   255→      locale: opts.locale,
+   256→      reportBaseUrl: opts.reportBaseUrl,
+   257→    })
+   258→  })
+   259→
+   260→report
+   261→  .command(&#39;serve&#39;)
+   262→  .description(&#39;Serve a built report over HTTP&#39;)
+   263→  .option(&#39;--dir &lt;path&gt;&#39;, &#39;Report directory to serve&#39;, &#39;./Memory/07_reports&#39;)
+   264→  .option(&#39;--port &lt;n&gt;&#39;, &#39;HTTP port&#39;, &#39;3000&#39;)
+   265→  .action(async (opts) =&gt; {
+   266→    const { cmdReportServe } = await import(&#39;./cmd-report.js&#39;)
+   267→    process.exitCode = cmdReportServe({
+   268→      dir: opts.dir,
+   269→      port: parseInt(opts.port, 10) || 3000,
+   270→    })
+   271→  })
+   272→
+   273→program.parse()
+   274→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check the report types to verify BuildReportOptions." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#24</span>
+      
+      <span class="timeline-time">01:35:38</span>
+    </div>
+    <div class="message-body"><p>Now let me check the report types to verify BuildReportOptions.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01MUTGQxL2kT1WVRwUfXSjdr Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/src/types.ts&quot;}" id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01MUTGQxL2kT1WVRwUfXSjdr</span>
+      <span class="timeline-time">01:35:39</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/src/types.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/report/src/types.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01MUTGQxL2kT1WVRwUfXSjdr Read output=1→/** 2→ * Type definitions for the report generation subsystem. 3→ */ 4→ 5→export type { ManifestEntry } from &#39;@openmnemo/types&#39; 6→ 7→export interface ReportStats { 8→ totalSes..." id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01MUTGQxL2kT1WVRwUfXSjdr</span>
+      
+      <span class="timeline-time">01:35:39</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Type definitions for the report generation subsystem. 3→ */ 4→ 5→export type { ManifestEntry } from &#39;@openmnemo/types&#39; 6→ 7→export interface ReportStats { 8→ totalSes...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Type definitions for the report generation subsystem.
+     3→ */
+     4→
+     5→export type { ManifestEntry } from &#39;@openmnemo/types&#39;
+     6→
+     7→export interface ReportStats {
+     8→  totalSessions: number
+     9→  totalMessages: number
+    10→  totalToolEvents: number
+    11→  activeDays: number
+    12→  dateRange: { from: string; to: string }
+    13→  clientCounts: Record&lt;string, number&gt;
+    14→  /** &#39;YYYY-MM-DD&#39; → session count */
+    15→  dayBuckets: Record&lt;string, number&gt;
+    16→  /** &#39;YYYY-WNN&#39; → message count */
+    17→  weekBuckets: Record&lt;string, number&gt;
+    18→  /** tool name → invocation count */
+    19→  toolCounts: Record&lt;string, number&gt;
+    20→}
+    21→
+    22→export interface SummaryCache {
+    23→  sha256: string
+    24→  summary: string
+    25→  generated_at: string
+    26→}
+    27→
+    28→export interface LinkGraph {
+    29→  /** session_id → list of session_ids that reference it */
+    30→  backlinks: Record&lt;string, string[]&gt;
+    31→  /** session_id → list of session_ids it references */
+    32→  forwardLinks: Record&lt;string, string[]&gt;
+    33→}
+    34→
+    35→export interface SearchIndexEntry {
+    36→  url: string
+    37→  title: string
+    38→  client: string
+    39→  /** Last path segment of ManifestEntry.cwd (e.g. &#39;openmnemo&#39;) */
+    40→  project: string
+    41→  date: string
+    42→  snippet: string
+    43→}
+    44→
+    45→export interface BuildReportOptions {
+    46→  root: string
+    47→  output: string
+    48→  noAi?: boolean
+    49→  model?: string
+    50→  /** Build-time locale (e.g. &#39;en&#39;, &#39;zh-CN&#39;). Default: &#39;en&#39;. */
+    51→  locale?: string
+    52→  /** gh-pages branch name. Empty string = skip deploy. Default: &#39;&#39;. */
+    53→  ghPagesBranch?: string
+    54→  /** Custom domain for CNAME file. Empty string = skip. Default: &#39;&#39;. */
+    55→  cname?: string
+    56→  /** Webhook URL for post-build notifications. Empty string = skip. Default: &#39;&#39;. */
+    57→  webhookUrl?: string
+    58→  /** Session IDs newly imported in this heartbeat cycle (for webhook). */
+    59→  newSessionIds?: string[]
+    60→  /** Absolute base URL for RSS/OG links (e.g. &#39;https://memory.example.com&#39;). Empty = skip. */
+    61→  reportBaseUrl?: string
+    62→}
+    63→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01BsqNKHABKmF7bQfjgjJx8M Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/src/build.ts&quot;,&quot;limit&quot;:50}" id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01BsqNKHABKmF7bQfjgjJx8M</span>
+      <span class="timeline-time">01:35:39</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:/demo1/openmnemo/packages/report/src/build.ts&quot;,&quot;limit&quot;:50}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:/demo1/openmnemo/packages/report/src/build.ts&quot;,
+  &quot;limit&quot;: 50
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01BsqNKHABKmF7bQfjgjJx8M Read output=1→/** 2→ * Report build orchestrator. 3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/. 4→ */ 5→ 6→import { 7→ existsSync, 8→ mkdirSync, 9→ readdirS..." id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01BsqNKHABKmF7bQfjgjJx8M</span>
+      
+      <span class="timeline-time">01:35:39</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Report build orchestrator. 3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/. 4→ */ 5→ 6→import { 7→ existsSync, 8→ mkdirSync, 9→ readdirS...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Report build orchestrator.
+     3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/.
+     4→ */
+     5→
+     6→import {
+     7→  existsSync,
+     8→  mkdirSync,
+     9→  readdirSync,
+    10→  readFileSync,
+    11→  writeFileSync,
+    12→  appendFileSync,
+    13→  rmSync,
+    14→} from &#39;node:fs&#39;
+    15→import { basename, dirname, join } from &#39;node:path&#39;
+    16→
+    17→import type { BuildReportOptions } from &#39;./types.js&#39;
+    18→import type { ManifestEntry } from &#39;@openmnemo/types&#39;
+    19→import { computeStats, extractToolNames, accumulateToolCounts } from &#39;./stats.js&#39;
+    20→import { renderDashboard } from &#39;./render/dashboard.js&#39;
+    21→import { renderTranscriptList } from &#39;./render/transcript-list.js&#39;
+    22→import { renderTranscript } from &#39;./render/transcript.js&#39;
+    23→import type { RenderedMessage } from &#39;./render/transcript.js&#39;
+    24→import { renderKnowledge } from &#39;./render/knowledge.js&#39;
+    25→import { renderGoals } from &#39;./render/goals.js&#39;
+    26→import { renderTodos } from &#39;./render/todos.js&#39;
+    27→import { renderArchive } from &#39;./render/archive.js&#39;
+    28→import { renderProjects } from &#39;./render/projects.js&#39;
+    29→import { renderGraph } from &#39;./render/graph.js&#39;
+    30→import { buildSearchIndex, renderSearchPage } from &#39;./render/search.js&#39;
+    31→import { buildLinkGraph } from &#39;./render/links.js&#39;
+    32→import { renderRssFeed } from &#39;./render/rss.js&#39;
+    33→import { getSummary } from &#39;./summarize.js&#39;
+    34→import type { SummaryOptions } from &#39;./summarize.js&#39;
+    35→import { getTags } from &#39;./tags.js&#39;
+    36→import { loadLocale } from &#39;./i18n/index.js&#39;
+    37→import type { Translations } from &#39;./i18n/types.js&#39;
+    38→import { getLogger } from &#39;./log.js&#39;
+    39→
+    40→const DEFAULT_MODEL = &#39;claude-haiku-4-5-20251001&#39;
+    41→
+    42→// ---------------------------------------------------------------------------
+    43→// Main entry point
+    44→// ---------------------------------------------------------------------------
+    45→
+    46→export async function buildReport(options: BuildReportOptions): Promise&lt;void&gt; {
+    47→  const { root, output } = options
+    48→  const noAi = options.noAi ?? false
+    49→  const model = options.model ?? DEFAULT_MODEL
+    50→  const locale = options.locale ?? &#39;en&#39;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check the discover command&#39;s client filter options more carefully." id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#29</span>
+      
+      <span class="timeline-time">01:35:45</span>
+    </div>
+    <div class="message-body"><p>Now let me check the discover command&#39;s client filter options more carefully.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Grep toolu_01EywzqveuXtDQfjk2wCig9E Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src&quot;,&quot;pattern&quot;:&quot;discover.*--client|Client filter|all, codex, claude, gemini&quot;,&quot;type&quot;:&quot;ts&quot;}" id="event-29">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#30</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01EywzqveuXtDQfjk2wCig9E</span>
+      <span class="timeline-time">01:35:46</span>
+    </div>
+    <div class="timeline-title">Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src&quot;,&quot;pattern&quot;:&quot;discover.*--client|Client filter|all, codex, claude, gemini&quot;,&quot;type&quot;:&quot;ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;discover.*--client|Client filter|all, codex, claude, gemini&quot;,
+  &quot;path&quot;: &quot;D:/demo1/openmnemo/packages/cli/src&quot;,
+  &quot;type&quot;: &quot;ts&quot;,
+  &quot;output_mode&quot;: &quot;content&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Grep toolu_01EywzqveuXtDQfjk2wCig9E Grep output=D:\demo1\openmnemo\packages\cli\src\main.ts:102: .option(&#39;--client &lt;client&gt;&#39;, &#39;Client filter: all, codex, claude, gemini&#39;, &#39;all&#39;)" id="event-30">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#31</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01EywzqveuXtDQfjk2wCig9E</span>
+      
+      <span class="timeline-time">01:35:46</span>
+    </div>
+    <div class="timeline-title">Grep output=D:\demo1\openmnemo\packages\cli\src\main.ts:102: .option(&#39;--client &lt;client&gt;&#39;, &#39;Client filter: all, codex, claude, gemini&#39;, &#39;all&#39;)</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\openmnemo\packages\cli\src\main.ts:102:  .option(&#39;--client &lt;client&gt;&#39;, &#39;Client filter: all, codex, claude, gemini&#39;, &#39;all&#39;)</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Grep toolu_01MBu37PJuB2qP6YWFjAz1ra Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/main.ts&quot;,&quot;pattern&quot;:&quot;doubao&quot;}" id="event-31">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#32</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01MBu37PJuB2qP6YWFjAz1ra</span>
+      <span class="timeline-time">01:35:46</span>
+    </div>
+    <div class="timeline-title">Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/cli/src/main.ts&quot;,&quot;pattern&quot;:&quot;doubao&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;doubao&quot;,
+  &quot;path&quot;: &quot;D:/demo1/openmnemo/packages/cli/src/main.ts&quot;,
+  &quot;output_mode&quot;: &quot;content&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Grep toolu_01MBu37PJuB2qP6YWFjAz1ra Grep output=78: .option(&#39;--client &lt;client&gt;&#39;, &#39;Transcript client: auto, codex, claude, gemini, doubao&#39;, &#39;auto&#39;)" id="event-32">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#33</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01MBu37PJuB2qP6YWFjAz1ra</span>
+      
+      <span class="timeline-time">01:35:46</span>
+    </div>
+    <div class="timeline-title">Grep output=78: .option(&#39;--client &lt;client&gt;&#39;, &#39;Transcript client: auto, codex, claude, gemini, doubao&#39;, &#39;auto&#39;)</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>78:  .option(&#39;--client &lt;client&gt;&#39;, &#39;Transcript client: auto, codex, claude, gemini, doubao&#39;, &#39;auto&#39;)</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me check the config.ts for field names - I need to verify if it&#39;s `interval` or `heartbeat_interval`." id="event-33">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#34</span>
+      
+      <span class="timeline-time">01:35:53</span>
+    </div>
+    <div class="message-body"><p>Let me check the config.ts for field names - I need to verify if it&#39;s <code>interval</code> or <code>heartbeat_interval</code>.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Grep toolu_01WpfBnhGYeCzaiP5tTnidKJ Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/sync/src/config.ts&quot;,&quot;pattern&quot;:&quot;readonly.*interval|heartbeat_interval&quot;}" id="event-34">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#35</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01WpfBnhGYeCzaiP5tTnidKJ</span>
+      <span class="timeline-time">01:35:53</span>
+    </div>
+    <div class="timeline-title">Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/sync/src/config.ts&quot;,&quot;pattern&quot;:&quot;readonly.*interval|heartbeat_interval&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;output_mode&quot;: &quot;content&quot;,
+  &quot;path&quot;: &quot;D:/demo1/openmnemo/packages/sync/src/config.ts&quot;,
+  &quot;pattern&quot;: &quot;readonly.*interval|heartbeat_interval&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Grep toolu_01WpfBnhGYeCzaiP5tTnidKJ Grep output=33: readonly heartbeat_interval: string 83: `heartbeat_interval = ${tomlString(cfg.heartbeat_interval)}`, 150: heartbeat_interval: DEFAULT_HEARTBEAT_INTERVAL, 166: let interval ..." id="event-35">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#36</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01WpfBnhGYeCzaiP5tTnidKJ</span>
+      
+      <span class="timeline-time">01:35:53</span>
+    </div>
+    <div class="timeline-title">Grep output=33: readonly heartbeat_interval: string 83: `heartbeat_interval = ${tomlString(cfg.heartbeat_interval)}`, 150: heartbeat_interval: DEFAULT_HEARTBEAT_INTERVAL, 166: let interval ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>33:  readonly heartbeat_interval: string
+83:    `heartbeat_interval = ${tomlString(cfg.heartbeat_interval)}`,
+150:    heartbeat_interval: DEFAULT_HEARTBEAT_INTERVAL,
+166:  let interval = raw[&#39;heartbeat_interval&#39;]
+207:    heartbeat_interval: interval as string,</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check the sync/README to verify the field name shown." id="event-36">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#37</span>
+      
+      <span class="timeline-time">01:35:59</span>
+    </div>
+    <div class="message-body"><p>Now let me check the sync/README to verify the field name shown.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Grep toolu_01AzyQor3TMPMkXeb7VV8xgu Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/sync/README.md&quot;,&quot;pattern&quot;:&quot;interval|Config fields&quot;}" id="event-37">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#38</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01AzyQor3TMPMkXeb7VV8xgu</span>
+      <span class="timeline-time">01:35:59</span>
+    </div>
+    <div class="timeline-title">Grep input={&quot;output_mode&quot;:&quot;content&quot;,&quot;path&quot;:&quot;D:/demo1/openmnemo/packages/sync/README.md&quot;,&quot;pattern&quot;:&quot;interval|Config fields&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;output_mode&quot;: &quot;content&quot;,
+  &quot;path&quot;: &quot;D:/demo1/openmnemo/packages/sync/README.md&quot;,
+  &quot;pattern&quot;: &quot;interval|Config fields&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Grep toolu_01AzyQor3TMPMkXeb7VV8xgu Grep output=24:// interval: &#39;10m&#39;, 33:### Config fields 37:| `interval` | `&#39;5m&#39;` | Heartbeat interval (e.g. `&#39;5m&#39;`, `&#39;1h&#39;`) |" id="event-38">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#39</span>
+      <span class="timeline-chip">Grep</span>
+      <span class="timeline-chip">toolu_01AzyQor3TMPMkXeb7VV8xgu</span>
+      
+      <span class="timeline-time">01:35:59</span>
+    </div>
+    <div class="timeline-title">Grep output=24:// interval: &#39;10m&#39;, 33:### Config fields 37:| `interval` | `&#39;5m&#39;` | Heartbeat interval (e.g. `&#39;5m&#39;`, `&#39;1h&#39;`) |</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>24://   interval: &#39;10m&#39;,
+33:### Config fields
+37:| `interval` | `&#39;5m&#39;` | Heartbeat interval (e.g. `&#39;5m&#39;`, `&#39;1h&#39;`) |</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Perfect. Now I&#39;ve identified the inaccuracies. Let me compile my findings. ## Findings: README Review Round 2 ### CRITICAL **@openmnemo/sync README.md — Config field name mismatch:** - Line 24 (code example): Shows `interval: &#39;10m&#39;` - Line 37 (table): Shows `| interval | ... |` - **Actual field name in source** (`packages/sync/src/config.ts:33`): `readonly heartbeat_interval: string` - The config key is ..." id="event-39">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#40</span>
+      
+      <span class="timeline-time">01:36:09</span>
+    </div>
+    <p class="event-preview">Perfect. Now I&#39;ve identified the inaccuracies. Let me compile my findings. ## Findings: README Review Round 2 ### CRITICAL **@openmnemo/sync README.md — Config field name mismatch:** - Line 24 (code example): Shows `i...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Perfect. Now I&#39;ve identified the inaccuracies. Let me compile my findings.</p><p>## Findings: README Review Round 2</p><p>### CRITICAL</p><p><strong>@openmnemo/sync README.md — Config field name mismatch:</strong><br>- Line 24 (code example): Shows <code>interval: &#39;10m&#39;</code><br>- Line 37 (table): Shows <code>| interval | ... |</code><br>- <strong>Actual field name in source</strong> (<code>packages/sync/src/config.ts:33</code>): <code>readonly heartbeat_interval: string</code><br>- The config key is <code>heartbeat_interval</code>, not <code>interval</code><br>- Fix: Update lines 24 and 37 to use <code>heartbeat_interval</code></p><p>### HIGH</p><p><strong>@openmnemo/cli README.md — Discover command missing doubao:</strong><br>- Line 102 in <code>packages/cli/src/main.ts</code>: <code>--client &lt;client&gt;&#39;</code> option says <code>&#39;all, codex, claude, gemini&#39;</code><br>- README line 47 claims &quot;all clients (claude, codex, gemini)&quot;<br>- But the import command (line 78) explicitly supports <code>doubao</code><br>- <strong>Should list:</strong> <code>&#39;all, codex, claude, gemini, doubao&#39;</code> in discover&#39;s help text OR clarify discover doesn&#39;t support doubao<br>- Current state: Doubao can only be imported via explicit <code>openmnemo import --client doubao</code>, not via discover</p><p>### MEDIUM</p><p><strong>@openmnemo/types README.md — Client type ordering:</strong><br>- Line 26 README: <code>&#39;claude&#39; | &#39;codex&#39; | &#39;gemini&#39; | &#39;doubao&#39;</code><br>- Line 4 source (<code>packages/types/src/index.ts</code>): <code>&#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; | &#39;doubao&#39;</code> (alphabetical order in source)<br>- Minor inconsistency: docs use non-alphabetical order, source uses alphabetical. Not load-bearing but worth normalizing for consistency.</p><p>All other fields checked match source accurately (types, config defaults, function signatures, CLI commands).</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,4457 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-afd08128939d8e7ee — MemoryTree</title>
+<meta property="og:title" content="agent-afd08128939d8e7ee">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-afd08128939d8e7ee</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>5</strong> Messages</span>
+      <span class="transcript-pill"><strong>24</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>29</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-16 14:13:47</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-afd08128939d8e7ee</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">251a63f6-1742-4228-a13d-0629fb37f2f2</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">d1043dfbea4825a2...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">29</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">5</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">24</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>5</strong> dialog</span>
+    <span class="transcript-pill"><strong>24</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>5</strong> Messages</span>
+          <span class="transcript-pill"><strong>24</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>29 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user 请对以下文件做全面的代码审查（第二轮），重点关注：架构设计、性能、可维护性、测试质量。 请阅读以下所有文件，然后给出结构化审查报告： 1. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/github-pages.ts 2. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/webhook.ts 3. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/layout.ts 4. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/graph.ts 5. C:/Users/ai/.codex/skills/me..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">14:13:47</span>
+    </div>
+    <div class="message-body"><p>请对以下文件做全面的代码审查（第二轮），重点关注：架构设计、性能、可维护性、测试质量。</p><p>请阅读以下所有文件，然后给出结构化审查报告：</p><p>1. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/github-pages.ts<br>2. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/webhook.ts<br>3. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/layout.ts<br>4. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/graph.ts<br>5. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/transcript-list.ts<br>6. C:/Users/ai/.codex/skills/memorytree-workflow/src/report/build.ts<br>7. C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/github-pages.test.ts<br>8. C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/webhook.test.ts</p><p>审查角度：<br>- 架构设计（耦合度、职责分离）<br>- 性能问题（不必要的计算、内存泄漏风险）<br>- 可维护性（hardcode 常量、魔法数字、重复代码）<br>- 测试质量（边界情况覆盖、测试隔离性、可靠性）<br>- 与项目整体风格是否一致（NodeNext ESM, noUncheckedIndexedAccess, exactOptionalPropertyTypes）</p><p>输出格式：<br>- 严重性：CRITICAL / HIGH / MEDIUM / LOW / INFO<br>- 每个问题：文件名:行号 | 严重性 | 问题描述 | 建议修复</p><p>最后给出总评：整体质量如何，是否还有需要修复的问题。</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll perform a comprehensive code review of these files. Let me start by reading all of them in parallel." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">14:13:52</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll perform a comprehensive code review of these files. Let me start by reading all of them in parallel.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01H48R1vq8nH5LLX6WdwwyYM Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/github-pages.ts&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01H48R1vq8nH5LLX6WdwwyYM</span>
+      <span class="timeline-time">14:13:53</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/github-pages.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/github-pages.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01ENmZBGTLV6XqfikZTPrdZm Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/webhook.ts&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01ENmZBGTLV6XqfikZTPrdZm</span>
+      <span class="timeline-time">14:13:53</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/webhook.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/deploy/webhook.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01L3oAvr2yruJr4ETQhsYnr4 Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/layout.ts&quot;}" id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01L3oAvr2yruJr4ETQhsYnr4</span>
+      <span class="timeline-time">14:13:53</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/layout.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/layout.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_019poGrPNrqTd3iBwQUZF6i5 Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/graph.ts&quot;}" id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019poGrPNrqTd3iBwQUZF6i5</span>
+      <span class="timeline-time">14:13:53</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/graph.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/graph.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01SFCBYDwxTe9XFQtJGHJBeX Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/transcript-list.ts&quot;}" id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01SFCBYDwxTe9XFQtJGHJBeX</span>
+      <span class="timeline-time">14:13:53</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/transcript-list.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/render/transcript-list.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01GNoLMU5K9LGwh5ztvg8rrE Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/build.ts&quot;}" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GNoLMU5K9LGwh5ztvg8rrE</span>
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/build.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/report/build.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01GpDjnXRjaNaL5UqEqarDrs Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/github-pages.test.ts&quot;}" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GpDjnXRjaNaL5UqEqarDrs</span>
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/github-pages.test.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/github-pages.test.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01PwjmTBxD49nUqCey2qQtmj Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/webhook.test.ts&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01PwjmTBxD49nUqCey2qQtmj</span>
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/webhook.test.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests/report/deploy/webhook.test.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01GNoLMU5K9LGwh5ztvg8rrE Read output=1→/** 2→ * Report build orchestrator. 3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/. 4→ */ 5→ 6→import { 7→ existsSync, 8→ mkdirSync, 9→ readdirS..." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GNoLMU5K9LGwh5ztvg8rrE</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Report build orchestrator. 3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/. 4→ */ 5→ 6→import { 7→ existsSync, 8→ mkdirSync, 9→ readdirS...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Report build orchestrator.
+     3→ * Generates a self-contained multi-page HTML website in Memory/07_reports/.
+     4→ */
+     5→
+     6→import {
+     7→  existsSync,
+     8→  mkdirSync,
+     9→  readdirSync,
+    10→  readFileSync,
+    11→  writeFileSync,
+    12→  appendFileSync,
+    13→} from &#39;node:fs&#39;
+    14→import { basename, dirname, join, relative } from &#39;node:path&#39;
+    15→
+    16→import type { BuildReportOptions } from &#39;../types/report.js&#39;
+    17→import type { ManifestEntry } from &#39;../types/transcript.js&#39;
+    18→import { computeStats, extractToolNames, accumulateToolCounts } from &#39;./stats.js&#39;
+    19→import { renderDashboard } from &#39;./render/dashboard.js&#39;
+    20→import { renderTranscriptList } from &#39;./render/transcript-list.js&#39;
+    21→import { renderTranscript } from &#39;./render/transcript.js&#39;
+    22→import type { RenderedMessage } from &#39;./render/transcript.js&#39;
+    23→import { renderKnowledge } from &#39;./render/knowledge.js&#39;
+    24→import type { KnowledgeFile } from &#39;./render/knowledge.js&#39;
+    25→import { renderGoals } from &#39;./render/goals.js&#39;
+    26→import type { GoalFile } from &#39;./render/goals.js&#39;
+    27→import { renderTodos } from &#39;./render/todos.js&#39;
+    28→import { renderArchive } from &#39;./render/archive.js&#39;
+    29→import { renderProjects } from &#39;./render/projects.js&#39;
+    30→import { renderGraph } from &#39;./render/graph.js&#39;
+    31→import { buildSearchIndex, renderSearchPage } from &#39;./render/search.js&#39;
+    32→import { buildLinkGraph } from &#39;./render/links.js&#39;
+    33→import { getSummary } from &#39;./summarize.js&#39;
+    34→import type { SummaryOptions } from &#39;./summarize.js&#39;
+    35→import { loadLocale } from &#39;./i18n/index.js&#39;
+    36→import type { Translations } from &#39;./i18n/types.js&#39;
+    37→import { getLogger } from &#39;../heartbeat/log.js&#39;
+    38→
+    39→const DEFAULT_MODEL = &#39;claude-haiku-4-5-20251001&#39;
+    40→
+    41→// ---------------------------------------------------------------------------
+    42→// Main entry point
+    43→// ---------------------------------------------------------------------------
+    44→
+    45→export async function buildReport(options: BuildReportOptions): Promise&lt;void&gt; {
+    46→  const { root, output } = options
+    47→  const noAi = options.noAi ?? false
+    48→  const model = options.model ?? DEFAULT_MODEL
+    49→  const locale = options.locale ?? &#39;en&#39;
+    50→  const ghPagesBranch = options.ghPagesBranch ?? &#39;&#39;
+    51→  const cname = options.cname ?? &#39;&#39;
+    52→  const webhookUrl = options.webhookUrl ?? &#39;&#39;
+    53→  const newSessionIds = options.newSessionIds ?? []
+    54→
+    55→  // Cache lives outside the gitignored output dir so it survives rm -rf
+    56→  const cacheDir = join(root, &#39;Memory&#39;, &#39;.report-cache&#39;)
+    57→
+    58→  // Load translations
+    59→  const t: Translations = loadLocale(locale)
+    60→
+    61→  // Ensure output dirs exist
+    62→  mkdirSync(output, { recursive: true })
+    63→  mkdirSync(join(output, &#39;transcripts&#39;), { recursive: true })
+    64→  mkdirSync(join(output, &#39;goals&#39;), { recursive: true })
+    65→  mkdirSync(join(output, &#39;knowledge&#39;), { recursive: true })
+    66→  mkdirSync(join(output, &#39;todos&#39;), { recursive: true })
+    67→  mkdirSync(join(output, &#39;archive&#39;), { recursive: true })
+    68→  mkdirSync(join(output, &#39;projects&#39;), { recursive: true })
+    69→  mkdirSync(cacheDir, { recursive: true })
+    70→
+    71→  // Ensure Memory/07_reports is gitignored
+    72→  ensureGitignore(root, &#39;Memory/07_reports/&#39;)
+    73→
+    74→  // Load all manifests
+    75→  const manifests = loadManifests(root)
+    76→
+    77→  // Build link graph from clean markdown
+    78→  const linkGraph = buildLinkGraph(manifests, root)
+    79→
+    80→  // Accumulate tool counts while processing transcripts
+    81→  let toolCounts: Record&lt;string, number&gt; = {}
+    82→
+    83→  // Summary options
+    84→  const summaryOptions: SummaryOptions = { cacheDir, noAi, model }
+    85→
+    86→  // Process each transcript: parse → summarize → render → write → discard
+    87→  const snippets: Record&lt;string, string&gt; = {}
+    88→  const summaries: Record&lt;string, string&gt; = {}
+    89→  const summaryPromises: Array&lt;Promise&lt;void&gt;&gt; = []
+    90→
+    91→  for (const m of manifests) {
+    92→    const messages = parseCleanMarkdownMessages(m, root)
+    93→
+    94→    // Tool events from parsed transcript (try raw path)
+    95→    const rawPath = resolveRawPath(m, root)
+    96→    if (rawPath &amp;&amp; existsSync(rawPath)) {
+    97→      try {
+    98→        const toolSummaries = extractToolSummariesFromRaw(rawPath, m.client)
+    99→        const names = extractToolNames(toolSummaries)
+   100→        toolCounts = accumulateToolCounts(toolCounts, names)
+   101→      } catch {
+   102→        // Skip if raw parsing fails
+   103→      }
+   104→    }
+   105→
+   106→    // Search snippet from first message text
+   107→    const firstMsg = messages[0]
+   108→    snippets[m.session_id] = firstMsg ? firstMsg.text.slice(0, 300) : &#39;&#39;
+   109→
+   110→    // Summarize + render (deferred to allow parallel API calls)
+   111→    const manifest = m
+   112→    const msgs = messages
+   113→    summaryPromises.push(
+   114→      (async () =&gt; {
+   115→        try {
+   116→        const summary = await getSummary(manifest.raw_sha256, msgs, summaryOptions)
+   117→        summaries[manifest.session_id] = summary
+   118→        const backlinkIds = linkGraph.backlinks[manifest.session_id] ?? []
+   119→        const backlinkManifests = backlinkIds
+   120→          .map(id =&gt; manifests.find(x =&gt; x.session_id === id))
+   121→          .filter((x): x is ManifestEntry =&gt; x !== undefined)
+   122→
+   123→        const html = renderTranscript(msgs, manifest, summary, backlinkManifests, t)
+   124→        const outPath = transcriptOutputPath(output, manifest)
+   125→        mkdirSync(dirname(outPath), { recursive: true })
+   126→        writeFileSync(outPath, html, &#39;utf-8&#39;)
+   127→        } catch (err: unknown) {
+   128→          // eslint-disable-next-line no-console
+   129→          getLogger().warn(`[build] Failed to render ${manifest.session_id}: ${String(err)}`)
+   130→        }
+   131→      })(),
+   132→    )
+   133→  }
+   134→
+   135→  // Wait for all transcript renders (parallel, bounded by semaphore in summarize.ts)
+   136→  await Promise.all(summaryPromises)
+   137→
+   138→  // Compute final stats with accumulated tool counts
+   139→  const stats = computeStats(manifests, toolCounts)
+   140→
+   141→  // Load markdown content for various pages
+   142→  const goalFiles = loadMarkdownFiles(join(root, &#39;Memory&#39;, &#39;01_goals&#39;))
+   143→  const todoFiles = loadMarkdownFiles(join(root, &#39;Memory&#39;, &#39;02_todos&#39;))
+   144→  const knowledgeFiles = loadMarkdownFiles(join(root, &#39;Memory&#39;, &#39;04_knowledge&#39;))
+   145→  const archiveFiles = loadMarkdownFiles(join(root, &#39;Memory&#39;, &#39;05_archive&#39;))
+   146→
+   147→  // Dashboard
+   148→  writeFileSync(join(output, &#39;index.html&#39;), renderDashboard(stats, manifests, t), &#39;utf-8&#39;)
+   149→
+   150→  // Session list
+   151→  writeFileSync(
+   152→    join(output, &#39;transcripts&#39;, &#39;index.html&#39;),
+   153→    renderTranscriptList(manifests, t, summaries),
+   154→    &#39;utf-8&#39;,
+   155→  )
+   156→
+   157→  // Goals page
+   158→  writeFileSync(
+   159→    join(output, &#39;goals&#39;, &#39;index.html&#39;),
+   160→    renderGoals(goalFiles, t),
+   161→    &#39;utf-8&#39;,
+   162→  )
+   163→
+   164→  // Knowledge page
+   165→  writeFileSync(
+   166→    join(output, &#39;knowledge&#39;, &#39;index.html&#39;),
+   167→    renderKnowledge(knowledgeFiles, t),
+   168→    &#39;utf-8&#39;,
+   169→  )
+   170→
+   171→  // Todos page
+   172→  writeFileSync(
+   173→    join(output, &#39;todos&#39;, &#39;index.html&#39;),
+   174→    renderTodos(todoFiles, t),
+   175→    &#39;utf-8&#39;,
+   176→  )
+   177→
+   178→  // Archive page
+   179→  writeFileSync(
+   180→    join(output, &#39;archive&#39;, &#39;index.html&#39;),
+   181→    renderArchive(archiveFiles, t),
+   182→    &#39;utf-8&#39;,
+   183→  )
+   184→
+   185→  // Projects page
+   186→  writeFileSync(
+   187→    join(output, &#39;projects&#39;, &#39;index.html&#39;),
+   188→    renderProjects(manifests, t),
+   189→    &#39;utf-8&#39;,
+   190→  )
+   191→
+   192→  // Knowledge graph
+   193→  writeFileSync(
+   194→    join(output, &#39;graph.html&#39;),
+   195→    renderGraph(manifests, knowledgeFiles, linkGraph, t),
+   196→    &#39;utf-8&#39;,
+   197→  )
+   198→
+   199→  // Search
+   200→  const searchIndex = buildSearchIndex(manifests, m =&gt; snippets[m.session_id] ?? &#39;&#39;)
+   201→  writeFileSync(join(output, &#39;search.html&#39;), renderSearchPage(searchIndex, t), &#39;utf-8&#39;)
+   202→
+   203→  // GitHub Pages deployment (non-blocking on failure)
+   204→  if (ghPagesBranch) {
+   205→    try {
+   206→      const { deployGithubPages } = await import(&#39;./deploy/github-pages.js&#39;)
+   207→      await deployGithubPages({ repoRoot: root, outputDir: output, branch: ghPagesBranch, cname })
+   208→    } catch {
+   209→      // Logged inside deployGithubPages
+   210→    }
+   211→  } else if (cname) {
+   212→    // Write CNAME even without deploy (writeFileSync already imported at top)
+   213→    writeFileSync(join(output, &#39;CNAME&#39;), cname + &#39;\n&#39;, &#39;utf-8&#39;)
+   214→  }
+   215→
+   216→  // Webhook notification (non-blocking on failure)
+   217→  if (webhookUrl) {
+   218→    try {
+   219→      const { sendWebhook } = await import(&#39;./deploy/webhook.js&#39;)
+   220→      await sendWebhook({
+   221→        url: webhookUrl,
+   222→        sessionCount: manifests.length,
+   223→        newSessionIds,
+   224→      })
+   225→    } catch {
+   226→      // Logged inside sendWebhook
+   227→    }
+   228→  }
+   229→}
+   230→
+   231→// ---------------------------------------------------------------------------
+   232→// Manifest loading
+   233→// ---------------------------------------------------------------------------
+   234→
+   235→function loadManifests(root: string): ManifestEntry[] {
+   236→  const manifestsDir = join(root, &#39;Memory&#39;, &#39;06_transcripts&#39;, &#39;manifests&#39;)
+   237→  if (!existsSync(manifestsDir)) return []
+   238→
+   239→  const manifests: ManifestEntry[] = []
+   240→  loadManifestsRecursive(manifestsDir, manifests)
+   241→  return manifests
+   242→}
+   243→
+   244→function loadManifestsRecursive(dir: string, out: ManifestEntry[]): void {
+   245→  let entries: string[]
+   246→  try {
+   247→    entries = readdirSync(dir)
+   248→  } catch {
+   249→    return
+   250→  }
+   251→
+   252→  for (const entry of entries) {
+   253→    const fullPath = join(dir, entry)
+   254→    if (entry.endsWith(&#39;.json&#39;)) {
+   255→      try {
+   256→        const raw = readFileSync(fullPath, &#39;utf-8&#39;)
+   257→        const parsed = JSON.parse(raw) as ManifestEntry
+   258→        if (parsed.session_id &amp;&amp; parsed.client) {
+   259→          out.push(parsed)
+   260→        }
+   261→      } catch {
+   262→        // Skip malformed manifests
+   263→      }
+   264→    } else {
+   265→      // Recurse into subdirectories
+   266→      loadManifestsRecursive(fullPath, out)
+   267→    }
+   268→  }
+   269→}
+   270→
+   271→// ---------------------------------------------------------------------------
+   272→// Clean markdown message parsing
+   273→// ---------------------------------------------------------------------------
+   274→
+   275→/** Parse messages from a clean markdown file. */
+   276→export function parseCleanMarkdownMessages(m: ManifestEntry, root: string): RenderedMessage[] {
+   277→  const cleanPath = m.repo_clean_path
+   278→    ? join(root, m.repo_clean_path)
+   279→    : m.global_clean_path
+   280→  if (!cleanPath || !existsSync(cleanPath)) return []
+   281→
+   282→  let content: string
+   283→  try {
+   284→    content = readFileSync(cleanPath, &#39;utf-8&#39;)
+   285→  } catch {
+   286→    return []
+   287→  }
+   288→
+   289→  return parseMessagesFromMarkdown(content)
+   290→}
+   291→
+   292→/** Extract role/timestamp/text from clean markdown format. */
+   293→export function parseMessagesFromMarkdown(content: string): RenderedMessage[] {
+   294→  const messages: RenderedMessage[] = []
+   295→
+   296→  // Find ## Messages section
+   297→  const msgSection = content.indexOf(&#39;\n## Messages&#39;)
+   298→  if (msgSection === -1) return []
+   299→
+   300→  const body = content.slice(msgSection + 12) // after &quot;## Messages\n&quot;
+   301→
+   302→  // Split on ### N. role headers
+   303→  const msgRe = /^### \d+\.\s+(\w+)/gm
+   304→  let match: RegExpExecArray | null
+   305→  const starts: Array&lt;{ index: number; role: string }&gt; = []
+   306→
+   307→  while ((match = msgRe.exec(body)) !== null) {
+   308→    starts.push({ index: match.index, role: match[1] ?? &#39;unknown&#39; })
+   309→  }
+   310→
+   311→  for (let i = 0; i &lt; starts.length; i++) {
+   312→    const start = starts[i]
+   313→    if (!start) continue
+   314→    const nextStart = starts[i + 1]
+   315→    const chunk = nextStart
+   316→      ? body.slice(start.index, nextStart.index)
+   317→      : body.slice(start.index)
+   318→
+   319→    const lines = chunk.split(&#39;\n&#39;)
+   320→    // First line is the header, second may be timestamp
+   321→    let timestamp = &#39;&#39;
+   322→    const textLines: string[] = []
+   323→    let pastHeader = false
+   324→
+   325→    for (const line of lines) {
+   326→      if (!pastHeader &amp;&amp; line.startsWith(&#39;### &#39;)) {
+   327→        pastHeader = true
+   328→        continue
+   329→      }
+   330→      if (!pastHeader) continue
+   331→      const tsMatch = line.match(/^- Timestamp:\s*`([^`]+)`/)
+   332→      if (tsMatch &amp;&amp; !timestamp) {
+   333→        timestamp = tsMatch[1] ?? &#39;&#39;
+   334→        continue
+   335→      }
+   336→      textLines.push(line)
+   337→    }
+   338→
+   339→    // Remove leading/trailing blank lines from text
+   340→    const text = textLines.join(&#39;\n&#39;).trim()
+   341→    if (text || timestamp) {
+   342→      messages.push({ role: start.role, timestamp, text })
+   343→    }
+   344→  }
+   345→
+   346→  return messages
+   347→}
+   348→
+   349→// ---------------------------------------------------------------------------
+   350→// Raw transcript tool extraction
+   351→// ---------------------------------------------------------------------------
+   352→
+   353→/** Best-effort extraction of tool event summaries from a raw JSONL file. */
+   354→function extractToolSummariesFromRaw(rawPath: string, _client: string): string[] {
+   355→  const summaries: string[] = []
+   356→  let content: string
+   357→  try {
+   358→    content = readFileSync(rawPath, &#39;utf-8&#39;)
+   359→  } catch {
+   360→    return []
+   361→  }
+   362→
+   363→  for (const line of content.split(&#39;\n&#39;)) {
+   364→    const trimmed = line.trim()
+   365→    if (!trimmed) continue
+   366→    try {
+   367→      const record = JSON.parse(trimmed) as Record&lt;string, unknown&gt;
+   368→      // Codex: function_call type
+   369→      const type = record[&#39;type&#39;] as string | undefined
+   370→      if (type === &#39;function_call&#39; || type === &#39;custom_tool_call&#39;) {
+   371→        const name = (record[&#39;name&#39;] as string | undefined) ?? type
+   372→        summaries.push(name)
+   373→        continue
+   374→      }
+   375→      // Claude: tool_use content blocks
+   376→      const payload = record[&#39;message&#39;] as Record&lt;string, unknown&gt; | undefined
+   377→      const content2 = (payload?.[&#39;content&#39;] ?? record[&#39;content&#39;]) as unknown[] | undefined
+   378→      if (Array.isArray(content2)) {
+   379→        for (const block of content2) {
+   380→          if (
+   381→            block !== null &amp;&amp;
+   382→            typeof block === &#39;object&#39; &amp;&amp;
+   383→            (block as Record&lt;string, unknown&gt;)[&#39;type&#39;] === &#39;tool_use&#39;
+   384→          ) {
+   385→            const name = ((block as Record&lt;string, unknown&gt;)[&#39;name&#39;] as string | undefined) ?? &#39;tool_use&#39;
+   386→            summaries.push(name)
+   387→          }
+   388→        }
+   389→      }
+   390→    } catch {
+   391→      // Skip malformed lines
+   392→    }
+   393→  }
+   394→
+   395→  return summaries
+   396→}
+   397→
+   398→// ---------------------------------------------------------------------------
+   399→// Output path helpers
+   400→// ---------------------------------------------------------------------------
+   401→
+   402→function transcriptOutputPath(output: string, m: ManifestEntry): string {
+   403→  const cleanPath = m.repo_clean_path || m.global_clean_path || &#39;&#39;
+   404→  const stem = cleanPath ? basename(cleanPath, &#39;.md&#39;) : m.session_id
+   405→  return join(output, &#39;transcripts&#39;, m.client, `${stem}.html`)
+   406→}
+   407→
+   408→function resolveRawPath(m: ManifestEntry, root: string): string | null {
+   409→  if (m.repo_raw_path) {
+   410→    return join(root, m.repo_raw_path)
+   411→  }
+   412→  if (m.global_raw_path) {
+   413→    return m.global_raw_path
+   414→  }
+   415→  return null
+   416→}
+   417→
+   418→// ---------------------------------------------------------------------------
+   419→// Markdown file loader (for goals/knowledge/todos/archive)
+   420→// ---------------------------------------------------------------------------
+   421→
+   422→function loadMarkdownFiles(dir: string): Array&lt;{ filename: string; title: string; content: string }&gt; {
+   423→  if (!existsSync(dir)) return []
+   424→
+   425→  let entries: string[]
+   426→  try {
+   427→    entries = readdirSync(dir)
+   428→  } catch {
+   429→    return []
+   430→  }
+   431→
+   432→  return entries
+   433→    .filter(e =&gt; e.endsWith(&#39;.md&#39;))
+   434→    .sort()
+   435→    .map(filename =&gt; {
+   436→      const fullPath = join(dir, filename)
+   437→      let content = &#39;&#39;
+   438→      try {
+   439→        content = readFileSync(fullPath, &#39;utf-8&#39;)
+   440→      } catch {
+   441→        // empty
+   442→      }
+   443→      const title = extractMarkdownTitle(content) || basename(filename, &#39;.md&#39;)
+   444→      return { filename, title, content }
+   445→    })
+   446→}
+   447→
+   448→function extractMarkdownTitle(content: string): string {
+   449→  const match = content.match(/^#\s+(.+)$/m)
+   450→  return match?.[1]?.trim() ?? &#39;&#39;
+   451→}
+   452→
+   453→// ---------------------------------------------------------------------------
+   454→// .gitignore management
+   455→// ---------------------------------------------------------------------------
+   456→
+   457→export function ensureGitignore(root: string, entry: string): void {
+   458→  const gitignorePath = join(root, &#39;.gitignore&#39;)
+   459→  let existing = &#39;&#39;
+   460→  if (existsSync(gitignorePath)) {
+   461→    try {
+   462→      existing = readFileSync(gitignorePath, &#39;utf-8&#39;)
+   463→    } catch {
+   464→      return
+   465→    }
+   466→  }
+   467→  // Check if already present (normalize line endings)
+   468→  const lines = existing.replace(/\r\n/g, &#39;\n&#39;).split(&#39;\n&#39;)
+   469→  if (lines.some(l =&gt; l.trim() === entry.trim())) return
+   470→
+   471→  // Append with trailing newline
+   472→  const append = existing.endsWith(&#39;\n&#39;) ? entry + &#39;\n&#39; : &#39;\n&#39; + entry + &#39;\n&#39;
+   473→  try {
+   474→    appendFileSync(gitignorePath, append, &#39;utf-8&#39;)
+   475→  } catch {
+   476→    // Best-effort
+   477→  }
+   478→}
+   479→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01L3oAvr2yruJr4ETQhsYnr4 Read output=1→/** 2→ * HTML layout helpers: shell, navigation, and HTML escaping. 3→ */ 4→ 5→import { basename } from &#39;node:path&#39; 6→ 7→import type { ManifestEntry } from &#39;../../types/transc..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01L3oAvr2yruJr4ETQhsYnr4</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * HTML layout helpers: shell, navigation, and HTML escaping. 3→ */ 4→ 5→import { basename } from &#39;node:path&#39; 6→ 7→import type { ManifestEntry } from &#39;../../types/transc...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * HTML layout helpers: shell, navigation, and HTML escaping.
+     3→ */
+     4→
+     5→import { basename } from &#39;node:path&#39;
+     6→
+     7→import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+     8→import type { Translations } from &#39;../i18n/types.js&#39;
+     9→import { REPORT_CSS } from &#39;./css.js&#39;
+    10→
+    11→// ---------------------------------------------------------------------------
+    12→// HTML escaping
+    13→// ---------------------------------------------------------------------------
+    14→
+    15→export function escHtml(text: string): string {
+    16→  return text
+    17→    .replace(/&amp;/g, &#39;&amp;amp;&#39;)
+    18→    .replace(/&lt;/g, &#39;&amp;lt;&#39;)
+    19→    .replace(/&gt;/g, &#39;&amp;gt;&#39;)
+    20→    .replace(/&quot;/g, &#39;&amp;quot;&#39;)
+    21→    .replace(/&#39;/g, &#39;&amp;#39;&#39;)
+    22→}
+    23→
+    24→// ---------------------------------------------------------------------------
+    25→// Navigation page IDs
+    26→// ---------------------------------------------------------------------------
+    27→
+    28→export type NavPage =
+    29→  | &#39;dashboard&#39;
+    30→  | &#39;transcripts&#39;
+    31→  | &#39;projects&#39;
+    32→  | &#39;graph&#39;
+    33→  | &#39;goals&#39;
+    34→  | &#39;todos&#39;
+    35→  | &#39;knowledge&#39;
+    36→  | &#39;archive&#39;
+    37→  | &#39;search&#39;
+    38→
+    39→// ---------------------------------------------------------------------------
+    40→// Sidebar navigation
+    41→// ---------------------------------------------------------------------------
+    42→
+    43→const SIDEBAR_INLINE_JS = `
+    44→&lt;script&gt;
+    45→(function() {
+    46→  // Theme
+    47→  var saved = localStorage.getItem(&#39;mt-theme&#39;) || &#39;dark&#39;;
+    48→  document.documentElement.setAttribute(&#39;data-theme&#39;, saved);
+    49→  function updateThemeBtn() {
+    50→    var btn = document.getElementById(&#39;theme-toggle&#39;);
+    51→    if (btn) btn.textContent = document.documentElement.getAttribute(&#39;data-theme&#39;) === &#39;dark&#39; ? &#39;☀ Light&#39; : &#39;☾ Dark&#39;;
+    52→  }
+    53→  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    54→    updateThemeBtn();
+    55→    var btn = document.getElementById(&#39;theme-toggle&#39;);
+    56→    if (btn) btn.addEventListener(&#39;click&#39;, function() {
+    57→      var next = document.documentElement.getAttribute(&#39;data-theme&#39;) === &#39;dark&#39; ? &#39;light&#39; : &#39;dark&#39;;
+    58→      document.documentElement.setAttribute(&#39;data-theme&#39;, next);
+    59→      localStorage.setItem(&#39;mt-theme&#39;, next);
+    60→      updateThemeBtn();
+    61→    });
+    62→    // Mobile hamburger
+    63→    var hb = document.getElementById(&#39;hamburger&#39;);
+    64→    var sb = document.getElementById(&#39;sidebar&#39;);
+    65→    var ov = document.getElementById(&#39;sidebar-overlay&#39;);
+    66→    function closeSidebar() {
+    67→      if (sb) sb.classList.remove(&#39;open&#39;);
+    68→      if (ov) ov.classList.remove(&#39;open&#39;);
+    69→    }
+    70→    if (hb) hb.addEventListener(&#39;click&#39;, function() {
+    71→      if (sb) sb.classList.toggle(&#39;open&#39;);
+    72→      if (ov) ov.classList.toggle(&#39;open&#39;);
+    73→    });
+    74→    if (ov) ov.addEventListener(&#39;click&#39;, closeSidebar);
+    75→    // Popover preview
+    76→    var popover = null;
+    77→    document.querySelectorAll(&#39;a[data-summary]&#39;).forEach(function(el) {
+    78→      el.addEventListener(&#39;mouseenter&#39;, function(e) {
+    79→        var summary = el.getAttribute(&#39;data-summary&#39;) || &#39;&#39;;
+    80→        var meta = el.getAttribute(&#39;data-meta&#39;) || &#39;&#39;;
+    81→        if (!summary &amp;&amp; !meta) return;
+    82→        if (!popover) {
+    83→          popover = document.createElement(&#39;div&#39;);
+    84→          popover.className = &#39;popover&#39;;
+    85→          document.body.appendChild(popover);
+    86→        }
+    87→        popover.innerHTML = &#39;&#39;;
+    88→        if (meta) {
+    89→          var metaDiv = document.createElement(&#39;div&#39;);
+    90→          metaDiv.className = &#39;popover-meta&#39;;
+    91→          metaDiv.textContent = meta;
+    92→          popover.appendChild(metaDiv);
+    93→        }
+    94→        if (summary) {
+    95→          var sumDiv = document.createElement(&#39;div&#39;);
+    96→          sumDiv.className = &#39;popover-summary&#39;;
+    97→          sumDiv.textContent = summary;
+    98→          popover.appendChild(sumDiv);
+    99→        }
+   100→        popover.style.display = &#39;block&#39;;
+   101→        positionPopover(e);
+   102→      });
+   103→      el.addEventListener(&#39;mousemove&#39;, positionPopover);
+   104→      el.addEventListener(&#39;mouseleave&#39;, function() {
+   105→        if (popover) popover.style.display = &#39;none&#39;;
+   106→      });
+   107→    });
+   108→    function positionPopover(e) {
+   109→      if (!popover) return;
+   110→      var x = e.clientX + 12;
+   111→      var y = e.clientY + 12;
+   112→      var pw = popover.offsetWidth || 320;
+   113→      var ph = popover.offsetHeight || 80;
+   114→      if (x + pw &gt; window.innerWidth - 8) x = e.clientX - pw - 12;
+   115→      if (y + ph &gt; window.innerHeight - 8) y = e.clientY - ph - 12;
+   116→      popover.style.left = x + &#39;px&#39;;
+   117→      popover.style.top = y + &#39;px&#39;;
+   118→    }
+   119→  });
+   120→})();
+   121→&lt;/script&gt;`
+   122→
+   123→interface NavItem {
+   124→  id: NavPage
+   125→  icon: string
+   126→  labelKey: keyof Translations[&#39;nav&#39;]
+   127→  href: string
+   128→}
+   129→
+   130→function buildNavItems(depth: 0 | 1 | 2): NavItem[] {
+   131→  const p = &#39;../&#39;.repeat(depth)
+   132→  return [
+   133→    { id: &#39;dashboard&#39;, icon: &#39;◈&#39;, labelKey: &#39;dashboard&#39;, href: `${p}index.html` },
+   134→    { id: &#39;transcripts&#39;, icon: &#39;💬&#39;, labelKey: &#39;sessions&#39;, href: `${p}transcripts/index.html` },
+   135→    { id: &#39;projects&#39;, icon: &#39;📁&#39;, labelKey: &#39;projects&#39;, href: `${p}projects/index.html` },
+   136→    { id: &#39;graph&#39;, icon: &#39;⬡&#39;, labelKey: &#39;graph&#39;, href: `${p}graph.html` },
+   137→    { id: &#39;goals&#39;, icon: &#39;🎯&#39;, labelKey: &#39;goals&#39;, href: `${p}goals/index.html` },
+   138→    { id: &#39;todos&#39;, icon: &#39;✓&#39;, labelKey: &#39;todos&#39;, href: `${p}todos/index.html` },
+   139→    { id: &#39;knowledge&#39;, icon: &#39;📚&#39;, labelKey: &#39;knowledge&#39;, href: `${p}knowledge/index.html` },
+   140→    { id: &#39;archive&#39;, icon: &#39;🗄&#39;, labelKey: &#39;archive&#39;, href: `${p}archive/index.html` },
+   141→    { id: &#39;search&#39;, icon: &#39;🔍&#39;, labelKey: &#39;search&#39;, href: `${p}search.html` },
+   142→  ]
+   143→}
+   144→
+   145→export function renderNav(current: NavPage, depth: 0 | 1 | 2, t?: Translations): string {
+   146→  const items = buildNavItems(depth)
+   147→
+   148→  // Labels for each nav item
+   149→  const label = (item: NavItem): string =&gt; {
+   150→    if (t) return t.nav[item.labelKey]
+   151→    // Fallback English labels
+   152→    const defaults: Record&lt;string, string&gt; = {
+   153→      dashboard: &#39;Dashboard&#39;, sessions: &#39;Sessions&#39;, projects: &#39;Projects&#39;,
+   154→      graph: &#39;Graph&#39;, goals: &#39;Goals&#39;, todos: &#39;Todos&#39;,
+   155→      knowledge: &#39;Knowledge&#39;, archive: &#39;Archive&#39;, search: &#39;Search&#39;,
+   156→    }
+   157→    return defaults[item.labelKey] ?? item.labelKey
+   158→  }
+   159→
+   160→  const themeLabel = &#39;☀ Light&#39;
+   161→
+   162→  const navLinks = items.map(item =&gt; {
+   163→    const cls = item.id === current ? &#39;nav-link active&#39; : &#39;nav-link&#39;
+   164→    return `&lt;a href=&quot;${escHtml(item.href)}&quot; class=&quot;${cls}&quot;&gt;${escHtml(item.icon)} ${escHtml(label(item))}&lt;/a&gt;`
+   165→  }).join(&#39;\n      &#39;)
+   166→
+   167→  return `&lt;aside class=&quot;sidebar&quot; id=&quot;sidebar&quot;&gt;
+   168→  &lt;div class=&quot;sidebar-header&quot;&gt;
+   169→    &lt;span class=&quot;sidebar-brand&quot;&gt;MemoryTree&lt;/span&gt;
+   170→  &lt;/div&gt;
+   171→  &lt;nav class=&quot;sidebar-nav&quot;&gt;
+   172→    ${navLinks}
+   173→  &lt;/nav&gt;
+   174→  &lt;div class=&quot;sidebar-footer&quot;&gt;
+   175→    &lt;button class=&quot;theme-toggle-btn&quot; id=&quot;theme-toggle&quot; type=&quot;button&quot;&gt;${escHtml(themeLabel)}&lt;/button&gt;
+   176→  &lt;/div&gt;
+   177→&lt;/aside&gt;
+   178→&lt;div class=&quot;sidebar-overlay&quot; id=&quot;sidebar-overlay&quot;&gt;&lt;/div&gt;`
+   179→}
+   180→
+   181→// ---------------------------------------------------------------------------
+   182→// HTML shell
+   183→// ---------------------------------------------------------------------------
+   184→
+   185→// ---------------------------------------------------------------------------
+   186→// Transcript URL helpers (single canonical implementation)
+   187→// ---------------------------------------------------------------------------
+   188→
+   189→/**
+   190→ * Compute the stem (filename without .md) for a manifest&#39;s clean path.
+   191→ * Falls back to session_id.
+   192→ */
+   193→export function manifestStem(m: ManifestEntry): string {
+   194→  const cleanPath = m.repo_clean_path || m.global_clean_path || &#39;&#39;
+   195→  return cleanPath ? basename(cleanPath, &#39;.md&#39;) : m.session_id
+   196→}
+   197→
+   198→/**
+   199→ * URL to a transcript page relative to the **root** of the report output dir.
+   200→ * Use this from index.html and transcripts/index.html.
+   201→ */
+   202→export function transcriptUrlFromRoot(m: ManifestEntry): string {
+   203→  return `transcripts/${m.client}/${manifestStem(m)}.html`
+   204→}
+   205→
+   206→/**
+   207→ * URL to a transcript page relative to **another transcript** page.
+   208→ * Use this from individual transcript pages.
+   209→ */
+   210→export function transcriptUrlFromTranscript(m: ManifestEntry): string {
+   211→  return `../${m.client}/${manifestStem(m)}.html`
+   212→}
+   213→
+   214→// ---------------------------------------------------------------------------
+   215→// Client badge (allowlisted CSS class)
+   216→// ---------------------------------------------------------------------------
+   217→
+   218→const KNOWN_CLIENTS = new Set([&#39;codex&#39;, &#39;claude&#39;, &#39;gemini&#39;])
+   219→
+   220→/** Render a coloured client badge. CSS class is allowlisted to prevent injection. */
+   221→export function clientBadge(client: string): string {
+   222→  const safeClass = KNOWN_CLIENTS.has(client) ? client : &#39;unknown&#39;
+   223→  return `&lt;span class=&quot;badge badge-${safeClass}&quot;&gt;${escHtml(client)}&lt;/span&gt;`
+   224→}
+   225→
+   226→// ---------------------------------------------------------------------------
+   227→// Shared MarkdownFile type and slug helper
+   228→// ---------------------------------------------------------------------------
+   229→
+   230→export interface MarkdownFile {
+   231→  filename: string
+   232→  title: string
+   233→  content: string
+   234→}
+   235→
+   236→export function slugifyName(name: string): string {
+   237→  return name.toLowerCase().replace(/[^a-z0-9]+/g, &#39;-&#39;)
+   238→}
+   239→
+   240→// ---------------------------------------------------------------------------
+   241→// HTML shell
+   242→// ---------------------------------------------------------------------------
+   243→
+   244→export function htmlShell(title: string, content: string, nav: string, extraHead = &#39;&#39;, lang = &#39;en&#39;): string {
+   245→  const topbar = `&lt;header class=&quot;topbar&quot; id=&quot;topbar&quot;&gt;
+   246→  &lt;span class=&quot;topbar-brand&quot;&gt;MemoryTree&lt;/span&gt;
+   247→  &lt;div class=&quot;topbar-actions&quot;&gt;
+   248→    &lt;button class=&quot;theme-toggle-btn&quot; id=&quot;theme-toggle-mobile&quot; type=&quot;button&quot;&gt;☀&lt;/button&gt;
+   249→    &lt;button class=&quot;hamburger&quot; id=&quot;hamburger&quot; type=&quot;button&quot;&gt;☰&lt;/button&gt;
+   250→  &lt;/div&gt;
+   251→&lt;/header&gt;`
+   252→
+   253→  return `&lt;!DOCTYPE html&gt;
+   254→&lt;html lang=&quot;${escHtml(lang)}&quot; data-theme=&quot;dark&quot;&gt;
+   255→&lt;head&gt;
+   256→&lt;meta charset=&quot;UTF-8&quot;&gt;
+   257→&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+   258→&lt;title&gt;${escHtml(title)} — MemoryTree&lt;/title&gt;
+   259→&lt;style&gt;${REPORT_CSS}&lt;/style&gt;
+   260→${extraHead}
+   261→${SIDEBAR_INLINE_JS}
+   262→&lt;/head&gt;
+   263→&lt;body&gt;
+   264→${topbar}
+   265→${nav}
+   266→&lt;div class=&quot;main-content&quot;&gt;
+   267→  &lt;div class=&quot;container&quot;&gt;
+   268→${content}
+   269→  &lt;/div&gt;
+   270→&lt;/div&gt;
+   271→&lt;/body&gt;
+   272→&lt;/html&gt;`
+   273→}
+   274→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01H48R1vq8nH5LLX6WdwwyYM Read output=1→/** 2→ * GitHub Pages deployment: push report output to gh-pages branch. 3→ */ 4→ 5→import { writeFileSync } from &#39;node:fs&#39; 6→import { join } from &#39;node:path&#39; 7→import { tmpdi..." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01H48R1vq8nH5LLX6WdwwyYM</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * GitHub Pages deployment: push report output to gh-pages branch. 3→ */ 4→ 5→import { writeFileSync } from &#39;node:fs&#39; 6→import { join } from &#39;node:path&#39; 7→import { tmpdi...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * GitHub Pages deployment: push report output to gh-pages branch.
+     3→ */
+     4→
+     5→import { writeFileSync } from &#39;node:fs&#39;
+     6→import { join } from &#39;node:path&#39;
+     7→import { tmpdir } from &#39;node:os&#39;
+     8→import { execFileSync } from &#39;node:child_process&#39;
+     9→
+    10→import { getLogger } from &#39;../../heartbeat/log.js&#39;
+    11→
+    12→export interface GithubPagesOptions {
+    13→  /** Repository root (contains .git/) */
+    14→  repoRoot: string
+    15→  /** Report output directory (e.g. Memory/07_reports) */
+    16→  outputDir: string
+    17→  /** Branch name to push to (e.g. &#39;gh-pages&#39;). Empty string = skip. */
+    18→  branch: string
+    19→  /** Custom domain (CNAME). Empty string = skip. */
+    20→  cname: string
+    21→}
+    22→
+    23→/** Safe character set for branch names — blocks shell meta-chars. */
+    24→const BRANCH_RE = /^[a-zA-Z0-9._/-]+$/
+    25→
+    26→export async function deployGithubPages(options: GithubPagesOptions): Promise&lt;void&gt; {
+    27→  const { repoRoot, outputDir, branch, cname } = options
+    28→  const logger = getLogger()
+    29→
+    30→  if (!branch) return
+    31→
+    32→  // Validate branch name to prevent any injection
+    33→  if (!BRANCH_RE.test(branch)) {
+    34→    logger.warn(`[gh-pages] Invalid branch name, skipping deploy: &quot;${branch}&quot;`)
+    35→    return
+    36→  }
+    37→
+    38→  try {
+    39→    // 1. Write CNAME file if configured
+    40→    if (cname) {
+    41→      const cnamePath = join(outputDir, &#39;CNAME&#39;)
+    42→      writeFileSync(cnamePath, cname + &#39;\n&#39;, &#39;utf-8&#39;)
+    43→      logger.info(`[gh-pages] CNAME written: ${cname}`)
+    44→    }
+    45→
+    46→    // 2. Check if branch exists on remote
+    47→    let branchExists = false
+    48→    try {
+    49→      git(repoRoot, &#39;ls-remote&#39;, &#39;--exit-code&#39;, &#39;--heads&#39;, &#39;origin&#39;, branch)
+    50→      branchExists = true
+    51→    } catch {
+    52→      branchExists = false
+    53→    }
+    54→
+    55→    if (!branchExists) {
+    56→      // Create orphan branch via a temporary worktree in os.tmpdir()
+    57→      logger.info(`[gh-pages] Branch &#39;${branch}&#39; not found, creating orphan...`)
+    58→      const worktreePath = join(tmpdir(), `mt-gh-pages-${Date.now()}`)
+    59→      try {
+    60→        git(repoRoot, &#39;worktree&#39;, &#39;add&#39;, &#39;--orphan&#39;, &#39;-b&#39;, branch, worktreePath)
+    61→        git(worktreePath, &#39;commit&#39;, &#39;--allow-empty&#39;, &#39;-m&#39;, &#39;chore: init gh-pages&#39;)
+    62→        git(repoRoot, &#39;push&#39;, &#39;origin&#39;, branch)
+    63→      } finally {
+    64→        try { git(repoRoot, &#39;worktree&#39;, &#39;remove&#39;, &#39;--force&#39;, worktreePath) } catch { /* ignore */ }
+    65→      }
+    66→    }
+    67→
+    68→    // 3. Push using git subtree
+    69→    const relOutput = makeRelative(repoRoot, outputDir)
+    70→    logger.info(`[gh-pages] Pushing ${relOutput} to origin/${branch}...`)
+    71→    git(repoRoot, &#39;subtree&#39;, &#39;push&#39;, &#39;--prefix&#39;, relOutput, &#39;origin&#39;, branch)
+    72→    logger.info(`[gh-pages] Successfully pushed to origin/${branch}`)
+    73→  } catch (err: unknown) {
+    74→    logger.warn(`[gh-pages] Deploy failed: ${String(err)}`)
+    75→    // Never throw — report deploy failure must not abort heartbeat
+    76→  }
+    77→}
+    78→
+    79→// ---------------------------------------------------------------------------
+    80→// Helpers
+    81→// ---------------------------------------------------------------------------
+    82→
+    83→/** Invoke git with explicit args — no shell interpolation. */
+    84→function git(cwd: string, ...args: string[]): string {
+    85→  return execFileSync(&#39;git&#39;, args, { cwd, stdio: &#39;pipe&#39; }).toString()
+    86→}
+    87→
+    88→function makeRelative(base: string, target: string): string {
+    89→  // Normalize separators
+    90→  const b = base.replace(/\\/g, &#39;/&#39;).replace(/\/$/, &#39;&#39;)
+    91→  const t = target.replace(/\\/g, &#39;/&#39;).replace(/\/$/, &#39;&#39;)
+    92→  if (t.startsWith(b + &#39;/&#39;)) {
+    93→    return t.slice(b.length + 1)
+    94→  }
+    95→  return t
+    96→}
+    97→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01PwjmTBxD49nUqCey2qQtmj Read output=1→import { describe, it, expect, vi, beforeEach } from &#39;vitest&#39; 2→import type { ClientRequest, IncomingMessage } from &#39;node:https&#39; 3→ 4→// Mock getLogger 5→vi.mock(&#39;../../../src..." id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01PwjmTBxD49nUqCey2qQtmj</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { describe, it, expect, vi, beforeEach } from &#39;vitest&#39; 2→import type { ClientRequest, IncomingMessage } from &#39;node:https&#39; 3→ 4→// Mock getLogger 5→vi.mock(&#39;../../../src...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { describe, it, expect, vi, beforeEach } from &#39;vitest&#39;
+     2→import type { ClientRequest, IncomingMessage } from &#39;node:https&#39;
+     3→
+     4→// Mock getLogger
+     5→vi.mock(&#39;../../../src/heartbeat/log.js&#39;, () =&gt; ({
+     6→  getLogger: () =&gt; ({
+     7→    info: vi.fn(),
+     8→    warn: vi.fn(),
+     9→    debug: vi.fn(),
+    10→    error: vi.fn(),
+    11→  }),
+    12→}))
+    13→
+    14→// ---------------------------------------------------------------------------
+    15→// Mock node:https so no real network calls are made
+    16→// ---------------------------------------------------------------------------
+    17→
+    18→type RequestCallback = (res: Partial&lt;IncomingMessage&gt;) =&gt; void
+    19→
+    20→const mockRequest = {
+    21→  write: vi.fn(),
+    22→  end: vi.fn(),
+    23→  on: vi.fn(),
+    24→  setTimeout: vi.fn(),
+    25→}
+    26→
+    27→const mockHttpsRequest = vi.fn()
+    28→
+    29→vi.mock(&#39;node:https&#39;, () =&gt; ({
+    30→  default: { request: mockHttpsRequest },
+    31→}))
+    32→
+    33→import { sendWebhook } from &#39;../../../src/report/deploy/webhook.js&#39;
+    34→
+    35→// ---------------------------------------------------------------------------
+    36→// Helpers
+    37→// ---------------------------------------------------------------------------
+    38→
+    39→/** Make mockHttpsRequest resolve immediately with the given status code. */
+    40→function mockSuccess(statusCode = 200) {
+    41→  mockHttpsRequest.mockImplementation((opts: unknown, cb: RequestCallback) =&gt; {
+    42→    cb({ statusCode, resume: vi.fn() })
+    43→    return mockRequest as unknown as ClientRequest
+    44→  })
+    45→}
+    46→
+    47→/** Make mockHttpsRequest trigger the &#39;error&#39; event. */
+    48→function mockNetworkError() {
+    49→  mockHttpsRequest.mockImplementation((_opts: unknown, _cb: RequestCallback) =&gt; {
+    50→    const req = {
+    51→      ...mockRequest,
+    52→      on: vi.fn().mockImplementation((event: string, handler: (e: Error) =&gt; void) =&gt; {
+    53→        if (event === &#39;error&#39;) handler(new Error(&#39;network failure&#39;))
+    54→        return req
+    55→      }),
+    56→    }
+    57→    return req as unknown as ClientRequest
+    58→  })
+    59→}
+    60→
+    61→// ---------------------------------------------------------------------------
+    62→// Setup
+    63→// ---------------------------------------------------------------------------
+    64→
+    65→beforeEach(() =&gt; {
+    66→  vi.clearAllMocks()
+    67→  mockRequest.on.mockReturnValue(mockRequest)
+    68→  mockRequest.setTimeout.mockReturnValue(mockRequest)
+    69→})
+    70→
+    71→// ---------------------------------------------------------------------------
+    72→// No-op on empty URL
+    73→// ---------------------------------------------------------------------------
+    74→
+    75→describe(&#39;sendWebhook — no-op on empty URL&#39;, () =&gt; {
+    76→  it(&#39;resolves immediately when url is empty&#39;, async () =&gt; {
+    77→    await expect(sendWebhook({ url: &#39;&#39;, sessionCount: 10 })).resolves.not.toThrow()
+    78→    expect(mockHttpsRequest).not.toHaveBeenCalled()
+    79→  })
+    80→})
+    81→
+    82→// ---------------------------------------------------------------------------
+    83→// SSRF protection
+    84→// ---------------------------------------------------------------------------
+    85→
+    86→describe(&#39;sendWebhook — SSRF protection&#39;, () =&gt; {
+    87→  it(&#39;rejects http:// URLs (only https allowed)&#39;, async () =&gt; {
+    88→    await expect(
+    89→      sendWebhook({ url: &#39;http://example.com/webhook&#39;, sessionCount: 5 })
+    90→    ).resolves.not.toThrow()
+    91→    expect(mockHttpsRequest).not.toHaveBeenCalled()
+    92→  })
+    93→
+    94→  it(&#39;rejects localhost&#39;, async () =&gt; {
+    95→    await expect(
+    96→      sendWebhook({ url: &#39;https://localhost/webhook&#39;, sessionCount: 5 })
+    97→    ).resolves.not.toThrow()
+    98→    expect(mockHttpsRequest).not.toHaveBeenCalled()
+    99→  })
+   100→
+   101→  it(&#39;rejects 127.x.x.x&#39;, async () =&gt; {
+   102→    await expect(
+   103→      sendWebhook({ url: &#39;https://127.0.0.1/webhook&#39;, sessionCount: 5 })
+   104→    ).resolves.not.toThrow()
+   105→    expect(mockHttpsRequest).not.toHaveBeenCalled()
+   106→  })
+   107→
+   108→  it(&#39;rejects 169.254.x.x (link-local)&#39;, async () =&gt; {
+   109→    await expect(
+   110→      sendWebhook({ url: &#39;https://169.254.169.254/latest/meta-data/&#39;, sessionCount: 5 })
+   111→    ).resolves.not.toThrow()
+   112→    expect(mockHttpsRequest).not.toHaveBeenCalled()
+   113→  })
+   114→
+   115→  it(&#39;rejects 10.x.x.x (RFC 1918)&#39;, async () =&gt; {
+   116→    await expect(
+   117→      sendWebhook({ url: &#39;https://10.0.0.1/webhook&#39;, sessionCount: 5 })
+   118→    ).resolves.not.toThrow()
+   119→    expect(mockHttpsRequest).not.toHaveBeenCalled()
+   120→  })
+   121→})
+   122→
+   123→// ---------------------------------------------------------------------------
+   124→// Network failure does not throw
+   125→// ---------------------------------------------------------------------------
+   126→
+   127→describe(&#39;sendWebhook — network failure does not throw&#39;, () =&gt; {
+   128→  it(&#39;resolves even when HTTP request triggers error event&#39;, async () =&gt; {
+   129→    mockNetworkError()
+   130→    await expect(
+   131→      sendWebhook({ url: &#39;https://hooks.slack.com/services/test&#39;, sessionCount: 5 })
+   132→    ).resolves.not.toThrow()
+   133→  })
+   134→
+   135→  it(&#39;resolves on HTTP 4xx response&#39;, async () =&gt; {
+   136→    mockSuccess(400)
+   137→    await expect(
+   138→      sendWebhook({ url: &#39;https://hooks.slack.com/services/test&#39;, sessionCount: 5 })
+   139→    ).resolves.not.toThrow()
+   140→  })
+   141→})
+   142→
+   143→// ---------------------------------------------------------------------------
+   144→// Payload assertions
+   145→// ---------------------------------------------------------------------------
+   146→
+   147→describe(&#39;sendWebhook — payload structure&#39;, () =&gt; {
+   148→  it(&#39;sends correct JSON body for slack&#39;, async () =&gt; {
+   149→    mockSuccess()
+   150→    await sendWebhook({ url: &#39;https://hooks.slack.com/services/test&#39;, sessionCount: 7 })
+   151→
+   152→    expect(mockHttpsRequest).toHaveBeenCalled()
+   153→    const writtenBody = mockRequest.write.mock.calls[0]?.[0] as string
+   154→    const parsed = JSON.parse(writtenBody) as { text: string }
+   155→    expect(parsed.text).toContain(&#39;7&#39;)
+   156→    expect(parsed.text).toContain(&#39;MemoryTree&#39;)
+   157→  })
+   158→
+   159→  it(&#39;sends correct JSON body for discord&#39;, async () =&gt; {
+   160→    mockSuccess()
+   161→    await sendWebhook({
+   162→      url: &#39;https://discord.com/api/webhooks/123/test&#39;,
+   163→      sessionCount: 5,
+   164→      reportUrl: &#39;https://example.com/report&#39;,
+   165→    })
+   166→
+   167→    const writtenBody = mockRequest.write.mock.calls[0]?.[0] as string
+   168→    const parsed = JSON.parse(writtenBody) as { content: string }
+   169→    expect(parsed.content).toContain(&#39;5&#39;)
+   170→    expect(parsed.content).toContain(&#39;MemoryTree&#39;)
+   171→  })
+   172→
+   173→  it(&#39;includes new session count in feishu payload&#39;, async () =&gt; {
+   174→    mockSuccess()
+   175→    await sendWebhook({
+   176→      url: &#39;https://open.feishu.cn/open-apis/bot/v2/hook/test&#39;,
+   177→      sessionCount: 42,
+   178→      newSessionIds: [&#39;s1&#39;, &#39;s2&#39;],
+   179→    })
+   180→
+   181→    const writtenBody = mockRequest.write.mock.calls[0]?.[0] as string
+   182→    const parsed = JSON.parse(writtenBody) as Record&lt;string, unknown&gt;
+   183→    // Feishu sends interactive card
+   184→    expect(parsed.msg_type).toBe(&#39;interactive&#39;)
+   185→  })
+   186→
+   187→  it(&#39;sends generic payload for unknown URL&#39;, async () =&gt; {
+   188→    mockSuccess()
+   189→    await sendWebhook({
+   190→      url: &#39;https://my-server.example.com/webhook&#39;,
+   191→      sessionCount: 3,
+   192→      newSessionIds: [&#39;s1&#39;],
+   193→    })
+   194→
+   195→    const writtenBody = mockRequest.write.mock.calls[0]?.[0] as string
+   196→    const parsed = JSON.parse(writtenBody) as {
+   197→      event: string
+   198→      session_count: number
+   199→      new_session_count: number
+   200→    }
+   201→    expect(parsed.event).toBe(&#39;memorytree.report.updated&#39;)
+   202→    expect(parsed.session_count).toBe(3)
+   203→    expect(parsed.new_session_count).toBe(1)
+   204→  })
+   205→
+   206→  it(&#39;sends correct hostname in request options&#39;, async () =&gt; {
+   207→    mockSuccess()
+   208→    await sendWebhook({ url: &#39;https://hooks.slack.com/services/test&#39;, sessionCount: 1 })
+   209→
+   210→    const reqOpts = mockHttpsRequest.mock.calls[0]?.[0] as { hostname: string }
+   211→    expect(reqOpts.hostname).toBe(&#39;hooks.slack.com&#39;)
+   212→  })
+   213→})
+   214→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_019poGrPNrqTd3iBwQUZF6i5 Read output=1→/** 2→ * Knowledge graph page: force-directed visualization of sessions and knowledge links. 3→ * Inline vanilla JS, no CDN dependencies. 4→ */ 5→ 6→import type { ManifestEntr..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019poGrPNrqTd3iBwQUZF6i5</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Knowledge graph page: force-directed visualization of sessions and knowledge links. 3→ * Inline vanilla JS, no CDN dependencies. 4→ */ 5→ 6→import type { ManifestEntr...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Knowledge graph page: force-directed visualization of sessions and knowledge links.
+     3→ * Inline vanilla JS, no CDN dependencies.
+     4→ */
+     5→
+     6→import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+     7→import type { LinkGraph } from &#39;../../types/report.js&#39;
+     8→import type { Translations } from &#39;../i18n/types.js&#39;
+     9→import type { MarkdownFile } from &#39;./layout.js&#39;
+    10→import { escHtml, htmlShell, renderNav, transcriptUrlFromRoot } from &#39;./layout.js&#39;
+    11→
+    12→const MAX_NODES = 500
+    13→
+    14→// ---------------------------------------------------------------------------
+    15→// Graph data types
+    16→// ---------------------------------------------------------------------------
+    17→
+    18→interface GraphNode {
+    19→  id: string
+    20→  label: string
+    21→  type: &#39;session&#39; | &#39;knowledge&#39;
+    22→  client?: string
+    23→  url: string
+    24→}
+    25→
+    26→interface GraphEdge {
+    27→  source: string
+    28→  target: string
+    29→}
+    30→
+    31→// ---------------------------------------------------------------------------
+    32→// Build graph data
+    33→// ---------------------------------------------------------------------------
+    34→
+    35→export function buildGraphData(
+    36→  manifests: ManifestEntry[],
+    37→  knowledgeFiles: MarkdownFile[],
+    38→  linkGraph: LinkGraph,
+    39→): { nodes: GraphNode[]; edges: GraphEdge[] } {
+    40→  // Cap manifests to MAX_NODES (most recent first)
+    41→  const sorted = [...manifests]
+    42→    .sort((a, b) =&gt; b.started_at.localeCompare(a.started_at))
+    43→    .slice(0, MAX_NODES)
+    44→
+    45→  const nodeSet = new Set&lt;string&gt;()
+    46→  const nodes: GraphNode[] = []
+    47→  const edges: GraphEdge[] = []
+    48→
+    49→  for (const m of sorted) {
+    50→    if (!nodeSet.has(m.session_id)) {
+    51→      nodeSet.add(m.session_id)
+    52→      nodes.push({
+    53→        id: m.session_id,
+    54→        label: m.title || m.session_id.slice(0, 8),
+    55→        type: &#39;session&#39;,
+    56→        client: m.client,
+    57→        url: transcriptUrlFromRoot(m),
+    58→      })
+    59→    }
+    60→  }
+    61→
+    62→  for (const kf of knowledgeFiles) {
+    63→    const id = `knowledge:${kf.filename}`
+    64→    if (!nodeSet.has(id)) {
+    65→      nodeSet.add(id)
+    66→      nodes.push({
+    67→        id,
+    68→        label: kf.title || kf.filename,
+    69→        type: &#39;knowledge&#39;,
+    70→        url: `knowledge/index.html#${slugify(kf.filename)}`,
+    71→      })
+    72→    }
+    73→  }
+    74→
+    75→  // Add edges from link graph (only for nodes that exist)
+    76→  for (const [sourceId, targets] of Object.entries(linkGraph.forwardLinks)) {
+    77→    if (!nodeSet.has(sourceId)) continue
+    78→    for (const targetId of targets) {
+    79→      if (nodeSet.has(targetId)) {
+    80→        edges.push({ source: sourceId, target: targetId })
+    81→      }
+    82→    }
+    83→  }
+    84→
+    85→  return { nodes, edges }
+    86→}
+    87→
+    88→function slugify(s: string): string {
+    89→  return s.toLowerCase().replace(/[^a-z0-9]+/g, &#39;-&#39;)
+    90→}
+    91→
+    92→// ---------------------------------------------------------------------------
+    93→// Graph page renderer
+    94→// ---------------------------------------------------------------------------
+    95→
+    96→export function renderGraph(
+    97→  manifests: ManifestEntry[],
+    98→  knowledgeFiles: MarkdownFile[],
+    99→  linkGraph: LinkGraph,
+   100→  t?: Translations,
+   101→): string {
+   102→  const nav = renderNav(&#39;graph&#39;, 0, t)
+   103→  const title = t?.graph.title ?? &#39;Knowledge Graph&#39;
+   104→  const subtitle = t?.graph.subtitle ?? &#39;Connections between sessions and knowledge files&#39;
+   105→
+   106→  const { nodes, edges } = buildGraphData(manifests, knowledgeFiles, linkGraph)
+   107→
+   108→  if (nodes.length === 0) {
+   109→    const content = `&lt;div class=&quot;page-header&quot;&gt;
+   110→  &lt;h1&gt;${escHtml(title)}&lt;/h1&gt;
+   111→  &lt;p class=&quot;subtitle&quot;&gt;${escHtml(t?.graph.noData ?? &#39;No graph data available.&#39;)}&lt;/p&gt;
+   112→&lt;/div&gt;`
+   113→    return htmlShell(title, content, nav)
+   114→  }
+   115→
+   116→  // Embed graph data as JSON; escape sequences that could break a &lt;script&gt; block
+   117→  const graphDataJson = JSON.stringify({ nodes, edges })
+   118→    .replace(/&lt;\//g, &#39;&lt;\\/&#39;)
+   119→    .replace(/\u2028/g, &#39;\\u2028&#39;)
+   120→    .replace(/\u2029/g, &#39;\\u2029&#39;)
+   121→
+   122→  const graphScript = `&lt;script&gt;
+   123→(function() {
+   124→var GRAPH_DATA = ${graphDataJson};
+   125→
+   126→// Client color map
+   127→var CLIENT_COLORS = { claude: &#39;#bc8cff&#39;, codex: &#39;#58a6ff&#39;, gemini: &#39;#3fb950&#39; };
+   128→function nodeColor(n) {
+   129→  if (n.type === &#39;knowledge&#39;) return &#39;#f0c040&#39;;
+   130→  return CLIENT_COLORS[n.client] || &#39;#8b949e&#39;;
+   131→}
+   132→function nodeRadius(n) { return n.type === &#39;knowledge&#39; ? 7 : 5; }
+   133→
+   134→var canvas = document.getElementById(&#39;graph-canvas&#39;);
+   135→if (!canvas) return;
+   136→var ctx = canvas.getContext(&#39;2d&#39;);
+   137→
+   138→// High-DPI
+   139→function resize() {
+   140→  var rect = canvas.getBoundingClientRect();
+   141→  var dpr = window.devicePixelRatio || 1;
+   142→  canvas.width = rect.width * dpr;
+   143→  canvas.height = rect.height * dpr;
+   144→  ctx.scale(dpr, dpr);
+   145→}
+   146→resize();
+   147→window.addEventListener(&#39;resize&#39;, function() { resize(); draw(); });
+   148→
+   149→var W = canvas.getBoundingClientRect().width;
+   150→var H = canvas.getBoundingClientRect().height;
+   151→
+   152→// Init positions (random spread)
+   153→var nodeMap = {};
+   154→var simNodes = GRAPH_DATA.nodes.map(function(n) {
+   155→  var sn = { id: n.id, label: n.label, type: n.type, client: n.client, url: n.url,
+   156→    x: W/2 + (Math.random()-0.5)*W*0.7, y: H/2 + (Math.random()-0.5)*H*0.7, vx: 0, vy: 0 };
+   157→  nodeMap[n.id] = sn;
+   158→  return sn;
+   159→});
+   160→
+   161→var simEdges = GRAPH_DATA.edges.map(function(e) {
+   162→  return { source: nodeMap[e.source], target: nodeMap[e.target] };
+   163→}).filter(function(e) { return e.source &amp;&amp; e.target; });
+   164→
+   165→// Simulation params
+   166→var ALPHA = 1.0;
+   167→var ALPHA_DECAY = 0.0228;
+   168→var ALPHA_MIN = 0.001;
+   169→var CHARGE = -120;
+   170→var LINK_DIST = 80;
+   171→var CENTER_FORCE = 0.05;
+   172→var DAMPING = 0.6;
+   173→
+   174→// Pan/zoom state
+   175→var panX = 0, panY = 0, scale = 1;
+   176→var dragging = false, dragNode = null, dragOffX = 0, dragOffY = 0;
+   177→var isPanning = false, panStartX = 0, panStartY = 0, panStartPanX = 0, panStartPanY = 0;
+   178→
+   179→function worldToScreen(wx, wy) {
+   180→  return { x: (wx + panX) * scale + W/2, y: (wy + panY) * scale + H/2 };
+   181→}
+   182→function screenToWorld(sx, sy) {
+   183→  return { x: (sx - W/2) / scale - panX, y: (sy - H/2) / scale - panY };
+   184→}
+   185→
+   186→function tick() {
+   187→  if (ALPHA &lt; ALPHA_MIN) return;
+   188→  ALPHA *= (1 - ALPHA_DECAY);
+   189→
+   190→  // Repulsion (n^2, capped)
+   191→  var N = simNodes.length;
+   192→  for (var i = 0; i &lt; N; i++) {
+   193→    for (var j = i+1; j &lt; N; j++) {
+   194→      var ni = simNodes[i], nj = simNodes[j];
+   195→      var dx = nj.x - ni.x, dy = nj.y - ni.y;
+   196→      var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+   197→      var force = CHARGE / (dist * dist) * ALPHA;
+   198→      var fx = dx / dist * force, fy = dy / dist * force;
+   199→      ni.vx -= fx; ni.vy -= fy;
+   200→      nj.vx += fx; nj.vy += fy;
+   201→    }
+   202→  }
+   203→
+   204→  // Link attraction
+   205→  for (var k = 0; k &lt; simEdges.length; k++) {
+   206→    var e = simEdges[k];
+   207→    var dx2 = e.target.x - e.source.x, dy2 = e.target.y - e.source.y;
+   208→    var dist2 = Math.sqrt(dx2*dx2 + dy2*dy2) || 1;
+   209→    var strength = (dist2 - LINK_DIST) / dist2 * 0.5 * ALPHA;
+   210→    var fx2 = dx2 * strength, fy2 = dy2 * strength;
+   211→    e.source.vx += fx2; e.source.vy += fy2;
+   212→    e.target.vx -= fx2; e.target.vy -= fy2;
+   213→  }
+   214→
+   215→  // Center gravity
+   216→  for (var m = 0; m &lt; N; m++) {
+   217→    var node = simNodes[m];
+   218→    node.vx += -node.x * CENTER_FORCE * ALPHA;
+   219→    node.vy += -node.y * CENTER_FORCE * ALPHA;
+   220→    if (node === dragNode) continue;
+   221→    node.vx *= DAMPING;
+   222→    node.vy *= DAMPING;
+   223→    node.x += node.vx;
+   224→    node.y += node.vy;
+   225→  }
+   226→}
+   227→
+   228→function draw() {
+   229→  W = canvas.getBoundingClientRect().width;
+   230→  H = canvas.getBoundingClientRect().height;
+   231→  ctx.clearRect(0, 0, W, H);
+   232→  ctx.save();
+   233→
+   234→  // Draw edges
+   235→  ctx.strokeStyle = &#39;rgba(139,148,158,0.3)&#39;;
+   236→  ctx.lineWidth = 1;
+   237→  for (var k = 0; k &lt; simEdges.length; k++) {
+   238→    var e = simEdges[k];
+   239→    var s = worldToScreen(e.source.x, e.source.y);
+   240→    var t2 = worldToScreen(e.target.x, e.target.y);
+   241→    ctx.beginPath();
+   242→    ctx.moveTo(s.x, s.y);
+   243→    ctx.lineTo(t2.x, t2.y);
+   244→    ctx.stroke();
+   245→  }
+   246→
+   247→  // Draw nodes
+   248→  for (var i = 0; i &lt; simNodes.length; i++) {
+   249→    var n = simNodes[i];
+   250→    var pos = worldToScreen(n.x, n.y);
+   251→    var r = nodeRadius(n) * scale;
+   252→    ctx.beginPath();
+   253→    ctx.arc(pos.x, pos.y, Math.max(r, 3), 0, Math.PI*2);
+   254→    ctx.fillStyle = nodeColor(n);
+   255→    ctx.fill();
+   256→    if (n === hoverNode) {
+   257→      ctx.strokeStyle = &#39;#fff&#39;;
+   258→      ctx.lineWidth = 1.5;
+   259→      ctx.stroke();
+   260→    }
+   261→  }
+   262→
+   263→  // Draw hover label
+   264→  if (hoverNode) {
+   265→    var hpos = worldToScreen(hoverNode.x, hoverNode.y);
+   266→    ctx.font = &#39;11px sans-serif&#39;;
+   267→    ctx.fillStyle = &#39;#e6edf3&#39;;
+   268→    ctx.fillText(hoverNode.label.slice(0, 30), hpos.x + 8, hpos.y - 4);
+   269→  }
+   270→
+   271→  ctx.restore();
+   272→}
+   273→
+   274→var hoverNode = null;
+   275→
+   276→function findNode(sx, sy) {
+   277→  var w = screenToWorld(sx, sy);
+   278→  var best = null, bestDist = Infinity;
+   279→  for (var i = 0; i &lt; simNodes.length; i++) {
+   280→    var n = simNodes[i];
+   281→    var dx = n.x - w.x, dy = n.y - w.y;
+   282→    var dist = Math.sqrt(dx*dx + dy*dy);
+   283→    if (dist &lt; 15 / scale &amp;&amp; dist &lt; bestDist) { best = n; bestDist = dist; }
+   284→  }
+   285→  return best;
+   286→}
+   287→
+   288→function getCanvasPos(evt) {
+   289→  var rect = canvas.getBoundingClientRect();
+   290→  return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+   291→}
+   292→
+   293→canvas.addEventListener(&#39;mousemove&#39;, function(e) {
+   294→  var pos = getCanvasPos(e);
+   295→  if (isPanning) {
+   296→    panX = panStartPanX + (pos.x - panStartX) / scale;
+   297→    panY = panStartPanY + (pos.y - panStartY) / scale;
+   298→    return;
+   299→  }
+   300→  if (dragNode) {
+   301→    var w = screenToWorld(pos.x, pos.y);
+   302→    dragNode.x = w.x + dragOffX;
+   303→    dragNode.y = w.y + dragOffY;
+   304→    dragNode.vx = 0; dragNode.vy = 0;
+   305→    return;
+   306→  }
+   307→  var node = findNode(pos.x, pos.y);
+   308→  hoverNode = node;
+   309→  canvas.style.cursor = node ? &#39;pointer&#39; : &#39;grab&#39;;
+   310→});
+   311→
+   312→canvas.addEventListener(&#39;mousedown&#39;, function(e) {
+   313→  var pos = getCanvasPos(e);
+   314→  var node = findNode(pos.x, pos.y);
+   315→  if (node) {
+   316→    dragNode = node;
+   317→    var w = screenToWorld(pos.x, pos.y);
+   318→    dragOffX = node.x - w.x;
+   319→    dragOffY = node.y - w.y;
+   320→    ALPHA = 0.3;
+   321→  } else {
+   322→    isPanning = true;
+   323→    panStartX = pos.x; panStartY = pos.y;
+   324→    panStartPanX = panX; panStartPanY = panY;
+   325→  }
+   326→});
+   327→
+   328→canvas.addEventListener(&#39;mouseup&#39;, function(e) {
+   329→  if (dragNode) { dragNode = null; return; }
+   330→  isPanning = false;
+   331→});
+   332→
+   333→canvas.addEventListener(&#39;click&#39;, function(e) {
+   334→  var pos = getCanvasPos(e);
+   335→  var node = findNode(pos.x, pos.y);
+   336→  if (node &amp;&amp; node.url) { window.location.href = node.url; }
+   337→});
+   338→
+   339→canvas.addEventListener(&#39;wheel&#39;, function(e) {
+   340→  e.preventDefault();
+   341→  var pos = getCanvasPos(e);
+   342→  var factor = e.deltaY &gt; 0 ? 0.9 : 1.1;
+   343→  var wx = (pos.x - W/2) / scale - panX;
+   344→  var wy = (pos.y - H/2) / scale - panY;
+   345→  scale *= factor;
+   346→  scale = Math.max(0.1, Math.min(10, scale));
+   347→  panX = (pos.x - W/2) / scale - wx;
+   348→  panY = (pos.y - H/2) / scale - wy;
+   349→}, { passive: false });
+   350→
+   351→// Animation loop — stops automatically once simulation settles
+   352→function loop() {
+   353→  tick();
+   354→  draw();
+   355→  if (ALPHA &gt;= ALPHA_MIN) {
+   356→    requestAnimationFrame(loop);
+   357→  }
+   358→}
+   359→loop();
+   360→})();
+   361→&lt;/script&gt;`
+   362→
+   363→  const legendItems = [
+   364→    { color: &#39;#bc8cff&#39;, label: &#39;Claude&#39; },
+   365→    { color: &#39;#58a6ff&#39;, label: &#39;Codex&#39; },
+   366→    { color: &#39;#3fb950&#39;, label: &#39;Gemini&#39; },
+   367→    { color: &#39;#8b949e&#39;, label: &#39;Other&#39; },
+   368→    { color: &#39;#f0c040&#39;, label: &#39;Knowledge&#39; },
+   369→  ]
+   370→
+   371→  const legend = legendItems.map(item =&gt;
+   372→    `&lt;div class=&quot;graph-legend-item&quot;&gt;
+   373→  &lt;span class=&quot;graph-legend-dot&quot; style=&quot;background:${escHtml(item.color)}&quot;&gt;&lt;/span&gt;
+   374→  ${escHtml(item.label)}
+   375→&lt;/div&gt;`
+   376→  ).join(&#39;&#39;)
+   377→
+   378→  const content = `&lt;div class=&quot;page-header&quot;&gt;
+   379→  &lt;h1&gt;${escHtml(title)}&lt;/h1&gt;
+   380→  &lt;p class=&quot;subtitle&quot;&gt;${escHtml(subtitle)} · ${nodes.length} nodes, ${edges.length} edges&lt;/p&gt;
+   381→&lt;/div&gt;
+   382→&lt;canvas id=&quot;graph-canvas&quot;&gt;&lt;/canvas&gt;
+   383→&lt;div class=&quot;graph-legend&quot;&gt;${legend}&lt;/div&gt;`
+   384→
+   385→  return htmlShell(title, content, nav, graphScript)
+   386→}
+   387→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01ENmZBGTLV6XqfikZTPrdZm Read output=1→/** 2→ * Webhook notification: sends a POST to configurable endpoints. 3→ * Supports Feishu, Telegram, Discord, Slack, and generic webhooks. 4→ * Never throws — failures are l..." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01ENmZBGTLV6XqfikZTPrdZm</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Webhook notification: sends a POST to configurable endpoints. 3→ * Supports Feishu, Telegram, Discord, Slack, and generic webhooks. 4→ * Never throws — failures are l...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Webhook notification: sends a POST to configurable endpoints.
+     3→ * Supports Feishu, Telegram, Discord, Slack, and generic webhooks.
+     4→ * Never throws — failures are logged as warnings.
+     5→ */
+     6→
+     7→import { getLogger } from &#39;../../heartbeat/log.js&#39;
+     8→
+     9→export interface WebhookOptions {
+    10→  url: string
+    11→  sessionCount: number
+    12→  newSessionIds?: string[]
+    13→  reportUrl?: string
+    14→}
+    15→
+    16→// ---------------------------------------------------------------------------
+    17→// Platform detection
+    18→// ---------------------------------------------------------------------------
+    19→
+    20→type Platform = &#39;feishu&#39; | &#39;telegram&#39; | &#39;discord&#39; | &#39;slack&#39; | &#39;generic&#39;
+    21→
+    22→function detectPlatform(url: string): Platform {
+    23→  if (url.includes(&#39;open.feishu.cn&#39;) || url.includes(&#39;open.larksuite.com&#39;)) return &#39;feishu&#39;
+    24→  if (url.includes(&#39;api.telegram.org&#39;)) return &#39;telegram&#39;
+    25→  if (url.includes(&#39;discord.com/api/webhooks&#39;) || url.includes(&#39;discordapp.com/api/webhooks&#39;)) return &#39;discord&#39;
+    26→  if (url.includes(&#39;hooks.slack.com&#39;)) return &#39;slack&#39;
+    27→  return &#39;generic&#39;
+    28→}
+    29→
+    30→// ---------------------------------------------------------------------------
+    31→// Payload builders
+    32→// ---------------------------------------------------------------------------
+    33→
+    34→function buildFeishuPayload(options: WebhookOptions): Record&lt;string, unknown&gt; {
+    35→  const { sessionCount, newSessionIds = [], reportUrl } = options
+    36→  const newCount = newSessionIds.length
+    37→  const actionBtn = reportUrl
+    38→    ? [{
+    39→        tag: &#39;button&#39;,
+    40→        text: { content: &#39;View Report&#39;, tag: &#39;plain_text&#39; },
+    41→        url: reportUrl,
+    42→        type: &#39;primary&#39;,
+    43→      }]
+    44→    : []
+    45→
+    46→  return {
+    47→    msg_type: &#39;interactive&#39;,
+    48→    card: {
+    49→      header: {
+    50→        title: { content: &#39;MemoryTree Report Updated&#39;, tag: &#39;plain_text&#39; },
+    51→        template: &#39;blue&#39;,
+    52→      },
+    53→      elements: [
+    54→        {
+    55→          tag: &#39;div&#39;,
+    56→          text: {
+    57→            tag: &#39;lark_md&#39;,
+    58→            content: `**Sessions:** ${sessionCount} total${newCount ? `, ${newCount} new` : &#39;&#39;}`,
+    59→          },
+    60→        },
+    61→        ...(actionBtn.length &gt; 0 ? [{ tag: &#39;action&#39;, actions: actionBtn }] : []),
+    62→      ],
+    63→    },
+    64→  }
+    65→}
+    66→
+    67→function buildTelegramPayload(options: WebhookOptions): Record&lt;string, unknown&gt; {
+    68→  const { sessionCount, newSessionIds = [], reportUrl } = options
+    69→  const newCount = newSessionIds.length
+    70→  let text = `📊 *MemoryTree Report Updated*\n\nSessions: ${sessionCount} total`
+    71→  if (newCount &gt; 0) text += `, ${newCount} new`
+    72→  if (reportUrl) text += `\n[View Report](${reportUrl})`
+    73→  return { text, parse_mode: &#39;Markdown&#39; }
+    74→}
+    75→
+    76→function buildDiscordPayload(options: WebhookOptions): Record&lt;string, unknown&gt; {
+    77→  const { sessionCount, newSessionIds = [], reportUrl } = options
+    78→  const newCount = newSessionIds.length
+    79→  let content = `📊 **MemoryTree Report Updated** — ${sessionCount} sessions total`
+    80→  if (newCount &gt; 0) content += `, ${newCount} new`
+    81→  if (reportUrl) content += ` · [View Report](${reportUrl})`
+    82→  return { content }
+    83→}
+    84→
+    85→function buildSlackPayload(options: WebhookOptions): Record&lt;string, unknown&gt; {
+    86→  const { sessionCount, newSessionIds = [], reportUrl } = options
+    87→  const newCount = newSessionIds.length
+    88→  let text = `📊 MemoryTree Report Updated — ${sessionCount} sessions total`
+    89→  if (newCount &gt; 0) text += `, ${newCount} new`
+    90→  if (reportUrl) text += ` · &lt;${reportUrl}|View Report&gt;`
+    91→  return { text }
+    92→}
+    93→
+    94→function buildGenericPayload(options: WebhookOptions): Record&lt;string, unknown&gt; {
+    95→  return {
+    96→    event: &#39;memorytree.report.updated&#39;,
+    97→    session_count: options.sessionCount,
+    98→    new_session_count: options.newSessionIds?.length ?? 0,
+    99→    new_session_ids: options.newSessionIds ?? [],
+   100→    report_url: options.reportUrl ?? &#39;&#39;,
+   101→  }
+   102→}
+   103→
+   104→// ---------------------------------------------------------------------------
+   105→// URL safety validation
+   106→// ---------------------------------------------------------------------------
+   107→
+   108→/** Private / loopback IP ranges that must not be reachable via webhook. */
+   109→const PRIVATE_HOSTNAME_RE =
+   110→  /^(localhost|127\.\d+\.\d+\.\d+|0\.0\.0\.0|::1|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+|169\.254\.\d+\.\d+|fc[0-9a-f]{2}:|fd[0-9a-f]{2}:)$/i
+   111→
+   112→function validateWebhookUrl(raw: string): URL {
+   113→  let url: URL
+   114→  try {
+   115→    url = new URL(raw)
+   116→  } catch {
+   117→    throw new Error(`Invalid webhook URL: ${raw}`)
+   118→  }
+   119→  if (url.protocol !== &#39;https:&#39;) {
+   120→    throw new Error(`Webhook URL must use https: (got ${url.protocol})`)
+   121→  }
+   122→  if (PRIVATE_HOSTNAME_RE.test(url.hostname)) {
+   123→    throw new Error(`Webhook URL hostname is private/loopback: ${url.hostname}`)
+   124→  }
+   125→  return url
+   126→}
+   127→
+   128→// ---------------------------------------------------------------------------
+   129→// Main send function
+   130→// ---------------------------------------------------------------------------
+   131→
+   132→export async function sendWebhook(options: WebhookOptions): Promise&lt;void&gt; {
+   133→  if (!options.url) return
+   134→  const logger = getLogger()
+   135→
+   136→  let parsedUrl: URL
+   137→  try {
+   138→    parsedUrl = validateWebhookUrl(options.url)
+   139→  } catch (err) {
+   140→    logger.warn(`[webhook] Rejected URL: ${String(err)}`)
+   141→    return
+   142→  }
+   143→
+   144→  const platform = detectPlatform(options.url)
+   145→
+   146→  const payloadMap: Record&lt;Platform, (o: WebhookOptions) =&gt; Record&lt;string, unknown&gt;&gt; = {
+   147→    feishu: buildFeishuPayload,
+   148→    telegram: buildTelegramPayload,
+   149→    discord: buildDiscordPayload,
+   150→    slack: buildSlackPayload,
+   151→    generic: buildGenericPayload,
+   152→  }
+   153→
+   154→  const payload = payloadMap[platform](options)
+   155→
+   156→  try {
+   157→    const { default: https } = await import(&#39;node:https&#39;)
+   158→    const body = JSON.stringify(payload)
+   159→
+   160→    await new Promise&lt;void&gt;((resolve, reject) =&gt; {
+   161→      const url = parsedUrl
+   162→      const req = https.request(
+   163→        {
+   164→          hostname: url.hostname,
+   165→          port: url.port || 443,
+   166→          path: url.pathname + url.search,
+   167→          method: &#39;POST&#39;,
+   168→          headers: {
+   169→            &#39;Content-Type&#39;: &#39;application/json&#39;,
+   170→            &#39;Content-Length&#39;: Buffer.byteLength(body),
+   171→          },
+   172→        },
+   173→        res =&gt; {
+   174→          // Consume response to avoid socket leak
+   175→          res.resume()
+   176→          if (res.statusCode &amp;&amp; res.statusCode &gt;= 400) {
+   177→            reject(new Error(`HTTP ${res.statusCode}`))
+   178→          } else {
+   179→            resolve()
+   180→          }
+   181→        },
+   182→      )
+   183→      req.on(&#39;error&#39;, reject)
+   184→      req.setTimeout(5000, () =&gt; { req.destroy(); reject(new Error(&#39;timeout&#39;)) })
+   185→      req.write(body)
+   186→      req.end()
+   187→    })
+   188→
+   189→    logger.info(`[webhook] Sent ${platform} notification`)
+   190→  } catch (err: unknown) {
+   191→    logger.warn(`[webhook] Failed to send notification: ${String(err)}`)
+   192→    // Never throw
+   193→  }
+   194→}
+   195→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01SFCBYDwxTe9XFQtJGHJBeX Read output=1→/** 2→ * Session list page: tabular index of all imported transcripts, with client tab filtering. 3→ */ 4→ 5→import type { ManifestEntry } from &#39;../../types/transcript.js&#39; 6→i..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01SFCBYDwxTe9XFQtJGHJBeX</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Session list page: tabular index of all imported transcripts, with client tab filtering. 3→ */ 4→ 5→import type { ManifestEntry } from &#39;../../types/transcript.js&#39; 6→i...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Session list page: tabular index of all imported transcripts, with client tab filtering.
+     3→ */
+     4→
+     5→import type { ManifestEntry } from &#39;../../types/transcript.js&#39;
+     6→import type { Translations } from &#39;../i18n/types.js&#39;
+     7→import { clientBadge, escHtml, htmlShell, renderNav, transcriptUrlFromRoot } from &#39;./layout.js&#39;
+     8→
+     9→// ---------------------------------------------------------------------------
+    10→// Transcript list
+    11→// ---------------------------------------------------------------------------
+    12→
+    13→export function renderTranscriptList(manifests: ManifestEntry[], t?: Translations, summaries?: Record&lt;string, string&gt;): string {
+    14→  const nav = renderNav(&#39;transcripts&#39;, 1, t)
+    15→
+    16→  const sorted = [...manifests].sort((a, b) =&gt; b.started_at.localeCompare(a.started_at))
+    17→
+    18→  const title = t?.sessions.title ?? &#39;Sessions&#39;
+    19→  const clientLabel = t?.sessions.client ?? &#39;Client&#39;
+    20→  const dateLabel = t?.sessions.date ?? &#39;Date&#39;
+    21→  const idLabel = t?.sessions.id ?? &#39;ID&#39;
+    22→  const msgsLabel = t?.sessions.msgs ?? &#39;Msgs&#39;
+    23→  const toolsLabel = t?.sessions.tools ?? &#39;Tools&#39;
+    24→  const allLabel = t?.sessions.all ?? &#39;All&#39;
+    25→
+    26→  if (sorted.length === 0) {
+    27→    const content = `&lt;div class=&quot;page-header&quot;&gt;
+    28→  &lt;h1&gt;${escHtml(title)}&lt;/h1&gt;
+    29→  &lt;p class=&quot;subtitle&quot;&gt;${escHtml(t?.sessions.noSessions ?? &#39;No sessions imported yet.&#39;)}&lt;/p&gt;
+    30→&lt;/div&gt;`
+    31→    return htmlShell(title, content, nav)
+    32→  }
+    33→
+    34→  // Collect unique clients
+    35→  const clientSet = new Set&lt;string&gt;()
+    36→  for (const m of sorted) clientSet.add(m.client)
+    37→  const clients = [...clientSet].sort()
+    38→
+    39→  // Tab bar
+    40→  const tabBar = renderTabBar(allLabel, clients, sorted)
+    41→
+    42→  const rows = sorted
+    43→    .map(m =&gt; {
+    44→      const url = transcriptHref(m)
+    45→      const date = m.started_at.slice(0, 10)
+    46→      const time = m.started_at.slice(11, 16)
+    47→      const badge = clientBadge(m.client)
+    48→      const summary = summaries?.[m.session_id] ?? &#39;&#39;
+    49→      const meta = `${escHtml(m.client)} · ${escHtml(date)} · ${m.message_count} msgs`
+    50→      return `&lt;tr data-client=&quot;${escHtml(m.client)}&quot;&gt;
+    51→  &lt;td&gt;${badge}&lt;/td&gt;
+    52→  &lt;td&gt;&lt;a href=&quot;${escHtml(url)}&quot; data-summary=&quot;${escHtml(summary)}&quot; data-meta=&quot;${escHtml(meta)}&quot;&gt;${escHtml(m.title || m.session_id)}&lt;/a&gt;&lt;/td&gt;
+    53→  &lt;td style=&quot;color:var(--text-muted)&quot;&gt;${escHtml(date)} ${escHtml(time)}&lt;/td&gt;
+    54→  &lt;td style=&quot;color:var(--text-muted);font-family:var(--font-mono);font-size:0.8rem&quot;&gt;${escHtml(m.session_id.slice(0, 8))}&lt;/td&gt;
+    55→  &lt;td style=&quot;text-align:right;color:var(--text-muted)&quot;&gt;${m.message_count}&lt;/td&gt;
+    56→  &lt;td style=&quot;text-align:right;color:var(--text-muted)&quot;&gt;${m.tool_event_count}&lt;/td&gt;
+    57→&lt;/tr&gt;`
+    58→    })
+    59→    .join(&#39;&#39;)
+    60→
+    61→  const filterJs = `&lt;script&gt;
+    62→(function() {
+    63→  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    64→    var tabs = document.querySelectorAll(&#39;.tab-btn&#39;);
+    65→    var rows = document.querySelectorAll(&#39;tr[data-client]&#39;);
+    66→    tabs.forEach(function(btn) {
+    67→      btn.addEventListener(&#39;click&#39;, function() {
+    68→        tabs.forEach(function(b) { b.classList.remove(&#39;active&#39;); });
+    69→        btn.classList.add(&#39;active&#39;);
+    70→        var filter = btn.getAttribute(&#39;data-filter&#39;);
+    71→        rows.forEach(function(row) {
+    72→          if (!filter || row.getAttribute(&#39;data-client&#39;) === filter) {
+    73→            row.style.display = &#39;&#39;;
+    74→          } else {
+    75→            row.style.display = &#39;none&#39;;
+    76→          }
+    77→        });
+    78→      });
+    79→    });
+    80→  });
+    81→})();
+    82→&lt;/script&gt;`
+    83→
+    84→  const content = `&lt;div class=&quot;page-header&quot;&gt;
+    85→  &lt;h1&gt;${escHtml(title)}&lt;/h1&gt;
+    86→  &lt;p class=&quot;subtitle&quot;&gt;${sorted.length} session(s) imported&lt;/p&gt;
+    87→&lt;/div&gt;
+    88→${tabBar}
+    89→&lt;div class=&quot;card&quot; style=&quot;padding:0;overflow:hidden&quot;&gt;
+    90→&lt;table&gt;
+    91→&lt;thead&gt;&lt;tr&gt;
+    92→  &lt;th&gt;${escHtml(clientLabel)}&lt;/th&gt;
+    93→  &lt;th&gt;Title&lt;/th&gt;
+    94→  &lt;th&gt;${escHtml(dateLabel)}&lt;/th&gt;
+    95→  &lt;th&gt;${escHtml(idLabel)}&lt;/th&gt;
+    96→  &lt;th style=&quot;text-align:right&quot;&gt;${escHtml(msgsLabel)}&lt;/th&gt;
+    97→  &lt;th style=&quot;text-align:right&quot;&gt;${escHtml(toolsLabel)}&lt;/th&gt;
+    98→&lt;/tr&gt;&lt;/thead&gt;
+    99→&lt;tbody&gt;${rows}&lt;/tbody&gt;
+   100→&lt;/table&gt;
+   101→&lt;/div&gt;`
+   102→
+   103→  return htmlShell(title, content, nav, filterJs)
+   104→}
+   105→
+   106→// ---------------------------------------------------------------------------
+   107→// Tab bar
+   108→// ---------------------------------------------------------------------------
+   109→
+   110→function renderTabBar(allLabel: string, clients: string[], manifests: ManifestEntry[]): string {
+   111→  const total = manifests.length
+   112→  const tabs = [
+   113→    `&lt;button class=&quot;tab-btn active&quot; data-filter=&quot;&quot; type=&quot;button&quot;&gt;${escHtml(allLabel)} (${total})&lt;/button&gt;`,
+   114→    ...clients.map(client =&gt; {
+   115→      const count = manifests.filter(m =&gt; m.client === client).length
+   116→      return `&lt;button class=&quot;tab-btn&quot; data-filter=&quot;${escHtml(client)}&quot; type=&quot;button&quot;&gt;${escHtml(client)} (${count})&lt;/button&gt;`
+   117→    }),
+   118→  ]
+   119→  return `&lt;div class=&quot;tab-bar&quot;&gt;${tabs.join(&#39;&#39;)}&lt;/div&gt;`
+   120→}
+   121→
+   122→// ---------------------------------------------------------------------------
+   123→// Helper
+   124→// ---------------------------------------------------------------------------
+   125→
+   126→function transcriptHref(m: ManifestEntry): string {
+   127→  // From transcripts/index.html, the URL is relative to the transcripts/ dir
+   128→  // so we only need {client}/{stem}.html (no leading &quot;transcripts/&quot;)
+   129→  return transcriptUrlFromRoot(m).replace(/^transcripts\//, &#39;&#39;)
+   130→}
+   131→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01GpDjnXRjaNaL5UqEqarDrs Read output=1→import { describe, it, expect, beforeEach, afterEach, vi } from &#39;vitest&#39; 2→import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from &#39;node:fs&#39; 3→..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01GpDjnXRjaNaL5UqEqarDrs</span>
+      
+      <span class="timeline-time">14:13:54</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { describe, it, expect, beforeEach, afterEach, vi } from &#39;vitest&#39; 2→import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from &#39;node:fs&#39; 3→...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { describe, it, expect, beforeEach, afterEach, vi } from &#39;vitest&#39;
+     2→import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from &#39;node:fs&#39;
+     3→import { join } from &#39;node:path&#39;
+     4→import { tmpdir } from &#39;node:os&#39;
+     5→
+     6→// Mock child_process.execFileSync so no actual git commands run
+     7→vi.mock(&#39;node:child_process&#39;, () =&gt; ({
+     8→  execFileSync: vi.fn().mockReturnValue(Buffer.from(&#39;&#39;)),
+     9→}))
+    10→
+    11→// Mock getLogger to avoid needing full setup
+    12→vi.mock(&#39;../../../src/heartbeat/log.js&#39;, () =&gt; ({
+    13→  getLogger: () =&gt; ({
+    14→    info: vi.fn(),
+    15→    warn: vi.fn(),
+    16→    debug: vi.fn(),
+    17→    error: vi.fn(),
+    18→  }),
+    19→}))
+    20→
+    21→import { deployGithubPages } from &#39;../../../src/report/deploy/github-pages.js&#39;
+    22→import { execFileSync } from &#39;node:child_process&#39;
+    23→
+    24→// ---------------------------------------------------------------------------
+    25→// Setup / Teardown
+    26→// ---------------------------------------------------------------------------
+    27→
+    28→let tmpDir: string
+    29→
+    30→beforeEach(() =&gt; {
+    31→  tmpDir = mkdtempSync(join(tmpdir(), &#39;ghpages-test-&#39;))
+    32→  vi.clearAllMocks()
+    33→})
+    34→
+    35→afterEach(() =&gt; {
+    36→  rmSync(tmpDir, { recursive: true, force: true })
+    37→})
+    38→
+    39→// ---------------------------------------------------------------------------
+    40→// CNAME file generation
+    41→// ---------------------------------------------------------------------------
+    42→
+    43→describe(&#39;CNAME file&#39;, () =&gt; {
+    44→  it(&#39;writes CNAME when cname is set&#39;, async () =&gt; {
+    45→    mkdirSync(join(tmpDir, &#39;output&#39;), { recursive: true })
+    46→    // Make execFileSync throw on ls-remote so branch is treated as non-existent
+    47→    const mockExec = vi.mocked(execFileSync)
+    48→    mockExec.mockImplementationOnce(() =&gt; { throw new Error(&#39;ls-remote failed&#39;) })
+    49→    // Other calls succeed (worktree add, commit, push, subtree push, etc.)
+    50→    mockExec.mockReturnValue(Buffer.from(&#39;&#39;))
+    51→
+    52→    await deployGithubPages({
+    53→      repoRoot: tmpDir,
+    54→      outputDir: join(tmpDir, &#39;output&#39;),
+    55→      branch: &#39;gh-pages&#39;,
+    56→      cname: &#39;memory.example.com&#39;,
+    57→    })
+    58→
+    59→    const cnamePath = join(tmpDir, &#39;output&#39;, &#39;CNAME&#39;)
+    60→    expect(existsSync(cnamePath)).toBe(true)
+    61→    expect(readFileSync(cnamePath, &#39;utf-8&#39;).trim()).toBe(&#39;memory.example.com&#39;)
+    62→  })
+    63→
+    64→  it(&#39;skips CNAME when cname is empty string&#39;, async () =&gt; {
+    65→    mkdirSync(join(tmpDir, &#39;output&#39;), { recursive: true })
+    66→    vi.mocked(execFileSync).mockReturnValue(Buffer.from(&#39;&#39;))
+    67→
+    68→    await deployGithubPages({
+    69→      repoRoot: tmpDir,
+    70→      outputDir: join(tmpDir, &#39;output&#39;),
+    71→      branch: &#39;gh-pages&#39;,
+    72→      cname: &#39;&#39;,
+    73→    })
+    74→
+    75→    const cnamePath = join(tmpDir, &#39;output&#39;, &#39;CNAME&#39;)
+    76→    expect(existsSync(cnamePath)).toBe(false)
+    77→  })
+    78→})
+    79→
+    80→// ---------------------------------------------------------------------------
+    81→// Branch name validation
+    82→// ---------------------------------------------------------------------------
+    83→
+    84→describe(&#39;branch name validation&#39;, () =&gt; {
+    85→  it(&#39;skips deploy for branch with shell meta-chars&#39;, async () =&gt; {
+    86→    await deployGithubPages({
+    87→      repoRoot: tmpDir,
+    88→      outputDir: tmpDir,
+    89→      branch: &#39;gh-pages; rm -rf /&#39;,
+    90→      cname: &#39;&#39;,
+    91→    })
+    92→    expect(execFileSync).not.toHaveBeenCalled()
+    93→  })
+    94→})
+    95→
+    96→// ---------------------------------------------------------------------------
+    97→// Skip deploy when branch is empty
+    98→// ---------------------------------------------------------------------------
+    99→
+   100→describe(&#39;skip when branch is empty&#39;, () =&gt; {
+   101→  it(&#39;does nothing when branch is empty string&#39;, async () =&gt; {
+   102→    await deployGithubPages({
+   103→      repoRoot: tmpDir,
+   104→      outputDir: tmpDir,
+   105→      branch: &#39;&#39;,
+   106→      cname: &#39;&#39;,
+   107→    })
+   108→    expect(execFileSync).not.toHaveBeenCalled()
+   109→  })
+   110→})
+   111→
+   112→// ---------------------------------------------------------------------------
+   113→// git subtree push command
+   114→// ---------------------------------------------------------------------------
+   115→
+   116→describe(&#39;git subtree push&#39;, () =&gt; {
+   117→  it(&#39;calls git subtree push with correct branch&#39;, async () =&gt; {
+   118→    mkdirSync(join(tmpDir, &#39;output&#39;), { recursive: true })
+   119→    const mockExec = vi.mocked(execFileSync)
+   120→    // ls-remote succeeds (branch exists)
+   121→    mockExec.mockReturnValue(Buffer.from(&#39;refs/heads/gh-pages&#39;))
+   122→
+   123→    await deployGithubPages({
+   124→      repoRoot: tmpDir,
+   125→      outputDir: join(tmpDir, &#39;output&#39;),
+   126→      branch: &#39;gh-pages&#39;,
+   127→      cname: &#39;&#39;,
+   128→    })
+   129→
+   130→    // execFileSync is called as: execFileSync(&#39;git&#39;, [...args], opts)
+   131→    // c[0] = &#39;git&#39;, c[1] = args array
+   132→    const calls = mockExec.mock.calls
+   133→    const subtreeCall = calls.find(c =&gt; {
+   134→      const args = c[1] as string[] | undefined
+   135→      return Array.isArray(args) &amp;&amp; args.includes(&#39;subtree&#39;) &amp;&amp; args.includes(&#39;push&#39;)
+   136→    })
+   137→    expect(subtreeCall).toBeTruthy()
+   138→    const args = subtreeCall![1] as string[]
+   139→    expect(args).toContain(&#39;gh-pages&#39;)
+   140→  })
+   141→})
+   142→
+   143→// ---------------------------------------------------------------------------
+   144→// Failure handling
+   145→// ---------------------------------------------------------------------------
+   146→
+   147→describe(&#39;failure handling&#39;, () =&gt; {
+   148→  it(&#39;does not throw when git commands fail&#39;, async () =&gt; {
+   149→    vi.mocked(execFileSync).mockImplementation(() =&gt; { throw new Error(&#39;git failure&#39;) })
+   150→
+   151→    await expect(
+   152→      deployGithubPages({
+   153→        repoRoot: tmpDir,
+   154→        outputDir: tmpDir,
+   155→        branch: &#39;gh-pages&#39;,
+   156→        cname: &#39;&#39;,
+   157→      })
+   158→    ).resolves.not.toThrow()
+   159→  })
+   160→})
+   161→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me also check some related type definitions and configuration to better understand the context:" id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#19</span>
+      
+      <span class="timeline-time">14:13:58</span>
+    </div>
+    <div class="message-body"><p>Now let me also check some related type definitions and configuration to better understand the context:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_019m7BRirLyrWNQDdGevYcUk Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/types/report.ts&quot;}" id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#20</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019m7BRirLyrWNQDdGevYcUk</span>
+      <span class="timeline-time">14:13:59</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/types/report.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/types/report.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01NdwBF9CQVWoK1e85wV9qvh Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/types/transcript.ts&quot;}" id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01NdwBF9CQVWoK1e85wV9qvh</span>
+      <span class="timeline-time">14:13:59</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/types/transcript.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;C:/Users/ai/.codex/skills/memorytree-workflow/src/types/transcript.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_01MezhafEra44MctryhgCwWn Bash input={&quot;command&quot;:&quot;find \&quot;C:/Users/ai/.codex/skills/memorytree-workflow\&quot; -type f -name \&quot;tsconfig.json\&quot; -o -name \&quot;.eslintrc*\&quot; | head -5&quot;}" id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01MezhafEra44MctryhgCwWn</span>
+      <span class="timeline-time">14:13:59</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;C:/Users/ai/.codex/skills/memorytree-workflow\&quot; -type f -name \&quot;tsconfig.json\&quot; -o -name \&quot;.eslintrc*\&quot; | head -5&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;C:/Users/ai/.codex/skills/memorytree-workflow\&quot; -type f -name \&quot;tsconfig.json\&quot; -o -name \&quot;.eslintrc*\&quot; | head -5&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_019m7BRirLyrWNQDdGevYcUk Read output=1→/** 2→ * Type definitions for the report generation subsystem. 3→ */ 4→ 5→export interface ReportStats { 6→ totalSessions: number 7→ totalMessages: number 8→ totalToolEvents: ..." id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019m7BRirLyrWNQDdGevYcUk</span>
+      
+      <span class="timeline-time">14:13:59</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Type definitions for the report generation subsystem. 3→ */ 4→ 5→export interface ReportStats { 6→ totalSessions: number 7→ totalMessages: number 8→ totalToolEvents: ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Type definitions for the report generation subsystem.
+     3→ */
+     4→
+     5→export interface ReportStats {
+     6→  totalSessions: number
+     7→  totalMessages: number
+     8→  totalToolEvents: number
+     9→  activeDays: number
+    10→  dateRange: { from: string; to: string }
+    11→  clientCounts: Record&lt;string, number&gt;
+    12→  /** &#39;YYYY-MM-DD&#39; → session count */
+    13→  dayBuckets: Record&lt;string, number&gt;
+    14→  /** &#39;YYYY-WNN&#39; → message count */
+    15→  weekBuckets: Record&lt;string, number&gt;
+    16→  /** tool name → invocation count */
+    17→  toolCounts: Record&lt;string, number&gt;
+    18→}
+    19→
+    20→export interface SummaryCache {
+    21→  sha256: string
+    22→  summary: string
+    23→  generated_at: string
+    24→}
+    25→
+    26→export interface LinkGraph {
+    27→  /** session_id → list of session_ids that reference it */
+    28→  backlinks: Record&lt;string, string[]&gt;
+    29→  /** session_id → list of session_ids it references */
+    30→  forwardLinks: Record&lt;string, string[]&gt;
+    31→}
+    32→
+    33→export interface SearchIndexEntry {
+    34→  url: string
+    35→  title: string
+    36→  client: string
+    37→  date: string
+    38→  snippet: string
+    39→}
+    40→
+    41→export interface BuildReportOptions {
+    42→  root: string
+    43→  output: string
+    44→  noAi?: boolean
+    45→  model?: string
+    46→  /** Build-time locale (e.g. &#39;en&#39;, &#39;zh-CN&#39;). Default: &#39;en&#39;. */
+    47→  locale?: string
+    48→  /** gh-pages branch name. Empty string = skip deploy. Default: &#39;&#39;. */
+    49→  ghPagesBranch?: string
+    50→  /** Custom domain for CNAME file. Empty string = skip. Default: &#39;&#39;. */
+    51→  cname?: string
+    52→  /** Webhook URL for post-build notifications. Empty string = skip. Default: &#39;&#39;. */
+    53→  webhookUrl?: string
+    54→  /** Session IDs newly imported in this heartbeat cycle (for webhook). */
+    55→  newSessionIds?: string[]
+    56→}
+    57→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01NdwBF9CQVWoK1e85wV9qvh Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; 5→ 6→export interface Tran..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01NdwBF9CQVWoK1e85wV9qvh</span>
+      
+      <span class="timeline-time">14:13:59</span>
+    </div>
+    <div class="timeline-title">Read output=1→// Types — ParsedTranscript, Message, ToolEvent interfaces 2→// To be implemented in Phase 1 3→ 4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39; 5→ 6→export interface Tran...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→// Types — ParsedTranscript, Message, ToolEvent interfaces
+     2→// To be implemented in Phase 1
+     3→
+     4→export type Client = &#39;codex&#39; | &#39;claude&#39; | &#39;gemini&#39;
+     5→
+     6→export interface TranscriptMessage {
+     7→  role: string
+     8→  text: string
+     9→  timestamp: string | null
+    10→}
+    11→
+    12→export interface TranscriptToolEvent {
+    13→  summary: string
+    14→  timestamp: string | null
+    15→}
+    16→
+    17→export interface ParsedTranscript {
+    18→  client: Client
+    19→  session_id: string
+    20→  title: string
+    21→  started_at: string
+    22→  cwd: string
+    23→  branch: string
+    24→  messages: TranscriptMessage[]
+    25→  tool_events: TranscriptToolEvent[]
+    26→  source_path: string
+    27→}
+    28→
+    29→export interface ManifestEntry {
+    30→  client: string
+    31→  project: string
+    32→  session_id: string
+    33→  raw_sha256: string
+    34→  title: string
+    35→  started_at: string
+    36→  imported_at: string
+    37→  cwd: string
+    38→  branch: string
+    39→  raw_source_path: string
+    40→  raw_upload_permission: string
+    41→  global_raw_path: string
+    42→  global_clean_path: string
+    43→  global_manifest_path: string
+    44→  repo_raw_path: string
+    45→  repo_clean_path: string
+    46→  repo_manifest_path: string
+    47→  message_count: number
+    48→  tool_event_count: number
+    49→  cleaning_mode: string
+    50→  repo_mirror_enabled: boolean
+    51→}
+    52→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_01MezhafEra44MctryhgCwWn Bash output=C:/Users/ai/.codex/skills/memorytree-workflow/.eslintrc.cjs C:/Users/ai/.codex/skills/memorytree-workflow/node_modules/@anthropic-ai/sdk/src/tsconfig.json C:/Users/ai/.codex/ski..." id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01MezhafEra44MctryhgCwWn</span>
+      
+      <span class="timeline-time">14:14:00</span>
+    </div>
+    <div class="timeline-title">Bash output=C:/Users/ai/.codex/skills/memorytree-workflow/.eslintrc.cjs C:/Users/ai/.codex/skills/memorytree-workflow/node_modules/@anthropic-ai/sdk/src/tsconfig.json C:/Users/ai/.codex/ski...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>C:/Users/ai/.codex/skills/memorytree-workflow/.eslintrc.cjs
+C:/Users/ai/.codex/skills/memorytree-workflow/node_modules/@anthropic-ai/sdk/src/tsconfig.json
+C:/Users/ai/.codex/skills/memorytree-workflow/node_modules/ajv/scripts/.eslintrc.yml
+C:/Users/ai/.codex/skills/memorytree-workflow/node_modules/call-bind-apply-helpers/.eslintrc
+C:/Users/ai/.codex/skills/memorytree-workflow/node_modules/call-bind-apply-helpers/tsconfig.json</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check for any other related files to get a better understanding of test patterns and project structure:" id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#26</span>
+      
+      <span class="timeline-time">14:14:03</span>
+    </div>
+    <div class="message-body"><p>Now let me check for any other related files to get a better understanding of test patterns and project structure:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_019VAbuS1gxYfomLfVa66C8H Bash input={&quot;command&quot;:&quot;find \&quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests\&quot; -type f -name \&quot;*.test.ts\&quot; | wc -l&quot;}" id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#27</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_019VAbuS1gxYfomLfVa66C8H</span>
+      <span class="timeline-time">14:14:03</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;find \&quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests\&quot; -type f -name \&quot;*.test.ts\&quot; | wc -l&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;find \&quot;C:/Users/ai/.codex/skills/memorytree-workflow/tests\&quot; -type f -name \&quot;*.test.ts\&quot; | wc -l&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_019VAbuS1gxYfomLfVa66C8H Bash output=28" id="event-27">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#28</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_019VAbuS1gxYfomLfVa66C8H</span>
+      
+      <span class="timeline-time">14:14:03</span>
+    </div>
+    <div class="timeline-title">Bash output=28</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>28</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Perfect. Now I have all the information needed. Let me compile a comprehensive code review report. --- # 代码审查报告（第二轮） ## 文件清单 1. `github-pages.ts` (部署模块) 2. `webhook.ts` (通知模块) 3. `layout.ts` (HTML 模板) 4. `graph.ts` (图表渲染) 5. `transcript-list.ts` (会话列表) 6. `build.ts` (编排核心) 7. `github-pages.test.ts` (部署测试) 8. `webhook.test.ts` (通知测试) --- ## 详细问题列表 ### 架构设计问题 | 文件 | 行 | 严重性 | 问题描述 | 建议修复 | |------|-----|--..." id="event-28">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#29</span>
+      
+      <span class="timeline-time">14:14:53</span>
+    </div>
+    <p class="event-preview">Perfect. Now I have all the information needed. Let me compile a comprehensive code review report. --- # 代码审查报告（第二轮） ## 文件清单 1. `github-pages.ts` (部署模块) 2. `webhook.ts` (通知模块) 3. `layout.ts` (HTML 模板) 4. `graph.ts` (图...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Perfect. Now I have all the information needed. Let me compile a comprehensive code review report.</p><p>---</p><p># 代码审查报告（第二轮）</p><p>## 文件清单<br>1. <code>github-pages.ts</code> (部署模块)<br>2. <code>webhook.ts</code> (通知模块)<br>3. <code>layout.ts</code> (HTML 模板)<br>4. <code>graph.ts</code> (图表渲染)<br>5. <code>transcript-list.ts</code> (会话列表)<br>6. <code>build.ts</code> (编排核心)<br>7. <code>github-pages.test.ts</code> (部署测试)<br>8. <code>webhook.test.ts</code> (通知测试)</p><p>---</p><p>## 详细问题列表</p><p>### 架构设计问题</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>build.ts</code> | 45-229 | HIGH | 耦合度过高：buildReport 处理了太多职责（编排、读取、解析、渲染、部署）。应拆分为更小的函数模块 | 提取独立函数：orchestrateBuild()、loadAllData()、renderAllPages()、deployAndNotify()，每个职责单一 |<br>| <code>build.ts</code> | 81-136 | HIGH | 并发控制不当：summaryPromises 数组可能无限增长，没有并发限制。当 manifests 数量很大时会导致内存问题 | 使用 Semaphore（已在 summarize.ts 中实现）或 Promise.all() 的批处理方案，限制同时处理的 manifests 数量 |<br>| <code>webhook.ts</code> | 22-28 | MEDIUM | 字符串硬编码 URL 匹配容易出现 false positive。平台检测依赖字符串包含而不是 URL 结构化解析 | 改为解析 URL 后查询 hostname，或建立显式的平台 → URL pattern 映射表 |<br>| <code>layout.ts</code> | 43-121 | MEDIUM | 大量内联 JavaScript 代码（79 行），增加维护复杂度。与 graph.ts 中的类似 JavaScript 片段重复问题 | 考虑提取为外部 .js 文件或建立 JS 代码片段库，避免重复 |</p><p>### 可维护性问题</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>graph.ts</code> | 12 | MEDIUM | 魔法数字 <code>MAX_NODES = 500</code> 没有说明原因。为什么是 500？内存/性能限制？ | 添加常量定义说明及注释：<code>// Limit to prevent canvas performance degradation</code>；考虑使其可配置 |<br>| <code>graph.ts</code> | 166-172 | MEDIUM | 模拟器参数都是魔法数字（ALPHA, CHARGE, LINK_DIST 等）。无注释说明这些参数的物理意义或调优依据 | 将参数提取为有意义的常量，添加物理或算法解释注释 |<br>| <code>webhook.ts</code> | 109-110 | MEDIUM | PRIVATE_HOSTNAME_RE 正则表达式复杂且容易出错。IPv6 匹配模式 <code>fc[0-9a-f]{2}:</code> 和 <code>fd[0-9a-f]{2}:</code> 不完整（缺少完整地址结构） | 使用更明确的正则或 IP 库（如 <code>ip-in-subnet</code>）；IPv6 FC00::/7 和 FD00::/8 需要完整检查 |<br>| <code>layout.ts</code> | 160 | LOW | themeLabel 是常量 <code>&#39;☀ Light&#39;</code>，但在 JavaScript 代码中又有类似逻辑。应统一这个值的定义 | 将主题标签常量化或从配置读取 |<br>| <code>transcript-list.ts</code> | 44-46 | LOW | 日期时间提取用魔法索引 <code>slice(0, 10)</code> 和 <code>slice(11, 16)</code>，假设 ISO 8601 格式 | 使用 <code>Date</code> 对象解析或添加注释说明格式依赖 |<br>| <code>build.ts</code> | 39 | LOW | DEFAULT_MODEL 硬编码为 &#39;claude-haiku-4-5-20251001&#39;，应配置化或从 options 继承 | 从 BuildReportOptions 添加 defaultModel 字段，或从环境变量读取 |</p><p>### 性能问题</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>build.ts</code> | 113-136 | HIGH | 闭包捕获 <code>manifest</code> 和 <code>msgs</code> 导致不必要的内存持有。即使 Promise 完成后这些数据也未立即释放 | 使用 IIFE 或立即调用的 async 函数，确保引用及时释放；考虑流式处理 |<br>| <code>graph.ts</code> | 35-86 | MEDIUM | <code>buildGraphData()</code> 使用 <code>Set&lt;string&gt;</code> 来去重，但每次调用都重新构建。如果频繁调用应考虑缓存 | 添加缓存层或 memoization；确认调用频率 |<br>| <code>graph.ts</code> | 186-226 | MEDIUM | JavaScript 中的物理模拟双重循环 O(n²) 计算斥力（line 192-202）。当 MAX_NODES = 500 时，每帧 ~250k 次计算，可能导致帧率下降 | 考虑使用四叉树或空间分割加速；或增加 ALPHA_MIN 来提前停止 |<br>| <code>webhook.ts</code> | 160-187 | MEDIUM | Promise 构造中混合使用 callback 和 Promise，未正确处理 backpressure。若 body 很大，write() 返回 false 时不处理 | 检查 req.write() 返回值，根据 false 时等待 drain 事件 |<br>| <code>build.ts</code> | 244-269 | LOW | <code>loadManifestsRecursive</code> 同步递归读取，深度目录可能阻塞事件循环 | 考虑使用异步版本或并发控制 |</p><p>### 测试质量问题</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>github-pages.test.ts</code> | 47-62 | HIGH | Mock 顺序不清晰：mockImplementationOnce → mockReturnValue，顺序依赖易出错。测试脆弱性高 | 使用 mockReturnValueOnce / mockImplementationOnce 序列，或显式设置每个 call 的返回值 |<br>| <code>webhook.test.ts</code> | 40-45 | MEDIUM | mockSuccess 函数有隐式行为：创建 mock response 对象但缺少必要字段（如 destroy() 方法），可能在实际调用时出现隐藏错误 | 完整定义 IncomingMessage 和 ClientRequest 的所有必要方法；使用 Partial 但补充注释 |<br>| <code>webhook.test.ts</code> | 206-212 | MEDIUM | 测试只验证 hostname，未验证 Content-Type、Content-Length 等关键请求头 | 添加测试验证所有关键请求头（Content-Type、Content-Length） |<br>| <code>github-pages.test.ts</code> | 117-140 | MEDIUM | 测试通过 mock.calls 数组的不稳定索引查找特定调用（line 133）。若其他测试修改 mock 结果，会导致索引混乱 | 使用 expect().toHaveBeenCalledWith() 直接验证参数，或为每个场景创建新的 mock 实例 |<br>| <code>github-pages.test.ts</code> | 44-62 | MEDIUM | 没有测试 worktree 创建和清理的边界情况（如 cleanup 失败、权限问题） | 添加测试：worktree 创建失败、清理失败时的恢复能力 |<br>| <code>webhook.test.ts</code> | 173-185 | LOW | Feishu payload 测试只验证 msg_type，未验证 card 结构完整性（card.header、card.elements） | 添加深层验证 Feishu card 对象结构 |<br>| <code>build.ts</code> | - | MEDIUM | 没有单元测试覆盖 parseMessagesFromMarkdown、extractToolSummariesFromRaw 等核心解析逻辑 | 添加解析边界情况的单元测试（空输入、畸形 markdown、JSONL 等） |</p><p>### 风格一致性问题</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>webhook.ts</code> | 132-142 | MEDIUM | 使用 <code>let parsedUrl: URL</code> 后立即尝试验证，但验证异常被捕获并返回，违反&quot;fail fast&quot;原则。应在参数进入函数前验证 | 重构为：参数验证 → 解析 → 处理，避免嵌套 try-catch |<br>| <code>layout.ts</code> | 15-22 | LOW | escHtml() 使用正则替换，但没有考虑 null/undefined 情况。虽然 TypeScript 签名要求 string，但防御性编程应检查 | 添加 <code>?? &#39;&#39;</code> 或 <code>toString()</code> 处理，即使 TS 保证也要添加注释 |<br>| <code>build.ts</code> | 257-259 | MEDIUM | JSON.parse() 没有 as 类型断言验证。假设 JSON 结构正确，但当 manifest 字段缺失时不会被发现 | 使用类型守卫函数验证 ManifestEntry 必需字段：<code>isValidManifest(parsed)</code> |<br>| <code>graph.ts</code> | 88-90 | LOW | slugify() 与 layout.ts 的 slugifyName() 重复。应提取到公共工具模块 | 将 slugify 移到 <code>utils/slugify.ts</code> 或 layout.ts，统一导出 |<br>| <code>transcript-list.ts</code> | 50-56 | MEDIUM | HTML 属性中混合 escHtml() 和无转义值。style 属性未转义，data-meta 属性内部有 HTML 实体但未编码 | 对所有属性值都使用 escHtml()；或使用模板库避免手动转义 |</p><p>### 类型安全问题</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>build.ts</code> | 367, 376-377 | HIGH | 使用 <code>as Record&lt;string, unknown&gt; | undefined</code> 进行类型断言，但未验证结构。<code>content2</code> 可能是 null/undefined，代码未守卫 | 添加类型守卫：<code>if (!Array.isArray(content2))</code> before accessing elements |<br>| <code>graph.ts</code> | 70 | MEDIUM | <code>transcriptUrlFromRoot(m)</code> 调用中，m 可能缺少必需字段导致返回错误 URL | 确保 ManifestEntry 类型有 repo_clean_path 和 global_clean_path 为可选但有默认 fallback |<br>| <code>webhook.ts</code> | 146-154 | LOW | Platform 类型中没有显式验证 detectPlatform 返回的平台在 payloadMap 中存在 | 使用 const assertion <code>as const</code> 和编译期检查或运行时 exhaustiveness check |</p><p>### 边界情况与错误处理</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>build.ts</code> | 107-108 | MEDIUM | 搜索片段截取前 300 个字符（slice(0, 300)），但多字节 UTF-8 字符可能被截断。未考虑字符长度 vs 字节长度 | 使用 grapheme splitter 或按字符计数，确保不截断多字节字符 |<br>| <code>github-pages.ts</code> | 58 | MEDIUM | worktree 路径中使用 Date.now() 生成唯一标识，但 tmpdir 可能被其他进程并发访问造成冲突 | 使用 crypto.randomUUID() 或 mkdtempSync 来创建唯一目录 |<br>| <code>webhook.ts</code> | 184 | MEDIUM | timeout 后调用 req.destroy()，但 req.end() 此时可能未调用。destroy 可能阻止 end 执行导致 body 未发送 | 重新安排事件顺序：先 write() → end()，timeout 仅在未完成时销毁 |<br>| <code>layout.ts</code> | 202-212 | LOW | transcriptUrlFromTranscript 假设调用者在 transcripts/{client}/ 目录中。如果从不同深度调用会生成错误 URL | 添加 depth 参数或在返回前验证 URL 相对性 |</p><p>### 安全问题</p><p>| 文件 | 行 | 严重性 | 问题描述 | 建议修复 |<br>|------|-----|--------|---------|----------|<br>| <code>webhook.ts</code> | 119-120 | MEDIUM | HTTPS 检查后未验证 URL 是否被重定向。302 重定向可能将请求引向 HTTP 或私有 IP | 禁用 HTTP redirect 或在 redirect 时重新验证 URL 安全性 |<br>| <code>layout.ts</code> | 71-120 | MEDIUM | 内联 JavaScript 代码直接操作 DOM，没有 CSP（内容安全策略）保护。如果 HTML 被 XSS 注入，JS 无防御 | 添加 CSP 头部；或将 JS 提取为外部文件并添加 nonce |<br>| <code>graph.ts</code> | 117-120 | MEDIUM | JSON.stringify() 的转义处理（replace /&lt;\//）不完整。仅处理了 &lt;/ 和 unicode 线分隔符，未处理其他 HTML 特殊序列 | 使用 JSON.stringify(data, (k, v) =&gt; escapeJsonString(v)) 或专用库 |</p><p>---</p><p>## 总体质量评估</p><p>### 强项<br>- <strong>模块职责分离</strong>：部署（github-pages）、通知（webhook）、渲染（layout、graph 等）模块划分清晰<br>- <strong>容错设计</strong>：大部分异步操作都包含 try-catch，无故障传播（never throw pattern）<br>- <strong>安全考量</strong>：webhook 有 SSRF 防护、URL 验证、branch 名称正则验证等<br>- <strong>测试覆盖</strong>：28 个测试文件，关键路径有测试</p><p>### 弱项<br>- <strong>耦合度</strong>：build.ts 超过 230 行，多项职责混合，难以单独测试<br>- <strong>并发控制</strong>：summaryPromises 数组可能无限增长，性能隐患<br>- <strong>代码重复</strong>：slugify、JavaScript 片段、URL 处理在多个文件中出现<br>- <strong>边界情况</strong>：字符串切片、JSONL 解析、worktree 清理等边界情况考虑不周<br>- <strong>类型安全</strong>：存在多个 <code>as Record&lt;string, unknown&gt;</code> 断言，缺少运行时验证<br>- <strong>文档</strong>：魔法数字（MAX_NODES、ALPHA 等）缺少注释说明</p><p>### 整体风格一致性评估<br>- <strong>ESM 导入</strong>：符合 NodeNext，所有导入都带 .js 扩展 ✓<br>- <strong>noUncheckedIndexedAccess</strong>：存在违规（build.ts 308, 333, 450）<br>- <strong>exactOptionalPropertyTypes</strong>：整体符合，但 PARTIAL 类型使用不一致</p><p>---</p><p>## 优先级修复清单</p><p>### 立即修复（CRITICAL）<br>1. <code>build.ts</code> 行 81-136：并发控制机制，防止 Promise 数组无限增长<br>2. <code>build.ts</code> 行 367、376：添加类型守卫检查，不使用未验证的 as 断言<br>3. <code>webhook.ts</code> 行 184：修复 timeout 和 end() 的事件顺序</p><p>### 近期修复（HIGH）<br>1. <code>build.ts</code> 行 45-229：拆分为更小的编排函数<br>2. <code>github-pages.test.ts</code> 行 47-62：修复 Mock 顺序依赖问题<br>3. <code>build.ts</code> 行 113-136：处理闭包内存泄漏</p><p>### 后续改进（MEDIUM）<br>1. 提取重复的 slugify 逻辑到公共工具模块<br>2. 提取内联 JavaScript 到外部文件<br>3. 将魔法数字转换为有注释的常量<br>4. 增强 parseMessagesFromMarkdown 和 extractToolSummariesFromRaw 的单元测试</p><p>---</p><p>最终评分：<strong>6.5/10</strong> — 核心功能完整且有基本安全考虑，但架构复杂度、性能隐患和测试覆盖面需要改进。建议在生产化前解决 CRITICAL 问题。</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

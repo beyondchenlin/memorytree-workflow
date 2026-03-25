@@ -1,0 +1,3354 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-aeb57c35c051c60b7 — MemoryTree</title>
+<meta property="og:title" content="agent-aeb57c35c051c60b7">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-aeb57c35c051c60b7</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>5</strong> Messages</span>
+      <span class="transcript-pill"><strong>22</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>27</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 03:14:21</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-aeb57c35c051c60b7</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">master</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\memorytree-workflow</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">f06029ec2a31054b...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">27</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">5</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">22</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>5</strong> dialog</span>
+    <span class="transcript-pill"><strong>22</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>5</strong> Messages</span>
+          <span class="transcript-pill"><strong>22</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>27 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user You are a specification compliance reviewer. The project at D:\demo1\memorytree-workflow has written detailed reference documentation (specs/contracts) for features that don&#39;t exist yet as code. Your job is to verify the specs are **internally consistent, complete enough to implement from, and don&#39;t have contradictions or ambiguities** that would block a developer. ## Your task Read all the spec documents and..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">03:14:21</span>
+    </div>
+    <p class="event-preview">You are a specification compliance reviewer. The project at D:\demo1\memorytree-workflow has written detailed reference documentation (specs/contracts) for features that don&#39;t exist yet as code. Your job is to verify ...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>You are a specification compliance reviewer. The project at D:\demo1\memorytree-workflow has written detailed reference documentation (specs/contracts) for features that don&#39;t exist yet as code. Your job is to verify the specs are <strong>internally consistent, complete enough to implement from, and don&#39;t have contradictions or ambiguities</strong> that would block a developer.</p><p>## Your task</p><p>Read all the spec documents and verify they form a coherent, implementable blueprint.</p><p>## Review checklist</p><p>1. <strong>heartbeat-scheduling.md completeness</strong>: Does it specify enough detail to implement <code>heartbeat.py</code> and <code>memorytree-daemon</code>? Check:<br>   - Is the execution flow precise enough? (What happens on errors? What&#39;s the retry policy?)<br>   - Is the lock mechanism specified? (File lock? Advisory? What happens on stale locks?)<br>   - Is the OS scheduler integration specified per platform? (cron syntax? launchd plist structure? schtasks command?)<br>   - Is the on-demand sync flow clear enough to implement?</p><p>2. <strong>global-configuration.md completeness</strong>: Check:<br>   - Is the config.toml schema complete? (What about validation rules? What happens with invalid values?)<br>   - Is the alerts.json lifecycle specified? (When are alerts created? When cleared? Max size?)<br>   - Is project auto-registration specified precisely? (What triggers it? What&#39;s stored? Dedup?)</p><p>3. <strong>transcript-archive.md session continuity</strong>: Check:<br>   - How does &quot;exclude current session&quot; work technically? (Session ID? PID? Timestamp threshold?)<br>   - How is &quot;current project&quot; matched across clients? (Path comparison? Normalized? Symlinks?)<br>   - What happens when no matching session is found?<br>   - What&#39;s the token budget for the continuation summary?</p><p>4. <strong>Cross-document contradictions</strong>: Check for conflicting statements between:<br>   - heartbeat-scheduling.md vs global-configuration.md (e.g., default values, directory paths)<br>   - heartbeat-scheduling.md vs git-policy.md (e.g., auto_push behavior, branch rules)<br>   - transcript-archive.md vs heartbeat-scheduling.md (e.g., which file is authoritative for the on-demand sync flow?)<br>   - SKILL.md vs reference docs (e.g., rule numbers, behavior descriptions)</p><p>5. <strong>Ambiguities that would block implementation</strong>:<br>   - Any &quot;TBD&quot; or vague requirements?<br>   - Any places where two reasonable interpretations exist?<br>   - Any spec that says &quot;should&quot; when it means &quot;must&quot;?</p><p>6. <strong>Test specifications</strong>: Does TODO.md&#39;s testing plan cover the critical paths? What&#39;s missing?</p><p>Read: TODO.md, SKILL.md, references/heartbeat-scheduling.md, references/global-configuration.md, references/transcript-archive.md, references/git-policy.md.</p><p>Report findings as:<br>- CRITICAL: Ambiguity or contradiction that blocks implementation<br>- HIGH: Spec gap that a developer would have to guess about<br>- MEDIUM: Underspecified but reasonable defaults exist<br>- LOW: Nitpick</p><p>Do NOT make any edits. Research only.</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll start by reading all the specified documents in parallel." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">03:14:25</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll start by reading all the specified documents in parallel.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01FrpWnZ42qnm5jB58jxkSGT Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\TODO.md&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01FrpWnZ42qnm5jB58jxkSGT</span>
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\TODO.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\TODO.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_014iBco4NTRRpPCPNaJjg85x Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\SKILL.md&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_014iBco4NTRRpPCPNaJjg85x</span>
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\SKILL.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\SKILL.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01F1erVieYKW2fk4X3q5AY5x Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\heartbeat-scheduling.md&quot;}" id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01F1erVieYKW2fk4X3q5AY5x</span>
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\heartbeat-scheduling.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\references\\heartbeat-scheduling.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01TqCSyQX9NgwHbHmpi9bfm8 Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\global-configuration.md&quot;}" id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01TqCSyQX9NgwHbHmpi9bfm8</span>
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\global-configuration.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\references\\global-configuration.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_014Z8gR2oiZHjreDhfM5L6z8 Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\transcript-archive.md&quot;}" id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_014Z8gR2oiZHjreDhfM5L6z8</span>
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\transcript-archive.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\references\\transcript-archive.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_012crazQPxbs6SJsuEXXapWs Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\git-policy.md&quot;}" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_012crazQPxbs6SJsuEXXapWs</span>
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references\\git-policy.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\references\\git-policy.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01FrpWnZ42qnm5jB58jxkSGT Read output=1→# memorytree-workflow Skill 开发待办 2→ 3→## 背景 4→ 5→本仓库是 MemoryTree 记忆系统的 Skill 实现，从 `beyondchenlin/memorytree` 独立拆出。 6→消费端项目（普通项目）通过安装此 Skill 获得记忆管理能力。 7→ 8→## 当前核心问题 9→ 10→大模型不..." id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#9</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01FrpWnZ42qnm5jB58jxkSGT</span>
+      
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read output=1→# memorytree-workflow Skill 开发待办 2→ 3→## 背景 4→ 5→本仓库是 MemoryTree 记忆系统的 Skill 实现，从 `beyondchenlin/memorytree` 独立拆出。 6→消费端项目（普通项目）通过安装此 Skill 获得记忆管理能力。 7→ 8→## 当前核心问题 9→ 10→大模型不...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# memorytree-workflow Skill 开发待办
+     2→
+     3→## 背景
+     4→
+     5→本仓库是 MemoryTree 记忆系统的 Skill 实现，从 `beyondchenlin/memorytree` 独立拆出。
+     6→消费端项目（普通项目）通过安装此 Skill 获得记忆管理能力。
+     7→
+     8→## 当前核心问题
+     9→
+    10→大模型不可靠 — 会忘记执行 chat_log 记录、transcript 导入等机械性流程。
+    11→需要把这些确定性工作交给后台进程，大模型只做轻量的摘要和状态更新。
+    12→
+    13→## 架构决策
+    14→
+    15→### 定时心跳（单次执行 + OS 调度，零 token 消耗）
+    16→- 全局单实例: 1 台电脑 = 1 个定时任务，扫描所有项目
+    17→- 定时扫描客户端 transcript 目录（~/.claude/projects/、~/.codex/sessions/、~/.gemini/）
+    18→- 每次执行: 扫描 → 增量导入 → 清洗 → git commit + push → 退出
+    19→- 心跳间隔可配置（默认 5 分钟）
+    20→- 运行方式: OS 原生定时任务（cron / launchd / Task Scheduler），tmux 仅用于开发调试
+    21→- Git 策略: **默认 auto_push = true**（记忆数据安全优先，防止本地丢失）
+    22→
+    23→### 大模型（对话时才介入，省 token）
+    24→- 只写当轮 chat_log 摘要（几行文字）
+    25→- 只更新 goal/todo 状态
+    26→- 不负责 transcript 导入、清洗、提交
+    27→
+    28→---
+    29→
+    30→## 待办任务（按优先级排序）
+    31→
+    32→### P0: 定时心跳 — 核心阻塞项
+    33→
+    34→&gt; 验收标准: 全局单实例 heartbeat，OS 定时任务驱动，自动发现新 transcript 并完成导入 + commit + push，无需人工介入。
+    35→
+    36→- [ ] **运行架构**: 单次执行 + OS 原生调度
+    37→  - 核心脚本 `heartbeat.py`: 跑一次扫描就退出（无状态、幂等）
+    38→  - OS 定时任务每 5 分钟调用一次
+    39→  - `memorytree-daemon install`: 自动检测 OS，注册定时任务
+    40→  - `memorytree-daemon run-once`: 手动执行一次（调试用）
+    41→  - `memorytree-daemon watch`: tmux 循环模式（开发调试用）
+    42→  - `memorytree-daemon uninstall`: 移除定时任务
+    43→- [ ] **首次安装触发**: Skill 激活时若 daemon 未注册，交互式询问用户配置偏好（间隔、auto_push、范围），确认后执行 install。询问方式必须兼容所有支持 Skill 的大模型（Claude Code、Codex、Gemini CLI），不依赖特定客户端的 UI 组件
+    44→- [ ] **实现 heartbeat 主逻辑**: 调用 `discover-transcripts.py` 扫描三个客户端目录
+    45→- [ ] **增量导入**: 发现新 transcript 时调用 `import-transcripts.py`
+    46→- [ ] **敏感信息预检**: 清洗阶段扫描常见敏感模式（API key、password、token），发现时标记警告写入日志（不自动删除，避免误伤）
+    47→- [ ] **自动 git 提交 + 推送**:
+    48→  - `git status --porcelain Memory/` → 无变动则跳过
+    49→  - 有变动 → `git add Memory/` → `git commit` → `git push`
+    50→  - **默认 auto_push = true**（记忆是用户资产，本地丢失不可恢复）
+    51→  - 首次安装时提示用户确认 push 行为，之后静默执行
+    52→  - 提交到当前分支（遵循项目已有的分支策略，不自动创建新分支）
+    53→- [ ] **git remote 前置检查**:
+    54→  - push 前检测 remote 是否存在
+    55→  - 无 remote → 跳过 push，记录到日志，下次 Skill 激活时提醒用户配置
+    56→- [ ] **配置文件** (`~/.memorytree/config.toml`，全局唯一):
+    57→  - 心跳间隔（默认 300s）
+    58→  - 监听目录列表（默认三个客户端目录）
+    59→  - 已注册项目列表（自动发现或手动添加）
+    60→  - auto_push 开关（默认 true）
+    61→  - log_level（默认 info）
+    62→- [ ] **运维能力**:
+    63→  - 日志输出到 `~/.memorytree/logs/heartbeat.log`（按日轮转）
+    64→  - 锁文件互斥（防止上一次还没跑完，下一次又启动）
+    65→  - push 失败时记录到日志，下次重试（网络中断不丢数据）
+    66→  - **错误通知**: 连续失败 N 次后，写入 `~/.memorytree/alerts.json`，下次 Skill 激活时展示给用户
+    67→- [ ] **测试用例**:
+    68→  - 单元测试: 配置加载、增量检测逻辑、锁文件互斥
+    69→  - 集成测试: 模拟新 transcript 出现 → 验证自动导入 + commit
+    70→
+    71→### P0.5: 跨会话上下文恢复 — 核心用户价值
+    72→
+    73→&gt; 验收标准: 用户在新会话中说&quot;看看最近的聊天&quot;，Skill 即时同步最新 transcript，定位本项目最近一次会话，输出延续摘要，用户可无缝继续上次未完成的工作。
+    74→
+    75→**场景**: 用户在会话 A 中讨论了很长时间但问题未解决，关闭后开新会话 B，不想重新描述所有背景。
+    76→
+    77→**覆盖范围**: 三个客户端（Claude Code、Codex、Gemini CLI），支持跨客户端上下文恢复。例如 Codex 会话 → Claude Code 新会话。
+    78→
+    79→- [ ] **即时同步路径**（不依赖心跳定时）:
+    80→  - 用户请求时立即扫描三个客户端的 transcript 目录
+    81→  - 增量导入到全局归档（`~/.memorytree/transcripts/`）和项目镜像（`Memory/06_transcripts/`）
+    82→  - 轻量级单项目同步，不需要全量扫描所有已注册项目
+    83→- [ ] **定位最近会话**:
+    84→  - 查询全局索引（`sessions.jsonl` / `search.sqlite`）
+    85→  - 过滤条件: `project = 当前目录` + `client IN (claude, codex, gemini)`
+    86→  - 按 timestamp 降序排列
+    87→  - 排除当前会话自身（避免把刚开始的会话 B 当成&quot;最近的聊天&quot;）
+    88→- [ ] **延续摘要生成**（消耗 model token，但价值远大于用户手动重述）:
+    89→  - 读取定位到的 transcript（优先 clean，精确确认查 raw）
+    90→  - 结合 `Memory/03_chat_logs/` 已有的会话日志补充上下文
+    91→  - 提取:
+    92→    - 在讨论什么问题？
+    93→    - 尝试了哪些方案？
+    94→    - 走到了哪一步？
+    95→    - 什么没有解决？最后卡在哪里？
+    96→  - 输出来源标注（客户端、时间、时长）
+    97→- [ ] **On Activation 主动检测**（可选增强）:
+    98→  - Skill 激活时自动检测是否有未同步的新 transcript 属于当前项目
+    99→  - 有则主动提示: &quot;发现你上次在这个项目有一个未完成的会话（Codex, 2h ago），要查看摘要吗？&quot;
+   100→  - 不等用户主动询问，降低使用门槛
+   101→- [ ] **扩展查询能力**（后续迭代）:
+   102→  - &quot;最近几次的聊天&quot;（不限于一次）
+   103→  - &quot;上次讨论部署的那次&quot;（按主题查找）
+   104→  - 跨项目查找: &quot;我在其他项目里讨论过这个问题吗？&quot;
+   105→
+   106→### 跨客户端兼容性原则
+   107→
+   108→&gt; 此原则适用于所有 P0–P3 任务中涉及交互提示的部分。
+   109→
+   110→MemoryTree Skill 可被 Claude Code、Codex、Gemini CLI 等多个 AI 助手加载。所有交互行为必须:
+   111→
+   112→1. **不依赖特定客户端的 UI 组件**: 不使用 Claude Code 独有的 AskUserQuestion 多选框等控件，只使用纯文本对话
+   113→2. **提示语言跟随用户/repo locale**: 不硬编码中英文
+   114→3. **用自然语言提问 + 等待用户回复**: 所有确认步骤都是&quot;提问 → 等待回答 → 行动&quot;，不依赖 button/checkbox
+   115→4. **AGENTS.md 模板中的规则必须是客户端无关的**: 不引用 Claude Code 专有概念（如 MCP、Skill tool 等）
+   116→5. **scripts 的 CLI 接口保持统一**: 无论被哪个客户端调用，参数和输出格式一致
+   117→
+   118→### P1: 代码质量 — 降低维护成本
+   119→
+   120→&gt; 验收标准: `_transcript_utils.py` 拆分为 ≤400 行的模块；CI 流水线自动运行测试。
+   121→
+   122→- [ ] **拆分 `_transcript_utils.py`**（当前 927 行，职责过重）:
+   123→  - `_transcript_parse.py` — 三客户端解析逻辑（Codex/Claude/Gemini）
+   124→  - `_transcript_import.py` — 导入、清洗、manifest 生成
+   125→  - `_transcript_index.py` — SQLite 索引操作
+   126→  - `_transcript_discover.py` — 文件发现、项目匹配
+   127→- [ ] **transcript 去重修复**:
+   128→  - 基于 `timestamp + role + content_hash` 三元组去重
+   129→  - 补充回归测试（构造含重复消息的 fixture）
+   130→- [ ] **CI 流水线** (GitHub Actions):
+   131→  - Python 3.10+ 矩阵测试（Linux/macOS/Windows）
+   132→  - 测试覆盖率报告（目标 ≥ 80%）
+   133→- [ ] **集成测试补充**:
+   134→  - init → upgrade → import 端到端流程
+   135→  - discover 批量扫描流程
+   136→
+   137→### P2: 大模型职责最小化 — 依赖 P0 完成
+   138→
+   139→&gt; 验收标准: SKILL.md 明确标注哪些工作由 heartbeat 负责；transcript 处理段落标记为&quot;大模型不执行&quot;。
+   140→
+   141→- [ ] **更新 SKILL.md On Activation 段**:
+   142→  - 明确大模型只负责: chat_log 摘要 + goal/todo 更新
+   143→  - 明确 heartbeat 负责: transcript 发现/导入/清洗/提交
+   144→- [ ] **添加定时任务状态检测**:
+   145→  - On Activation 时检测定时任务是否已注册（检查 crontab / launchd plist / schtasks）
+   146→  - 未注册则提示用户运行 `memorytree-daemon install`
+   147→  - 读取 `~/.memorytree/alerts.json`，展示累积的错误通知
+   148→
+   149→### P3: 分发与兼容 — 降低使用门槛
+   150→
+   151→&gt; 验收标准: 用户可通过 `pip install` 或 `uv add` 安装；跨平台路径正确。
+   152→
+   153→- [ ] **项目包化**:
+   154→  - 添加 `pyproject.toml`（含版本号、入口点、依赖声明）
+   155→  - CLI 入口: `memorytree-daemon install|uninstall|run-once|watch|status`
+   156→- [ ] **跨平台路径兼容**:
+   157→  - Windows: `%APPDATA%` / `%LOCALAPPDATA%` 路径适配
+   158→  - 测试矩阵覆盖 Windows/macOS/Linux
+   159→- [ ] **安装文档更新**:
+   160→  - pip install 方式
+   161→  - Claude Code skill 安装方式
+   162→  - 各平台定时任务注册说明（自动 install 失败时的手动方案）
+   163→
+   164→---
+   165→
+   166→## 任务依赖关系
+   167→
+   168→```
+   169→P1 (代码拆分) ─先做→ P0 (heartbeat 复用拆分后的模块)
+   170→P0 (heartbeat) ─先做→ P0.5 (上下文恢复，复用即时同步 + 全局索引)
+   171→P0 (heartbeat) ─先做→ P2 (职责最小化，需要 heartbeat 就绪)
+   172→P0 (heartbeat) ─先做→ P3 (打包需包含 heartbeat)
+   173→跨客户端兼容性原则 ─贯穿→ 所有交互设计
+   174→```
+   175→
+   176→建议执行顺序: **P1 拆分 → P0 heartbeat → P0.5 上下文恢复 → P2 职责更新 → P3 分发**
+   177→
+   178→---
+   179→
+   180→## 相关仓库
+   181→
+   182→- 消费端项目: `beyondchenlin/memorytree`（目标 v002 已创建）
+   183→- 本仓库: `beyondchenlin/memorytree-workflow`
+   184→
+   185→## 现有脚本（可复用）
+   186→
+   187→| 脚本 | 用途 |
+   188→|------|------|
+   189→| init-memorytree.py | 新项目初始化记忆目录结构 |
+   190→| upgrade-memorytree.py | 安全升级已有项目 |
+   191→| import-transcripts.py | 单文件 transcript 导入（raw → clean → manifest → SQLite） |
+   192→| discover-transcripts.py | 批量扫描三个客户端的 transcript |
+   193→| detect-memorytree-locale.py | 检测项目语言环境 |
+   194→
+   195→## 远期愿景: OpenMnemo
+   196→
+   197→以 Gitea 为底座的 SaaS 记忆平台，跨平台 AI 对话聚合 + 语义检索 + Git 版本管理。
+   198→项目名 OpenMnemo（来自希腊记忆女神 Mnemosyne），域名和 GitHub org 全线可用。
+   199→
+   200→预研课题（待独立为单独文档）:
+   201→- [ ] Gitea API 批量写入验证（POST /api/v1/repos/{owner}/{repo}/contents）
+   202→- [ ] 多租户仓库结构设计（每用户一个 Git 仓库）
+   203→- [ ] 语义检索方案: BM25 (SQLite FTS5) + 向量搜索
+   204→- [ ] 浏览器插件可行性: 从 ChatGPT/Claude/Gemini 网页版采集对话
+   205→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_014Z8gR2oiZHjreDhfM5L6z8 Read output=1→# Transcript Archive 2→ 3→Use this file when the user wants MemoryTree to preserve local AI chat history from Codex, Claude Code, or Gemini CLI. 4→ 5→## Goal 6→ 7→Keep a trust..." id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_014Z8gR2oiZHjreDhfM5L6z8</span>
+      
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Transcript Archive 2→ 3→Use this file when the user wants MemoryTree to preserve local AI chat history from Codex, Claude Code, or Gemini CLI. 4→ 5→## Goal 6→ 7→Keep a trust...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Transcript Archive
+     2→
+     3→Use this file when the user wants MemoryTree to preserve local AI chat history from Codex, Claude Code, or Gemini CLI.
+     4→
+     5→## Goal
+     6→
+     7→Keep a trustworthy transcript record by preserving the current project&#39;s transcript mirror and a synchronized global archive at the same time, without mixing unrelated projects into the current repository.
+     8→
+     9→## Core Rules
+    10→
+    11→1. Preserve raw transcripts unchanged as the source of truth.
+    12→2. Generate cleaned Markdown transcript indexes for discovery, lightweight review, and cross-project search.
+    13→3. Keep both the current repository mirror and the user-level global archive updated on every transcript import.
+    14→4. Keep the repository mirror scoped to the current project only. When batch discovery sees other projects, archive them in the global archive only.
+    15→5. If current-project ownership is ambiguous, treat the transcript as global-only until stronger evidence exists.
+    16→6. Ask once per repository whether raw transcript files may also be committed and pushed with MemoryTree.
+    17→7. Record that repository-specific answer in `AGENTS.md`.
+    18→8. If the answer is not an explicit yes, keep raw transcripts in the repository mirror but exclude them from automatic staging and push.
+    19→9. Use deterministic code for transcript cleaning. Do not spend model tokens to normalize transcript content when a parser script can do it.
+    20→
+    21→## Import Script
+    22→
+    23→Use `scripts/import-transcripts.py` for one known source file.
+    24→
+    25→The script must:
+    26→
+    27→1. Copy the raw transcript into the current repository mirror only when the source belongs to the current repository.
+    28→2. Copy the raw transcript into the global archive.
+    29→3. Generate the cleaned Markdown transcript in both places with deterministic code when the source matches the current repository, or in the global archive only when it does not.
+    30→4. Write manifests and update the global search index in the same operation.
+    31→5. Use a concurrency-safe global index, such as SQLite WAL mode, so multiple projects can update the global archive without corrupting it.
+    32→6. Refuse snapshot-only or otherwise content-empty sources instead of archiving empty transcript shells.
+    33→7. Treat missing or fuzzy project signals as not matched; do not mirror them into the repository on name similarity alone.
+    34→
+    35→## Discovery Script
+    36→
+    37→Use `scripts/discover-transcripts.py` when MemoryTree should scan the supported local client stores automatically.
+    38→
+    39→The script must:
+    40→
+    41→1. Discover supported transcript files from local Codex, Claude Code, and Gemini stores.
+    42→2. Mirror transcripts that belong to the current repository into both the repository and the global archive.
+    43→3. Backfill transcripts from unrelated projects into the global archive only.
+    44→4. Skip unreadable or malformed transcript files without aborting the full discovery run.
+    45→5. Skip snapshot-only or otherwise content-empty files instead of generating empty clean transcripts.
+    46→6. Keep deterministic cleaning, manifest generation, and global index updates in the same operation.
+    47→7. Support a current-project-only mode when the user wants to avoid global backfill during that run.
+    48→8. Keep ambiguous ownership cases out of the repository mirror unless path-level evidence confirms they belong to the current repo.
+    49→
+    50→## Global Archive Layout
+    51→
+    52→Recommended user-level layout:
+    53→
+    54→```text
+    55→~/.memorytree/transcripts/
+    56→  raw/
+    57→    codex/&lt;project&gt;/&lt;yyyy&gt;/&lt;mm&gt;/&lt;session-id&gt;.jsonl
+    58→    claude/&lt;project&gt;/&lt;yyyy&gt;/&lt;mm&gt;/&lt;session-id&gt;.jsonl
+    59→    gemini/&lt;project&gt;/&lt;yyyy&gt;/&lt;mm&gt;/&lt;session-id&gt;.json
+    60→  clean/
+    61→    codex/&lt;project&gt;/&lt;yyyy&gt;/&lt;mm&gt;/&lt;session-id&gt;.md
+    62→    claude/&lt;project&gt;/&lt;yyyy&gt;/&lt;mm&gt;/&lt;session-id&gt;.md
+    63→    gemini/&lt;project&gt;/&lt;yyyy&gt;/&lt;mm&gt;/&lt;session-id&gt;.md
+    64→  index/
+    65→    sessions.jsonl
+    66→    search.sqlite
+    67→```
+    68→
+    69→Path roots:
+    70→
+    71→- Windows: `%USERPROFILE%`
+    72→- macOS and Ubuntu: `$HOME`
+    73→
+    74→## Project Mirror Layout
+    75→
+    76→Inside a repository, keep the current project&#39;s full mirror:
+    77→
+    78→```text
+    79→Memory/06_transcripts/
+    80→  clean/&lt;client&gt;/
+    81→  manifests/
+    82→  raw/&lt;client&gt;/
+    83→```
+    84→
+    85→Do not place other projects&#39; transcript mirrors inside the current repository.
+    86→
+    87→For the complete `~/.memorytree/` directory structure, see `references/global-configuration.md`.
+    88→
+    89→## Client Sources
+    90→
+    91→### Codex
+    92→
+    93→- Prefer full session files from `~/.codex/sessions/**/rollout-*.jsonl`.
+    94→- Use `~/.codex/session_index.jsonl` for session discovery when helpful.
+    95→- Treat `~/.codex/history.jsonl` as lightweight history, not the preferred full transcript source.
+    96→
+    97→### Claude Code
+    98→
+    99→- Prefer `transcript_path` when the client exposes it.
+   100→- Otherwise prefer `~/.claude/projects/&lt;project&gt;/*.jsonl`.
+   101→- Treat `~/.claude/history.jsonl` as lightweight history, not the preferred full transcript source.
+   102→- Remember that local transcript retention may be limited by the client&#39;s cleanup policy.
+   103→
+   104→### Gemini CLI
+   105→
+   106→- Gemini transcript import is supported, but availability depends on saved chats or enabled checkpointing.
+   107→- Prefer saved chat or resume-friendly sources first.
+   108→- If checkpointing is enabled, use the checkpoint history under `~/.gemini/tmp/&lt;project_hash&gt;/checkpoints` and related Git snapshots under `~/.gemini/history/&lt;project_hash&gt;`.
+   109→- If no saved chat or checkpoint source exists, report that no importable Gemini transcript is currently available.
+   110→
+   111→## Import Rules
+   112→
+   113→1. Store the raw source unchanged in the global archive, and in the current repository only when the transcript belongs to that repository.
+   114→2. Compute and record a content hash for the raw file.
+   115→3. Generate a cleaned Markdown file with deterministic code, not model-generated paraphrasing.
+   116→4. During batch discovery, mirror only current-project transcripts into the repository. Unrelated projects go to the global archive only.
+   117→5. Each cleaned Markdown file must include:
+   118→   - client
+   119→   - project
+   120→   - session id
+   121→   - start time
+   122→   - cwd or repo path when available
+   123→   - branch when available
+   124→   - raw source path
+   125→   - raw content hash
+   126→6. Keep user messages, assistant messages, and useful tool summaries in the cleaned transcript.
+   127→7. Drop or fold noisy events such as queue operations, repeated metadata, telemetry, and large low-signal tool dumps.
+   128→8. Never treat the cleaned transcript as stronger evidence than the raw transcript.
+   129→
+   130→## Search Rules
+   131→
+   132→When the user asks to search all memories or all chat history:
+   133→
+   134→1. Search `~/.memorytree/transcripts/index/search.sqlite` first for fast full-text lookup.
+   135→2. Use `sessions.jsonl` for session-level metadata filtering (client, project, date range).
+   136→3. Load the matching cleaned Markdown files for context. When exact wording matters, confirm against the raw transcript.
+   137→4. Combine transcript results with the active repository&#39;s `Memory/` files when answering.
+   138→5. If the search index does not exist, fall back to scanning the `clean/` directory directly.
+   139→
+   140→## Session Continuity
+   141→
+   142→When the user opens a new session and asks to see their most recent conversation, the skill provides cross-session context recovery:
+   143→
+   144→1. Trigger an on-demand sync: immediately scan all three client transcript directories for the current project, bypassing the scheduled heartbeat interval. See `references/heartbeat-scheduling.md`.
+   145→2. Query the global index with `project = current directory` and `client IN (claude, codex, gemini)`, sorted by timestamp descending.
+   146→3. Exclude the current session ID to avoid returning the session that just started.
+   147→4. Load the located transcript: prefer cleaned Markdown for readability, confirm against raw when exact wording matters.
+   148→5. Supplement with the latest `Memory/03_chat_logs/` entry if the previous session wrote a chat log summary.
+   149→6. Generate a continuation summary (consumes model tokens) that extracts: the problem under discussion, approaches tried, progress made, and what remains unresolved.
+   150→7. Include source metadata in the output: client name, session timestamp, approximate duration.
+   151→
+   152→This feature covers all three clients. A user who worked in Codex and then opens Claude Code can recover the Codex session context, and vice versa.
+   153→
+   154→## Git Rules
+   155→
+   156→1. Cleaned transcript indexes may be committed as MemoryTree-owned documentation for the current repository.
+   157→2. Raw transcript files stay in the current repository mirror regardless of upload approval.
+   158→3. Raw transcript files may be staged, committed, and pushed only after the user explicitly approved raw transcript uploads for that repository.
+   159→4. Even when raw transcript uploads are approved, keep the PR limited to the current repository&#39;s transcript mirror. Do not mix transcript files from unrelated projects.
+   160→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_012crazQPxbs6SJsuEXXapWs Read output=1→# Git Policy 2→ 3→MemoryTree must adapt to the host repository. It does not get to override it. 4→ 5→## Safe Defaults 6→ 7→- Do not mix MemoryTree-owned changes with product c..." id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_012crazQPxbs6SJsuEXXapWs</span>
+      
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Git Policy 2→ 3→MemoryTree must adapt to the host repository. It does not get to override it. 4→ 5→## Safe Defaults 6→ 7→- Do not mix MemoryTree-owned changes with product c...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Git Policy
+     2→
+     3→MemoryTree must adapt to the host repository. It does not get to override it.
+     4→
+     5→## Safe Defaults
+     6→
+     7→- Do not mix MemoryTree-owned changes with product code changes by default.
+     8→- Do not stage or push unrelated user work.
+     9→- Do not assume direct commits to protected branches are allowed.
+    10→- Do not bypass review, CI, E2E, or release controls.
+    11→- Keep raw transcript files in the current project&#39;s transcript mirror by default, but exclude them from automatic staging unless the user explicitly approved raw transcript uploads for the current repository.
+    12→- Do not mirror or stage transcript files from unrelated projects inside the current repository.
+    13→
+    14→## Policy Merge
+    15→
+    16→When the repo already has branch or PR rules:
+    17→
+    18→1. Keep the repo&#39;s stricter rule.
+    19→2. Treat MemoryTree as documentation and process support.
+    20→3. Only add MemoryTree-specific guidance that does not weaken repo controls.
+    21→
+    22→## MemoryTree-Owned Files
+    23→
+    24→Default whitelist:
+    25→
+    26→- `Memory/**`, except `Memory/06_transcripts/raw/**` until the user explicitly approved raw transcript uploads for this repository
+    27→- `AGENTS.md` only when the file is managed by MemoryTree or the user approved the merge
+    28→
+    29→If the diff includes files outside this whitelist, stop and ask before staging or pushing.
+    30→
+    31→## Default MemoryTree Flow
+    32→
+    33→Use this flow only for MemoryTree-only changes and only when the host repo does not forbid it:
+    34→
+    35→1. Stage only the MemoryTree-owned files created or updated by the skill.
+    36→2. Create or reuse a dedicated branch such as `memorytree/&lt;scope&gt;-&lt;yyyymmdd&gt;-&lt;slug&gt;`.
+    37→3. Use a MemoryTree-scoped commit title. Prefer `memorytree(&lt;scope&gt;): &lt;subject&gt;`, but if the host repo enforces a commit convention, use a compatible equivalent such as `docs(memorytree): &lt;subject&gt;`.
+    38→4. Push that dedicated branch if the repository allows the current actor to push.
+    39→5. Open a dedicated PR instead of merging directly into a protected branch.
+    40→6. Enable auto-merge only when the repository still enforces its required approvals and checks.
+    41→7. If transcript files are included, keep the PR scoped to one repository&#39;s transcript mirror only. Do not mix cross-project transcript archives into the same PR.
+    42→8. Keep the global transcript archive updated in the same import operation, but never stage or push that user-level global archive as part of a repo PR.
+    43→
+    44→## Auto Push
+    45→
+    46→When `auto_push = true` in `~/.memorytree/config.toml`:
+    47→
+    48→1. The heartbeat process pushes the current branch after each commit.
+    49→2. Before pushing, verify that a Git remote is configured. If no remote exists, skip the push and write an alert to `~/.memorytree/alerts.json`.
+    50→3. If a push fails (network, authentication, rejected by server), retry once. On second failure, write an alert and continue to the next project.
+    51→4. On the very first push for a newly registered project, confirm with the user that the remote and branch are correct.
+    52→5. Do not force-push. Use only fast-forward pushes.
+    53→
+    54→When `auto_push = false`:
+    55→
+    56→1. The heartbeat commits locally but does not push.
+    57→2. The user pushes manually or through the interactive skill session.
+    58→
+    59→Rationale: project memory is a user asset. Local-only storage risks data loss from hardware failure or accidental deletion. Automatic push to a remote provides a durable backup.
+    60→
+    61→## Commit Guidance
+    62→
+    63→- Keep the title concise and specific.
+    64→- Prefer scopes such as `agents`, `goals`, `todos`, `chat-logs`, `transcripts`, `knowledge`, `archive`, `policy`, or `bootstrap`.
+    65→- If a body is needed, keep it lightweight: reason, affected files, and whether the change is MemoryTree-only.
+    66→- If the host repo requires Conventional Commits or another enforced prefix, keep `memorytree` visible as the scope or memory tag rather than bypassing the repo rule.
+    67→
+    68→Example title:
+    69→
+    70→```text
+    71→memorytree(todos): sync active todo progress
+    72→```
+    73→
+    74→Host-compatible example:
+    75→
+    76→```text
+    77→docs(memorytree): sync active todo progress
+    78→```
+    79→
+    80→Example body:
+    81→
+    82→```text
+    83→Reason:
+    84→- align the active todo with confirmed progress
+    85→
+    86→Files:
+    87→- Memory/02_todos/todo_v001_003_20260314.md
+    88→- Memory/03_chat_logs/2026-03-14_09-30.md
+    89→
+    90→Notes:
+    91→- memorytree-only change
+    92→- no product code included
+    93→```
+    94→
+    95→## PR Guidance
+    96→
+    97→- Reuse the commit title as the PR title when it still describes the change accurately.
+    98→- Keep the PR scoped to MemoryTree-owned files only.
+    99→- State whether the PR is MemoryTree-only and whether auto-merge was enabled.
+   100→- State whether raw transcripts were included or intentionally left unstaged in the repo mirror.
+   101→- Follow the repository&#39;s required target branch, review policy, and CI gates.
+   102→
+   103→## Stop And Ask
+   104→
+   105→Stop and ask the user before committing, pushing, or opening a PR when any of these are true:
+   106→
+   107→1. The diff touches product code or files outside the MemoryTree whitelist.
+   108→2. `AGENTS.md` has user-managed policy content that cannot be safely merged automatically.
+   109→3. The target branch, base branch, or PR destination is unclear.
+   110→4. The repository forbids bot pushes, automated PRs, or auto-merge.
+   111→5. The repository&#39;s review or CI rules conflict with the default MemoryTree-only flow.
+   112→6. Raw transcript upload permission for the repository is unknown.
+   113→7. The diff includes raw transcripts or cleaned transcript indexes from other projects.
+   114→8. `auto_push` is enabled but the target branch is a protected branch that refuses direct pushes.
+   115→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01TqCSyQX9NgwHbHmpi9bfm8 Read output=1→# Global Configuration 2→ 3→Use this file when MemoryTree needs to read or write user-level configuration, state, or cross-project data outside any single repository. 4→ 5→&gt; *..." id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01TqCSyQX9NgwHbHmpi9bfm8</span>
+      
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Global Configuration 2→ 3→Use this file when MemoryTree needs to read or write user-level configuration, state, or cross-project data outside any single repository. 4→ 5→&gt; *...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Global Configuration
+     2→
+     3→Use this file when MemoryTree needs to read or write user-level configuration, state, or cross-project data outside any single repository.
+     4→
+     5→&gt; **Contract**: The `~/.memorytree/` directory and its contents are specifications for infrastructure that does not yet exist. The layout and schemas below define the intended structure.
+     6→
+     7→## Goal
+     8→
+     9→Provide a single user-level location for global state, configuration, and cross-project data so that heartbeat, daemon, and multi-project features have a shared, predictable root.
+    10→
+    11→## Directory Layout
+    12→
+    13→```text
+    14→~/.memorytree/
+    15→  config.toml              # User-level settings
+    16→  alerts.json              # Pending notifications for the next interactive session
+    17→  heartbeat.lock           # Single-instance lock for the heartbeat process
+    18→  logs/
+    19→    heartbeat-&lt;date&gt;.log   # Heartbeat execution logs, rotated by date
+    20→  transcripts/             # Global transcript archive (see references/transcript-archive.md)
+    21→    raw/
+    22→    clean/
+    23→    index/
+    24→      sessions.jsonl
+    25→      search.sqlite
+    26→```
+    27→
+    28→Path roots:
+    29→
+    30→- Windows: `%USERPROFILE%`
+    31→- macOS and Linux: `$HOME`
+    32→
+    33→## config.toml Schema
+    34→
+    35→| Field                | Type       | Default          | Description |
+    36→|----------------------|------------|------------------|-------------|
+    37→| `heartbeat_interval` | string     | `&quot;5m&quot;`           | Interval between heartbeat executions. Passed to the OS scheduler. |
+    38→| `watch_dirs`         | string[]   | `[]`             | Additional directories to scan for transcript sources beyond the default client stores. |
+    39→| `projects`           | table[]    | `[]`             | Registered project entries. Each entry has `path` (repo root) and optional `name`. |
+    40→| `auto_push`          | boolean    | `true`           | Whether the heartbeat pushes after committing. See `references/git-policy.md`. |
+    41→| `log_level`          | string     | `&quot;info&quot;`         | Log verbosity: `debug`, `info`, `warn`, `error`. |
+    42→
+    43→Projects are added automatically when the skill activates in a repository and can also be added manually.
+    44→
+    45→## alerts.json
+    46→
+    47→A JSON array of alert objects. Each object has:
+    48→
+    49→```json
+    50→{
+    51→  &quot;timestamp&quot;: &quot;2026-03-15T08:30:00Z&quot;,
+    52→  &quot;project&quot;: &quot;/path/to/repo&quot;,
+    53→  &quot;type&quot;: &quot;no_remote&quot;,
+    54→  &quot;message&quot;: &quot;Push skipped: no Git remote configured.&quot;,
+    55→  &quot;count&quot;: 1
+    56→}
+    57→```
+    58→
+    59→Alert types:
+    60→
+    61→| Type              | Trigger |
+    62→|-------------------|---------|
+    63→| `no_remote`       | Push skipped because the repository has no configured Git remote. |
+    64→| `sensitive_match` | A transcript contains a pattern that looks like a secret. |
+    65→| `push_failed`     | Push attempted but failed (network, auth, protected branch). |
+    66→| `lock_held`       | Heartbeat exited because another instance held the lock. |
+    67→
+    68→When the skill activates in an interactive session, it reads `alerts.json`, displays pending alerts to the user, and clears acknowledged entries.
+    69→
+    70→## Project Registration
+    71→
+    72→- **Automatic**: When the memorytree-workflow skill activates in a repository, it adds the repo to `config.toml` `projects` if not already present.
+    73→- **Manual**: The user can edit `config.toml` directly to add or remove projects.
+    74→- **Deregistration**: Removing a project entry stops the heartbeat from scanning it. Existing transcripts in the global archive are not deleted.
+    75→
+    76→## Stop And Ask
+    77→
+    78→Stop and ask the user before proceeding when any of these are true:
+    79→
+    80→1. `config.toml` does not exist and would be created for the first time. Confirm default values.
+    81→2. A project registration would add a path that does not look like a Git repository.
+    82→3. Changing `auto_push` from `false` to `true` would enable pushing for all registered projects.
+    83→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01F1erVieYKW2fk4X3q5AY5x Read output=1→# Heartbeat Scheduling 2→ 3→Use this file when MemoryTree needs to automate transcript import, cleaning, and push without human intervention or model tokens. 4→ 5→&gt; **Contract..." id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01F1erVieYKW2fk4X3q5AY5x</span>
+      
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read output=1→# Heartbeat Scheduling 2→ 3→Use this file when MemoryTree needs to automate transcript import, cleaning, and push without human intervention or model tokens. 4→ 5→&gt; **Contract...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→# Heartbeat Scheduling
+     2→
+     3→Use this file when MemoryTree needs to automate transcript import, cleaning, and push without human intervention or model tokens.
+     4→
+     5→&gt; **Contract**: `heartbeat.py` and `memorytree-daemon` are specifications for code that does not yet exist. The rules below define the intended behavior.
+     6→
+     7→## Goal
+     8→
+     9→Complete transcript discovery, import, cleaning, commit, and push without consuming model tokens or requiring human intervention.
+    10→
+    11→## Core Rules
+    12→
+    13→1. `heartbeat.py` executes once and exits. It is stateless and idempotent — safe to re-run at any interval.
+    14→2. The OS-native scheduler invokes `heartbeat.py` on a fixed interval. Use cron (Linux), launchd (macOS), or Task Scheduler (Windows).
+    15→3. One computer runs exactly one scheduled heartbeat task. Multiple registrations on the same machine are not supported.
+    16→4. Each execution scans all three supported client directories (Codex, Claude Code, Gemini CLI).
+    17→5. Each execution follows the sequence: scan → incremental import → clean → commit + push → exit.
+    18→6. The `memorytree-daemon watch` mode (continuous loop) exists only for development and debugging. Production use must rely on the OS scheduler.
+    19→
+    20→## Daemon CLI
+    21→
+    22→The `memorytree-daemon` command manages the heartbeat lifecycle:
+    23→
+    24→| Subcommand  | Description |
+    25→|-------------|-------------|
+    26→| `install`   | Register the heartbeat task with the OS scheduler at the configured interval. Refuses to overwrite an existing registration. |
+    27→| `uninstall` | Remove the heartbeat task from the OS scheduler. |
+    28→| `run-once`  | Execute a single heartbeat cycle immediately, then exit. |
+    29→| `watch`     | Run a continuous loop for development and debugging only. |
+    30→| `status`    | Show whether a heartbeat task is registered and its last execution result. |
+    31→
+    32→## Execution Flow
+    33→
+    34→1. Acquire `~/.memorytree/heartbeat.lock`. If the lock is held, exit immediately.
+    35→2. Load `~/.memorytree/config.toml`.
+    36→3. Iterate over registered projects in `config.toml`.
+    37→4. For each project: discover new transcripts → import → clean → commit.
+    38→5. If `auto_push = true` and a Git remote exists, push.
+    39→6. Release the lock and exit.
+    40→
+    41→## Sensitive Info Scanning
+    42→
+    43→During the cleaning step, scan each transcript for patterns that match API keys, passwords, tokens, and other secrets. When a match is found:
+    44→
+    45→- Log a warning with the file path and match location.
+    46→- Write an alert to `~/.memorytree/alerts.json`.
+    47→- Do **not** automatically delete or redact the content.
+    48→
+    49→The user reviews alerts and decides how to handle sensitive content.
+    50→
+    51→## Git Remote Pre-Check
+    52→
+    53→Before pushing, verify that the target repository has a configured Git remote:
+    54→
+    55→- If a remote exists, push the current branch.
+    56→- If no remote is configured, skip the push, log a warning, and write an alert to `~/.memorytree/alerts.json`.
+    57→
+    58→## First Install
+    59→
+    60→When the skill activates for the first time and `memorytree-daemon` is not registered, use an interactive prompt to configure the heartbeat before installing. Ask the user for:
+    61→
+    62→1. Heartbeat interval (default: 5 minutes).
+    63→2. Whether `auto_push` should be enabled (default: true).
+    64→3. Confirmation of the project scope (which directories to scan).
+    65→
+    66→After confirmation, run `memorytree-daemon install` with the chosen settings.
+    67→
+    68→The prompt must use plain-text questions and wait for the user&#39;s reply. Do not rely on client-specific UI components (buttons, checkboxes, multi-select widgets) — the same prompt must work in Claude Code, Codex, and Gemini CLI.
+    69→
+    70→Do not register the heartbeat task silently during initialization.
+    71→
+    72→## On-Demand Sync
+    73→
+    74→When the user asks to see their most recent conversation (e.g., &quot;look at my last chat&quot;), trigger an immediate sync instead of waiting for the next scheduled heartbeat:
+    75→
+    76→1. Scan all three client transcript directories for the current project.
+    77→2. Incrementally import any new transcripts into the global archive and project mirror.
+    78→3. Query the global index (`sessions.jsonl` / `search.sqlite`) with `project = current directory`, sorted by timestamp descending.
+    79→4. Exclude the current session to avoid returning the session that just started.
+    80→5. Load the matched transcript and generate a continuation summary using model tokens.
+    81→
+    82→The continuation summary should extract:
+    83→
+    84→- What problem was being discussed.
+    85→- What approaches were tried.
+    86→- How far the work progressed.
+    87→- What remains unresolved and where it got stuck.
+    88→
+    89→This path is distinct from the scheduled heartbeat: it is user-triggered, immediate, scoped to one project, and produces a model-generated summary. The scheduled heartbeat is background-only and never consumes model tokens.
+    90→
+    91→See `references/transcript-archive.md` for the session continuity search flow.
+    92→
+    93→## Stop And Ask
+    94→
+    95→Stop and ask the user before proceeding when any of these are true:
+    96→
+    97→1. The `install` subcommand would register a new OS-level scheduled task. Confirm the interval, auto_push preference, and scope first.
+    98→2. A push target has no configured Git remote.
+    99→3. An existing heartbeat registration would be overwritten by a new `install`.
+   100→
+   101→## Cross-Client Compatibility
+   102→
+   103→All interactive prompts in this skill (heartbeat install, configuration, on-demand sync confirmation) must work across every AI assistant that supports the skill:
+   104→
+   105→1. Use plain-text questions and wait for the user&#39;s text reply. Do not use client-specific UI components.
+   106→2. Follow the user&#39;s language or the repo locale for prompt text. Do not hardcode a single language.
+   107→3. Keep script CLI interfaces uniform regardless of which client invokes them.
+   108→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_014iBco4NTRRpPCPNaJjg85x Read output=1→--- 2→name: memorytree-workflow 3→description: Detect, initialize, and maintain a reusable MemoryTree project-memory workspace for any code repository. On activation, immediat..." id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_014iBco4NTRRpPCPNaJjg85x</span>
+      
+      <span class="timeline-time">03:14:27</span>
+    </div>
+    <div class="timeline-title">Read output=1→--- 2→name: memorytree-workflow 3→description: Detect, initialize, and maintain a reusable MemoryTree project-memory workspace for any code repository. On activation, immediat...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→---
+     2→name: memorytree-workflow
+     3→description: Detect, initialize, and maintain a reusable MemoryTree project-memory workspace for any code repository. On activation, immediately detect and report the repo&#39;s MemoryTree state.
+     4→---
+     5→
+     6→# MemoryTree
+     7→
+     8→Use this skill for repo-level project memory. Do not treat it as an application runtime feature unless the user explicitly asks to productize it.
+     9→
+    10→## On Activation
+    11→
+    12→When this skill is invoked, immediately perform these steps without waiting for further user input:
+    13→
+    14→1. Detect the repo state (`not-installed`, `partial`, or `installed`) using `references/project-detection.md`.
+    15→2. Check `~/.memorytree/alerts.json`. If pending alerts exist, display them to the user before proceeding.
+    16→3. If `not-installed`: run `scripts/init-memorytree.py` to scaffold the workspace, then report what was created.
+    17→4. If `partial`: run `scripts/upgrade-memorytree.py` to add missing pieces, then report what was added.
+    18→5. If `installed`: read the active goal, bound todo, and latest chat log. Report the current state (goal summary, todo progress, pending tasks) and ask the user what they want to work on next. If `memorytree-daemon` is available but not registered, ask the user for their preferred heartbeat interval, auto_push preference, and scope, then offer to run `memorytree-daemon install`. Use plain-text questions compatible with all AI assistants, not client-specific UI components.
+    19→
+    20→Do not stop after detection to ask whether you should proceed. Act on the result immediately.
+    21→
+    22→## Core Behavior
+    23→
+    24→1. Detect the repo state before changing files. Use `references/project-detection.md`.
+    25→2. If MemoryTree is missing, initialize it with `scripts/init-memorytree.py`. If the script cannot run, create the files from `assets/templates/`.
+    26→3. If MemoryTree is partial, upgrade it with `scripts/upgrade-memorytree.py` before manual maintenance.
+    27→4. If MemoryTree is already installed, maintain only the active goal, bound todo, and current chat log. Use `references/update-rules.md`.
+    28→5. Keep the installation compatible with the host repo&#39;s branch, PR, CI, and review rules. Use `references/git-policy.md`.
+    29→6. Prefer safe defaults: do not add reply suffix requirements unless the host repository already requires them, do not mix code-and-memory commits by default, and do not override branch policy. MemoryTree-only git automation is allowed only inside the isolated flow in `references/git-policy.md`.
+    30→7. When locale is not explicit, choose it from repo language first, then system language. Use `references/locale-selection.md`.
+    31→8. Keep reply language aligned with user language first, then repo locale. Use `references/response-language.md`.
+    32→9. For partial repos, use the non-destructive upgrade path before manual maintenance. Use `references/upgrade-path.md`.
+    33→10. When transcript archival is enabled, import transcripts with deterministic code, preserve raw transcripts as evidence in both the current repo mirror and the global archive, generate cleaned Markdown for indexing, keep cross-project backfills and ambiguous ownership cases in the global archive only, and ask once per repository whether raw transcript files may be committed or pushed. Use `references/transcript-archive.md`.
+    34→11. When scripts are needed, prefer an existing `uv run python` environment first, then a system `python`, and only fall back to manual scaffolding or conservative manual review if no runner is available. Use `references/execution-environment.md`.
+    35→12. Transcript discovery, import, cleaning, and push are handled by the background heartbeat process. The model only writes chat log summaries and updates goals and todos. See `references/heartbeat-scheduling.md`.
+    36→13. Global configuration is stored in `~/.memorytree/config.toml`. See `references/global-configuration.md`.
+    37→14. When the user asks to see their most recent conversation, trigger an on-demand transcript sync for the current project, locate the latest session across all three clients, and generate a continuation summary. See `references/transcript-archive.md` and `references/heartbeat-scheduling.md`.
+    38→15. All interactive prompts (heartbeat install, configuration, session continuity) must use plain-text questions compatible with every AI assistant that supports this skill. Do not rely on client-specific UI components. See `references/heartbeat-scheduling.md`.
+    39→
+    40→## Read Order
+    41→
+    42→1. Repo `AGENTS.md`, if present.
+    43→2. Latest file in `Memory/01_goals/`.
+    44→3. Latest todo bound to that goal in `Memory/02_todos/`.
+    45→4. `Memory/04_knowledge/` only when needed.
+    46→5. `Memory/06_transcripts/clean/`, transcript manifests, and repo-local raw transcript mirrors only when transcript history or cross-project memory search is relevant.
+    47→6. `Memory/03_chat_logs/` and `Memory/05_archive/` only when needed.
+    48→
+    49→## Detect
+    50→
+    51→1. Check whether `Memory/` exists and matches the layout in `references/memory-layout.md`.
+    52→2. Classify the repo as `not-installed`, `partial`, or `installed`.
+    53→3. If the repo already has stronger rules than the generated templates, preserve the repo rules and only add missing MemoryTree pieces.
+    54→
+    55→## Upgrade
+    56→
+    57→1. Use `scripts/upgrade-memorytree.py` for repositories that already have `AGENTS.md`, custom policy files, or partial `Memory/` content.
+    58→2. Preserve existing repo policy files by default.
+    59→3. Create only the missing MemoryTree pieces.
+    60→4. Read the upgrade result and treat `agents_merge_required=true` as a manual review task, not an overwrite instruction.
+    61→5. If no Python runner is available, do not create a project-local environment automatically. Fall back to conservative manual inspection and only make low-risk changes unless the user explicitly approved environment setup.
+    62→
+    63→## Initialize
+    64→
+    65→1. Run `scripts/init-memorytree.py --root &lt;repo&gt;` and pass `--project-name`, `--goal-summary`, and `--locale` when the user already provided them.
+    66→2. Use fresh init only when the repo does not already have `AGENTS.md` or another repo policy source such as a policy-bearing `CONTRIBUTING.md`, PR templates, `CODEOWNERS`, or commitlint config. If repo policy already exists, switch to `scripts/upgrade-memorytree.py` instead of trying to skip `AGENTS.md`.
+    67→3. Review the generated `AGENTS.md` before keeping it. Merge it with the repo&#39;s existing policy if needed.
+    68→4. Keep the initial installation minimal: `Memory/01_goals`, `02_todos`, `03_chat_logs`, optional `04_knowledge`, `05_archive`, and `06_transcripts` only when transcript archival is enabled for the repo or needed for transcript import.
+    69→5. Use the locale-specific template files in `assets/templates/&lt;locale&gt;/` as the source of truth for first-run scaffolding.
+    70→6. Prefer `--locale auto` when the user did not request a language explicitly.
+    71→7. Use `scripts/detect-memorytree-locale.py` when you need a deterministic locale check without scaffolding files.
+    72→8. Prefer `uv run python` first, then a system `python`. If neither is available, create first-run files directly from `assets/templates/` instead of creating a project-local virtual environment by default.
+    73→9. If transcript archival is enabled for the repo, use `scripts/import-transcripts.py` for one explicit source file and `scripts/discover-transcripts.py` when scanning local client stores. Matching transcripts must update both the repo mirror and the global archive, while unrelated projects, ambiguous ownership cases, or mismatched explicit sources are archived in the global archive only. Let the scripts generate cleaned transcripts deterministically without spending model tokens on the cleaning step.
+    74→10. Ask once whether raw transcript files may also be committed to the repository. Record the answer in `AGENTS.md`, keep the files in the repo either way, and exclude `raw` files from automatic staging until the user says yes.
+    75→
+    76→## Maintain
+    77→
+    78→1. Change the active goal only after explicit user confirmation of a scope or requirement change.
+    79→2. Update the active todo when progress changes, milestones move, or the next task becomes clearer.
+    80→3. Append chat logs only. Never rewrite or delete prior entries.
+    81→4. Keep active files small. Move stale context to archive or knowledge files instead of bloating the active goal or todo.
+    82→5. Treat product ideas, architecture decisions, and operating constraints as goal or knowledge content. Treat step-by-step execution state as todo content.
+    83→6. Treat cleaned transcript indexes as discovery aids, not as the final source of truth. When exact wording matters, confirm against the raw transcript archive.
+    84→7. Prefer deterministic script-based transcript cleaning over manual rewriting. Do not spend model tokens to restate or normalize transcript content when `scripts/import-transcripts.py` can do it.
+    85→8. Reply in the user&#39;s language when clear; otherwise align with repo locale without rewriting existing files just to translate them.
+    86→
+    87→## Git And Safety
+    88→
+    89→1. Never assume MemoryTree can override the repo&#39;s branch model.
+    90→2. Default to isolated MemoryTree-only Git operations: stage only MemoryTree-owned files, use a MemoryTree-scoped commit title, push to a dedicated branch, and open a dedicated PR.
+    91→3. Enable auto-merge only for MemoryTree-only PRs, and only when the repository still enforces its required review and CI checks.
+    92→4. Keep repo-local raw transcript mirrors and the global transcript archive synchronized on every import. The global index must remain safe for concurrent multi-project updates.
+    93→5. Keep the repository mirror limited to transcripts that belong to the current repository. Unrelated or ambiguous transcripts belong in the global archive only.
+    94→6. Keep raw transcript files under `Memory/06_transcripts/raw/**` in the repo, but exclude them from automatic staging until the user explicitly approved raw transcript uploads for that repository.
+    95→7. If the diff mixes product code, shared policy files, cross-project transcript archives, or unclear ownership, stop and ask the user before committing or pushing.
+    96→8. If the repo has protected branches or PR-only rules, follow them even if older MemoryTree rules say otherwise.
+    97→9. When `auto_push` is enabled, the heartbeat process pushes automatically after committing. If no Git remote is configured, the push is skipped. If a push fails, the heartbeat retries once. In either case an alert is written to `~/.memorytree/alerts.json`. See `references/git-policy.md`.
+    98→10. During transcript cleaning, the heartbeat scans for sensitive information (API keys, passwords, tokens). Matches are logged as warnings only — no automatic deletion or redaction. See `references/heartbeat-scheduling.md`.
+    99→
+   100→## Resources
+   101→
+   102→- `references/project-detection.md`: detect install state and choose init vs maintain.
+   103→- `references/memory-layout.md`: folder and file naming rules.
+   104→- `references/update-rules.md`: when to version goals, todos, and session logs.
+   105→- `references/git-policy.md`: safe Git defaults and policy merge guidance.
+   106→- `references/locale-selection.md`: locale choice rules and alias behavior.
+   107→- `references/response-language.md`: reply-language precedence and translation safety.
+   108→- `references/transcript-archive.md`: raw transcript archival, clean transcript indexing, per-client source rules, and repo upload confirmation rules.
+   109→- `references/upgrade-path.md`: safe adoption flow for partial repos.
+   110→- `references/execution-environment.md`: how to run MemoryTree scripts without assuming a project-local Python environment.
+   111→- `references/heartbeat-scheduling.md`: background heartbeat architecture, daemon CLI, and execution flow.
+   112→- `references/global-configuration.md`: `~/.memorytree/` directory layout, `config.toml` schema, and `alerts.json` format.
+   113→- `assets/templates/en/` and `assets/templates/zh-cn/`: seed files for English and Simplified Chinese initialization.
+   114→- `scripts/heartbeat.py`: background heartbeat entry point (contract — not yet implemented).
+   115→- `memorytree-daemon` CLI: heartbeat lifecycle manager (contract — not yet implemented).
+   116→- `scripts/detect-memorytree-locale.py`: print the effective locale for a target repository.
+   117→- `scripts/discover-transcripts.py`: scan supported local client stores, mirror current-project transcripts into the repo, and backfill other projects into the global archive only.
+   118→- `scripts/import-transcripts.py`: import one transcript into the repo mirror and global archive, then generate clean Markdown deterministically by code.
+   119→- `scripts/upgrade-memorytree.py`: safely add missing MemoryTree pieces to a partial repository.
+   120→- `scripts/init-memorytree.py`: deterministic scaffold script.
+   121→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check if there are any additional reference documents or the existing scripts to understand what already exists." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#15</span>
+      
+      <span class="timeline-time">03:14:32</span>
+    </div>
+    <div class="message-body"><p>Now let me check if there are any additional reference documents or the existing scripts to understand what already exists.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01GWYgZkpXcbTDsSCFnWn1Kw Glob input={&quot;path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references&quot;,&quot;pattern&quot;:&quot;**/*.md&quot;}" id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01GWYgZkpXcbTDsSCFnWn1Kw</span>
+      <span class="timeline-time">03:14:33</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;D:\\demo1\\memorytree-workflow\\references&quot;,&quot;pattern&quot;:&quot;**/*.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;**/*.md&quot;,
+  &quot;path&quot;: &quot;D:\\demo1\\memorytree-workflow\\references&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01U9u5niJUwuFzBU5DwV6UjG Glob input={&quot;path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts&quot;,&quot;pattern&quot;:&quot;**/*.py&quot;}" id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01U9u5niJUwuFzBU5DwV6UjG</span>
+      <span class="timeline-time">03:14:33</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts&quot;,&quot;pattern&quot;:&quot;**/*.py&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;**/*.py&quot;,
+  &quot;path&quot;: &quot;D:\\demo1\\memorytree-workflow\\scripts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01GWYgZkpXcbTDsSCFnWn1Kw Glob output=D:\demo1\memorytree-workflow\references\execution-environment.md D:\demo1\memorytree-workflow\references\locale-selection.md D:\demo1\memorytree-workflow\references\memory-layou..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01GWYgZkpXcbTDsSCFnWn1Kw</span>
+      
+      <span class="timeline-time">03:14:33</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\memorytree-workflow\references\execution-environment.md D:\demo1\memorytree-workflow\references\locale-selection.md D:\demo1\memorytree-workflow\references\memory-layou...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\references\execution-environment.md
+D:\demo1\memorytree-workflow\references\locale-selection.md
+D:\demo1\memorytree-workflow\references\memory-layout.md
+D:\demo1\memorytree-workflow\references\project-detection.md
+D:\demo1\memorytree-workflow\references\response-language.md
+D:\demo1\memorytree-workflow\references\update-rules.md
+D:\demo1\memorytree-workflow\references\upgrade-path.md
+D:\demo1\memorytree-workflow\references\git-policy.md
+D:\demo1\memorytree-workflow\references\global-configuration.md
+D:\demo1\memorytree-workflow\references\heartbeat-scheduling.md
+D:\demo1\memorytree-workflow\references\transcript-archive.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01U9u5niJUwuFzBU5DwV6UjG Glob output=D:\demo1\memorytree-workflow\scripts\detect-memorytree-locale.py D:\demo1\memorytree-workflow\scripts\discover-transcripts.py D:\demo1\memorytree-workflow\scripts\import-transcr..." id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#19</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01U9u5niJUwuFzBU5DwV6UjG</span>
+      
+      <span class="timeline-time">03:14:33</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\memorytree-workflow\scripts\detect-memorytree-locale.py D:\demo1\memorytree-workflow\scripts\discover-transcripts.py D:\demo1\memorytree-workflow\scripts\import-transcr...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\memorytree-workflow\scripts\detect-memorytree-locale.py
+D:\demo1\memorytree-workflow\scripts\discover-transcripts.py
+D:\demo1\memorytree-workflow\scripts\import-transcripts.py
+D:\demo1\memorytree-workflow\scripts\init-memorytree.py
+D:\demo1\memorytree-workflow\scripts\upgrade-memorytree.py
+D:\demo1\memorytree-workflow\scripts\_locale_utils.py
+D:\demo1\memorytree-workflow\scripts\_scaffold_utils.py
+D:\demo1\memorytree-workflow\scripts\_transcript_utils.py</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Let me also check the existing scripts for relevant implementation details, particularly around transcript utils and discover/import scripts, as well as cross-reference some details." id="event-19">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#20</span>
+      
+      <span class="timeline-time">03:14:38</span>
+    </div>
+    <div class="message-body"><p>Let me also check the existing scripts for relevant implementation details, particularly around transcript utils and discover/import scripts, as well as cross-reference some details.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01C54H5nDBBysFKqULmWG6Mo Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts\\_transcript_utils.py&quot;,&quot;limit&quot;:50}" id="event-20">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#21</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01C54H5nDBBysFKqULmWG6Mo</span>
+      <span class="timeline-time">03:14:39</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts\\_transcript_utils.py&quot;,&quot;limit&quot;:50}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\scripts\\_transcript_utils.py&quot;,
+  &quot;limit&quot;: 50
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_016YdJjA1zta6KgfWSsc7F6m Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts\\discover-transcripts.py&quot;,&quot;limit&quot;:80}" id="event-21">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#22</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_016YdJjA1zta6KgfWSsc7F6m</span>
+      <span class="timeline-time">03:14:39</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts\\discover-transcripts.py&quot;,&quot;limit&quot;:80}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\scripts\\discover-transcripts.py&quot;,
+  &quot;limit&quot;: 80
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01NKbfvJap87UYZB73FEVig7 Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts\\import-transcripts.py&quot;,&quot;limit&quot;:80}" id="event-22">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#23</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01NKbfvJap87UYZB73FEVig7</span>
+      <span class="timeline-time">03:14:39</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\scripts\\import-transcripts.py&quot;,&quot;limit&quot;:80}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\scripts\\import-transcripts.py&quot;,
+  &quot;limit&quot;: 80
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_016YdJjA1zta6KgfWSsc7F6m Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→Discover local Codex, Claude Code, and Gemini transcript sources and import them 4→into MemoryTree using deterministic code-based cleaning. 5→&quot;&quot;..." id="event-23">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#24</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_016YdJjA1zta6KgfWSsc7F6m</span>
+      
+      <span class="timeline-time">03:14:39</span>
+    </div>
+    <div class="timeline-title">Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→Discover local Codex, Claude Code, and Gemini transcript sources and import them 4→into MemoryTree using deterministic code-based cleaning. 5→&quot;&quot;...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→#!/usr/bin/env python3
+     2→&quot;&quot;&quot;
+     3→Discover local Codex, Claude Code, and Gemini transcript sources and import them
+     4→into MemoryTree using deterministic code-based cleaning.
+     5→&quot;&quot;&quot;
+     6→
+     7→from __future__ import annotations
+     8→
+     9→import argparse
+    10→import json
+    11→from pathlib import Path
+    12→
+    13→from _transcript_utils import (
+    14→    CLIENTS,
+    15→    default_global_transcript_root,
+    16→    discover_source_files,
+    17→    import_transcript,
+    18→    infer_project_slug,
+    19→    parse_transcript,
+    20→    slugify,
+    21→    transcript_has_content,
+    22→    transcript_matches_repo,
+    23→)
+    24→
+    25→
+    26→def main() -&gt; int:
+    27→    args = parse_args()
+    28→    root = Path(args.root).resolve()
+    29→    if not root.exists():
+    30→        raise SystemExit(f&quot;root does not exist: {root}&quot;)
+    31→
+    32→    repo_slug = slugify(args.project_name.strip() or root.name, fallback=&quot;project&quot;)
+    33→    global_root = resolve_global_root(args.global_root)
+    34→    requested_clients = CLIENTS if args.client == &quot;all&quot; else {args.client}
+    35→    discovered = discover_source_files(requested_clients)
+    36→
+    37→    results: list[dict[str, object]] = []
+    38→    skipped: list[dict[str, str]] = []
+    39→
+    40→    for client, source in discovered:
+    41→        if args.limit and len(results) &gt;= args.limit:
+    42→            break
+    43→        try:
+    44→            parsed = parse_transcript(client, source)
+    45→        except Exception as exc:
+    46→            skipped.append(
+    47→                {
+    48→                    &quot;client&quot;: client,
+    49→                    &quot;source&quot;: source.as_posix(),
+    50→                    &quot;reason&quot;: &quot;parse-error&quot;,
+    51→                    &quot;error&quot;: summarize_exception(exc),
+    52→                }
+    53→            )
+    54→            continue
+    55→
+    56→        candidate_project = infer_project_slug(parsed)
+    57→        matches_current_repo = transcript_matches_repo(parsed, root, repo_slug)
+    58→        if not transcript_has_content(parsed):
+    59→            skipped.append(
+    60→                {
+    61→                    &quot;client&quot;: client,
+    62→                    &quot;source&quot;: source.as_posix(),
+    63→                    &quot;reason&quot;: &quot;no-importable-content&quot;,
+    64→                    &quot;project&quot;: candidate_project,
+    65→                }
+    66→            )
+    67→            continue
+    68→
+    69→        if args.scope == &quot;current-project&quot; and not matches_current_repo:
+    70→            skipped.append(
+    71→                {
+    72→                    &quot;client&quot;: client,
+    73→                    &quot;source&quot;: source.as_posix(),
+    74→                    &quot;reason&quot;: &quot;unrelated-project&quot;,
+    75→                    &quot;project&quot;: candidate_project,
+    76→                }
+    77→            )
+    78→            continue
+    79→
+    80→        try:</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01C54H5nDBBysFKqULmWG6Mo Read output=1→from __future__ import annotations 2→ 3→import hashlib 4→import json 5→import re 6→import shutil 7→import sqlite3 8→from dataclasses import dataclass 9→from datetime import da..." id="event-24">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#25</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01C54H5nDBBysFKqULmWG6Mo</span>
+      
+      <span class="timeline-time">03:14:39</span>
+    </div>
+    <div class="timeline-title">Read output=1→from __future__ import annotations 2→ 3→import hashlib 4→import json 5→import re 6→import shutil 7→import sqlite3 8→from dataclasses import dataclass 9→from datetime import da...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→from __future__ import annotations
+     2→
+     3→import hashlib
+     4→import json
+     5→import re
+     6→import shutil
+     7→import sqlite3
+     8→from dataclasses import dataclass
+     9→from datetime import datetime, timezone
+    10→from pathlib import Path
+    11→from typing import Any
+    12→
+    13→
+    14→CLIENTS = {&quot;codex&quot;, &quot;claude&quot;, &quot;gemini&quot;}
+    15→TEXT_BLOCK_TYPES = {&quot;input_text&quot;, &quot;output_text&quot;, &quot;text&quot;}
+    16→SKIP_BLOCK_TYPES = {&quot;thinking&quot;, &quot;reasoning&quot;}
+    17→TOOL_USE_TYPES = {&quot;tool_use&quot;}
+    18→TOOL_RESULT_TYPES = {&quot;tool_result&quot;}
+    19→
+    20→
+    21→@dataclass
+    22→class TranscriptMessage:
+    23→    role: str
+    24→    text: str
+    25→    timestamp: str | None = None
+    26→
+    27→
+    28→@dataclass
+    29→class TranscriptToolEvent:
+    30→    summary: str
+    31→    timestamp: str | None = None
+    32→
+    33→
+    34→@dataclass
+    35→class ParsedTranscript:
+    36→    client: str
+    37→    session_id: str
+    38→    title: str
+    39→    started_at: str
+    40→    cwd: str
+    41→    branch: str
+    42→    messages: list[TranscriptMessage]
+    43→    tool_events: list[TranscriptToolEvent]
+    44→    source_path: Path
+    45→
+    46→
+    47→def default_global_transcript_root() -&gt; Path:
+    48→    return Path.home() / &quot;.memorytree&quot; / &quot;transcripts&quot;
+    49→
+    50→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01NKbfvJap87UYZB73FEVig7 Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→Import one local AI transcript into MemoryTree using deterministic code-based 4→cleaning. Current-project sources mirror into both the repo and ..." id="event-25">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#26</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01NKbfvJap87UYZB73FEVig7</span>
+      
+      <span class="timeline-time">03:14:39</span>
+    </div>
+    <div class="timeline-title">Read output=1→#!/usr/bin/env python3 2→&quot;&quot;&quot; 3→Import one local AI transcript into MemoryTree using deterministic code-based 4→cleaning. Current-project sources mirror into both the repo and ...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→#!/usr/bin/env python3
+     2→&quot;&quot;&quot;
+     3→Import one local AI transcript into MemoryTree using deterministic code-based
+     4→cleaning. Current-project sources mirror into both the repo and the user-level
+     5→global archive; unrelated sources archive globally only.
+     6→&quot;&quot;&quot;
+     7→
+     8→from __future__ import annotations
+     9→
+    10→import argparse
+    11→import json
+    12→from pathlib import Path
+    13→
+    14→from _transcript_utils import (
+    15→    CLIENTS,
+    16→    default_global_transcript_root,
+    17→    infer_client,
+    18→    infer_project_slug,
+    19→    import_transcript,
+    20→    parse_transcript,
+    21→    slugify,
+    22→    transcript_has_content,
+    23→    transcript_matches_repo,
+    24→)
+    25→
+    26→
+    27→def main() -&gt; int:
+    28→    args = parse_args()
+    29→    root = Path(args.root).resolve()
+    30→    source = Path(args.source).resolve()
+    31→    if not root.exists():
+    32→        raise SystemExit(f&quot;root does not exist: {root}&quot;)
+    33→    if not source.exists():
+    34→        raise SystemExit(f&quot;source transcript does not exist: {source}&quot;)
+    35→
+    36→    client = infer_client(args.client, source)
+    37→    global_root = resolve_global_root(args.global_root)
+    38→    repo_slug = slugify(args.project_name.strip() or root.name, fallback=&quot;project&quot;)
+    39→
+    40→    parsed = parse_transcript(client, source)
+    41→    if not transcript_has_content(parsed):
+    42→        raise SystemExit(f&quot;source transcript does not contain any importable messages or tool events: {source}&quot;)
+    43→    detected_project = infer_project_slug(parsed)
+    44→    matches_current_repo = transcript_matches_repo(parsed, root, repo_slug)
+    45→    result = import_transcript(
+    46→        parsed=parsed,
+    47→        root=root,
+    48→        global_root=global_root,
+    49→        project_slug=repo_slug if matches_current_repo else detected_project,
+    50→        raw_upload_permission=args.raw_upload_permission if matches_current_repo else &quot;not-applicable&quot;,
+    51→        mirror_to_repo=matches_current_repo,
+    52→    )
+    53→    result[&quot;matches_current_repo&quot;] = matches_current_repo
+    54→    result[&quot;detected_project&quot;] = detected_project
+    55→
+    56→    if args.format == &quot;json&quot;:
+    57→        print(json.dumps(result, ensure_ascii=False))
+    58→    else:
+    59→        print(format_result_text(result))
+    60→    return 0
+    61→
+    62→
+    63→def parse_args() -&gt; argparse.Namespace:
+    64→    parser = argparse.ArgumentParser(description=&quot;Import one local transcript into MemoryTree archives.&quot;)
+    65→    parser.add_argument(&quot;--root&quot;, default=&quot;.&quot;, help=&quot;Target repository root.&quot;)
+    66→    parser.add_argument(&quot;--source&quot;, required=True, help=&quot;Raw transcript source file path.&quot;)
+    67→    parser.add_argument(
+    68→        &quot;--client&quot;,
+    69→        choices=(&quot;auto&quot;, *sorted(CLIENTS)),
+    70→        default=&quot;auto&quot;,
+    71→        help=&quot;Transcript client family.&quot;,
+    72→    )
+    73→    parser.add_argument(
+    74→        &quot;--project-name&quot;,
+    75→        default=&quot;&quot;,
+    76→        help=&quot;Project label used for the global transcript archive. Defaults to the repo folder name.&quot;,
+    77→    )
+    78→    parser.add_argument(
+    79→        &quot;--global-root&quot;,
+    80→        default=&quot;&quot;,</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant API Error: 403 {&quot;error&quot;:{&quot;type&quot;:&quot;new_api_error&quot;,&quot;message&quot;:&quot;token quota is not enough, token remain quota: ＄0.487828, need quota: ＄0.540330 (request id: 20260315031440462976343ySQNHLRo)&quot;},&quot;type&quot;:&quot;error&quot;} · Please run /login" id="event-26">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#27</span>
+      
+      <span class="timeline-time">03:14:40</span>
+    </div>
+    <div class="message-body"><p>API Error: 403 {&quot;error&quot;:{&quot;type&quot;:&quot;new_api_error&quot;,&quot;message&quot;:&quot;token quota is not enough, token remain quota: ＄0.487828, need quota: ＄0.540330 (request id: 20260315031440462976343ySQNHLRo)&quot;},&quot;type&quot;:&quot;error&quot;} · Please run /login</p></div>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

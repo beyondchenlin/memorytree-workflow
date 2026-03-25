@@ -1,0 +1,2562 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a07b4eb94c75f8052 — MemoryTree</title>
+<meta property="og:title" content="agent-a07b4eb94c75f8052">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a07b4eb94c75f8052</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>5</strong> Messages</span>
+      <span class="transcript-pill"><strong>14</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>19</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-15 02:35:51</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">master</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\memorytree-workflow</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-a07b4eb94c75f8052</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">a9b5a5cc-2f5f-47d6-8350-90df3422cbb7</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">master</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\memorytree-workflow</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">31f9098bff3a4455...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">19</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">5</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">14</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>5</strong> dialog</span>
+    <span class="transcript-pill"><strong>14</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>5</strong> Messages</span>
+          <span class="transcript-pill"><strong>14</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>19 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user You are a senior technical writer reviewing the README.md of a GitHub project at D:\demo1\memorytree-workflow. The README just had its header beautified with a logo, badges, navigation bar, and emoji feature table. Your job is to review the ENTIRE README for **visual quality, structural consistency, and presentation issues** when rendered on GitHub. ## Review checklist 1. **Header HTML**: Check the centered `..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">02:35:51</span>
+    </div>
+    <p class="event-preview">You are a senior technical writer reviewing the README.md of a GitHub project at D:\demo1\memorytree-workflow. The README just had its header beautified with a logo, badges, navigation bar, and emoji feature table. Yo...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>You are a senior technical writer reviewing the README.md of a GitHub project at D:\demo1\memorytree-workflow.</p><p>The README just had its header beautified with a logo, badges, navigation bar, and emoji feature table. Your job is to review the ENTIRE README for <strong>visual quality, structural consistency, and presentation issues</strong> when rendered on GitHub.</p><p>## Review checklist</p><p>1. <strong>Header HTML</strong>: Check the centered <code>&lt;div&gt;</code> block for valid HTML that renders correctly on GitHub. GitHub sanitizes HTML — verify no unsupported tags or attributes are used (e.g., <code>&lt;div align=&quot;center&quot;&gt;</code> is supported, but <code>&lt;style&gt;</code> is not).</p><p>2. <strong>Badge links</strong>: Check each badge URL:<br>   - Does the LICENSE badge link to a file that exists? (Check if LICENSE file exists in the repo)<br>   - Do badge image URLs use valid shields.io format?<br>   - Does the Claude Code badge link work?<br>   - Is the Platform badge link empty <code>()</code> — is that OK or will it cause issues?</p><p>3. <strong>Navigation anchors</strong>: Verify each <code>&lt;a href=&quot;#...&quot;&gt;</code> in the nav bar matches an actual <code>##</code> heading in the file. Check for case sensitivity and special character issues (GitHub auto-generates anchors from headings).</p><p>4. <strong>Emoji rendering</strong>: The feature table uses GitHub emoji shortcodes (<code>:dart:</code>, <code>:white_check_mark:</code>, etc.). Verify these are valid GitHub emoji codes that will render correctly.</p><p>5. <strong>Logo SVG</strong>: Read <code>D:\demo1\memorytree-workflow\assets\logo.svg</code> and check:<br>   - Is the SVG valid and renderable?<br>   - Does the <code>&lt;img src=&quot;...&quot;&gt;</code> URL in README match where the file actually is? (The URL uses <code>raw.githubusercontent.com/beyondchenlin/memorytree-workflow/master/assets/logo.svg</code>)<br>   - Will it display correctly on GitHub (GitHub renders SVG from raw.githubusercontent.com)?</p><p>6. <strong>Table formatting</strong>: Check all Markdown tables in the README for consistent column alignment and proper rendering.</p><p>7. <strong>Overall flow</strong>: Does the README read well from top to bottom? Is the information hierarchy logical? Are there any jarring transitions between sections?</p><p>8. <strong>Link integrity</strong>: Check ALL markdown links <code>[text](url)</code> and <code>[text](#anchor)</code> in the entire file — do they point to valid targets?</p><p>Read the full README.md and assets/logo.svg. Also check if a LICENSE file exists (for badge link validation).</p><p>Report findings as:<br>- CRITICAL: Must fix<br>- HIGH: Should fix<br>- MEDIUM: Nice to fix<br>- LOW: Nitpick</p><p>Do NOT make any edits. Research only.</p></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll start by reading the README.md, checking for the LICENSE file, and reading the logo SVG in parallel." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">02:35:55</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll start by reading the README.md, checking for the LICENSE file, and reading the logo SVG in parallel.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01TSNew8UP92vhk7MZL2qeZj Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\README.md&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01TSNew8UP92vhk7MZL2qeZj</span>
+      <span class="timeline-time">02:35:56</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\README.md&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\README.md&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01Nup3C55p5RfCBC5QFRCn4m Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\assets\\logo.svg&quot;}" id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Nup3C55p5RfCBC5QFRCn4m</span>
+      <span class="timeline-time">02:35:56</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\memorytree-workflow\\assets\\logo.svg&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\memorytree-workflow\\assets\\logo.svg&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_017ogCY9MEL7gD7Kk3XLPTaF Bash input={&quot;command&quot;:&quot;ls -la \&quot;D:/demo1/memorytree-workflow/LICENSE\&quot; 2&gt;/dev/null; echo \&quot;---\&quot;; ls -la \&quot;D:/demo1/memorytree-workflow/LICENSE\&quot;* 2&gt;/dev/null; echo \&quot;---\&quot;; ls \&quot;D:/demo1/..." id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_017ogCY9MEL7gD7Kk3XLPTaF</span>
+      <span class="timeline-time">02:35:57</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;ls -la \&quot;D:/demo1/memorytree-workflow/LICENSE\&quot; 2&gt;/dev/null; echo \&quot;---\&quot;; ls -la \&quot;D:/demo1/memorytree-workflow/LICENSE\&quot;* 2&gt;/dev/null; echo \&quot;---\&quot;; ls \&quot;D:/demo1/...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;ls -la \&quot;D:/demo1/memorytree-workflow/LICENSE\&quot; 2&gt;/dev/null; echo \&quot;---\&quot;; ls -la \&quot;D:/demo1/memorytree-workflow/LICENSE\&quot;* 2&gt;/dev/null; echo \&quot;---\&quot;; ls \&quot;D:/demo1/memorytree-workflow/\&quot; | head -30&quot;,
+  &quot;description&quot;: &quot;Check if LICENSE file exists and list root directory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01Nup3C55p5RfCBC5QFRCn4m Read output=1→&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 120 120&quot; width=&quot;120&quot; height=&quot;120&quot;&gt; 2→ &lt;defs&gt; 3→ &lt;linearGradient id=&quot;trunk&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt; 4→ &lt;stop offset=&quot;0..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Nup3C55p5RfCBC5QFRCn4m</span>
+      
+      <span class="timeline-time">02:35:58</span>
+    </div>
+    <div class="timeline-title">Read output=1→&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 120 120&quot; width=&quot;120&quot; height=&quot;120&quot;&gt; 2→ &lt;defs&gt; 3→ &lt;linearGradient id=&quot;trunk&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt; 4→ &lt;stop offset=&quot;0...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 120 120&quot; width=&quot;120&quot; height=&quot;120&quot;&gt;
+     2→  &lt;defs&gt;
+     3→    &lt;linearGradient id=&quot;trunk&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;0&quot; y2=&quot;1&quot;&gt;
+     4→      &lt;stop offset=&quot;0%&quot; stop-color=&quot;#8B6914&quot;/&gt;
+     5→      &lt;stop offset=&quot;100%&quot; stop-color=&quot;#6B4F12&quot;/&gt;
+     6→    &lt;/linearGradient&gt;
+     7→    &lt;linearGradient id=&quot;leaf&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;1&quot;&gt;
+     8→      &lt;stop offset=&quot;0%&quot; stop-color=&quot;#4CAF50&quot;/&gt;
+     9→      &lt;stop offset=&quot;100%&quot; stop-color=&quot;#2E7D32&quot;/&gt;
+    10→    &lt;/linearGradient&gt;
+    11→    &lt;linearGradient id=&quot;glow&quot; x1=&quot;0&quot; y1=&quot;0&quot; x2=&quot;1&quot; y2=&quot;1&quot;&gt;
+    12→      &lt;stop offset=&quot;0%&quot; stop-color=&quot;#81C784&quot;/&gt;
+    13→      &lt;stop offset=&quot;100%&quot; stop-color=&quot;#388E3C&quot;/&gt;
+    14→    &lt;/linearGradient&gt;
+    15→  &lt;/defs&gt;
+    16→  &lt;!-- Background circle --&gt;
+    17→  &lt;circle cx=&quot;60&quot; cy=&quot;60&quot; r=&quot;56&quot; fill=&quot;#f0f7f0&quot; stroke=&quot;#c8e6c9&quot; stroke-width=&quot;2&quot;/&gt;
+    18→  &lt;!-- Trunk --&gt;
+    19→  &lt;rect x=&quot;55&quot; y=&quot;60&quot; width=&quot;10&quot; height=&quot;30&quot; rx=&quot;2&quot; fill=&quot;url(#trunk)&quot;/&gt;
+    20→  &lt;!-- Branches --&gt;
+    21→  &lt;line x1=&quot;60&quot; y1=&quot;70&quot; x2=&quot;42&quot; y2=&quot;58&quot; stroke=&quot;#8B6914&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot;/&gt;
+    22→  &lt;line x1=&quot;60&quot; y1=&quot;65&quot; x2=&quot;78&quot; y2=&quot;53&quot; stroke=&quot;#8B6914&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot;/&gt;
+    23→  &lt;!-- Crown (layered circles) --&gt;
+    24→  &lt;circle cx=&quot;60&quot; cy=&quot;38&quot; r=&quot;20&quot; fill=&quot;url(#leaf)&quot; opacity=&quot;0.9&quot;/&gt;
+    25→  &lt;circle cx=&quot;45&quot; cy=&quot;48&quot; r=&quot;14&quot; fill=&quot;url(#leaf)&quot; opacity=&quot;0.85&quot;/&gt;
+    26→  &lt;circle cx=&quot;75&quot; cy=&quot;48&quot; r=&quot;14&quot; fill=&quot;url(#leaf)&quot; opacity=&quot;0.85&quot;/&gt;
+    27→  &lt;circle cx=&quot;60&quot; cy=&quot;30&quot; r=&quot;12&quot; fill=&quot;url(#glow)&quot; opacity=&quot;0.7&quot;/&gt;
+    28→  &lt;!-- Memory nodes --&gt;
+    29→  &lt;circle cx=&quot;38&quot; cy=&quot;42&quot; r=&quot;4&quot; fill=&quot;#fff&quot; opacity=&quot;0.6&quot;/&gt;
+    30→  &lt;circle cx=&quot;60&quot; cy=&quot;28&quot; r=&quot;4&quot; fill=&quot;#fff&quot; opacity=&quot;0.6&quot;/&gt;
+    31→  &lt;circle cx=&quot;78&quot; cy=&quot;44&quot; r=&quot;4&quot; fill=&quot;#fff&quot; opacity=&quot;0.6&quot;/&gt;
+    32→  &lt;!-- Connection lines between nodes --&gt;
+    33→  &lt;line x1=&quot;40&quot; y1=&quot;41&quot; x2=&quot;58&quot; y2=&quot;29&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.2&quot; opacity=&quot;0.4&quot;/&gt;
+    34→  &lt;line x1=&quot;62&quot; y1=&quot;29&quot; x2=&quot;76&quot; y2=&quot;43&quot; stroke=&quot;#fff&quot; stroke-width=&quot;1.2&quot; opacity=&quot;0.4&quot;/&gt;
+    35→  &lt;!-- Root lines --&gt;
+    36→  &lt;line x1=&quot;58&quot; y1=&quot;90&quot; x2=&quot;48&quot; y2=&quot;100&quot; stroke=&quot;#6B4F12&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; opacity=&quot;0.6&quot;/&gt;
+    37→  &lt;line x1=&quot;62&quot; y1=&quot;90&quot; x2=&quot;72&quot; y2=&quot;100&quot; stroke=&quot;#6B4F12&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; opacity=&quot;0.6&quot;/&gt;
+    38→  &lt;line x1=&quot;60&quot; y1=&quot;90&quot; x2=&quot;60&quot; y2=&quot;102&quot; stroke=&quot;#6B4F12&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; opacity=&quot;0.6&quot;/&gt;
+    39→&lt;/svg&gt;
+    40→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01TSNew8UP92vhk7MZL2qeZj Read output=1→&lt;div align=&quot;center&quot;&gt; 2→ 3→&lt;img src=&quot;https://raw.githubusercontent.com/beyondchenlin/memorytree-workflow/master/assets/logo.svg&quot; alt=&quot;MemoryTree&quot; width=&quot;120&quot; /&gt; 4→ 5→# MemoryTr..." id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01TSNew8UP92vhk7MZL2qeZj</span>
+      
+      <span class="timeline-time">02:35:58</span>
+    </div>
+    <div class="timeline-title">Read output=1→&lt;div align=&quot;center&quot;&gt; 2→ 3→&lt;img src=&quot;https://raw.githubusercontent.com/beyondchenlin/memorytree-workflow/master/assets/logo.svg&quot; alt=&quot;MemoryTree&quot; width=&quot;120&quot; /&gt; 4→ 5→# MemoryTr...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→&lt;div align=&quot;center&quot;&gt;
+     2→
+     3→&lt;img src=&quot;https://raw.githubusercontent.com/beyondchenlin/memorytree-workflow/master/assets/logo.svg&quot; alt=&quot;MemoryTree&quot; width=&quot;120&quot; /&gt;
+     4→
+     5→# MemoryTree Workflow
+     6→
+     7→**Persistent, Git-tracked project memory for AI coding assistants.**
+     8→
+     9→[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+    10→[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg?logo=python&amp;logoColor=white)](https://www.python.org/)
+    11→[![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-cc785c.svg?logo=anthropic&amp;logoColor=white)](https://claude.ai/claude-code)
+    12→[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)]()
+    13→
+    14→&lt;p&gt;
+    15→  &lt;a href=&quot;#install&quot;&gt;Install&lt;/a&gt; &amp;nbsp;&amp;bull;&amp;nbsp;
+    16→  &lt;a href=&quot;#usage&quot;&gt;Usage&lt;/a&gt; &amp;nbsp;&amp;bull;&amp;nbsp;
+    17→  &lt;a href=&quot;#features&quot;&gt;Features&lt;/a&gt; &amp;nbsp;&amp;bull;&amp;nbsp;
+    18→  &lt;a href=&quot;#background-heartbeat&quot;&gt;Heartbeat&lt;/a&gt; &amp;nbsp;&amp;bull;&amp;nbsp;
+    19→  &lt;a href=&quot;#reference-docs&quot;&gt;Docs&lt;/a&gt;
+    20→&lt;/p&gt;
+    21→
+    22→&lt;/div&gt;
+    23→
+    24→---
+    25→
+    26→## What It Does
+    27→
+    28→MemoryTree gives AI coding assistants (Claude Code, Codex, Gemini CLI) a structured memory layer that survives across sessions:
+    29→
+    30→| | Feature | Description |
+    31→|---|---------|-------------|
+    32→| :dart: | **Goals** | Track your project&#39;s north star across sessions |
+    33→| :white_check_mark: | **Todos** | Version-bound task lists that stay in sync with goals |
+    34→| :speech_balloon: | **Chat Logs** | Append-only session records for full traceability |
+    35→| :books: | **Knowledge** | Durable notes, specs, and architecture decisions |
+    36→| :inbox_tray: | **Transcripts** | Import and archive AI chat history from Codex, Claude Code, and Gemini CLI |
+    37→
+    38→All stored as plain Markdown files under `Memory/`, tracked by Git, zero dependencies.
+    39→
+    40→## Install
+    41→
+    42→```bash
+    43→git clone https://github.com/beyondchenlin/memorytree-workflow ~/.claude/skills/memorytree-workflow
+    44→```
+    45→
+    46→On Windows (Git Bash):
+    47→```bash
+    48→git clone https://github.com/beyondchenlin/memorytree-workflow &quot;$USERPROFILE/.claude/skills/memorytree-workflow&quot;
+    49→```
+    50→
+    51→## Usage
+    52→
+    53→In any Claude Code session, run:
+    54→
+    55→```
+    56→/memorytree-workflow
+    57→```
+    58→
+    59→The skill will immediately:
+    60→1. **Detect** — check if the current repo has MemoryTree installed
+    61→2. **Alert** — display pending notifications from `~/.memorytree/alerts.json`
+    62→3. **Init** — if missing, scaffold `AGENTS.md` and `Memory/` folders
+    63→4. **Upgrade** — if partial, add missing pieces without overwriting existing policy
+    64→5. **Maintain** — if installed, read the active goal/todo and report current state
+    65→
+    66→No manual confirmation needed — the skill acts on the detection result immediately.
+    67→
+    68→## Architecture
+    69→
+    70→### Per-Repository Structure
+    71→
+    72→After initialization, your repo will have:
+    73→
+    74→```
+    75→AGENTS.md                    # AI behavior rules for this repo
+    76→Memory/
+    77→  01_goals/                  # Versioned project goals
+    78→  02_todos/                  # Task lists bound to goals
+    79→  03_chat_logs/              # Append-only session logs
+    80→  04_knowledge/              # (optional) Durable project notes
+    81→  05_archive/                # (optional) Retired goals/todos
+    82→  06_transcripts/            # (optional) AI chat history archive
+    83→    clean/                   #   Cleaned Markdown indexes
+    84→    manifests/               #   Import metadata
+    85→    raw/                     #   Raw transcript mirrors
+    86→```
+    87→
+    88→### Global Directory (`~/.memorytree/`)
+    89→
+    90→Cross-project shared state:
+    91→
+    92→```
+    93→~/.memorytree/
+    94→  config.toml                # User-level settings
+    95→  alerts.json                # Pending notifications
+    96→  heartbeat.lock             # Single-instance lock
+    97→  logs/                      # Heartbeat execution logs
+    98→  transcripts/               # Global transcript archive
+    99→    raw/                     #   By client/project/year/month
+   100→    clean/                   #   Cleaned Markdown
+   101→    index/
+   102→      sessions.jsonl         #   Session metadata
+   103→      search.sqlite          #   Full-text search index
+   104→```
+   105→
+   106→For the full schema see [`references/global-configuration.md`](references/global-configuration.md).
+   107→
+   108→## Features
+   109→
+   110→### Memory Management
+   111→
+   112→| Memory Type | Behavior |
+   113→|-------------|----------|
+   114→| **Goals** | Changed only after explicit user confirmation of a scope or requirement change. Versioned. |
+   115→| **Todos** | Kept in sync with the active goal. Updated when progress changes or next task becomes clearer. |
+   116→| **Chat Logs** | Append-only. Never rewritten or deleted. |
+   117→| **Knowledge** | Stores architecture decisions, product ideas, operating constraints. |
+   118→| **Archive** | Stale context moved here to keep active files concise. |
+   119→
+   120→### Multi-Client Transcript Import
+   121→
+   122→Import AI chat history from three clients:
+   123→
+   124→| Client | Source |
+   125→|--------|--------|
+   126→| **Codex** | `~/.codex/sessions/**/rollout-*.jsonl` |
+   127→| **Claude Code** | `~/.claude/projects/&lt;project&gt;/*.jsonl` |
+   128→| **Gemini CLI** | Saved chats or checkpoints under `~/.gemini/` |
+   129→
+   130→Key principles:
+   131→
+   132→- Raw transcripts preserved unchanged as source of truth
+   133→- Cleaned Markdown generated by **deterministic code** (not model tokens)
+   134→- Current repo only stores transcripts belonging to this project; others go to global archive only
+   135→- First import asks once whether raw transcripts may be committed to the repo
+   136→
+   137→### Cross-Project Search
+   138→
+   139→When searching all memories or chat history:
+   140→
+   141→1. Query `search.sqlite` for fast full-text lookup
+   142→2. Use `sessions.jsonl` for session-level metadata filtering (client, project, date range)
+   143→3. Load matching cleaned Markdown for context; confirm exact wording against raw transcripts
+   144→4. Combine with the current repo&#39;s `Memory/` files
+   145→5. Fall back to scanning `clean/` directory if the index does not exist
+   146→
+   147→### Git Safety
+   148→
+   149→MemoryTree follows strict isolation rules to never interfere with your repo&#39;s workflow:
+   150→
+   151→| Rule | Description |
+   152→|------|-------------|
+   153→| File isolation | Only stages/commits `Memory/**` and `AGENTS.md` — never product code |
+   154→| Branch isolation | Uses dedicated branch `memorytree/&lt;scope&gt;-&lt;date&gt;-&lt;slug&gt;` |
+   155→| Commit format | `memorytree(&lt;scope&gt;): &lt;subject&gt;` or repo-compatible equivalent |
+   156→| PR isolation | Separate PR for MemoryTree-only changes |
+   157→| Auto-merge | Only when repo still enforces its review and CI checks |
+   158→| Auto-push | On by default; skips if no remote; fast-forward only |
+   159→| Protected branches | Never overrides branch protection or CI rules |
+   160→
+   161→The skill stops and asks before proceeding in 8 scenarios: mixed product code, AGENTS.md conflicts, unclear target branch, repo forbids bot pushes, CI conflicts, unknown raw transcript permission, cross-project transcripts, or protected branch refusal.
+   162→
+   163→For the full policy see [`references/git-policy.md`](references/git-policy.md).
+   164→
+   165→### Sensitive Info Scanning
+   166→
+   167→During transcript cleaning, the heartbeat scans for API keys, passwords, tokens, and other secrets:
+   168→
+   169→- Matches are logged as warnings and written to `alerts.json`
+   170→- **No automatic deletion or redaction** — the user decides how to handle them
+   171→
+   172→### Locale Support
+   173→
+   174→| Feature | Description |
+   175→|---------|-------------|
+   176→| Templates | English (`en`) and Simplified Chinese (`zh-cn`) |
+   177→| Auto-detect | Detects language from repo content first, then system locale |
+   178→| Reply language | Follows user language &gt; repo locale &gt; system locale |
+   179→| Non-destructive | Never rewrites existing files just to translate them |
+   180→
+   181→### Environment Adaptation
+   182→
+   183→MemoryTree does not assume the target repo has a Python environment:
+   184→
+   185→```
+   186→Prefer uv run python → fall back to system python → fall back to direct template scaffolding
+   187→```
+   188→
+   189→Never auto-creates `.venv` or `pyproject.toml` inside the project.
+   190→
+   191→## Background Heartbeat
+   192→
+   193→&gt; **Note**: `heartbeat.py` and `memorytree-daemon` are contract specifications — code is not yet implemented.
+   194→
+   195→The heartbeat automates transcript discovery, import, cleaning, commit, and push without consuming model tokens or requiring human intervention.
+   196→
+   197→**Execution flow**:
+   198→
+   199→```
+   200→Acquire lock → Load config.toml → Iterate projects → Discover → Import
+   201→→ Clean → Commit → (auto_push) Push → Release lock → Exit
+   202→```
+   203→
+   204→### Install the daemon
+   205→
+   206→```bash
+   207→memorytree-daemon install
+   208→```
+   209→
+   210→### CLI commands
+   211→
+   212→| Command                     | Description |
+   213→|-----------------------------|-------------|
+   214→| `memorytree-daemon install`   | Register the heartbeat with the OS scheduler (cron / launchd / Task Scheduler). |
+   215→| `memorytree-daemon uninstall` | Remove the scheduled heartbeat task. |
+   216→| `memorytree-daemon run-once`  | Run a single heartbeat cycle immediately. |
+   217→| `memorytree-daemon watch`     | Continuous loop for development and debugging only. |
+   218→| `memorytree-daemon status`    | Show registration state and last execution result. |
+   219→
+   220→### Key settings (`~/.memorytree/config.toml`)
+   221→
+   222→| Setting              | Default  | Description |
+   223→|----------------------|----------|-------------|
+   224→| `auto_push`          | `true`   | Push to remote after each commit. Skips if no remote is configured. |
+   225→| `heartbeat_interval` | `&quot;15m&quot;`  | Interval between heartbeat executions. |
+   226→| `log_level`          | `&quot;info&quot;` | Log verbosity (`debug`, `info`, `warn`, `error`). |
+   227→
+   228→### Design constraints
+   229→
+   230→- Single execution, stateless, idempotent — safe to re-run at any interval
+   231→- One computer = one scheduled heartbeat task
+   232→- Will not silently register — always confirms before `install`
+   233→
+   234→For details see [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md) and [`references/global-configuration.md`](references/global-configuration.md).
+   235→
+   236→## Design Principles
+   237→
+   238→| Principle | How |
+   239→|-----------|-----|
+   240→| **Zero intrusion** | Never changes the repo&#39;s branch model, CI, or review process |
+   241→| **Zero dependencies** | All scripts use Python standard library only |
+   242→| **Deterministic** | Transcript cleaning done by code, not model tokens |
+   243→| **Single source of truth** | Each concept defined in one reference file, others cross-reference |
+   244→| **Contract first** | Document the spec (heartbeat, daemon) before writing code |
+   245→| **User asset** | Memory belongs to the user; auto_push on by default to prevent local data loss |
+   246→
+   247→## Reference Docs
+   248→
+   249→| File | Purpose |
+   250→|------|---------|
+   251→| [`references/project-detection.md`](references/project-detection.md) | Detect install state |
+   252→| [`references/memory-layout.md`](references/memory-layout.md) | Folder and file naming rules |
+   253→| [`references/update-rules.md`](references/update-rules.md) | When to version goals, todos, and session logs |
+   254→| [`references/git-policy.md`](references/git-policy.md) | Git defaults, auto-push, and policy merge |
+   255→| [`references/heartbeat-scheduling.md`](references/heartbeat-scheduling.md) | Heartbeat architecture, daemon CLI, execution flow |
+   256→| [`references/global-configuration.md`](references/global-configuration.md) | `~/.memorytree/` layout, `config.toml` schema, `alerts.json` format |
+   257→| [`references/transcript-archive.md`](references/transcript-archive.md) | Transcript archival, cleaning, search, and upload rules |
+   258→| [`references/locale-selection.md`](references/locale-selection.md) | Locale choice rules |
+   259→| [`references/response-language.md`](references/response-language.md) | Reply-language precedence |
+   260→| [`references/execution-environment.md`](references/execution-environment.md) | How to run scripts without a project-local Python environment |
+   261→| [`references/upgrade-path.md`](references/upgrade-path.md) | Safe adoption flow for partial repos |
+   262→
+   263→## Update
+   264→
+   265→```bash
+   266→cd ~/.claude/skills/memorytree-workflow &amp;&amp; git pull
+   267→```
+   268→
+   269→## Requirements
+   270→
+   271→- [Claude Code](https://claude.ai/claude-code) CLI
+   272→- Python 3.9+ (for transcript scripts; prefer `uv run python`)
+   273→- Git
+   274→
+   275→## License
+   276→
+   277→MIT
+   278→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_017ogCY9MEL7gD7Kk3XLPTaF Bash output=--- --- agents assets README.md references scripts SKILL.md tests TODO.md" id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_017ogCY9MEL7gD7Kk3XLPTaF</span>
+      
+      <span class="timeline-time">02:35:58</span>
+    </div>
+    <div class="timeline-title">Bash output=--- --- agents assets README.md references scripts SKILL.md tests TODO.md</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>---
+---
+agents
+assets
+README.md
+references
+scripts
+SKILL.md
+tests
+TODO.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me check the referenced files and verify the navigation anchors and links more thoroughly." id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#9</span>
+      
+      <span class="timeline-time">02:36:02</span>
+    </div>
+    <div class="message-body"><p>Now let me check the referenced files and verify the navigation anchors and links more thoroughly.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_01XQ5wH1cjfUoYius2hqu5AH Bash input={&quot;command&quot;:&quot;ls \&quot;D:/demo1/memorytree-workflow/references/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List reference docs directory&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01XQ5wH1cjfUoYius2hqu5AH</span>
+      <span class="timeline-time">02:36:03</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;ls \&quot;D:/demo1/memorytree-workflow/references/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List reference docs directory&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;ls \&quot;D:/demo1/memorytree-workflow/references/\&quot; 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List reference docs directory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_012spnkjzRZ2FLAbUegc6k7P Bash input={&quot;command&quot;:&quot;ls \&quot;D:/demo1/memorytree-workflow/assets/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List assets directory&quot;}" id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_012spnkjzRZ2FLAbUegc6k7P</span>
+      <span class="timeline-time">02:36:04</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;ls \&quot;D:/demo1/memorytree-workflow/assets/\&quot; 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;List assets directory&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;ls \&quot;D:/demo1/memorytree-workflow/assets/\&quot; 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;List assets directory&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_01ArtRFcwcL5p3NH3m6gYceu Bash input={&quot;command&quot;:&quot;git -C \&quot;D:/demo1/memorytree-workflow\&quot; remote -v 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;Check git remote URL to verify GitHub path&quot;}" id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01ArtRFcwcL5p3NH3m6gYceu</span>
+      <span class="timeline-time">02:36:05</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;git -C \&quot;D:/demo1/memorytree-workflow\&quot; remote -v 2&gt;/dev/null&quot;,&quot;description&quot;:&quot;Check git remote URL to verify GitHub path&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;git -C \&quot;D:/demo1/memorytree-workflow\&quot; remote -v 2&gt;/dev/null&quot;,
+  &quot;description&quot;: &quot;Check git remote URL to verify GitHub path&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_012spnkjzRZ2FLAbUegc6k7P Bash output=logo.svg templates" id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_012spnkjzRZ2FLAbUegc6k7P</span>
+      
+      <span class="timeline-time">02:36:05</span>
+    </div>
+    <div class="timeline-title">Bash output=logo.svg templates</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>logo.svg
+templates</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_01XQ5wH1cjfUoYius2hqu5AH Bash output=execution-environment.md git-policy.md global-configuration.md heartbeat-scheduling.md locale-selection.md memory-layout.md project-detection.md response-language.md transcript-..." id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01XQ5wH1cjfUoYius2hqu5AH</span>
+      
+      <span class="timeline-time">02:36:05</span>
+    </div>
+    <div class="timeline-title">Bash output=execution-environment.md git-policy.md global-configuration.md heartbeat-scheduling.md locale-selection.md memory-layout.md project-detection.md response-language.md transcript-...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>execution-environment.md
+git-policy.md
+global-configuration.md
+heartbeat-scheduling.md
+locale-selection.md
+memory-layout.md
+project-detection.md
+response-language.md
+transcript-archive.md
+update-rules.md
+upgrade-path.md</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_01ArtRFcwcL5p3NH3m6gYceu Bash output=origin https://github.com/beyondchenlin/memorytree-workflow.git (fetch) origin https://github.com/beyondchenlin/memorytree-workflow.git (push)" id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_01ArtRFcwcL5p3NH3m6gYceu</span>
+      
+      <span class="timeline-time">02:36:05</span>
+    </div>
+    <div class="timeline-title">Bash output=origin https://github.com/beyondchenlin/memorytree-workflow.git (fetch) origin https://github.com/beyondchenlin/memorytree-workflow.git (push)</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>origin	https://github.com/beyondchenlin/memorytree-workflow.git (fetch)
+origin	https://github.com/beyondchenlin/memorytree-workflow.git (push)</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Good. All reference docs exist, the remote URL matches, and the logo SVG is in the right place. Now let me verify anchors by extracting all headings and comparing with nav links." id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#16</span>
+      
+      <span class="timeline-time">02:36:10</span>
+    </div>
+    <div class="message-body"><p>Good. All reference docs exist, the remote URL matches, and the logo SVG is in the right place. Now let me verify anchors by extracting all headings and comparing with nav links.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Bash toolu_019NeTNpLbrbKtKqWSfkGbES Bash input={&quot;command&quot;:&quot;grep -n &#39;^##&#39; \&quot;D:/demo1/memorytree-workflow/README.md\&quot; | while IFS= read -r line; do heading=$(echo \&quot;$line\&quot; | sed &#39;s/^[0-9]*:##* //&#39;); anchor=$(echo \&quot;$heading\&quot;..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_019NeTNpLbrbKtKqWSfkGbES</span>
+      <span class="timeline-time">02:36:12</span>
+    </div>
+    <div class="timeline-title">Bash input={&quot;command&quot;:&quot;grep -n &#39;^##&#39; \&quot;D:/demo1/memorytree-workflow/README.md\&quot; | while IFS= read -r line; do heading=$(echo \&quot;$line\&quot; | sed &#39;s/^[0-9]*:##* //&#39;); anchor=$(echo \&quot;$heading\&quot;...</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;command&quot;: &quot;grep -n &#39;^##&#39; \&quot;D:/demo1/memorytree-workflow/README.md\&quot; | while IFS= read -r line; do heading=$(echo \&quot;$line\&quot; | sed &#39;s/^[0-9]*:##* //&#39;); anchor=$(echo \&quot;$heading\&quot; | tr &#39;[:upper:]&#39; &#39;[:lower:]&#39; | sed &#39;s/ /-/g&#39; | sed &#39;s/[^a-z0-9-]//g&#39;); echo \&quot;$line --&gt; #$anchor\&quot;; done&quot;,
+  &quot;description&quot;: &quot;Extract all headings and their generated anchor IDs&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Bash toolu_019NeTNpLbrbKtKqWSfkGbES Bash output=26:## What It Does --&gt; #what-it-does 40:## Install --&gt; #install 51:## Usage --&gt; #usage 68:## Architecture --&gt; #architecture 70:### Per-Repository Structure --&gt; #per-repository-s..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#18</span>
+      <span class="timeline-chip">Bash</span>
+      <span class="timeline-chip">toolu_019NeTNpLbrbKtKqWSfkGbES</span>
+      
+      <span class="timeline-time">02:36:15</span>
+    </div>
+    <div class="timeline-title">Bash output=26:## What It Does --&gt; #what-it-does 40:## Install --&gt; #install 51:## Usage --&gt; #usage 68:## Architecture --&gt; #architecture 70:### Per-Repository Structure --&gt; #per-repository-s...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>26:## What It Does --&gt; #what-it-does
+40:## Install --&gt; #install
+51:## Usage --&gt; #usage
+68:## Architecture --&gt; #architecture
+70:### Per-Repository Structure --&gt; #per-repository-structure
+88:### Global Directory (`~/.memorytree/`) --&gt; #global-directory-memorytree
+108:## Features --&gt; #features
+110:### Memory Management --&gt; #memory-management
+120:### Multi-Client Transcript Import --&gt; #multi-client-transcript-import
+137:### Cross-Project Search --&gt; #cross-project-search
+147:### Git Safety --&gt; #git-safety
+165:### Sensitive Info Scanning --&gt; #sensitive-info-scanning
+172:### Locale Support --&gt; #locale-support
+181:### Environment Adaptation --&gt; #environment-adaptation
+191:## Background Heartbeat --&gt; #background-heartbeat
+204:### Install the daemon --&gt; #install-the-daemon
+210:### CLI commands --&gt; #cli-commands
+220:### Key settings (`~/.memorytree/config.toml`) --&gt; #key-settings-memorytreeconfigtoml
+228:### Design constraints --&gt; #design-constraints
+236:## Design Principles --&gt; #design-principles
+247:## Reference Docs --&gt; #reference-docs
+263:## Update --&gt; #update
+269:## Requirements --&gt; #requirements
+275:## License --&gt; #license</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now I have all the data I need for a comprehensive review. Let me compile the findings. --- ## README.md Visual Quality Review Report ### 1. Header HTML **Status: PASS** -- The `&lt;div align=&quot;center&quot;&gt;` block uses only GitHub-supported HTML attributes. The `&lt;img&gt;`, `&lt;p&gt;`, and `&lt;a&gt;` tags are all within GitHub&#39;s sanitization whitelist. No `&lt;style&gt;`, `class`, or other unsupported attributes are used. --- ### 2..." id="event-18">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#19</span>
+      
+      <span class="timeline-time">02:37:01</span>
+    </div>
+    <p class="event-preview">Now I have all the data I need for a comprehensive review. Let me compile the findings. --- ## README.md Visual Quality Review Report ### 1. Header HTML **Status: PASS** -- The `&lt;div align=&quot;center&quot;&gt;` block uses only G...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>Now I have all the data I need for a comprehensive review. Let me compile the findings.</p><p>---</p><p>## README.md Visual Quality Review Report</p><p>### 1. Header HTML</p><p><strong>Status: PASS</strong> -- The <code>&lt;div align=&quot;center&quot;&gt;</code> block uses only GitHub-supported HTML attributes. The <code>&lt;img&gt;</code>, <code>&lt;p&gt;</code>, and <code>&lt;a&gt;</code> tags are all within GitHub&#39;s sanitization whitelist. No <code>&lt;style&gt;</code>, <code>class</code>, or other unsupported attributes are used.</p><p>---</p><p>### 2. Badge Links</p><p><strong>CRITICAL -- Missing LICENSE file (line 9)</strong></p><p>The first badge links to <code>(LICENSE)</code>:</p><pre><code>[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+</code></pre><p>There is <strong>no LICENSE file</strong> in the repository. The directory listing shows: <code>agents/</code>, <code>assets/</code>, <code>README.md</code>, <code>references/</code>, <code>scripts/</code>, <code>SKILL.md</code>, <code>tests/</code>, <code>TODO.md</code>. Clicking this badge on GitHub will produce a 404.</p><p><strong>MEDIUM -- Platform badge has empty link target (line 12)</strong></p><pre><code>[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)]()
+</code></pre><p>The link target is <code>()</code> (empty parentheses). On GitHub, this renders as a link to the current page (effectively <code>#</code>). It will not cause an error, but it is a dead click -- the badge is clickable but goes nowhere. Either remove the link wrapper (just use <code>![Platform](url)</code> as a plain image) or point it to a meaningful target like the requirements section.</p><p><strong>Status of other badges:</strong><br>- Python badge: Valid shields.io URL, links to <code>https://www.python.org/</code> -- OK.<br>- Claude Code badge: Valid shields.io URL, links to <code>https://claude.ai/claude-code</code> -- OK.<br>- All badge image URLs use correct shields.io format with valid parameters.</p><p>---</p><p>### 3. Navigation Anchors</p><p>The nav bar on lines 14-20 defines five links:</p><p>| Nav Link | Target Anchor | Matching Heading | Status |<br>|----------|---------------|------------------|--------|<br>| <code>#install</code> | <code>#install</code> | <code>## Install</code> (line 40) | PASS |<br>| <code>#usage</code> | <code>#usage</code> | <code>## Usage</code> (line 51) | PASS |<br>| <code>#features</code> | <code>#features</code> | <code>## Features</code> (line 108) | PASS |<br>| <code>#background-heartbeat</code> | <code>#background-heartbeat</code> | <code>## Background Heartbeat</code> (line 191) | PASS |<br>| <code>#reference-docs</code> | <code>#reference-docs</code> | <code>## Reference Docs</code> (line 247) | PASS |</p><p>All navigation anchors match valid headings.</p><p>---</p><p>### 4. Emoji Rendering</p><p>The feature table (lines 30-36) uses these GitHub emoji shortcodes:</p><p>| Shortcode | Valid GitHub Emoji? |<br>|-----------|---------------------|<br>| <code>:dart:</code> | Yes |<br>| <code>:white_check_mark:</code> | Yes |<br>| <code>:speech_balloon:</code> | Yes |<br>| <code>:books:</code> | Yes |<br>| <code>:inbox_tray:</code> | Yes |</p><p>All are valid and will render correctly on GitHub.</p><p>---</p><p>### 5. Logo SVG</p><p><strong>SVG Validity:</strong> The SVG is well-formed XML with proper <code>xmlns</code> attribute, uses standard SVG elements (<code>circle</code>, <code>rect</code>, <code>line</code>, <code>linearGradient</code>, <code>defs</code>). No JavaScript, no <code>&lt;foreignObject&gt;</code>, no external references. GitHub will render this correctly from <code>raw.githubusercontent.com</code>.</p><p><strong>Image URL match:</strong> The <code>&lt;img&gt;</code> tag references:</p><pre><code>https://raw.githubusercontent.com/beyondchenlin/memorytree-workflow/master/assets/logo.svg
+</code></pre><p>- The git remote is <code>https://github.com/beyondchenlin/memorytree-workflow.git</code> -- matches.<br>- The file exists at <code>assets/logo.svg</code> -- matches.<br>- The branch is <code>master</code> and the current branch is <code>master</code> -- matches.</p><p><strong>Status: PASS</strong></p><p>---</p><p>### 6. Table Formatting</p><p>All Markdown tables in the README are properly formatted:<br>- Feature table (lines 30-36): 3 columns, consistent alignment, header separator present.<br>- Memory Management table (lines 112-118): 2 columns, OK.<br>- Multi-Client Transcript Import table (lines 124-128): 2 columns, OK.<br>- Git Safety table (lines 151-159): 2 columns, OK.<br>- Locale Support table (lines 174-179): 2 columns, OK.<br>- CLI commands table (lines 212-218): 2 columns, OK.<br>- Key settings table (lines 222-226): 3 columns, OK.<br>- Design Principles table (lines 238-245): 2 columns, OK.<br>- Reference Docs table (lines 249-261): 2 columns, OK.</p><p><strong>Status: PASS</strong></p><p>---</p><p>### 7. Overall Flow</p><p>The information hierarchy is logical and reads well top to bottom:</p><p>1. Visual header with logo, title, tagline, badges, nav<br>2. &quot;What It Does&quot; -- quick orientation with feature table<br>3. &quot;Install&quot; -- get started<br>4. &quot;Usage&quot; -- how to invoke<br>5. &quot;Architecture&quot; -- deeper understanding<br>6. &quot;Features&quot; -- detailed capabilities<br>7. &quot;Background Heartbeat&quot; -- advanced/optional feature<br>8. &quot;Design Principles&quot; -- philosophy<br>9. &quot;Reference Docs&quot; -- further reading<br>10. &quot;Update&quot; / &quot;Requirements&quot; / &quot;License&quot; -- housekeeping</p><p><strong>MEDIUM -- &quot;What It Does&quot; is not in the navigation bar.</strong> The nav jumps from the header straight to <code>#install</code>, skipping the first content section. This is a minor inconsistency since &quot;What It Does&quot; is arguably the most important section for new visitors. Consider either adding it to the nav or renaming/merging it.</p><p><strong>LOW -- &quot;Architecture&quot; and &quot;Design Principles&quot; are not in the nav bar either.</strong> The nav is selective (5 links), which is fine, but &quot;Architecture&quot; is a major section that some users may want to jump to.</p><p>---</p><p>### 8. Link Integrity</p><p><strong>Internal anchor links:</strong> Only the nav bar links use <code>#anchor</code> references -- all verified above as PASS.</p><p><strong>Relative file links:</strong></p><p>| Link | Target | Exists? | Status |<br>|------|--------|---------|--------|<br>| <code>(LICENSE)</code> (line 9) | <code>LICENSE</code> | <strong>NO</strong> | CRITICAL |<br>| <code>(references/global-configuration.md)</code> (line 106) | <code>references/global-configuration.md</code> | Yes | PASS |<br>| <code>(references/git-policy.md)</code> (line 163) | <code>references/git-policy.md</code> | Yes | PASS |<br>| <code>(references/heartbeat-scheduling.md)</code> (line 234) | <code>references/heartbeat-scheduling.md</code> | Yes | PASS |<br>| <code>(references/global-configuration.md)</code> (line 234) | <code>references/global-configuration.md</code> | Yes | PASS |<br>| <code>(references/project-detection.md)</code> (line 251) | <code>references/project-detection.md</code> | Yes | PASS |<br>| <code>(references/memory-layout.md)</code> (line 252) | <code>references/memory-layout.md</code> | Yes | PASS |<br>| <code>(references/update-rules.md)</code> (line 253) | <code>references/update-rules.md</code> | Yes | PASS |<br>| <code>(references/git-policy.md)</code> (line 254) | <code>references/git-policy.md</code> | Yes | PASS |<br>| <code>(references/heartbeat-scheduling.md)</code> (line 255) | <code>references/heartbeat-scheduling.md</code> | Yes | PASS |<br>| <code>(references/global-configuration.md)</code> (line 256) | <code>references/global-configuration.md</code> | Yes | PASS |<br>| <code>(references/transcript-archive.md)</code> (line 257) | <code>references/transcript-archive.md</code> | Yes | PASS |<br>| <code>(references/locale-selection.md)</code> (line 258) | <code>references/locale-selection.md</code> | Yes | PASS |<br>| <code>(references/response-language.md)</code> (line 259) | <code>references/response-language.md</code> | Yes | PASS |<br>| <code>(references/execution-environment.md)</code> (line 260) | <code>references/execution-environment.md</code> | Yes | PASS |<br>| <code>(references/upgrade-path.md)</code> (line 261) | <code>references/upgrade-path.md</code> | Yes | PASS |</p><p><strong>External links:</strong><br>- <code>https://www.python.org/</code> -- standard, valid.<br>- <code>https://claude.ai/claude-code</code> -- valid.<br>- <code>https://github.com/beyondchenlin/memorytree-workflow</code> (clone URL, line 43/48) -- matches remote.</p><p>---</p><p>## Summary of Findings</p><p>| Severity | Issue | Location | Recommendation |<br>|----------|-------|----------|----------------|<br>| <strong>CRITICAL</strong> | LICENSE file does not exist but the MIT badge links to it | Line 9 | Create a <code>LICENSE</code> file with the MIT license text, or change the badge link to point to a valid target |<br>| <strong>MEDIUM</strong> | Platform badge has empty link <code>()</code> -- clickable but goes nowhere | Line 12 | Change to plain image <code>![Platform](url)</code> or link to <code>#requirements</code> |<br>| <strong>MEDIUM</strong> | &quot;What It Does&quot; section is skipped by the navigation bar | Lines 14-20 | Consider adding it to the nav, or at minimum this is a conscious editorial choice |<br>| <strong>LOW</strong> | &quot;Architecture&quot; and &quot;Design Principles&quot; not in nav | Lines 14-20 | Consider adding if nav is meant to be comprehensive; fine if intentionally selective |</p><p>The single critical issue is the missing LICENSE file. Everything else -- HTML structure, SVG logo, emoji codes, table formatting, anchor links, reference doc links, and overall document flow -- is solid and will render correctly on GitHub.</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>

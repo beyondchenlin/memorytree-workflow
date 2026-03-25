@@ -1,0 +1,3763 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agent-a2ecb8e984e1beec8 — MemoryTree</title>
+<meta property="og:title" content="agent-a2ecb8e984e1beec8">
+<meta property="og:type" content="website">
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --user-bg: #1c2d3e;
+  --user-border: #388bfd44;
+  --assistant-bg: #1c1c1c;
+  --assistant-border: #30363d;
+  --code-bg: #161b22;
+  --badge-codex: #1f6feb;
+  --badge-claude: #6e40c9;
+  --badge-gemini: #1a7f37;
+  --danger: #f85149;
+  --warning: #d29922;
+  --success: #3fb950;
+  --mark-bg: #3d3000;
+  --sidebar-width: 240px;
+  --font-mono: 'SF Mono', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-card: #ffffff;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-muted: #636c76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --user-bg: #ddf4ff;
+  --user-border: #54aeff44;
+  --assistant-bg: #f6f8fa;
+  --assistant-border: #d0d7de;
+  --code-bg: #f6f8fa;
+  --mark-bg: #fff8c5;
+  --green-0: #f6f8fa;
+  --green-1: #acf2bd;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.375rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+
+p { margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.25rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-secondary); }
+tr:hover td { background: var(--bg-secondary); }
+
+/* ── Mobile topbar ── */
+.topbar {
+  display: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topbar-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hamburger, .theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger:hover, .theme-toggle-btn:hover {
+  background: var(--bg-card);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  padding: 0.75rem 1.25rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 0;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-card);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(1.25rem - 3px);
+}
+
+.sidebar-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .theme-toggle-btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  gap: 0.3rem;
+}
+
+/* ── Overlay (mobile) ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 140;
+}
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { font-size: 1.5rem; }
+.page-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Charts ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.chart-card svg { display: block; width: 100%; overflow: visible; }
+.chart-card.full-width { grid-column: 1 / -1; }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-codex { background: #1f6feb33; color: #58a6ff; border: 1px solid #1f6feb66; }
+.badge-claude { background: #6e40c933; color: #bc8cff; border: 1px solid #6e40c966; }
+.badge-gemini { background: #1a7f3733; color: #3fb950; border: 1px solid #1a7f3766; }
+.badge-unknown { background: #30363d33; color: #8b949e; border: 1px solid #30363d66; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-color: var(--accent); background: var(--bg-secondary); }
+
+/* ── Messages ── */
+.messages { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+
+.message {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  max-width: 100%;
+}
+
+.message-user {
+  background: var(--user-bg);
+  border-color: var(--user-border);
+  align-self: flex-start;
+}
+
+.message-assistant {
+  background: var(--assistant-bg);
+  border-color: var(--assistant-border);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.message-role {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.message-user .message-role { color: var(--accent); }
+.message-assistant .message-role { color: var(--text-muted); }
+
+.message-body { font-size: 0.9rem; line-height: 1.7; word-break: break-word; }
+.message-body p { margin-bottom: 0.5rem; }
+.message-body p:last-child { margin-bottom: 0; }
+
+/* ── Summary card ── */
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.summary-card .summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+/* ── Metadata table ── */
+.meta-table { font-size: 0.85rem; margin-bottom: 1.25rem; }
+.meta-table td:first-child { color: var(--text-muted); width: 140px; font-weight: 500; }
+
+/* ── Backlinks ── */
+.backlinks {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.backlinks-title { font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; font-size: 0.8rem; text-transform: uppercase; }
+.backlinks ul { padding-left: 1rem; }
+
+/* ── Search ── */
+.search-box {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-box:focus { border-color: var(--accent); }
+
+.search-results { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.search-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent); }
+.search-result-title { font-weight: 600; margin-bottom: 0.25rem; }
+.search-result-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.search-result-snippet { font-size: 0.85rem; color: var(--text-muted); }
+.search-result mark { background: var(--mark-bg); color: var(--warning); border-radius: 2px; padding: 0 0.1em; }
+#search-count { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* ── Heatmap legend ── */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ── Popover ── */
+.popover {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  max-width: 320px;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+.popover-meta { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 0.4rem; }
+.popover-summary { color: var(--text); line-height: 1.5; }
+
+/* ── Graph canvas ── */
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  cursor: grab;
+}
+
+#graph-canvas:active { cursor: grabbing; }
+
+.graph-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Project cards ── */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: border-color 0.15s;
+}
+
+.project-card:hover { border-color: var(--accent); }
+.project-card-link { display: block; color: inherit; text-decoration: none; cursor: pointer; }
+.project-card-link:hover { color: inherit; text-decoration: none; }
+.project-card-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.project-card-meta { font-size: 0.82rem; color: var(--text-muted); }
+.project-card-clients { margin-top: 0.6rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.table-filter-link {
+  color: var(--text-muted);
+}
+
+.table-filter-link:hover {
+  color: var(--accent);
+}
+
+/* ── Responsive: tablet icon mode (768–1024px) ── */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-width: 52px; }
+  .nav-link .nav-label { display: none; }
+  .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+  .nav-section-label { display: none; }
+  .sidebar-brand { display: none; }
+  .sidebar-footer .theme-label { display: none; }
+  .sidebar-footer .theme-toggle-btn { padding: 0.35rem 0.5rem; }
+}
+
+/* ── Responsive: mobile (<768px) ── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 48px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .container { padding: 1rem 0.75rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar collapse ── */
+body.sidebar-collapsed .sidebar { width: 52px; }
+body.sidebar-collapsed .nav-label { display: none; }
+body.sidebar-collapsed .nav-link { justify-content: center; padding: 0.55rem; gap: 0; }
+body.sidebar-collapsed .nav-section-label { display: none; }
+body.sidebar-collapsed .sidebar-brand { display: none; }
+body.sidebar-collapsed .theme-label { display: none; }
+body.sidebar-collapsed .main-content { margin-left: 52px; }
+.sidebar-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+.sidebar-collapse-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.breadcrumb-item { color: var(--text-muted); }
+a.breadcrumb-item { color: var(--accent); text-decoration: none; }
+a.breadcrumb-item:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--border); user-select: none; }
+
+/* ── TOC ── */
+.toc {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+.toc-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.toc-toggle:hover { color: var(--text); }
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.toc-list li { margin-bottom: 0.2rem; }
+.toc-list a { color: var(--accent); }
+.toc-list a:hover { text-decoration: underline; }
+.toc-list[hidden] { display: none; }
+.toc-arrow { transition: transform 0.15s; }
+.toc-toggle[aria-expanded="false"] .toc-arrow { transform: rotate(-90deg); }
+
+/* ── Callouts ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+.callout-body p { margin-bottom: 0.35rem; }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-note     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-tip      { background: #1a7f3722; border-color: #3fb950; }
+.callout-info     { background: #1f6feb22; border-color: #58a6ff; }
+.callout-success  { background: #1a7f3722; border-color: #3fb950; }
+.callout-important { background: #6e40c922; border-color: #bc8cff; }
+.callout-warning  { background: #d2992222; border-color: #d29922; }
+.callout-caution  { background: #f8514922; border-color: #f85149; }
+.callout-error    { background: #f8514922; border-color: #f85149; }
+[data-theme="light"] .callout-note,
+[data-theme="light"] .callout-info    { background: #ddf4ff; border-color: #0969da; }
+[data-theme="light"] .callout-tip,
+[data-theme="light"] .callout-success { background: #dafbe1; border-color: #1a7f37; }
+[data-theme="light"] .callout-important { background: #fbefff; border-color: #8250df; }
+[data-theme="light"] .callout-warning { background: #fff8c5; border-color: #9a6700; }
+[data-theme="light"] .callout-caution,
+[data-theme="light"] .callout-error   { background: #ffebe9; border-color: #cf222e; }
+
+/* ── Mermaid diagrams ── */
+pre.mermaid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  overflow-x: auto;
+}
+
+/* ── Reader Mode ── */
+.reader-mode .sidebar,
+.reader-mode .topbar,
+.reader-mode .breadcrumb,
+.reader-mode .meta-table,
+.reader-mode .backlinks { display: none !important; }
+.reader-mode .main-content { margin-left: 0 !important; }
+.reader-mode .container { max-width: 720px; }
+.reader-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.reader-toggle-btn:hover { color: var(--text); background: var(--bg-card); }
+
+/* ── Tag badges ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.tag {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Search filter dropdowns ── */
+.search-filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.search-filter-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 90ms cubic-bezier(0.4, 0, 1, 1) both vt-fade-out;
+  }
+  ::view-transition-new(root) {
+    animation: 210ms cubic-bezier(0, 0, 0.2, 1) both vt-fade-in;
+  }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
+/* Transcript replay */
+.transcript-page {
+  position: relative;
+}
+
+.transcript-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(77, 179, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 88% 16%, rgba(255, 176, 124, 0.11), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(84, 208, 152, 0.08), transparent 36%);
+  opacity: 0.9;
+}
+
+.transcript-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 1.4rem;
+  background:
+    linear-gradient(135deg, rgba(18, 29, 43, 0.96), rgba(20, 23, 31, 0.92)),
+    var(--bg-card);
+  border: 1px solid rgba(119, 178, 255, 0.22);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="light"] .transcript-hero {
+  background:
+    linear-gradient(135deg, rgba(239, 247, 255, 0.98), rgba(255, 247, 240, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.16);
+}
+
+.transcript-kicker {
+  margin-bottom: 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.transcript-subtitle {
+  max-width: 48rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.transcript-pill-row,
+.timeline-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.transcript-pill-row {
+  margin-top: 1rem;
+}
+
+.transcript-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(119, 178, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .transcript-pill {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.transcript-hero-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .transcript-hero-meta {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(9, 105, 218, 0.1);
+}
+
+.transcript-meta-label {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.transcript-meta-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.transcript-meta-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-shell {
+  margin-top: 1.25rem;
+}
+
+.replay-banner {
+  margin-bottom: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 194, 124, 0.18);
+  background:
+    linear-gradient(135deg, rgba(48, 31, 15, 0.46), rgba(17, 30, 49, 0.3)),
+    var(--bg-secondary);
+}
+
+[data-theme="light"] .replay-banner {
+  background:
+    linear-gradient(135deg, rgba(255, 243, 228, 0.98), rgba(237, 246, 255, 0.98)),
+    var(--bg-secondary);
+}
+
+.replay-banner-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffb176;
+}
+
+.replay-banner-text {
+  margin: 0.45rem 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.replay-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.replay-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-sidebar-card {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(18, 24, 34, 0.96), rgba(18, 30, 41, 0.88)),
+    var(--bg-card);
+  border: 1px solid rgba(120, 184, 255, 0.14);
+}
+
+[data-theme="light"] .replay-sidebar-card {
+  background:
+    linear-gradient(160deg, rgba(247, 250, 255, 0.98), rgba(255, 249, 244, 0.96)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.replay-section-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8dc6ff;
+}
+
+.replay-section-title {
+  margin-top: 0.5rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.replay-note {
+  margin-top: 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.replay-meta-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.replay-meta-row {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.replay-meta-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.replay-meta-value {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.replay-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.replay-stat-card {
+  padding: 0.8rem 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] .replay-stat-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.replay-stat-label {
+  margin-top: 0.2rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.replay-legend {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.95rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replay-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.replay-legend-dot {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  margin-top: 0.32rem;
+}
+
+.replay-dot-message {
+  background: linear-gradient(135deg, #79c4ff, #aee7ff);
+}
+
+.replay-dot-tool {
+  background: linear-gradient(135deg, #54d098, #8fe1d1);
+}
+
+.replay-dot-reasoning {
+  background: linear-gradient(135deg, #ffc27e, #ffe0a8);
+}
+
+.replay-dot-system {
+  background: linear-gradient(135deg, #c3ceda, #91a4ba);
+}
+
+.replay-pill-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.replay-toolbar {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(120, 184, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(22, 28, 37, 0.94), rgba(15, 23, 33, 0.9)),
+    var(--bg-card);
+}
+
+[data-theme="light"] .replay-toolbar {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 255, 0.98), rgba(245, 250, 255, 0.98)),
+    var(--bg-card);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-toolbar-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 0.8rem;
+}
+
+.replay-count {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-toolbar-controls {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.replay-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.replay-filter,
+.replay-action-button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.replay-filter {
+  padding: 0.48rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.replay-filter:hover,
+.replay-action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(141, 198, 255, 0.35);
+}
+
+.replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(96, 185, 255, 0.28), rgba(255, 193, 123, 0.18));
+  border-color: rgba(141, 198, 255, 0.36);
+}
+
+[data-theme="light"] .replay-filter,
+[data-theme="light"] .replay-action-button {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+[data-theme="light"] .replay-filter.is-active {
+  background: linear-gradient(135deg, rgba(211, 234, 255, 0.98), rgba(255, 236, 220, 0.98));
+}
+
+.replay-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.replay-search-field {
+  display: grid;
+  gap: 0.35rem;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.replay-search-field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.replay-search-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 12, 19, 0.48);
+  color: var(--text);
+}
+
+.replay-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .replay-search-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.replay-action-button {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.replay-empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1.15rem;
+}
+
+.transcript-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem;
+}
+
+.transcript-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, transparent, rgba(141, 198, 255, 0.42), transparent);
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.timeline-item.is-hidden {
+  display: none;
+}
+
+.timeline-item.align-user {
+  justify-content: flex-end;
+}
+
+.timeline-item.align-assistant {
+  justify-content: flex-start;
+}
+
+.timeline-item.align-center {
+  justify-content: center;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  top: 1.2rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #7ac5ff, #ffc07b);
+  box-shadow: 0 0 0 8px rgba(26, 33, 42, 0.5);
+}
+
+[data-theme="light"] .timeline-marker {
+  box-shadow: 0 0 0 8px rgba(243, 246, 250, 0.86);
+  border-color: rgba(9, 105, 218, 0.12);
+}
+
+.timeline-card {
+  width: min(100%, 42rem);
+  border-radius: 22px;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(21, 28, 37, 0.9);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .timeline-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-card-user {
+  background:
+    linear-gradient(135deg, rgba(22, 69, 115, 0.82), rgba(17, 32, 50, 0.95)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(122, 197, 255, 0.24);
+}
+
+.timeline-card-assistant {
+  background:
+    linear-gradient(135deg, rgba(29, 32, 42, 0.98), rgba(28, 39, 35, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(166, 194, 186, 0.16);
+}
+
+.timeline-card-system,
+.timeline-card-context {
+  width: min(100%, 34rem);
+  background:
+    linear-gradient(135deg, rgba(31, 35, 47, 0.96), rgba(18, 27, 36, 0.92)),
+    rgba(21, 28, 37, 0.9);
+}
+
+.timeline-card-reasoning {
+  width: min(100%, 36rem);
+  background:
+    linear-gradient(135deg, rgba(66, 48, 20, 0.95), rgba(32, 28, 20, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 194, 124, 0.22);
+}
+
+.timeline-card-tool {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(26, 47, 46, 0.96), rgba(20, 29, 40, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(92, 211, 178, 0.2);
+}
+
+.timeline-card-tool-result {
+  width: min(100%, 38rem);
+  background:
+    linear-gradient(135deg, rgba(36, 29, 19, 0.98), rgba(20, 28, 39, 0.92)),
+    rgba(21, 28, 37, 0.9);
+  border-color: rgba(255, 176, 124, 0.2);
+}
+
+.compact-card {
+  padding-bottom: 0.85rem;
+}
+
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.timeline-role {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-sequence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.timeline-time {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  color: var(--text);
+}
+
+[data-theme="light"] .timeline-chip {
+  background: rgba(241, 248, 255, 0.86);
+  border-color: rgba(9, 105, 218, 0.08);
+}
+
+.timeline-title {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.event-preview,
+.event-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.timeline-fold {
+  margin-top: 0.7rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.09);
+  padding-top: 0.7rem;
+}
+
+[data-theme="light"] .timeline-fold {
+  border-top-color: rgba(9, 105, 218, 0.1);
+}
+
+.timeline-fold summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.timeline-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.timeline-fold-body {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 960px) {
+  .transcript-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .replay-sidebar {
+    position: static;
+  }
+
+  .replay-toolbar-copy,
+  .replay-toolbar-actions {
+    align-items: stretch;
+  }
+
+  .replay-toolbar-copy {
+    flex-direction: column;
+  }
+
+  .transcript-timeline::before {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-item,
+  .timeline-item.align-user,
+  .timeline-item.align-assistant,
+  .timeline-item.align-center {
+    justify-content: flex-start;
+    padding-left: 2.4rem;
+  }
+
+  .timeline-marker {
+    left: 18px;
+    transform: none;
+  }
+
+  .timeline-card,
+  .timeline-card-system,
+  .timeline-card-context,
+  .timeline-card-reasoning,
+  .timeline-card-tool,
+  .timeline-card-tool-result {
+    width: 100%;
+  }
+}
+</style>
+
+
+<script>
+(function() {
+  // Theme
+  var saved = localStorage.getItem('mt-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  // Sidebar collapse
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+  function updateThemeBtn() {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
+    updateThemeBtn();
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function() {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('mt-theme', next);
+      updateThemeBtn();
+    });
+    // Mobile hamburger
+    var hb = document.getElementById('hamburger');
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    function closeSidebar() {
+      if (sb) sb.classList.remove('open');
+      if (ov) ov.classList.remove('open');
+    }
+    if (hb) hb.addEventListener('click', function() {
+      if (sb) sb.classList.toggle('open');
+      if (ov) ov.classList.toggle('open');
+    });
+    if (ov) ov.addEventListener('click', closeSidebar);
+    // Sidebar collapse toggle
+    var collapseBtn = document.getElementById('sidebar-collapse');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() {
+      var collapsed = document.body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('mt-sidebar', collapsed ? 'collapsed' : 'expanded');
+    });
+    // TOC toggle
+    var tocToggle = document.getElementById('toc-toggle');
+    var tocList = document.getElementById('toc-list');
+    if (tocToggle && tocList) tocToggle.addEventListener('click', function() {
+      var expanded = tocToggle.getAttribute('aria-expanded') === 'true';
+      tocToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) { tocList.setAttribute('hidden', ''); } else { tocList.removeAttribute('hidden'); }
+    });
+    // Reader Mode toggle
+    var readerBtn = document.getElementById('reader-toggle');
+    if (readerBtn) {
+      if (localStorage.getItem('mt-reader') === '1') document.body.classList.add('reader-mode');
+      readerBtn.addEventListener('click', function() {
+        var on = document.body.classList.toggle('reader-mode');
+        localStorage.setItem('mt-reader', on ? '1' : '0');
+      });
+    }
+    // View Transitions API (progressive enhancement)
+    if (document.startViewTransition) {
+      document.addEventListener('click', function(e) {
+        var a = e.target && (e.target.closest ? e.target.closest('a[href]:not([target]):not([download])') : null);
+        if (!a) return;
+        var href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http')) return;
+        e.preventDefault();
+        document.startViewTransition(function() { window.location.href = href; });
+      });
+    }
+    // Popover preview
+    var popover = null;
+    document.querySelectorAll('a[data-summary]').forEach(function(el) {
+      el.addEventListener('mouseenter', function(e) {
+        var summary = el.getAttribute('data-summary') || '';
+        var meta = el.getAttribute('data-meta') || '';
+        if (!summary && !meta) return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'popover';
+          document.body.appendChild(popover);
+        }
+        popover.innerHTML = '';
+        if (meta) {
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'popover-meta';
+          metaDiv.textContent = meta;
+          popover.appendChild(metaDiv);
+        }
+        if (summary) {
+          var sumDiv = document.createElement('div');
+          sumDiv.className = 'popover-summary';
+          sumDiv.textContent = summary;
+          popover.appendChild(sumDiv);
+        }
+        popover.style.display = 'block';
+        positionPopover(e);
+      });
+      el.addEventListener('mousemove', positionPopover);
+      el.addEventListener('mouseleave', function() {
+        if (popover) popover.style.display = 'none';
+      });
+    });
+    function positionPopover(e) {
+      if (!popover) return;
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      var pw = popover.offsetWidth || 320;
+      var ph = popover.offsetHeight || 80;
+      if (x + pw > window.innerWidth - 8) x = e.clientX - pw - 12;
+      if (y + ph > window.innerHeight - 8) y = e.clientY - ph - 12;
+      popover.style.left = x + 'px';
+      popover.style.top = y + 'px';
+    }
+  });
+})();
+</script>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <span class="topbar-brand">MemoryTree</span>
+  <div class="topbar-actions">
+    <button class="theme-toggle-btn" id="theme-toggle-mobile" type="button">☀</button>
+    <button class="hamburger" id="hamburger" type="button">☰</button>
+  </div>
+</header>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-brand">MemoryTree</span>
+    <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" title="Collapse sidebar">«</button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../index.html" class="nav-link" title="Dashboard">📊 <span class="nav-label">Dashboard</span></a>
+      <a href="../../transcripts/index.html" class="nav-link active" title="Sessions">💬 <span class="nav-label">Sessions</span></a>
+      <a href="../../projects/index.html" class="nav-link" title="Projects">📁 <span class="nav-label">Projects</span></a>
+      <a href="../../graph.html" class="nav-link" title="Graph">🕸️ <span class="nav-label">Graph</span></a>
+      <a href="../../goals/index.html" class="nav-link" title="Goals">🎯 <span class="nav-label">Goals</span></a>
+      <a href="../../todos/index.html" class="nav-link" title="Todos">✅ <span class="nav-label">Todos</span></a>
+      <a href="../../knowledge/index.html" class="nav-link" title="Knowledge">📚 <span class="nav-label">Knowledge</span></a>
+      <a href="../../archive/index.html" class="nav-link" title="Archive">🗄️ <span class="nav-label">Archive</span></a>
+      <a href="../../search.html" class="nav-link" title="Search">🔍 <span class="nav-label">Search</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle-btn" id="theme-toggle" type="button">☀ Light</button>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="main-content">
+  <div class="container">
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
+<div class="transcript-page">
+<section class="transcript-hero card">
+  <div class="transcript-hero-copy">
+    <div class="transcript-kicker">Full Replay</div>
+    <h1>agent-a2ecb8e984e1beec8</h1>
+    <p class="transcript-subtitle">A structured session playback built from normalized transcript JSON. Messages stay readable, heavy payloads stay folded, and long runs stay searchable.</p>
+    <div class="transcript-pill-row">
+      <span class="transcript-pill"><span class="badge badge-claude">claude</span></span>
+      <span class="transcript-pill"><strong>4</strong> Messages</span>
+      <span class="transcript-pill"><strong>14</strong> Tool Events</span>
+      <span class="transcript-pill"><strong>18</strong> Events</span>
+      
+    </div>
+  </div>
+  <div class="transcript-hero-meta">
+    <div class="transcript-meta-label">Started</div>
+    <div class="transcript-meta-value">2026-03-18 00:41:34</div>
+    <div class="transcript-meta-label">Branch</div>
+    <div class="transcript-meta-code">main</div>
+    <div class="transcript-meta-label">Working Dir</div>
+    <div class="transcript-meta-code">D:\demo1\openmnemo</div>
+  </div>
+</section>
+
+
+<section class="replay-shell" data-replay-root>
+  <div class="replay-layout">
+    <aside class="replay-sidebar">
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Session Map</div>
+  <div class="replay-section-title">agent-a2ecb8e984e1beec8</div>
+  <div class="replay-meta-grid">
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Client</span>
+  <span class="replay-meta-value">claude</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Session</span>
+  <span class="replay-meta-value">b51330ae-55d8-485a-b349-6f840b1aeb0b</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Branch</span>
+  <span class="replay-meta-value">main</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">Working Dir</span>
+  <span class="replay-meta-value">D:\demo1\openmnemo</span>
+</div>
+    <div class="replay-meta-row">
+  <span class="replay-meta-label">SHA-256</span>
+  <span class="replay-meta-value">9b62b1c182a2da20...</span>
+</div>
+  </div>
+  <div class="replay-stat-grid">
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">18</div>
+  <div class="replay-stat-label">Events</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">4</div>
+  <div class="replay-stat-label">Messages</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">14</div>
+  <div class="replay-stat-label">Tools</div>
+</div>
+    <div class="replay-stat-card">
+  <div class="replay-stat-value">0</div>
+  <div class="replay-stat-label">Reasoning</div>
+</div>
+  </div>
+</section>
+      <section class="replay-sidebar-card card">
+  <div class="replay-section-label">Reading Mode</div>
+  <div class="replay-note">This page keeps the whole session intact while making long transcripts easier to scan.</div>
+  <ul class="replay-legend">
+    <li><span class="replay-legend-dot replay-dot-message"></span> Messages stay in left/right conversation bubbles.</li>
+    <li><span class="replay-legend-dot replay-dot-tool"></span> Tool calls and results are folded by default.</li>
+    <li><span class="replay-legend-dot replay-dot-reasoning"></span> Reasoning steps remain visible without leaking encrypted content.</li>
+    <li><span class="replay-legend-dot replay-dot-system"></span> Context, task state, and token counters stay in the timeline for auditability.</li>
+  </ul>
+  <div class="replay-pill-strip">
+    <span class="transcript-pill"><strong>4</strong> dialog</span>
+    <span class="transcript-pill"><strong>14</strong> tool traffic</span>
+  </div>
+</section>
+    </aside>
+    <div class="replay-main">
+      <div class="replay-banner">
+        <div class="replay-banner-title">Conversation Flow</div>
+        <div class="replay-banner-text">Use the controls to focus on one slice of the session: human prompts, assistant output, tool traffic, reasoning markers, or system context. The raw structure is preserved without forcing everything into one flat blob.</div>
+        <div class="transcript-pill-row">
+          <span class="transcript-pill"><strong>4</strong> Messages</span>
+          <span class="transcript-pill"><strong>14</strong> Tool Events</span>
+          <span class="transcript-pill"><strong>0</strong> Reasoning</span>
+          <span class="transcript-pill"><strong>0</strong> System</span>
+        </div>
+      </div>
+      <section class="replay-toolbar card">
+  <div class="replay-toolbar-copy">
+    <div class="replay-section-label">Controls</div>
+    <div class="replay-count" data-replay-count>18 visible events</div>
+  </div>
+  <div class="replay-toolbar-controls">
+    <div class="replay-filter-row">
+      <button type="button" class="replay-filter is-active" data-filter="all">All</button>
+      <button type="button" class="replay-filter" data-filter="message">Messages</button>
+      <button type="button" class="replay-filter" data-filter="tool">Tools</button>
+      <button type="button" class="replay-filter" data-filter="reasoning">Reasoning</button>
+      <button type="button" class="replay-filter" data-filter="system">System</button>
+    </div>
+    <div class="replay-toolbar-actions">
+      <label class="replay-search-field">
+        <span>Search this replay</span>
+        <input type="search" class="replay-search-input" placeholder="message, tool, reasoning..." data-replay-search>
+      </label>
+      <button type="button" class="replay-action-button" data-expand-all>Expand details</button>
+      <button type="button" class="replay-action-button" data-collapse-all>Collapse details</button>
+    </div>
+  </div>
+</section>
+      <div class="replay-empty-state card" data-replay-empty hidden>
+        No events match the current filter.
+      </div>
+      <div class="transcript-timeline" data-replay-timeline>
+        <article class="timeline-item align-user" data-event-kind="message" data-event-group="message" data-search-text="user Please do a second independent review of the new integration tests added to D:\demo1\openmnemo\packages\core\tests\transcript\integration.test.ts New tests: 1. &quot;Gemini JSON transcript end-to-end&quot; 2. &quot;Doubao TXT transcript end-to-end&quot; 3. &quot;Doubao CRLF transcript parses correctly end-to-end&quot; Please read the file, then also read: - D:\demo1\openmnemo\packages\core\src\transcript\parse.ts (parseGeminiTranscript, p..." id="event-0">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-user">
+    <div class="timeline-meta">
+      <span class="timeline-role">user</span>
+      <span class="timeline-sequence">#1</span>
+      
+      <span class="timeline-time">00:41:34</span>
+    </div>
+    <div class="message-body"><p>Please do a second independent review of the new integration tests added to D:\demo1\openmnemo\packages\core\tests\transcript\integration.test.ts</p><p>New tests:<br>1. &quot;Gemini JSON transcript end-to-end&quot;<br>2. &quot;Doubao TXT transcript end-to-end&quot;  <br>3. &quot;Doubao CRLF transcript parses correctly end-to-end&quot;</p><p>Please read the file, then also read:<br>- D:\demo1\openmnemo\packages\core\src\transcript\parse.ts (parseGeminiTranscript, parseDoubaoTranscript)<br>- D:\demo1\openmnemo\packages\core\src\transcript\import.ts (importTranscript)</p><p>Review focus:<br>- Are the fixture data (Gemini JSON structure, Doubao TXT format) realistic and matching what the parsers actually expect?<br>- Are path handling assertions correct? (global_clean_path is absolute, repo_clean_path is relative to repoRoot)<br>- Is the Gemini slug inference test correct? (slug comes from parent directory name for gemini)<br>- Does the Doubao test verify session_id correctly? (extracted from URL last segment)<br>- Are there important scenarios missing for Chinese text handling, JSONL Gemini format, etc.?</p><p>Categorize findings as CRITICAL / HIGH / MEDIUM / LOW.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I&#39;ll read all the relevant files in parallel to do a thorough independent review." id="event-1">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#2</span>
+      
+      <span class="timeline-time">00:41:38</span>
+    </div>
+    <div class="message-body"><p>I&#39;ll read all the relevant files in parallel to do a thorough independent review.</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01VkYAuz1RaKpWHdDqYE9aC7 Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\tests\\transcript\\integration.test.ts&quot;}" id="event-2">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#3</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01VkYAuz1RaKpWHdDqYE9aC7</span>
+      <span class="timeline-time">00:41:38</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\tests\\transcript\\integration.test.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\tests\\transcript\\integration.test.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01VkYAuz1RaKpWHdDqYE9aC7 Read output=1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39; 2→import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from &#39;node:fs&#39; 3→import { join }..." id="event-3">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#4</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01VkYAuz1RaKpWHdDqYE9aC7</span>
+      
+      <span class="timeline-time">00:41:38</span>
+    </div>
+    <div class="timeline-title">Read output=1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39; 2→import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from &#39;node:fs&#39; 3→import { join }...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→import { describe, it, expect, beforeEach, afterEach } from &#39;vitest&#39;
+     2→import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from &#39;node:fs&#39;
+     3→import { join } from &#39;node:path&#39;
+     4→import { tmpdir } from &#39;node:os&#39;
+     5→import initSqlJs from &#39;sql.js&#39;
+     6→
+     7→import { parseCodexTranscript, parseGeminiTranscript, parseDoubaoTranscript } from &#39;../../src/transcript/parse.js&#39;
+     8→import { importTranscript, transcriptHasContent } from &#39;../../src/transcript/import.js&#39;
+     9→import { inferProjectSlug } from &#39;../../src/transcript/discover.js&#39;
+    10→
+    11→describe(&#39;integration: parse → import → verify&#39;, () =&gt; {
+    12→  let tmpDir: string
+    13→  let repoRoot: string
+    14→  let globalRoot: string
+    15→
+    16→  beforeEach(() =&gt; {
+    17→    tmpDir = mkdtempSync(join(tmpdir(), &#39;integration-&#39;))
+    18→    repoRoot = join(tmpDir, &#39;repo&#39;)
+    19→    globalRoot = join(tmpDir, &#39;global&#39;)
+    20→  })
+    21→  afterEach(() =&gt; {
+    22→    rmSync(tmpDir, { recursive: true, force: true })
+    23→  })
+    24→
+    25→  it(&#39;end-to-end: create JSONL → parse → import → verify files&#39;, async () =&gt; {
+    26→    // 1. Create a realistic Codex JSONL transcript
+    27→    const sourceFile = join(tmpDir, &#39;test-session.jsonl&#39;)
+    28→    const records = [
+    29→      { type: &#39;session_meta&#39;, payload: { id: &#39;sess-001&#39;, title: &#39;Fix bug&#39;, cwd: &#39;/home/user/myproject&#39;, git: { branch: &#39;main&#39; }, timestamp: &#39;2024-06-15T10:00:00Z&#39; } },
+    30→      { type: &#39;response_item&#39;, timestamp: &#39;2024-06-15T10:00:01Z&#39;, payload: { type: &#39;message&#39;, role: &#39;user&#39;, content: [{ type: &#39;input_text&#39;, text: &#39;Fix the login bug&#39; }] } },
+    31→      { type: &#39;response_item&#39;, timestamp: &#39;2024-06-15T10:00:02Z&#39;, payload: { type: &#39;message&#39;, role: &#39;assistant&#39;, content: [{ type: &#39;text&#39;, text: &#39;I will fix the login bug for you.&#39; }] } },
+    32→      { type: &#39;response_item&#39;, timestamp: &#39;2024-06-15T10:00:03Z&#39;, payload: { type: &#39;function_call&#39;, name: &#39;read_file&#39;, arguments: { path: &#39;login.ts&#39; } } },
+    33→      { type: &#39;response_item&#39;, timestamp: &#39;2024-06-15T10:00:04Z&#39;, payload: { type: &#39;function_call_output&#39;, name: &#39;read_file&#39;, output: &#39;file contents here&#39; } },
+    34→    ]
+    35→    writeFileSync(sourceFile, records.map(r =&gt; JSON.stringify(r)).join(&#39;\n&#39;) + &#39;\n&#39;)
+    36→
+    37→    // 2. Parse
+    38→    const parsed = parseCodexTranscript(sourceFile)
+    39→    expect(parsed.client).toBe(&#39;codex&#39;)
+    40→    expect(parsed.session_id).toBe(&#39;sess-001&#39;)
+    41→    expect(parsed.title).toBe(&#39;Fix bug&#39;)
+    42→    expect(parsed.cwd).toBe(&#39;/home/user/myproject&#39;)
+    43→    expect(parsed.branch).toBe(&#39;main&#39;)
+    44→    expect(parsed.messages).toHaveLength(2)
+    45→    expect(parsed.tool_events).toHaveLength(2)
+    46→    expect(transcriptHasContent(parsed)).toBe(true)
+    47→
+    48→    // 3. Infer project slug
+    49→    const slug = inferProjectSlug(parsed)
+    50→    expect(slug).toBe(&#39;myproject&#39;)
+    51→
+    52→    // 4. Import
+    53→    const manifest = await importTranscript(parsed, repoRoot, globalRoot, slug, &#39;none&#39;, true)
+    54→
+    55→    // 5. Verify manifest fields
+    56→    expect(manifest.client).toBe(&#39;codex&#39;)
+    57→    expect(manifest.project).toBe(&#39;myproject&#39;)
+    58→    expect(manifest.session_id).toBe(&#39;sess-001&#39;)
+    59→    expect(manifest.message_count).toBe(2)
+    60→    expect(manifest.tool_event_count).toBe(2)
+    61→    expect(manifest.cleaning_mode).toBe(&#39;deterministic-code&#39;)
+    62→    expect(manifest.repo_mirror_enabled).toBe(true)
+    63→
+    64→    // 6. Verify raw file copied to repo + global
+    65→    expect(existsSync(join(repoRoot, manifest.repo_raw_path))).toBe(true)
+    66→
+    67→    // 7. Verify clean markdown has correct frontmatter
+    68→    const cleanContent = readFileSync(join(repoRoot, manifest.repo_clean_path), &#39;utf-8&#39;)
+    69→    expect(cleanContent).toContain(&#39;---&#39;)
+    70→    expect(cleanContent).toContain(&#39;client: codex&#39;)
+    71→    expect(cleanContent).toContain(&#39;project: myproject&#39;)
+    72→    expect(cleanContent).toContain(&#39;## Messages&#39;)
+    73→    expect(cleanContent).toContain(&#39;### 1. user&#39;)
+    74→    expect(cleanContent).toContain(&#39;Fix the login bug&#39;)
+    75→    expect(cleanContent).toContain(&#39;### 2. assistant&#39;)
+    76→    expect(cleanContent).toContain(&#39;I will fix the login bug for you.&#39;)
+    77→    expect(cleanContent).toContain(&#39;## Tool Events&#39;)
+    78→    expect(cleanContent).toContain(&#39;read_file&#39;)
+    79→
+    80→    // 8. Verify manifest JSON written
+    81→    const manifestContent = JSON.parse(
+    82→      readFileSync(join(repoRoot, manifest.repo_manifest_path), &#39;utf-8&#39;),
+    83→    )
+    84→    expect(manifestContent.client).toBe(&#39;codex&#39;)
+    85→    expect(manifestContent.project).toBe(&#39;myproject&#39;)
+    86→
+    87→    // 9. Verify SQLite index updated
+    88→    const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+    89→    expect(existsSync(dbPath)).toBe(true)
+    90→    const SQL = await initSqlJs()
+    91→    const db = new SQL.Database(readFileSync(dbPath))
+    92→    const rows = db.exec(&#39;SELECT client, project, session_id FROM transcripts&#39;)
+    93→    expect(rows).toHaveLength(1)
+    94→    expect(rows[0]!.values).toEqual([[&#39;codex&#39;, &#39;myproject&#39;, &#39;sess-001&#39;]])
+    95→    db.close()
+    96→
+    97→    // 10. Verify event log written
+    98→    const eventLogPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)
+    99→    expect(existsSync(eventLogPath)).toBe(true)
+   100→    const eventLines = readFileSync(eventLogPath, &#39;utf-8&#39;).trim().split(&#39;\n&#39;)
+   101→    expect(eventLines).toHaveLength(1)
+   102→    const event = JSON.parse(eventLines[0]!)
+   103→    expect(event.client).toBe(&#39;codex&#39;)
+   104→  })
+   105→
+   106→  it(&#39;idempotent re-import preserves imported_at&#39;, async () =&gt; {
+   107→    const sourceFile = join(tmpDir, &#39;idem.jsonl&#39;)
+   108→    writeFileSync(sourceFile, &#39;{&quot;type&quot;:&quot;session_meta&quot;,&quot;payload&quot;:{&quot;id&quot;:&quot;s1&quot;,&quot;title&quot;:&quot;test&quot;}}\n&#39;)
+   109→
+   110→    const parsed = parseCodexTranscript(sourceFile)
+   111→    const first = await importTranscript(parsed, repoRoot, globalRoot, &#39;proj&#39;, &#39;none&#39;)
+   112→    const second = await importTranscript(parsed, repoRoot, globalRoot, &#39;proj&#39;, &#39;none&#39;)
+   113→
+   114→    expect(second.imported_at).toBe(first.imported_at)
+   115→  })
+   116→
+   117→  it(&#39;Claude transcript end-to-end&#39;, async () =&gt; {
+   118→    const sourceFile = join(tmpDir, &#39;claude-session.jsonl&#39;)
+   119→    const records = [
+   120→      { type: &#39;user&#39;, sessionId: &#39;cs1&#39;, cwd: &#39;/proj&#39;, gitBranch: &#39;dev&#39;, timestamp: &#39;2024-06-15T10:00:00Z&#39;, message: { role: &#39;user&#39;, content: &#39;Hello Claude&#39; } },
+   121→      { type: &#39;assistant&#39;, sessionId: &#39;cs1&#39;, timestamp: &#39;2024-06-15T10:00:01Z&#39;, message: { role: &#39;assistant&#39;, content: [{ type: &#39;text&#39;, text: &#39;Hello!&#39; }] } },
+   122→    ]
+   123→    writeFileSync(sourceFile, records.map(r =&gt; JSON.stringify(r)).join(&#39;\n&#39;) + &#39;\n&#39;)
+   124→
+   125→    const { parseClaudeTranscript } = await import(&#39;../../src/transcript/parse.js&#39;)
+   126→    const parsed = parseClaudeTranscript(sourceFile)
+   127→    expect(parsed.client).toBe(&#39;claude&#39;)
+   128→    expect(parsed.messages).toHaveLength(2)
+   129→
+   130→    const manifest = await importTranscript(parsed, repoRoot, globalRoot, &#39;test-proj&#39;, &#39;none&#39;)
+   131→    expect(manifest.client).toBe(&#39;claude&#39;)
+   132→    expect(manifest.message_count).toBe(2)
+   133→  })
+   134→
+   135→  it(&#39;Gemini JSON transcript end-to-end&#39;, async () =&gt; {
+   136→    // 1. Create a realistic Gemini JSON transcript
+   137→    const geminiDir = join(tmpDir, &#39;myproject&#39;)
+   138→    const { mkdirSync } = await import(&#39;node:fs&#39;)
+   139→    mkdirSync(geminiDir, { recursive: true })
+   140→    const sourceFile = join(geminiDir, &#39;conversation.json&#39;)
+   141→
+   142→    const geminiData = {
+   143→      sessionId: &#39;gemini-sess-001&#39;,
+   144→      cwd: &#39;/home/user/myproject&#39;,
+   145→      branch: &#39;main&#39;,
+   146→      timestamp: &#39;2024-08-10T09:00:00Z&#39;,
+   147→      history: [
+   148→        {
+   149→          role: &#39;user&#39;,
+   150→          timestamp: &#39;2024-08-10T09:00:01Z&#39;,
+   151→          parts: [{ text: &#39;How do I write a unit test?&#39; }],
+   152→        },
+   153→        {
+   154→          role: &#39;model&#39;,
+   155→          timestamp: &#39;2024-08-10T09:00:02Z&#39;,
+   156→          parts: [{ text: &#39;Use a testing framework like Vitest or Jest.&#39; }],
+   157→          toolUse: { name: &#39;read_file&#39;, input: { path: &#39;test.ts&#39; } },
+   158→        },
+   159→      ],
+   160→    }
+   161→    writeFileSync(sourceFile, JSON.stringify(geminiData))
+   162→
+   163→    // 2. Parse
+   164→    const parsed = parseGeminiTranscript(sourceFile)
+   165→    expect(parsed.client).toBe(&#39;gemini&#39;)
+   166→    expect(parsed.session_id).toBe(&#39;gemini-sess-001&#39;)
+   167→    expect(parsed.cwd).toBe(&#39;/home/user/myproject&#39;)
+   168→    expect(parsed.branch).toBe(&#39;main&#39;)
+   169→    // user + model messages
+   170→    expect(parsed.messages.length).toBeGreaterThanOrEqual(2)
+   171→    expect(parsed.messages.find(m =&gt; m.role === &#39;user&#39;)?.text).toContain(&#39;unit test&#39;)
+   172→    expect(parsed.messages.find(m =&gt; m.role === &#39;assistant&#39;)?.text).toContain(&#39;Vitest&#39;)
+   173→    // tool event from toolUse
+   174→    expect(parsed.tool_events.length).toBeGreaterThanOrEqual(1)
+   175→    expect(parsed.tool_events[0]!.summary).toContain(&#39;read_file&#39;)
+   176→    expect(transcriptHasContent(parsed)).toBe(true)
+   177→
+   178→    // 3. Infer project slug from parent directory name
+   179→    const slug = inferProjectSlug(parsed)
+   180→    expect(slug).toBe(&#39;myproject&#39;)
+   181→
+   182→    // 4. Import
+   183→    const manifest = await importTranscript(parsed, repoRoot, globalRoot, slug, &#39;none&#39;, true)
+   184→
+   185→    // 5. Verify manifest fields
+   186→    expect(manifest.client).toBe(&#39;gemini&#39;)
+   187→    expect(manifest.project).toBe(&#39;myproject&#39;)
+   188→    expect(manifest.session_id).toBe(&#39;gemini-sess-001&#39;)
+   189→    expect(manifest.message_count).toBeGreaterThanOrEqual(2)
+   190→    expect(manifest.tool_event_count).toBeGreaterThanOrEqual(1)
+   191→
+   192→    // 6. Verify clean markdown content
+   193→    const cleanContent = readFileSync(join(repoRoot, manifest.repo_clean_path), &#39;utf-8&#39;)
+   194→    expect(cleanContent).toContain(&#39;client: gemini&#39;)
+   195→    expect(cleanContent).toContain(&#39;project: myproject&#39;)
+   196→    expect(cleanContent).toContain(&#39;## Messages&#39;)
+   197→    expect(cleanContent).toContain(&#39;unit test&#39;)
+   198→    expect(cleanContent).toContain(&#39;Vitest&#39;)
+   199→
+   200→    // 7. Verify SQLite index row
+   201→    const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+   202→    expect(existsSync(dbPath)).toBe(true)
+   203→    const SQL = await initSqlJs()
+   204→    const db = new SQL.Database(readFileSync(dbPath))
+   205→    const rows = db.exec(&quot;SELECT client, project FROM transcripts WHERE client=&#39;gemini&#39;&quot;)
+   206→    expect(rows).toHaveLength(1)
+   207→    expect(rows[0]!.values[0]).toEqual([&#39;gemini&#39;, &#39;myproject&#39;])
+   208→    db.close()
+   209→  })
+   210→
+   211→  it(&#39;Doubao TXT transcript end-to-end&#39;, async () =&gt; {
+   212→    // 1. Create a realistic Doubao TXT transcript
+   213→    const sourceFile = join(tmpDir, &#39;doubao_chat_38416801786598914.txt&#39;)
+   214→    const doubaoContent = [
+   215→      &#39;Title: TypeScript 最佳实践&#39;,
+   216→      &#39;URL: https://www.doubao.com/chat/38416801786598914&#39;,
+   217→      &#39;Platform: 豆包&#39;,
+   218→      &#39;Created: 2026-03-16 10:22:17&#39;,
+   219→      &#39;Messages: 2&#39;,
+   220→      &#39;&#39;,
+   221→      &#39;User: [2026-03-16 10:22:17]&#39;,
+   222→      &#39;&#39;,
+   223→      &#39;TypeScript 中如何处理可选链？&#39;,
+   224→      &#39;&#39;,
+   225→      &#39;AI: [2026-03-16 10:23:45]&#39;,
+   226→      &#39;&#39;,
+   227→      &#39;可选链操作符 ?. 可以安全访问深层属性，避免 TypeError。&#39;,
+   228→      &#39;例如：obj?.foo?.bar&#39;,
+   229→      &#39;&#39;,
+   230→    ].join(&#39;\n&#39;)
+   231→    writeFileSync(sourceFile, doubaoContent, &#39;utf-8&#39;)
+   232→
+   233→    // 2. Parse
+   234→    const parsed = parseDoubaoTranscript(sourceFile)
+   235→    expect(parsed.client).toBe(&#39;doubao&#39;)
+   236→    expect(parsed.session_id).toBe(&#39;38416801786598914&#39;)
+   237→    expect(parsed.title).toBe(&#39;TypeScript 最佳实践&#39;)
+   238→    expect(parsed.started_at).toBe(&#39;2026-03-16T10:22:17&#39;)
+   239→    expect(parsed.messages).toHaveLength(2)
+   240→    expect(parsed.messages[0]!.role).toBe(&#39;user&#39;)
+   241→    expect(parsed.messages[0]!.text).toContain(&#39;可选链&#39;)
+   242→    expect(parsed.messages[1]!.role).toBe(&#39;assistant&#39;)
+   243→    expect(parsed.messages[1]!.text).toContain(&#39;?.&#39;)
+   244→    expect(parsed.tool_events).toHaveLength(0)
+   245→    expect(transcriptHasContent(parsed)).toBe(true)
+   246→
+   247→    // 3. Import (Doubao has no cwd, project slug falls back to &#39;unknown-project&#39;)
+   248→    const slug = inferProjectSlug(parsed)
+   249→    const manifest = await importTranscript(parsed, repoRoot, globalRoot, slug, &#39;none&#39;, false)
+   250→
+   251→    // 4. Verify manifest fields
+   252→    expect(manifest.client).toBe(&#39;doubao&#39;)
+   253→    expect(manifest.session_id).toBe(&#39;38416801786598914&#39;)
+   254→    expect(manifest.message_count).toBe(2)
+   255→    expect(manifest.tool_event_count).toBe(0)
+   256→
+   257→    // 5. Verify clean markdown content
+   258→    const cleanContent = readFileSync(manifest.global_clean_path, &#39;utf-8&#39;)
+   259→    expect(cleanContent).toContain(&#39;client: doubao&#39;)
+   260→    expect(cleanContent).toContain(&#39;## Messages&#39;)
+   261→    expect(cleanContent).toContain(&#39;可选链&#39;)
+   262→    expect(cleanContent).toContain(&#39;?.&#39;)
+   263→
+   264→    // 6. Verify SQLite index row
+   265→    const dbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+   266→    expect(existsSync(dbPath)).toBe(true)
+   267→    const SQL = await initSqlJs()
+   268→    const db = new SQL.Database(readFileSync(dbPath))
+   269→    const rows = db.exec(&quot;SELECT client, session_id, title FROM transcripts WHERE client=&#39;doubao&#39;&quot;)
+   270→    expect(rows).toHaveLength(1)
+   271→    expect(rows[0]!.values[0]).toEqual([&#39;doubao&#39;, &#39;38416801786598914&#39;, &#39;TypeScript 最佳实践&#39;])
+   272→    db.close()
+   273→  })
+   274→
+   275→  it(&#39;Doubao CRLF transcript parses correctly end-to-end&#39;, async () =&gt; {
+   276→    // Verify Windows CRLF line endings don&#39;t break the import pipeline
+   277→    const sourceFile = join(tmpDir, &#39;doubao_crlf.txt&#39;)
+   278→    const lines = [
+   279→      &#39;Title: CRLF Test&#39;,
+   280→      &#39;URL: https://www.doubao.com/chat/99999&#39;,
+   281→      &#39;Created: 2026-03-17 08:00:00&#39;,
+   282→      &#39;&#39;,
+   283→      &#39;User: [2026-03-17 08:00:00]&#39;,
+   284→      &#39;&#39;,
+   285→      &#39;Hello CRLF world&#39;,
+   286→      &#39;&#39;,
+   287→      &#39;AI: [2026-03-17 08:01:00]&#39;,
+   288→      &#39;&#39;,
+   289→      &#39;CRLF response here&#39;,
+   290→      &#39;&#39;,
+   291→    ]
+   292→    writeFileSync(sourceFile, lines.join(&#39;\r\n&#39;), &#39;utf-8&#39;)
+   293→
+   294→    const parsed = parseDoubaoTranscript(sourceFile)
+   295→    expect(parsed.messages).toHaveLength(2)
+   296→    expect(parsed.messages[0]!.text).toBe(&#39;Hello CRLF world&#39;)
+   297→    expect(parsed.messages[1]!.text).toBe(&#39;CRLF response here&#39;)
+   298→
+   299→    const manifest = await importTranscript(parsed, repoRoot, globalRoot, &#39;test-proj&#39;, &#39;none&#39;, false)
+   300→    expect(manifest.client).toBe(&#39;doubao&#39;)
+   301→    expect(manifest.message_count).toBe(2)
+   302→  })
+   303→})
+   304→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01Ctafsx53PbegsNTtQF12PT Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\parse.ts&quot;}" id="event-4">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#5</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Ctafsx53PbegsNTtQF12PT</span>
+      <span class="timeline-time">00:41:39</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\parse.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\parse.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01Ctafsx53PbegsNTtQF12PT Read output=1→/** 2→ * Transcript parsing — client inference, dispatch, and format-specific parsers. 3→ * Port of scripts/_transcript_parse.py 4→ */ 5→ 6→import { readFileSync, statSync } f..." id="event-5">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#6</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Ctafsx53PbegsNTtQF12PT</span>
+      
+      <span class="timeline-time">00:41:39</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript parsing — client inference, dispatch, and format-specific parsers. 3→ * Port of scripts/_transcript_parse.py 4→ */ 5→ 6→import { readFileSync, statSync } f...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript parsing — client inference, dispatch, and format-specific parsers.
+     3→ * Port of scripts/_transcript_parse.py
+     4→ */
+     5→
+     6→import { readFileSync, statSync } from &#39;node:fs&#39;
+     7→import { basename, extname } from &#39;node:path&#39;
+     8→
+     9→import type { Client, ParsedTranscript, TranscriptMessage, TranscriptToolEvent } from &#39;@openmnemo/types&#39;
+    10→import { toPosixPath } from &#39;../utils/path.js&#39;
+    11→import {
+    12→  SKIP_BLOCK_TYPES,
+    13→  TEXT_BLOCK_TYPES,
+    14→  TOOL_RESULT_TYPES,
+    15→  TOOL_USE_TYPES,
+    16→  deduplicateMessages,
+    17→  deduplicateToolEvents,
+    18→  earliestTimestamp,
+    19→  ensureDict,
+    20→  ensureList,
+    21→  extractGeminiText,
+    22→  extractTextBlocks,
+    23→  findFirstMappingWithKeys,
+    24→  getNested,
+    25→  joinParagraphs,
+    26→  loadJsonl,
+    27→  normalizeTimestamp,
+    28→  summarizeValue,
+    29→} from &#39;./common.js&#39;
+    30→
+    31→// ---------------------------------------------------------------------------
+    32→// Client inference + dispatch
+    33→// ---------------------------------------------------------------------------
+    34→
+    35→export function inferClient(client: string, sourcePath: string): Client {
+    36→  if (client !== &#39;auto&#39;) {
+    37→    return client as Client
+    38→  }
+    39→  const normalized = toPosixPath(sourcePath).toLowerCase()
+    40→  const fileName = basename(sourcePath).toLowerCase()
+    41→  if (normalized.includes(&#39;/.codex/&#39;) || fileName.startsWith(&#39;rollout-&#39;)) {
+    42→    return &#39;codex&#39;
+    43→  }
+    44→  if (normalized.includes(&#39;/.claude/&#39;) || normalized.includes(&#39;/projects/&#39;)) {
+    45→    return &#39;claude&#39;
+    46→  }
+    47→  if (normalized.includes(&#39;/.gemini/&#39;) || normalized.includes(&#39;checkpoint&#39;)) {
+    48→    return &#39;gemini&#39;
+    49→  }
+    50→  if (fileName.startsWith(&#39;doubao_&#39;) || normalized.includes(&#39;/doubao/&#39;)) {
+    51→    return &#39;doubao&#39;
+    52→  }
+    53→  throw new Error(`could not infer transcript client from source path: ${sourcePath}`)
+    54→}
+    55→
+    56→export function parseTranscript(client: string, sourcePath: string): ParsedTranscript {
+    57→  const resolved = inferClient(client, sourcePath)
+    58→  if (resolved === &#39;codex&#39;) {
+    59→    return parseCodexTranscript(sourcePath)
+    60→  }
+    61→  if (resolved === &#39;claude&#39;) {
+    62→    return parseClaudeTranscript(sourcePath)
+    63→  }
+    64→  if (resolved === &#39;gemini&#39;) {
+    65→    return parseGeminiTranscript(sourcePath)
+    66→  }
+    67→  if (resolved === &#39;doubao&#39;) {
+    68→    return parseDoubaoTranscript(sourcePath)
+    69→  }
+    70→  throw new Error(`unsupported transcript client: ${resolved}`)
+    71→}
+    72→
+    73→// ---------------------------------------------------------------------------
+    74→// Codex parser
+    75→// ---------------------------------------------------------------------------
+    76→
+    77→export function parseCodexTranscript(filePath: string): ParsedTranscript {
+    78→  const records = loadJsonl(filePath)
+    79→  const stem = basename(filePath, extname(filePath))
+    80→  let sessionId = stem
+    81→  let title = stem
+    82→  let startedAt = normalizeTimestamp(statSync(filePath).mtimeMs / 1000)
+    83→  let cwd = &#39;&#39;
+    84→  let branch = &#39;&#39;
+    85→  const messages: TranscriptMessage[] = []
+    86→  const toolEvents: TranscriptToolEvent[] = []
+    87→
+    88→  for (const record of records) {
+    89→    const recordType = String(record[&#39;type&#39;] ?? &#39;&#39;)
+    90→    const timestamp = normalizeTimestamp(record[&#39;timestamp&#39;], startedAt)
+    91→
+    92→    if (recordType === &#39;session_meta&#39;) {
+    93→      const payload = ensureDict(record[&#39;payload&#39;])
+    94→      sessionId = String(payload[&#39;id&#39;] ?? &#39;&#39;) || sessionId
+    95→      title = String(payload[&#39;thread_name&#39;] ?? &#39;&#39;) || String(payload[&#39;title&#39;] ?? &#39;&#39;) || title
+    96→      startedAt = earliestTimestamp(startedAt, payload[&#39;timestamp&#39;])
+    97→      cwd = String(payload[&#39;cwd&#39;] ?? &#39;&#39;) || cwd
+    98→      branch = String(getNested(payload, &#39;git&#39;, &#39;branch&#39;) ?? &#39;&#39;) || branch
+    99→      continue
+   100→    }
+   101→
+   102→    if (recordType !== &#39;response_item&#39; &amp;&amp; recordType !== &#39;event_msg&#39;) {
+   103→      continue
+   104→    }
+   105→
+   106→    const payload = ensureDict(record[&#39;payload&#39;])
+   107→    const payloadType = String(payload[&#39;type&#39;] ?? &#39;&#39;)
+   108→
+   109→    if (payloadType === &#39;message&#39;) {
+   110→      const role = String(payload[&#39;role&#39;] ?? &#39;&#39;).toLowerCase()
+   111→      if (role === &#39;user&#39; || role === &#39;assistant&#39;) {
+   112→        const text = extractTextBlocks(payload[&#39;content&#39;])
+   113→        if (text) {
+   114→          messages.push({ role, text, timestamp })
+   115→        }
+   116→      }
+   117→      continue
+   118→    }
+   119→
+   120→    if (payloadType === &#39;user_message&#39; || payloadType === &#39;agent_message&#39;) {
+   121→      const role = payloadType === &#39;user_message&#39; ? &#39;user&#39; : &#39;assistant&#39;
+   122→      const text = String(payload[&#39;message&#39;] ?? &#39;&#39;).trim()
+   123→      if (text) {
+   124→        messages.push({ role, text, timestamp })
+   125→      }
+   126→      continue
+   127→    }
+   128→
+   129→    if (payloadType === &#39;function_call&#39;) {
+   130→      const name = String(payload[&#39;name&#39;] ?? &#39;&#39;) || &#39;function_call&#39;
+   131→      const args = payload[&#39;arguments&#39;] ?? payload[&#39;input&#39;]
+   132→      toolEvents.push({
+   133→        summary: `${name} input=${summarizeValue(args)}`,
+   134→        timestamp,
+   135→      })
+   136→      continue
+   137→    }
+   138→
+   139→    if (payloadType === &#39;custom_tool_call&#39;) {
+   140→      const name = String(payload[&#39;name&#39;] ?? &#39;&#39;) || String(payload[&#39;call_id&#39;] ?? &#39;&#39;) || &#39;custom_tool_call&#39;
+   141→      toolEvents.push({
+   142→        summary: `${name} input=${summarizeValue(payload[&#39;input&#39;])}`,
+   143→        timestamp,
+   144→      })
+   145→      continue
+   146→    }
+   147→
+   148→    if (payloadType === &#39;function_call_output&#39;) {
+   149→      const name = String(payload[&#39;name&#39;] ?? &#39;&#39;) || String(payload[&#39;call_id&#39;] ?? &#39;&#39;) || &#39;function_call_output&#39;
+   150→      const output = payload[&#39;output&#39;] ?? payload[&#39;content&#39;]
+   151→      toolEvents.push({
+   152→        summary: `${name} output=${summarizeValue(output)}`,
+   153→        timestamp,
+   154→      })
+   155→      continue
+   156→    }
+   157→
+   158→    if (payloadType === &#39;custom_tool_call_output&#39;) {
+   159→      const name = String(payload[&#39;name&#39;] ?? &#39;&#39;) || String(payload[&#39;call_id&#39;] ?? &#39;&#39;) || &#39;custom_tool_call_output&#39;
+   160→      const output = payload[&#39;output&#39;] ?? payload[&#39;content&#39;]
+   161→      toolEvents.push({
+   162→        summary: `${name} output=${summarizeValue(output)}`,
+   163→        timestamp,
+   164→      })
+   165→    }
+   166→  }
+   167→
+   168→  return {
+   169→    client: &#39;codex&#39;,
+   170→    session_id: sessionId,
+   171→    title,
+   172→    started_at: startedAt,
+   173→    cwd,
+   174→    branch,
+   175→    messages: deduplicateMessages(messages),
+   176→    tool_events: deduplicateToolEvents(toolEvents),
+   177→    source_path: filePath,
+   178→  }
+   179→}
+   180→
+   181→// ---------------------------------------------------------------------------
+   182→// Claude parser
+   183→// ---------------------------------------------------------------------------
+   184→
+   185→export function parseClaudeTranscript(filePath: string): ParsedTranscript {
+   186→  const records = loadJsonl(filePath)
+   187→  const stem = basename(filePath, extname(filePath))
+   188→  let sessionId = stem
+   189→  const title = stem
+   190→  let startedAt = normalizeTimestamp(statSync(filePath).mtimeMs / 1000)
+   191→  let cwd = &#39;&#39;
+   192→  let branch = &#39;&#39;
+   193→  const messages: TranscriptMessage[] = []
+   194→  const toolEvents: TranscriptToolEvent[] = []
+   195→
+   196→  for (const record of records) {
+   197→    const recordType = String(record[&#39;type&#39;] ?? &#39;&#39;)
+   198→    const timestamp = normalizeTimestamp(record[&#39;timestamp&#39;], startedAt)
+   199→    sessionId = String(record[&#39;sessionId&#39;] ?? &#39;&#39;) || sessionId
+   200→    startedAt = earliestTimestamp(startedAt, record[&#39;timestamp&#39;])
+   201→    cwd = String(record[&#39;cwd&#39;] ?? &#39;&#39;) || cwd
+   202→    branch = String(record[&#39;gitBranch&#39;] ?? &#39;&#39;) || branch
+   203→
+   204→    if (recordType !== &#39;user&#39; &amp;&amp; recordType !== &#39;assistant&#39;) {
+   205→      continue
+   206→    }
+   207→
+   208→    const message = ensureDict(record[&#39;message&#39;])
+   209→    const role = String(message[&#39;role&#39;] ?? &#39;&#39;).toLowerCase() || recordType
+   210→    const textParts: string[] = []
+   211→    const content = message[&#39;content&#39;]
+   212→
+   213→    if (typeof content === &#39;string&#39;) {
+   214→      const text = content.trim()
+   215→      if ((role === &#39;user&#39; || role === &#39;assistant&#39;) &amp;&amp; text) {
+   216→        messages.push({ role, text, timestamp })
+   217→      }
+   218→      continue
+   219→    }
+   220→
+   221→    for (const block of ensureList(content)) {
+   222→      if (typeof block === &#39;string&#39;) {
+   223→        if (block.trim()) {
+   224→          textParts.push(block.trim())
+   225→        }
+   226→        continue
+   227→      }
+   228→      if (block === null || typeof block !== &#39;object&#39; || Array.isArray(block)) {
+   229→        continue
+   230→      }
+   231→      const rec = block as Record&lt;string, unknown&gt;
+   232→      const blockType = String(rec[&#39;type&#39;] ?? &#39;&#39;).toLowerCase()
+   233→
+   234→      if (TEXT_BLOCK_TYPES.has(blockType)) {
+   235→        const text = String(rec[&#39;text&#39;] ?? &#39;&#39;).trim()
+   236→        if (text) {
+   237→          textParts.push(text)
+   238→        }
+   239→        continue
+   240→      }
+   241→      if (SKIP_BLOCK_TYPES.has(blockType)) {
+   242→        continue
+   243→      }
+   244→      if (TOOL_USE_TYPES.has(blockType)) {
+   245→        const name = String(rec[&#39;name&#39;] ?? &#39;&#39;) || &#39;tool_use&#39;
+   246→        toolEvents.push({
+   247→          summary: `${name} input=${summarizeValue(rec[&#39;input&#39;])}`,
+   248→          timestamp,
+   249→        })
+   250→        continue
+   251→      }
+   252→      if (TOOL_RESULT_TYPES.has(blockType)) {
+   253→        const toolUseId = String(rec[&#39;tool_use_id&#39;] ?? &#39;&#39;) || &#39;tool_result&#39;
+   254→        toolEvents.push({
+   255→          summary: `${toolUseId} output=${summarizeValue(rec[&#39;content&#39;])}`,
+   256→          timestamp,
+   257→        })
+   258→      }
+   259→    }
+   260→
+   261→    const text = joinParagraphs(textParts)
+   262→    if ((role === &#39;user&#39; || role === &#39;assistant&#39;) &amp;&amp; text) {
+   263→      messages.push({ role, text, timestamp })
+   264→    }
+   265→  }
+   266→
+   267→  return {
+   268→    client: &#39;claude&#39;,
+   269→    session_id: sessionId,
+   270→    title,
+   271→    started_at: startedAt,
+   272→    cwd,
+   273→    branch,
+   274→    messages: deduplicateMessages(messages),
+   275→    tool_events: deduplicateToolEvents(toolEvents),
+   276→    source_path: filePath,
+   277→  }
+   278→}
+   279→
+   280→// ---------------------------------------------------------------------------
+   281→// Gemini parser
+   282→// ---------------------------------------------------------------------------
+   283→
+   284→export function parseGeminiTranscript(filePath: string): ParsedTranscript {
+   285→  const stem = basename(filePath, extname(filePath))
+   286→  let sessionId = stem
+   287→  const title = stem
+   288→  let startedAt = normalizeTimestamp(statSync(filePath).mtimeMs / 1000)
+   289→  let cwd = &#39;&#39;
+   290→  let branch = &#39;&#39;
+   291→  const messages: TranscriptMessage[] = []
+   292→  const toolEvents: TranscriptToolEvent[] = []
+   293→
+   294→  let payload: unknown
+   295→  if (extname(filePath).toLowerCase() === &#39;.jsonl&#39;) {
+   296→    payload = loadJsonl(filePath)
+   297→  } else {
+   298→    payload = JSON.parse(readFileSync(filePath, &#39;utf-8&#39;)) as unknown
+   299→  }
+   300→
+   301→  const metaKeys: ReadonlySet&lt;string&gt; = new Set([&#39;sessionId&#39;, &#39;chatId&#39;, &#39;cwd&#39;, &#39;branch&#39;, &#39;timestamp&#39;])
+   302→  const firstMeta = findFirstMappingWithKeys(payload, metaKeys)
+   303→  if (firstMeta !== null) {
+   304→    sessionId = String(firstMeta[&#39;sessionId&#39;] ?? &#39;&#39;) || String(firstMeta[&#39;chatId&#39;] ?? &#39;&#39;) || String(firstMeta[&#39;id&#39;] ?? &#39;&#39;) || sessionId
+   305→    startedAt = earliestTimestamp(startedAt, firstMeta[&#39;timestamp&#39;])
+   306→    cwd = String(firstMeta[&#39;cwd&#39;] ?? &#39;&#39;) || String(firstMeta[&#39;projectRoot&#39;] ?? &#39;&#39;) || cwd
+   307→    branch = String(firstMeta[&#39;branch&#39;] ?? &#39;&#39;) || branch
+   308→  }
+   309→
+   310→  function visit(node: unknown): void {
+   311→    if (Array.isArray(node)) {
+   312→      for (const item of node) {
+   313→        visit(item)
+   314→      }
+   315→      return
+   316→    }
+   317→    if (node === null || typeof node !== &#39;object&#39;) {
+   318→      return
+   319→    }
+   320→    const rec = node as Record&lt;string, unknown&gt;
+   321→
+   322→    sessionId = String(rec[&#39;sessionId&#39;] ?? &#39;&#39;) || String(rec[&#39;chatId&#39;] ?? &#39;&#39;) || String(rec[&#39;id&#39;] ?? &#39;&#39;) || sessionId
+   323→    startedAt = earliestTimestamp(startedAt, rec[&#39;timestamp&#39;])
+   324→    cwd = String(rec[&#39;cwd&#39;] ?? &#39;&#39;) || String(rec[&#39;projectRoot&#39;] ?? &#39;&#39;) || cwd
+   325→    branch = String(rec[&#39;branch&#39;] ?? &#39;&#39;) || branch
+   326→
+   327→    const role = String(rec[&#39;role&#39;] ?? rec[&#39;author&#39;] ?? rec[&#39;sender&#39;] ?? &#39;&#39;).toLowerCase()
+   328→    const timestamp = normalizeTimestamp(rec[&#39;timestamp&#39;], startedAt)
+   329→
+   330→    if (role === &#39;user&#39; || role === &#39;assistant&#39; || role === &#39;model&#39;) {
+   331→      const normalizedRole = role === &#39;model&#39; ? &#39;assistant&#39; : role
+   332→      const text = extractGeminiText(rec)
+   333→      if (text) {
+   334→        messages.push({ role: normalizedRole, text, timestamp })
+   335→      }
+   336→    }
+   337→
+   338→    const toolName =
+   339→      getNested(rec, &#39;toolUse&#39;, &#39;name&#39;) ??
+   340→      rec[&#39;toolName&#39;] ??
+   341→      rec[&#39;functionName&#39;] ??
+   342→      rec[&#39;tool&#39;]
+   343→    if (toolName) {
+   344→      toolEvents.push({
+   345→        summary: `${String(toolName)} input=${summarizeValue(rec[&#39;args&#39;] ?? rec[&#39;input&#39;])}`,
+   346→        timestamp,
+   347→      })
+   348→    }
+   349→
+   350→    for (const value of Object.values(rec)) {
+   351→      visit(value)
+   352→    }
+   353→  }
+   354→
+   355→  visit(payload)
+   356→
+   357→  return {
+   358→    client: &#39;gemini&#39;,
+   359→    session_id: sessionId,
+   360→    title,
+   361→    started_at: startedAt,
+   362→    cwd,
+   363→    branch,
+   364→    messages: deduplicateMessages(messages),
+   365→    tool_events: deduplicateToolEvents(toolEvents),
+   366→    source_path: filePath,
+   367→  }
+   368→}
+   369→
+   370→// ---------------------------------------------------------------------------
+   371→// Doubao parser
+   372→// ---------------------------------------------------------------------------
+   373→//
+   374→// Doubao TXT export format:
+   375→//
+   376→//   Title: 对话标题
+   377→//   URL: https://www.doubao.com/chat/38416801786598914
+   378→//   Platform: 豆包
+   379→//   Created: 2026-03-16 10:22:17
+   380→//   Messages: 28
+   381→//
+   382→//   User: [2026-03-16 10:22:17]
+   383→//   用户消息内容...
+   384→//
+   385→//   AI: [2026-03-16 15:43:17]
+   386→//   AI 回复内容...
+   387→//
+   388→
+   389→/** Matches a turn header: &quot;User: [2026-03-16 10:22:17]&quot; or &quot;AI: [2026-03-16 15:43:17]&quot; */
+   390→const DOUBAO_TURN_RE = /^(User|AI):\s*\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\]\s*$/
+   391→
+   392→export function parseDoubaoTranscript(filePath: string): ParsedTranscript {
+   393→  const content = readFileSync(filePath, &#39;utf-8&#39;)
+   394→  const lines = content.split(/\r?\n/)
+   395→
+   396→  const stem = basename(filePath, extname(filePath))
+   397→  let title = stem
+   398→  let sessionId = stem
+   399→  let startedAt = normalizeTimestamp(statSync(filePath).mtimeMs / 1000)
+   400→
+   401→  // --- Parse header block (key: value lines before the first blank line) ---
+   402→  let lineIndex = 0
+   403→  for (; lineIndex &lt; lines.length; lineIndex++) {
+   404→    const line = lines[lineIndex] ?? &#39;&#39;
+   405→    if (line.trim() === &#39;&#39;) break
+   406→
+   407→    const titleMatch = line.match(/^Title:\s*(.+)$/)
+   408→    if (titleMatch) {
+   409→      title = (titleMatch[1] ?? &#39;&#39;).trim() || title
+   410→      continue
+   411→    }
+   412→
+   413→    const urlMatch = line.match(/^URL:\s*(.+)$/)
+   414→    if (urlMatch) {
+   415→      const url = (urlMatch[1] ?? &#39;&#39;).trim()
+   416→      // Derive session_id from the last path segment of the URL
+   417→      const lastSegment = url.split(&#39;/&#39;).pop() ?? &#39;&#39;
+   418→      if (lastSegment) sessionId = lastSegment
+   419→      continue
+   420→    }
+   421→
+   422→    const createdMatch = line.match(/^Created:\s*(.+)$/)
+   423→    if (createdMatch) {
+   424→      // Doubao exports user-local time — no timezone info.
+   425→      // Convert &quot;YYYY-MM-DD HH:MM:SS&quot; → &quot;YYYY-MM-DDTHH:MM:SS&quot; (naive, no Z suffix).
+   426→      const raw = (createdMatch[1] ?? &#39;&#39;).trim().replace(&#39; &#39;, &#39;T&#39;)
+   427→      if (raw) startedAt = raw
+   428→      continue
+   429→    }
+   430→  }
+   431→
+   432→  // Skip blank lines between header and first turn
+   433→  while (lineIndex &lt; lines.length &amp;&amp; (lines[lineIndex] ?? &#39;&#39;).trim() === &#39;&#39;) {
+   434→    lineIndex++
+   435→  }
+   436→
+   437→  // --- Parse message turns ---
+   438→  const messages: TranscriptMessage[] = []
+   439→
+   440→  while (lineIndex &lt; lines.length) {
+   441→    const line = lines[lineIndex] ?? &#39;&#39;
+   442→    const match = line.match(DOUBAO_TURN_RE)
+   443→
+   444→    if (!match) {
+   445→      lineIndex++
+   446→      continue
+   447→    }
+   448→
+   449→    const role: string = match[1] === &#39;User&#39; ? &#39;user&#39; : &#39;assistant&#39;
+   450→    // Doubao exports user-local time — keep as naive ISO, no Z suffix.
+   451→    const timestamp = (match[2] ?? &#39;&#39;).trim().replace(&#39; &#39;, &#39;T&#39;)
+   452→    lineIndex++ // advance past turn header
+   453→
+   454→    // Skip blank line that follows the turn header
+   455→    while (lineIndex &lt; lines.length &amp;&amp; (lines[lineIndex] ?? &#39;&#39;).trim() === &#39;&#39;) {
+   456→      lineIndex++
+   457→    }
+   458→
+   459→    // Collect body lines until next turn header or EOF
+   460→    const bodyLines: string[] = []
+   461→    while (lineIndex &lt; lines.length) {
+   462→      const bodyLine = lines[lineIndex] ?? &#39;&#39;
+   463→      if (DOUBAO_TURN_RE.test(bodyLine)) break
+   464→      bodyLines.push(bodyLine)
+   465→      lineIndex++
+   466→    }
+   467→
+   468→    // Trim trailing blank lines from body
+   469→    while (bodyLines.length &gt; 0 &amp;&amp; (bodyLines[bodyLines.length - 1] ?? &#39;&#39;).trim() === &#39;&#39;) {
+   470→      bodyLines.pop()
+   471→    }
+   472→
+   473→    const text = bodyLines.join(&#39;\n&#39;).trim()
+   474→    if (text) {
+   475→      messages.push({ role, text, timestamp })
+   476→    }
+   477→  }
+   478→
+   479→  return {
+   480→    client: &#39;doubao&#39;,
+   481→    session_id: sessionId,
+   482→    title,
+   483→    started_at: startedAt,
+   484→    cwd: &#39;&#39;,
+   485→    branch: &#39;&#39;,
+   486→    messages: deduplicateMessages(messages),
+   487→    tool_events: [],
+   488→    source_path: filePath,
+   489→  }
+   490→}
+   491→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_015edxfthXbn7DrPn7D7dZpY Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\import.ts&quot;}" id="event-6">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#7</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_015edxfthXbn7DrPn7D7dZpY</span>
+      <span class="timeline-time">00:41:39</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\import.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\import.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_015edxfthXbn7DrPn7D7dZpY Read output=1→/** 2→ * Transcript import — orchestration, cleaning, and manifest management. 3→ * Port of scripts/_transcript_import.py 4→ */ 5→ 6→import { copyFileSync, existsSync, mkdirSy..." id="event-7">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#8</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_015edxfthXbn7DrPn7D7dZpY</span>
+      
+      <span class="timeline-time">00:41:39</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript import — orchestration, cleaning, and manifest management. 3→ * Port of scripts/_transcript_import.py 4→ */ 5→ 6→import { copyFileSync, existsSync, mkdirSy...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript import — orchestration, cleaning, and manifest management.
+     3→ * Port of scripts/_transcript_import.py
+     4→ */
+     5→
+     6→import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from &#39;node:fs&#39;
+     7→import { dirname, extname, join, relative } from &#39;node:path&#39;
+     8→
+     9→import type { ManifestEntry, ParsedTranscript } from &#39;@openmnemo/types&#39;
+    10→import { toPosixPath } from &#39;../utils/path.js&#39;
+    11→import {
+    12→  loadJson,
+    13→  normalizeTimestamp,
+    14→  sha256File,
+    15→  slugify,
+    16→  timestampPartition,
+    17→  yamlEscape,
+    18→} from &#39;./common.js&#39;
+    19→import { upsertSearchIndex } from &#39;./db.js&#39;
+    20→
+    21→export async function importTranscript(
+    22→  parsed: ParsedTranscript,
+    23→  root: string,
+    24→  globalRoot: string,
+    25→  projectSlug: string,
+    26→  rawUploadPermission: string,
+    27→  mirrorToRepo = true,
+    28→): Promise&lt;ManifestEntry&gt; {
+    29→  const importedAt = normalizeTimestamp(new Date())
+    30→  const rawSha256 = sha256File(parsed.source_path)
+    31→  const sessionLabel = slugify(
+    32→    parsed.session_id,
+    33→    slugify(stemOf(parsed.source_path), &#39;session&#39;),
+    34→  )
+    35→  const artifactStem = `${sessionLabel}__${rawSha256.slice(0, 8)}`
+    36→  const sourceSuffix = extname(parsed.source_path) || &#39;.txt&#39;
+    37→
+    38→  const [yearToken, monthToken] = timestampPartition(parsed.started_at || importedAt)
+    39→
+    40→  const repoRoot = join(root, &#39;Memory&#39;, &#39;06_transcripts&#39;)
+    41→  const repoRawPath = join(repoRoot, &#39;raw&#39;, parsed.client, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
+    42→  const repoCleanPath = join(repoRoot, &#39;clean&#39;, parsed.client, yearToken, monthToken, `${artifactStem}.md`)
+    43→  const repoManifestPath = join(repoRoot, &#39;manifests&#39;, parsed.client, yearToken, monthToken, `${artifactStem}.json`)
+    44→
+    45→  const globalRawPath = join(globalRoot, &#39;raw&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}${sourceSuffix}`)
+    46→  const globalCleanPath = join(globalRoot, &#39;clean&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.md`)
+    47→  const globalManifestPath = join(globalRoot, &#39;index&#39;, &#39;manifests&#39;, parsed.client, projectSlug, yearToken, monthToken, `${artifactStem}.json`)
+    48→  const globalEventLogPath = join(globalRoot, &#39;index&#39;, &#39;sessions.jsonl&#39;)
+    49→  const globalDbPath = join(globalRoot, &#39;index&#39;, &#39;search.sqlite&#39;)
+    50→
+    51→  for (const p of [globalRawPath, globalCleanPath, globalManifestPath, globalEventLogPath, globalDbPath]) {
+    52→    mkdirSync(dirname(p), { recursive: true })
+    53→  }
+    54→  if (mirrorToRepo) {
+    55→    for (const p of [repoRawPath, repoCleanPath, repoManifestPath]) {
+    56→      mkdirSync(dirname(p), { recursive: true })
+    57→    }
+    58→  }
+    59→
+    60→  if (mirrorToRepo) {
+    61→    copyFile(parsed.source_path, repoRawPath)
+    62→  }
+    63→  copyFile(parsed.source_path, globalRawPath)
+    64→
+    65→  let manifest: ManifestEntry = {
+    66→    client: parsed.client,
+    67→    project: projectSlug,
+    68→    session_id: parsed.session_id,
+    69→    title: parsed.title,
+    70→    started_at: parsed.started_at,
+    71→    imported_at: importedAt,
+    72→    cwd: parsed.cwd,
+    73→    branch: parsed.branch,
+    74→    raw_source_path: toPosixPath(parsed.source_path),
+    75→    raw_sha256: rawSha256,
+    76→    raw_upload_permission: rawUploadPermission,
+    77→    repo_raw_path: mirrorToRepo ? toPosixPath(relative(root, repoRawPath)) : &#39;&#39;,
+    78→    repo_clean_path: mirrorToRepo ? toPosixPath(relative(root, repoCleanPath)) : &#39;&#39;,
+    79→    repo_manifest_path: mirrorToRepo ? toPosixPath(relative(root, repoManifestPath)) : &#39;&#39;,
+    80→    global_raw_path: toPosixPath(globalRawPath),
+    81→    global_clean_path: toPosixPath(globalCleanPath),
+    82→    global_manifest_path: toPosixPath(globalManifestPath),
+    83→    message_count: parsed.messages.length,
+    84→    tool_event_count: parsed.tool_events.length,
+    85→    cleaning_mode: &#39;deterministic-code&#39;,
+    86→    repo_mirror_enabled: mirrorToRepo,
+    87→  }
+    88→
+    89→  const existingGlobalManifest = loadJson(globalManifestPath)
+    90→  manifest = preserveExistingImportTimestamp(existingGlobalManifest, manifest)
+    91→
+    92→  if (mirrorToRepo) {
+    93→    writeCleanMarkdown(parsed, manifest, repoCleanPath)
+    94→  }
+    95→  writeCleanMarkdown(parsed, manifest, globalCleanPath)
+    96→  const manifestRecord = { ...manifest } as Record&lt;string, unknown&gt;
+    97→  if (mirrorToRepo) {
+    98→    writeJson(repoManifestPath, manifestRecord)
+    99→  }
+   100→  const appendToEventLog = existingGlobalManifest === null || !deepEqual(existingGlobalManifest, manifestRecord)
+   101→  writeJson(globalManifestPath, manifestRecord)
+   102→  if (appendToEventLog) {
+   103→    appendJsonl(globalEventLogPath, manifestRecord)
+   104→  }
+   105→  await upsertSearchIndex(globalDbPath, manifest)
+   106→
+   107→  return manifest
+   108→}
+   109→
+   110→export function transcriptHasContent(parsed: ParsedTranscript): boolean {
+   111→  return parsed.messages.length &gt; 0 || parsed.tool_events.length &gt; 0
+   112→}
+   113→
+   114→export function writeCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestEntry, filePath: string): void {
+   115→  const lines: string[] = [
+   116→    &#39;---&#39;,
+   117→    `client: ${manifest.client}`,
+   118→    `project: ${manifest.project}`,
+   119→    `session_id: ${manifest.session_id}`,
+   120→    `title: ${yamlEscape(manifest.title)}`,
+   121→    `started_at: ${manifest.started_at}`,
+   122→    `imported_at: ${manifest.imported_at}`,
+   123→    `cwd: ${yamlEscape(manifest.cwd)}`,
+   124→    `branch: ${yamlEscape(manifest.branch)}`,
+   125→    `raw_source_path: ${yamlEscape(manifest.raw_source_path)}`,
+   126→    `raw_sha256: ${manifest.raw_sha256}`,
+   127→    `raw_upload_permission: ${manifest.raw_upload_permission}`,
+   128→    `cleaning_mode: ${manifest.cleaning_mode}`,
+   129→    &#39;---&#39;,
+   130→    &#39;&#39;,
+   131→    `# ${manifest.title || manifest.session_id}`,
+   132→    &#39;&#39;,
+   133→    &#39;## Metadata&#39;,
+   134→    `- Client: \`${manifest.client}\``,
+   135→    `- Project: \`${manifest.project}\``,
+   136→    `- Session ID: \`${manifest.session_id}\``,
+   137→    `- Started At: \`${manifest.started_at}\``,
+   138→    `- Imported At: \`${manifest.imported_at}\``,
+   139→    `- Raw SHA256: \`${manifest.raw_sha256}\``,
+   140→    `- Raw Source: \`${manifest.raw_source_path}\``,
+   141→    `- Repo Raw Path: \`${manifest.repo_raw_path}\``,
+   142→    `- Repo Clean Path: \`${manifest.repo_clean_path}\``,
+   143→    &#39;&#39;,
+   144→    &#39;## Messages&#39;,
+   145→  ]
+   146→
+   147→  if (parsed.messages.length &gt; 0) {
+   148→    for (let i = 0; i &lt; parsed.messages.length; i++) {
+   149→      const message = parsed.messages[i]!
+   150→      lines.push(
+   151→        `### ${i + 1}. ${message.role}`,
+   152→        `- Timestamp: \`${message.timestamp ?? manifest.started_at}\``,
+   153→        &#39;&#39;,
+   154→        message.text,
+   155→        &#39;&#39;,
+   156→      )
+   157→    }
+   158→  } else {
+   159→    lines.push(
+   160→      &#39;No user or assistant messages were extracted deterministically from the source transcript.&#39;,
+   161→      &#39;&#39;,
+   162→    )
+   163→  }
+   164→
+   165→  lines.push(&#39;## Tool Events&#39;)
+   166→  if (parsed.tool_events.length &gt; 0) {
+   167→    for (const event of parsed.tool_events) {
+   168→      lines.push(`- \`${event.timestamp ?? manifest.started_at}\` ${event.summary}`)
+   169→    }
+   170→  } else {
+   171→    lines.push(&#39;- No tool events were extracted.&#39;)
+   172→  }
+   173→  lines.push(&#39;&#39;)
+   174→
+   175→  writeFileSync(filePath, lines.join(&#39;\n&#39;), &#39;utf-8&#39;)
+   176→}
+   177→
+   178→export function preserveExistingImportTimestamp(
+   179→  existing: Record&lt;string, unknown&gt; | null,
+   180→  payload: ManifestEntry,
+   181→): ManifestEntry {
+   182→  if (existing === null) return payload
+   183→  const payloadRecord = { ...payload } as Record&lt;string, unknown&gt;
+   184→  if (!deepEqual(manifestSignature(existing), manifestSignature(payloadRecord))) return payload
+   185→  const importedAt = existing[&#39;imported_at&#39;]
+   186→  if (typeof importedAt === &#39;string&#39; &amp;&amp; importedAt) {
+   187→    return { ...payload, imported_at: importedAt }
+   188→  }
+   189→  return payload
+   190→}
+   191→
+   192→export function manifestSignature(payload: Record&lt;string, unknown&gt;): Record&lt;string, unknown&gt; {
+   193→  const result: Record&lt;string, unknown&gt; = {}
+   194→  for (const [key, value] of Object.entries(payload)) {
+   195→    if (key !== &#39;imported_at&#39;) {
+   196→      result[key] = value
+   197→    }
+   198→  }
+   199→  return result
+   200→}
+   201→
+   202→export function manifestChanged(filePath: string, payload: Record&lt;string, unknown&gt;): boolean {
+   203→  if (!existsSync(filePath)) return true
+   204→  try {
+   205→    const current = JSON.parse(readFileSync(filePath, &#39;utf-8&#39;)) as Record&lt;string, unknown&gt;
+   206→    return !deepEqual(current, payload)
+   207→  } catch {
+   208→    return true
+   209→  }
+   210→}
+   211→
+   212→export function writeJson(filePath: string, payload: Record&lt;string, unknown&gt;): void {
+   213→  writeFileSync(filePath, JSON.stringify(payload, null, 2) + &#39;\n&#39;, &#39;utf-8&#39;)
+   214→}
+   215→
+   216→export function appendJsonl(filePath: string, payload: Record&lt;string, unknown&gt;): void {
+   217→  appendFileSync(filePath, JSON.stringify(payload) + &#39;\n&#39;, &#39;utf-8&#39;)
+   218→}
+   219→
+   220→export function copyFile(source: string, destination: string): void {
+   221→  if (source === destination) return
+   222→  copyFileSync(source, destination)
+   223→}
+   224→
+   225→// ---------------------------------------------------------------------------
+   226→// Internal helpers
+   227→// ---------------------------------------------------------------------------
+   228→
+   229→function stemOf(filePath: string): string {
+   230→  const base = filePath.replace(/\\/g, &#39;/&#39;).split(&#39;/&#39;).pop() ?? &#39;&#39;
+   231→  const ext = extname(base)
+   232→  return ext ? base.slice(0, -ext.length) : base
+   233→}
+   234→
+   235→function deepEqual(a: unknown, b: unknown): boolean {
+   236→  if (a === b) return true
+   237→  if (a === null || b === null || typeof a !== typeof b) return false
+   238→  if (typeof a !== &#39;object&#39;) return false
+   239→  if (Array.isArray(a) !== Array.isArray(b)) return false
+   240→  const aObj = a as Record&lt;string, unknown&gt;
+   241→  const bObj = b as Record&lt;string, unknown&gt;
+   242→  const aKeys = Object.keys(aObj)
+   243→  const bKeys = Object.keys(bObj)
+   244→  if (aKeys.length !== bKeys.length) return false
+   245→  return aKeys.every(key =&gt; deepEqual(aObj[key], bObj[key]))
+   246→}
+   247→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant Now let me also read the `discover.js` file to verify `inferProjectSlug` behavior for Gemini and Doubao:" id="event-8">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#9</span>
+      
+      <span class="timeline-time">00:41:48</span>
+    </div>
+    <div class="message-body"><p>Now let me also read the <code>discover.js</code> file to verify <code>inferProjectSlug</code> behavior for Gemini and Doubao:</p></div>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01LmRiLTa2pjEgnjEAQnDbHU Glob input={&quot;path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src&quot;,&quot;pattern&quot;:&quot;**/transcript/discover.ts&quot;}" id="event-9">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#10</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01LmRiLTa2pjEgnjEAQnDbHU</span>
+      <span class="timeline-time">00:41:49</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src&quot;,&quot;pattern&quot;:&quot;**/transcript/discover.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;**/transcript/discover.ts&quot;,
+  &quot;path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Glob toolu_01HhPTBvtyuFmHN6zQvVgwjJ Glob input={&quot;path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src&quot;,&quot;pattern&quot;:&quot;**/transcript/common.ts&quot;}" id="event-10">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#11</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01HhPTBvtyuFmHN6zQvVgwjJ</span>
+      <span class="timeline-time">00:41:49</span>
+    </div>
+    <div class="timeline-title">Glob input={&quot;path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src&quot;,&quot;pattern&quot;:&quot;**/transcript/common.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;pattern&quot;: &quot;**/transcript/common.ts&quot;,
+  &quot;path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01LmRiLTa2pjEgnjEAQnDbHU Glob output=D:\demo1\openmnemo\packages\core\src\transcript\discover.ts" id="event-11">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#12</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01LmRiLTa2pjEgnjEAQnDbHU</span>
+      
+      <span class="timeline-time">00:41:49</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\openmnemo\packages\core\src\transcript\discover.ts</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\openmnemo\packages\core\src\transcript\discover.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Glob toolu_01HhPTBvtyuFmHN6zQvVgwjJ Glob output=D:\demo1\openmnemo\packages\core\src\transcript\common.ts" id="event-12">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#13</span>
+      <span class="timeline-chip">Glob</span>
+      <span class="timeline-chip">toolu_01HhPTBvtyuFmHN6zQvVgwjJ</span>
+      
+      <span class="timeline-time">00:41:49</span>
+    </div>
+    <div class="timeline-title">Glob output=D:\demo1\openmnemo\packages\core\src\transcript\common.ts</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>D:\demo1\openmnemo\packages\core\src\transcript\common.ts</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_019HVdmiUN5tx24y3nV6MKBJ Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\discover.ts&quot;}" id="event-13">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#14</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019HVdmiUN5tx24y3nV6MKBJ</span>
+      <span class="timeline-time">00:42:01</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\discover.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\discover.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_019HVdmiUN5tx24y3nV6MKBJ Read output=1→/** 2→ * Transcript discovery — file scanning and project matching. 3→ * Port of scripts/_transcript_discover.py 4→ */ 5→ 6→import { existsSync, statSync } from &#39;node:fs&#39; 7→im..." id="event-14">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#15</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_019HVdmiUN5tx24y3nV6MKBJ</span>
+      
+      <span class="timeline-time">00:42:01</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Transcript discovery — file scanning and project matching. 3→ * Port of scripts/_transcript_discover.py 4→ */ 5→ 6→import { existsSync, statSync } from &#39;node:fs&#39; 7→im...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Transcript discovery — file scanning and project matching.
+     3→ * Port of scripts/_transcript_discover.py
+     4→ */
+     5→
+     6→import { existsSync, statSync } from &#39;node:fs&#39;
+     7→import { homedir } from &#39;node:os&#39;
+     8→import { basename, dirname, resolve } from &#39;node:path&#39;
+     9→
+    10→import fg from &#39;fast-glob&#39;
+    11→
+    12→import type { ParsedTranscript } from &#39;@openmnemo/types&#39;
+    13→import { slugify, CLIENTS } from &#39;./common.js&#39;
+    14→import { toPosixPath } from &#39;../utils/path.js&#39;
+    15→
+    16→// ---------------------------------------------------------------------------
+    17→// Glob patterns per client
+    18→// ---------------------------------------------------------------------------
+    19→
+    20→const CLIENT_PATTERNS: Readonly&lt;Record&lt;string, readonly string[]&gt;&gt; = {
+    21→  codex: [&#39;sessions/**/*.jsonl&#39;],
+    22→  claude: [&#39;projects/**/*.jsonl&#39;],
+    23→  gemini: [
+    24→    &#39;tmp/*/checkpoints/**/*.json&#39;,
+    25→    &#39;tmp/*/checkpoints/**/*.jsonl&#39;,
+    26→    &#39;history/**/*.json&#39;,
+    27→    &#39;history/**/*.jsonl&#39;,
+    28→    &#39;chats/**/*.json&#39;,
+    29→    &#39;chats/**/*.jsonl&#39;,
+    30→  ],
+    31→}
+    32→
+    33→// ---------------------------------------------------------------------------
+    34→// Defaults
+    35→// ---------------------------------------------------------------------------
+    36→
+    37→export function defaultGlobalTranscriptRoot(): string {
+    38→  return toPosixPath(resolve(homedir(), &#39;.memorytree&#39;, &#39;transcripts&#39;))
+    39→}
+    40→
+    41→export function defaultClientRoots(): Record&lt;string, string&gt; {
+    42→  const home = homedir()
+    43→  return {
+    44→    codex: resolve(home, &#39;.codex&#39;),
+    45→    claude: resolve(home, &#39;.claude&#39;),
+    46→    gemini: resolve(home, &#39;.gemini&#39;),
+    47→  }
+    48→}
+    49→
+    50→// ---------------------------------------------------------------------------
+    51→// File discovery
+    52→// ---------------------------------------------------------------------------
+    53→
+    54→export function discoverSourceFiles(
+    55→  clients?: ReadonlySet&lt;string&gt;,
+    56→  roots?: Readonly&lt;Record&lt;string, string&gt;&gt;,
+    57→): Array&lt;[string, string]&gt; {
+    58→  const requested = clients ?? CLIENTS
+    59→  const resolvedRoots = roots ?? defaultClientRoots()
+    60→  const matches: Array&lt;[string, string]&gt; = []
+    61→  const seen = new Set&lt;string&gt;()
+    62→
+    63→  for (const client of [...requested].sort()) {
+    64→    const root: string | undefined = resolvedRoots[client]
+    65→    if (root === undefined || !existsSync(root)) continue
+    66→
+    67→    const patterns = CLIENT_PATTERNS[client]
+    68→    if (patterns === undefined) continue
+    69→
+    70→    for (const pattern of patterns) {
+    71→      const paths = fg.sync(pattern, { cwd: root, absolute: true, onlyFiles: true })
+    72→      for (const filePath of paths) {
+    73→        const resolved = toPosixPath(resolve(filePath))
+    74→        const key = resolved.toLowerCase()
+    75→        if (seen.has(key)) continue
+    76→        seen.add(key)
+    77→        matches.push([client, resolved])
+    78→      }
+    79→    }
+    80→  }
+    81→
+    82→  matches.sort((a, b) =&gt; {
+    83→    const mtimeA = safeFileMtime(a[1])
+    84→    const mtimeB = safeFileMtime(b[1])
+    85→    if (mtimeB !== mtimeA) return mtimeB - mtimeA
+    86→    const pathA = a[1].toLowerCase()
+    87→    const pathB = b[1].toLowerCase()
+    88→    // Reverse sort: higher path string comes first (matching Python&#39;s reverse=True)
+    89→    if (pathB &gt; pathA) return 1
+    90→    if (pathB &lt; pathA) return -1
+    91→    return 0
+    92→  })
+    93→
+    94→  return matches
+    95→}
+    96→
+    97→// ---------------------------------------------------------------------------
+    98→// Project slug inference
+    99→// ---------------------------------------------------------------------------
+   100→
+   101→export function inferProjectSlug(parsed: ParsedTranscript): string {
+   102→  if (parsed.cwd) {
+   103→    try {
+   104→      const cwdBase = basename(parsed.cwd)
+   105→      return slugify(cwdBase, &#39;project&#39;)
+   106→    } catch {
+   107→      // fall through
+   108→    }
+   109→  }
+   110→
+   111→  if (parsed.client === &#39;claude&#39;) {
+   112→    let parentName = basename(dirname(parsed.source_path)).toLowerCase()
+   113→    parentName = parentName.replace(/^[a-z]--/, &#39;&#39;)
+   114→    return slugify(parentName, &#39;project&#39;)
+   115→  }
+   116→
+   117→  if (parsed.client === &#39;gemini&#39;) {
+   118→    const parentDir = basename(dirname(parsed.source_path))
+   119→    if (parentDir) {
+   120→      return slugify(parentDir, &#39;project&#39;)
+   121→    }
+   122→  }
+   123→
+   124→  return &#39;unknown-project&#39;
+   125→}
+   126→
+   127→// ---------------------------------------------------------------------------
+   128→// Repo matching
+   129→// ---------------------------------------------------------------------------
+   130→
+   131→export function transcriptMatchesRepo(
+   132→  parsed: ParsedTranscript,
+   133→  repoRoot: string,
+   134→  repoSlug: string,
+   135→): boolean {
+   136→  const normalizedRepo = toPosixPath(resolve(repoRoot)).toLowerCase()
+   137→
+   138→  if (parsed.cwd) {
+   139→    try {
+   140→      const normalizedCwd = toPosixPath(resolve(parsed.cwd)).toLowerCase()
+   141→      if (normalizedCwd === normalizedRepo) return true
+   142→      // Check if repoRoot is a parent of cwd
+   143→      const repoPrefix = normalizedRepo.endsWith(&#39;/&#39;)
+   144→        ? normalizedRepo
+   145→        : normalizedRepo + &#39;/&#39;
+   146→      if (normalizedCwd.startsWith(repoPrefix)) return true
+   147→    } catch {
+   148→      // fall through
+   149→    }
+   150→  }
+   151→
+   152→  return projectSlugsMatch(inferProjectSlug(parsed), repoSlug)
+   153→}
+   154→
+   155→// ---------------------------------------------------------------------------
+   156→// Slug matching
+   157→// ---------------------------------------------------------------------------
+   158→
+   159→export function projectSlugsMatch(left: string, right: string): boolean {
+   160→  return Boolean(
+   161→    left &amp;&amp; right &amp;&amp; left === right &amp;&amp; left !== &#39;unknown-project&#39;,
+   162→  )
+   163→}
+   164→
+   165→// ---------------------------------------------------------------------------
+   166→// Safe mtime
+   167→// ---------------------------------------------------------------------------
+   168→
+   169→export function safeFileMtime(filePath: string): number {
+   170→  try {
+   171→    return statSync(filePath).mtimeMs / 1000
+   172→  } catch {
+   173→    return 0
+   174→  }
+   175→}
+   176→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_call" data-event-group="tool" data-search-text="Read toolu_01Qgca8SzqJWF5MnDv1619rY Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\common.ts&quot;}" id="event-15">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Call</span>
+      <span class="timeline-sequence">#16</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Qgca8SzqJWF5MnDv1619rY</span>
+      <span class="timeline-time">00:42:01</span>
+    </div>
+    <div class="timeline-title">Read input={&quot;file_path&quot;:&quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\common.ts&quot;}</div>
+    <details class="timeline-fold">
+  <summary>Show input payload</summary>
+  <div class="timeline-fold-body"><pre><code>{
+  &quot;file_path&quot;: &quot;D:\\demo1\\openmnemo\\packages\\core\\src\\transcript\\common.ts&quot;
+}</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-center" data-event-kind="tool_result" data-event-group="tool" data-search-text="Read toolu_01Qgca8SzqJWF5MnDv1619rY Read output=1→/** 2→ * Shared constants, data-access helpers, text-extraction utilities, and dedup. 3→ * Port of scripts/_transcript_common.py 4→ */ 5→ 6→import { createHash } from &#39;node:cr..." id="event-16">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-tool-result">
+    <div class="timeline-meta">
+      <span class="timeline-role">Tool Result</span>
+      <span class="timeline-sequence">#17</span>
+      <span class="timeline-chip">Read</span>
+      <span class="timeline-chip">toolu_01Qgca8SzqJWF5MnDv1619rY</span>
+      
+      <span class="timeline-time">00:42:01</span>
+    </div>
+    <div class="timeline-title">Read output=1→/** 2→ * Shared constants, data-access helpers, text-extraction utilities, and dedup. 3→ * Port of scripts/_transcript_common.py 4→ */ 5→ 6→import { createHash } from &#39;node:cr...</div>
+    <details class="timeline-fold">
+  <summary>Show output payload</summary>
+  <div class="timeline-fold-body"><pre><code>1→/**
+     2→ * Shared constants, data-access helpers, text-extraction utilities, and dedup.
+     3→ * Port of scripts/_transcript_common.py
+     4→ */
+     5→
+     6→import { createHash } from &#39;node:crypto&#39;
+     7→import { readFileSync, existsSync } from &#39;node:fs&#39;
+     8→
+     9→import type { TranscriptMessage, TranscriptToolEvent } from &#39;@openmnemo/types&#39;
+    10→
+    11→// ---------------------------------------------------------------------------
+    12→// Constants
+    13→// ---------------------------------------------------------------------------
+    14→
+    15→export const CLIENTS: ReadonlySet&lt;string&gt; = new Set([&#39;codex&#39;, &#39;claude&#39;, &#39;gemini&#39;, &#39;doubao&#39;])
+    16→export const TEXT_BLOCK_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;input_text&#39;, &#39;output_text&#39;, &#39;text&#39;])
+    17→export const SKIP_BLOCK_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;thinking&#39;, &#39;reasoning&#39;])
+    18→export const TOOL_USE_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;tool_use&#39;])
+    19→export const TOOL_RESULT_TYPES: ReadonlySet&lt;string&gt; = new Set([&#39;tool_result&#39;])
+    20→
+    21→const ALL_SKIP_TYPES: ReadonlySet&lt;string&gt; = new Set([
+    22→  ...SKIP_BLOCK_TYPES, ...TOOL_USE_TYPES, ...TOOL_RESULT_TYPES,
+    23→])
+    24→
+    25→// ---------------------------------------------------------------------------
+    26→// Generic utilities
+    27→// ---------------------------------------------------------------------------
+    28→
+    29→export function slugify(value: string, fallback = &#39;session&#39;): string {
+    30→  const asciiValue = value.replace(/[^\x00-\x7F]/g, &#39;&#39;).toLowerCase()
+    31→  const slug = asciiValue.replace(/[^a-z0-9._-]+/g, &#39;-&#39;).replace(/^[-._]+|[-._]+$/g, &#39;&#39;)
+    32→  return slug || fallback
+    33→}
+    34→
+    35→export function sha256File(filePath: string): string {
+    36→  const data = readFileSync(filePath)
+    37→  return createHash(&#39;sha256&#39;).update(data).digest(&#39;hex&#39;)
+    38→}
+    39→
+    40→export function contentHash(text: string): string {
+    41→  return createHash(&#39;sha256&#39;).update(text, &#39;utf8&#39;).digest(&#39;hex&#39;).slice(0, 16)
+    42→}
+    43→
+    44→export function normalizeTimestamp(value: unknown, fallback?: string | null): string {
+    45→  if (typeof value === &#39;number&#39;) {
+    46→    // Always treat as Unix seconds (matching Python&#39;s datetime.fromtimestamp)
+    47→    const d = new Date(value * 1000)
+    48→    return formatUtcIso(d)
+    49→  }
+    50→
+    51→  if (value instanceof Date) {
+    52→    return formatUtcIso(value)
+    53→  }
+    54→
+    55→  if (typeof value === &#39;string&#39;) {
+    56→    const text = value.trim()
+    57→    if (!text) {
+    58→      return fallback ?? normalizeTimestamp(new Date())
+    59→    }
+    60→    const parsed = parseIsoTimestamp(text)
+    61→    if (parsed !== null) {
+    62→      return formatUtcIso(parsed)
+    63→    }
+    64→    return text
+    65→  }
+    66→
+    67→  return fallback ?? normalizeTimestamp(new Date())
+    68→}
+    69→
+    70→export function earliestTimestamp(current: string, candidate: unknown): string {
+    71→  const normalized = normalizeTimestamp(candidate, current)
+    72→  const currentDt = parseIsoTimestamp(current)
+    73→  const normalizedDt = parseIsoTimestamp(normalized)
+    74→  if (currentDt !== null &amp;&amp; normalizedDt !== null) {
+    75→    return normalizedDt &lt; currentDt ? normalized : current
+    76→  }
+    77→  if (normalizedDt !== null) {
+    78→    return normalized
+    79→  }
+    80→  return current || normalized
+    81→}
+    82→
+    83→export function parseIsoTimestamp(value: string): Date | null {
+    84→  if (!value) return null
+    85→  let candidate = value
+    86→  if (candidate.endsWith(&#39;Z&#39;)) {
+    87→    candidate = candidate.slice(0, -1) + &#39;+00:00&#39;
+    88→  } else if (!/[+-]\d{2}:\d{2}$/.test(candidate) &amp;&amp; !/[+-]\d{4}$/.test(candidate)) {
+    89→    // No timezone offset — treat as UTC (matching Python behavior)
+    90→    candidate = candidate + &#39;+00:00&#39;
+    91→  }
+    92→  const d = new Date(candidate)
+    93→  if (isNaN(d.getTime())) return null
+    94→  return d
+    95→}
+    96→
+    97→export function timestampPartition(timestamp: string): [string, string] {
+    98→  const d = parseIsoTimestamp(timestamp)
+    99→  if (d === null) return [&#39;unknown&#39;, &#39;unknown&#39;]
+   100→  const year = d.getUTCFullYear().toString()
+   101→  const month = (d.getUTCMonth() + 1).toString().padStart(2, &#39;0&#39;)
+   102→  return [year, month]
+   103→}
+   104→
+   105→export function joinParagraphs(parts: Iterable&lt;string&gt;): string {
+   106→  const cleaned: string[] = []
+   107→  for (const part of parts) {
+   108→    const trimmed = String(part).trim()
+   109→    if (trimmed) cleaned.push(trimmed)
+   110→  }
+   111→  return cleaned.join(&#39;\n\n&#39;)
+   112→}
+   113→
+   114→export function summarizeValue(value: unknown, limit = 180): string {
+   115→  if (value === null || value === undefined) return &#39;none&#39;
+   116→  if (typeof value === &#39;string&#39;) {
+   117→    const text = value.replace(/\s+/g, &#39; &#39;).trim()
+   118→    return truncate(text, limit)
+   119→  }
+   120→  let text: string
+   121→  try {
+   122→    text = JSON.stringify(sortKeysDeep(value))
+   123→  } catch {
+   124→    text = String(value)
+   125→  }
+   126→  text = text.replace(/\s+/g, &#39; &#39;).trim()
+   127→  return truncate(text, limit)
+   128→}
+   129→
+   130→export function truncate(text: string, limit: number): string {
+   131→  return text.length &lt;= limit ? text : text.slice(0, limit - 3) + &#39;...&#39;
+   132→}
+   133→
+   134→export function yamlEscape(value: string): string {
+   135→  const escaped = value.replace(/\\/g, &#39;\\\\&#39;).replace(/&quot;/g, &#39;\\&quot;&#39;).replace(/\n/g, &#39;\\n&#39;)
+   136→  return `&quot;${escaped}&quot;`
+   137→}
+   138→
+   139→// ---------------------------------------------------------------------------
+   140→// Data access helpers
+   141→// ---------------------------------------------------------------------------
+   142→
+   143→export function ensureDict(value: unknown): Record&lt;string, unknown&gt; {
+   144→  if (value !== null &amp;&amp; typeof value === &#39;object&#39; &amp;&amp; !Array.isArray(value)) {
+   145→    return value as Record&lt;string, unknown&gt;
+   146→  }
+   147→  return {}
+   148→}
+   149→
+   150→export function ensureList(value: unknown): unknown[] {
+   151→  return Array.isArray(value) ? value : []
+   152→}
+   153→
+   154→export function getNested(payload: Record&lt;string, unknown&gt;, ...keys: string[]): unknown {
+   155→  let current: unknown = payload
+   156→  for (const key of keys) {
+   157→    if (current === null || typeof current !== &#39;object&#39; || Array.isArray(current)) {
+   158→      return null
+   159→    }
+   160→    current = (current as Record&lt;string, unknown&gt;)[key]
+   161→  }
+   162→  return current ?? null
+   163→}
+   164→
+   165→export function loadJsonl(filePath: string): Record&lt;string, unknown&gt;[] {
+   166→  let content: string
+   167→  try {
+   168→    content = readFileSync(filePath, &#39;utf-8&#39;)
+   169→  } catch {
+   170→    return []
+   171→  }
+   172→  const records: Record&lt;string, unknown&gt;[] = []
+   173→  for (const line of content.split(&#39;\n&#39;)) {
+   174→    const trimmed = line.trim()
+   175→    if (!trimmed) continue
+   176→    try {
+   177→      records.push(JSON.parse(trimmed) as Record&lt;string, unknown&gt;)
+   178→    } catch {
+   179→      continue
+   180→    }
+   181→  }
+   182→  return records
+   183→}
+   184→
+   185→export function loadJson(filePath: string): Record&lt;string, unknown&gt; | null {
+   186→  if (!existsSync(filePath)) return null
+   187→  try {
+   188→    const text = readFileSync(filePath, &#39;utf-8&#39;)
+   189→    return JSON.parse(text) as Record&lt;string, unknown&gt;
+   190→  } catch {
+   191→    return null
+   192→  }
+   193→}
+   194→
+   195→// ---------------------------------------------------------------------------
+   196→// Text extraction helpers
+   197→// ---------------------------------------------------------------------------
+   198→
+   199→export function extractTextBlocks(blocks: unknown): string {
+   200→  const parts: string[] = []
+   201→
+   202→  for (const block of ensureList(blocks)) {
+   203→    if (typeof block === &#39;string&#39;) {
+   204→      const text = block.trim()
+   205→      if (text) parts.push(text)
+   206→      continue
+   207→    }
+   208→    if (block === null || typeof block !== &#39;object&#39; || Array.isArray(block)) continue
+   209→
+   210→    const rec = block as Record&lt;string, unknown&gt;
+   211→    const blockType = String(rec[&#39;type&#39;] ?? &#39;&#39;).toLowerCase()
+   212→    if (ALL_SKIP_TYPES.has(blockType)) continue
+   213→    if (TEXT_BLOCK_TYPES.has(blockType)) {
+   214→      const text = String(rec[&#39;text&#39;] ?? &#39;&#39;).trim()
+   215→      if (text) parts.push(text)
+   216→      continue
+   217→    }
+   218→    const fallbackText = extractSimpleText(block)
+   219→    if (fallbackText) parts.push(fallbackText)
+   220→  }
+   221→  return joinParagraphs(parts)
+   222→}
+   223→
+   224→export function extractSimpleText(value: unknown): string {
+   225→  if (typeof value === &#39;string&#39;) return value.trim()
+   226→  if (Array.isArray(value)) {
+   227→    return joinParagraphs(value.map(item =&gt; extractSimpleText(item)))
+   228→  }
+   229→  if (value !== null &amp;&amp; typeof value === &#39;object&#39;) {
+   230→    const rec = value as Record&lt;string, unknown&gt;
+   231→    for (const key of [&#39;text&#39;, &#39;content&#39;, &#39;value&#39;]) {
+   232→      if (key in rec &amp;&amp; typeof rec[key] === &#39;string&#39;) {
+   233→        return (rec[key] as string).trim()
+   234→      }
+   235→    }
+   236→    return &#39;&#39;
+   237→  }
+   238→  return &#39;&#39;
+   239→}
+   240→
+   241→export function extractGeminiText(node: Record&lt;string, unknown&gt;): string {
+   242→  const parts: string[] = []
+   243→  for (const key of [&#39;parts&#39;, &#39;content&#39;, &#39;text&#39;, &#39;message&#39;]) {
+   244→    parts.push(...extractGeminiParts(node[key]))
+   245→  }
+   246→  return joinParagraphs(parts)
+   247→}
+   248→
+   249→export function extractGeminiParts(value: unknown): string[] {
+   250→  if (typeof value === &#39;string&#39;) {
+   251→    const text = value.trim()
+   252→    return text ? [text] : []
+   253→  }
+   254→  if (Array.isArray(value)) {
+   255→    const parts: string[] = []
+   256→    for (const item of value) {
+   257→      parts.push(...extractGeminiParts(item))
+   258→    }
+   259→    return parts
+   260→  }
+   261→  if (value !== null &amp;&amp; typeof value === &#39;object&#39;) {
+   262→    const rec = value as Record&lt;string, unknown&gt;
+   263→    const blockType = String(rec[&#39;type&#39;] ?? &#39;&#39;).toLowerCase()
+   264→    if (ALL_SKIP_TYPES.has(blockType)) return []
+   265→    if (&#39;text&#39; in rec &amp;&amp; typeof rec[&#39;text&#39;] === &#39;string&#39;) {
+   266→      const text = (rec[&#39;text&#39;] as string).trim()
+   267→      return text ? [text] : []
+   268→    }
+   269→    const parts: string[] = []
+   270→    for (const key of [&#39;parts&#39;, &#39;content&#39;]) {
+   271→      if (key in rec) {
+   272→        parts.push(...extractGeminiParts(rec[key]))
+   273→      }
+   274→    }
+   275→    return parts
+   276→  }
+   277→  return []
+   278→}
+   279→
+   280→export function findFirstMappingWithKeys(value: unknown, keys: ReadonlySet&lt;string&gt;): Record&lt;string, unknown&gt; | null {
+   281→  if (value !== null &amp;&amp; typeof value === &#39;object&#39; &amp;&amp; !Array.isArray(value)) {
+   282→    const rec = value as Record&lt;string, unknown&gt;
+   283→    const recKeys = Object.keys(rec)
+   284→    if (recKeys.some(k =&gt; keys.has(k))) return rec
+   285→    for (const v of Object.values(rec)) {
+   286→      const result = findFirstMappingWithKeys(v, keys)
+   287→      if (result !== null) return result
+   288→    }
+   289→    return null
+   290→  }
+   291→  if (Array.isArray(value)) {
+   292→    for (const item of value) {
+   293→      const result = findFirstMappingWithKeys(item, keys)
+   294→      if (result !== null) return result
+   295→    }
+   296→  }
+   297→  return null
+   298→}
+   299→
+   300→// ---------------------------------------------------------------------------
+   301→// Deduplication helpers
+   302→// ---------------------------------------------------------------------------
+   303→
+   304→export function deduplicateMessages(messages: readonly TranscriptMessage[]): TranscriptMessage[] {
+   305→  const seen = new Set&lt;string&gt;()
+   306→  const result: TranscriptMessage[] = []
+   307→  for (const msg of messages) {
+   308→    const sig = `${msg.timestamp ?? &#39;&#39;}\0${msg.role}\0${contentHash(msg.text)}`
+   309→    if (!seen.has(sig)) {
+   310→      seen.add(sig)
+   311→      result.push(msg)
+   312→    }
+   313→  }
+   314→  return result
+   315→}
+   316→
+   317→export function deduplicateToolEvents(events: readonly TranscriptToolEvent[]): TranscriptToolEvent[] {
+   318→  const seen = new Set&lt;string&gt;()
+   319→  const result: TranscriptToolEvent[] = []
+   320→  for (const evt of events) {
+   321→    const sig = `${evt.timestamp ?? &#39;&#39;}\0${contentHash(evt.summary)}`
+   322→    if (!seen.has(sig)) {
+   323→      seen.add(sig)
+   324→      result.push(evt)
+   325→    }
+   326→  }
+   327→  return result
+   328→}
+   329→
+   330→// ---------------------------------------------------------------------------
+   331→// Internal helpers
+   332→// ---------------------------------------------------------------------------
+   333→
+   334→function sortKeysDeep(value: unknown): unknown {
+   335→  if (Array.isArray(value)) return value.map(sortKeysDeep)
+   336→  if (value !== null &amp;&amp; typeof value === &#39;object&#39;) {
+   337→    const sorted: Record&lt;string, unknown&gt; = {}
+   338→    for (const key of Object.keys(value as Record&lt;string, unknown&gt;).sort()) {
+   339→      sorted[key] = sortKeysDeep((value as Record&lt;string, unknown&gt;)[key])
+   340→    }
+   341→    return sorted
+   342→  }
+   343→  return value
+   344→}
+   345→
+   346→function formatUtcIso(d: Date): string {
+   347→  const year = d.getUTCFullYear()
+   348→  const month = String(d.getUTCMonth() + 1).padStart(2, &#39;0&#39;)
+   349→  const day = String(d.getUTCDate()).padStart(2, &#39;0&#39;)
+   350→  const hours = String(d.getUTCHours()).padStart(2, &#39;0&#39;)
+   351→  const minutes = String(d.getUTCMinutes()).padStart(2, &#39;0&#39;)
+   352→  const seconds = String(d.getUTCSeconds()).padStart(2, &#39;0&#39;)
+   353→  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`
+   354→}
+   355→</code></pre></div>
+</details>
+  </div>
+</article>
+<article class="timeline-item align-assistant" data-event-kind="message" data-event-group="message" data-search-text="assistant I now have everything needed for a thorough review. Here are my findings: --- ## Independent Review: Integration Tests — Gemini, Doubao, Doubao CRLF --- ### CRITICAL **[CRITICAL-1] Doubao `started_at` assertion will fail: naive string vs UTC-normalized string** Test line 238: ```ts expect(parsed.started_at).toBe(&#39;2026-03-16T10:22:17&#39;) ``` In `parseDoubaoTranscript` (parse.ts line 427), the `Created:` hea..." id="event-17">
+  <span class="timeline-marker"></span>
+  <div class="timeline-card timeline-card-assistant">
+    <div class="timeline-meta">
+      <span class="timeline-role">assistant</span>
+      <span class="timeline-sequence">#18</span>
+      
+      <span class="timeline-time">00:43:30</span>
+    </div>
+    <p class="event-preview">I now have everything needed for a thorough review. Here are my findings: --- ## Independent Review: Integration Tests — Gemini, Doubao, Doubao CRLF --- ### CRITICAL **[CRITICAL-1] Doubao `started_at` assertion will f...</p><details class="timeline-fold">
+  <summary>Expand full message</summary>
+  <div class="timeline-fold-body"><p>I now have everything needed for a thorough review. Here are my findings:</p><p>---</p><p>## Independent Review: Integration Tests — Gemini, Doubao, Doubao CRLF</p><p>---</p><p>### CRITICAL</p><p><strong>[CRITICAL-1] Doubao <code>started_at</code> assertion will fail: naive string vs UTC-normalized string</strong></p><p>Test line 238:</p><pre><code>expect(parsed.started_at).toBe(&#39;2026-03-16T10:22:17&#39;)
+</code></pre><p>In <code>parseDoubaoTranscript</code> (parse.ts line 427), the <code>Created:</code> header value is assigned directly: <code>startedAt = raw</code> where <code>raw = &quot;2026-03-16T10:22:17&quot;</code>. This bypasses <code>normalizeTimestamp</code>, so the value is stored verbatim as <code>&#39;2026-03-16T10:22:17&#39;</code> (no <code>Z</code>).</p><p>However, the Doubao turn <code>timestamp</code> fields follow the same pattern (parse.ts line 451: <code>const timestamp = (match[2] ?? &#39;&#39;).trim().replace(&#39; &#39;, &#39;T&#39;)</code>), so message timestamps will also be naive ISO without <code>Z</code>.</p><p>The assertion <code>toBe(&#39;2026-03-16T10:22:17&#39;)</code> is technically correct for the current parser behavior — the raw value is assigned directly. <strong>But</strong> the Gemini parser takes the same timestamp through <code>normalizeTimestamp</code> → <code>parseIsoTimestamp</code> → treats it as UTC → outputs <code>&#39;2026-03-16T10:22:17Z&#39;</code>. This inconsistency means the Doubao test assertion is testing the current (potentially unintended) behavior of not running through <code>normalizeTimestamp</code>. If the parser is later corrected to call <code>normalizeTimestamp(raw)</code>, this assertion will break with <code>&#39;2026-03-16T10:22:17Z&#39;</code>. The test documents the current behavior but does not flag the inconsistency as something to watch.</p><p><strong>Severity</strong>: CRITICAL — the assertion is coupled to an implementation detail that differs from every other parser, and it will silently start failing if the parser is normalized.</p><p>---</p><p><strong>[CRITICAL-2] Gemini slug inference test is correct in isolation but tests the wrong path for real Gemini files</strong></p><p>Test lines 137-138 create the source file at:</p><pre><code>&lt;tmpDir&gt;/myproject/conversation.json
+</code></pre><p><code>inferProjectSlug</code> for Gemini (discover.ts lines 117-122) uses <code>basename(dirname(parsed.source_path))</code> — the <strong>parent directory name</strong>. Here that is <code>&#39;myproject&#39;</code>. Test line 180 asserts <code>slug === &#39;myproject&#39;</code>. This is correct for this fixture.</p><p>However: the test&#39;s Gemini fixture also provides <code>cwd: &#39;/home/user/myproject&#39;</code> (fixture line 145). <code>inferProjectSlug</code> checks <code>parsed.cwd</code> <strong>first</strong> (discover.ts line 102). Since <code>cwd</code> is non-empty, it uses <code>basename(&#39;/home/user/myproject&#39;)</code> = <code>&#39;myproject&#39;</code>. The parent-directory slug path for Gemini is never actually exercised by this test — the cwd path is hit instead.</p><p>The comment &quot;Infer project slug from parent directory name&quot; (test line 178) is therefore <strong>misleading</strong>: it claims to test the Gemini-specific parent-directory logic, but the cwd branch wins. A separate fixture without a <code>cwd</code> field would be needed to actually test that path.</p><p><strong>Severity</strong>: CRITICAL — the test comment documents intent that is never executed, creating false confidence in the Gemini-specific slug branch.</p><p>---</p><p>### HIGH</p><p><strong>[HIGH-1] <code>global_clean_path</code> is read as an absolute path — correct, but <code>repo_clean_path</code> is read incorrectly</strong></p><p>Doubao test line 258:</p><pre><code>const cleanContent = readFileSync(manifest.global_clean_path, &#39;utf-8&#39;)
+</code></pre><p>Looking at import.ts lines 80 and 78:<br>- <code>global_clean_path</code> is assigned <code>toPosixPath(globalCleanPath)</code> — an <strong>absolute</strong> path. Correct to use directly with <code>readFileSync</code>.<br>- <code>repo_clean_path</code> is assigned <code>toPosixPath(relative(root, repoCleanPath))</code> — a <strong>relative</strong> path (relative to <code>root</code>, which is the <code>repoRoot</code> parameter of <code>importTranscript</code>).</p><p>In the pre-existing Codex and Gemini tests, <code>repo_clean_path</code> is read as (e.g. test line 68):</p><pre><code>readFileSync(join(repoRoot, manifest.repo_clean_path), &#39;utf-8&#39;)
+</code></pre><p>This is correct. The Doubao test avoids <code>repo_clean_path</code> entirely (mirror is disabled: <code>mirrorToRepo=false</code>), so this distinction does not cause a test failure for Doubao. However, the inconsistency between <code>global_clean_path</code> (absolute) and <code>repo_clean_path</code> (relative) is not surfaced by any comment or assertion in the new tests, increasing maintenance risk.</p><p><strong>Severity</strong>: HIGH — the path semantics are not documented by the tests, and a future developer could incorrectly use <code>global_clean_path</code> relative to <code>globalRoot</code> or <code>repo_clean_path</code> as absolute, causing silent test failures.</p><p>---</p><p><strong>[HIGH-2] Gemini tool event double-counting: the <code>toolUse</code> node will be visited twice</strong></p><p>The Gemini fixture (test lines 155-158) places <code>toolUse</code> inside a history entry that already has a <code>role</code>:</p><pre><code>{
+  &quot;role&quot;: &quot;model&quot;,
+  &quot;parts&quot;: [{ &quot;text&quot;: &quot;...&quot; }],
+  &quot;toolUse&quot;: { &quot;name&quot;: &quot;read_file&quot;, &quot;input&quot;: { &quot;path&quot;: &quot;test.ts&quot; } }
+}
+</code></pre><p>In <code>parseGeminiTranscript</code>, the <code>visit</code> function (parse.ts line 310) processes a node and then recursively visits all its values (line 350: <code>for (const value of Object.values(rec)) { visit(value) }</code>).</p><p>For the <code>model</code> node:<br>1. <code>toolName</code> is found via <code>getNested(rec, &#39;toolUse&#39;, &#39;name&#39;)</code> → pushes one tool event with <code>&quot;read_file&quot;</code>.<br>2. Then recursive <code>visit</code> is called on each value, including <code>toolUse: { name: &#39;read_file&#39;, input: {...} }</code>.<br>3. Inside that nested <code>visit</code>, <code>rec[&#39;toolName&#39;]</code> is undefined but <code>rec[&#39;tool&#39;]</code> is also undefined; however <code>rec[&#39;name&#39;]</code> is <code>&#39;read_file&#39;</code>. The check is: <code>getNested(rec, &#39;toolUse&#39;, &#39;name&#39;)</code> — this resolves to null (no <code>toolUse</code> inside <code>toolUse</code>). Then <code>rec[&#39;toolName&#39;]</code> and <code>rec[&#39;functionName&#39;]</code> are checked — both undefined. <code>rec[&#39;tool&#39;]</code> is undefined.</p><p>Actually on re-reading: the inner object <code>{ name: &#39;read_file&#39;, input: {...} }</code> has no <code>role</code> and no <code>toolName</code>/<code>functionName</code>/<code>tool</code> field. <code>getNested</code> on this inner node for <code>&#39;toolUse&#39;</code> returns null. So no second tool event is pushed from the inner node.</p><p>But wait — let me check the <code>input</code> object <code>{ path: &#39;test.ts&#39; }</code> visited next. It has no role and no tool indicator fields. So no double-counting occurs for this specific fixture.</p><p>The test assertion <code>toBeGreaterThanOrEqual(1)</code> (line 174) would pass regardless of double-counting, making it a weak guard. <strong>The assertion does not verify the exact count is 1</strong>, so if the parser does produce 2 tool events via a future fixture change, this test would still pass. This is a looseness issue rather than a current bug.</p><p><strong>Severity</strong>: HIGH — using <code>toBeGreaterThanOrEqual(1)</code> instead of <code>toBe(1)</code> for tool events leaves double-counting bugs undetectable.</p><p>---</p><p><strong>[HIGH-3] Doubao session_id extraction: URL query string not handled</strong></p><p>The parser extracts session_id via <code>url.split(&#39;/&#39;).pop()</code> (parse.ts line 417). The test URL <code>https://www.doubao.com/chat/38416801786598914</code> has no query string, so <code>pop()</code> returns <code>&#39;38416801786598914&#39;</code> correctly.</p><p>But real Doubao URLs may include query parameters such as <code>?source=...</code> or fragment identifiers. For example:</p><pre><code>https://www.doubao.com/chat/38416801786598914?conv=abc
+</code></pre><p>In that case <code>pop()</code> returns <code>&#39;38416801786598914?conv=abc&#39;</code>, making <code>session_id</code> include the query string. The test does not cover this case. If this is a real-world scenario, both the parser and a corresponding test are missing it.</p><p><strong>Severity</strong>: HIGH — if real exports include query strings, session IDs will be incorrect and SQLite lookups will silently fail deduplication.</p><p>---</p><p>### MEDIUM</p><p><strong>[MEDIUM-1] Gemini fixture: <code>metaKeys</code> set does not include <code>&#39;branch&#39;</code>, but the test expects <code>parsed.branch === &#39;main&#39;</code></strong></p><p>The <code>metaKeys</code> set in the parser is <code>new Set([&#39;sessionId&#39;, &#39;chatId&#39;, &#39;cwd&#39;, &#39;branch&#39;, &#39;timestamp&#39;])</code> (parse.ts line 301). The <code>findFirstMappingWithKeys</code> function returns the first node that contains <strong>any</strong> of those keys (common.ts line 284). The Gemini fixture root object has <code>sessionId</code>, <code>cwd</code>, <code>branch</code>, <code>timestamp</code> — so it matches and <code>firstMeta</code> is the root object. <code>branch = String(firstMeta[&#39;branch&#39;] ?? &#39;&#39;)</code> correctly reads <code>&#39;main&#39;</code>.</p><p>This works here, but the key <code>&#39;branch&#39;</code> being in <code>metaKeys</code> is what causes the root node to be matched (it also has <code>sessionId</code> anyway). Test line 167 asserting <code>parsed.branch === &#39;main&#39;</code> is valid. No bug here, but noting it for awareness.</p><p><strong>[MEDIUM-2] CRLF test message text assertions: potential trailing carriage return</strong></p><p>Test lines 296-297:</p><pre><code>expect(parsed.messages[0]!.text).toBe(&#39;Hello CRLF world&#39;)
+expect(parsed.messages[1]!.text).toBe(&#39;CRLF response here&#39;)
+</code></pre><p>The parser splits on <code>/\r?\n/</code> (parse.ts line 394), which correctly removes <code>\r</code>. The body is then collected line-by-line with <code>bodyLines.push(bodyLine)</code> — each <code>bodyLine</code> is a result of the split so is already free of <code>\r</code>. The final <code>bodyLines.join(&#39;\n&#39;).trim()</code> also trims. These assertions are correct.</p><p>However: the fixture is missing a <code>Platform:</code> header line (which the non-CRLF test includes), and is missing <code>Messages:</code> count. The parser silently ignores these missing optional fields. This is fine, but the CRLF test fixture is slightly less realistic than the main Doubao test.</p><p><strong>[MEDIUM-3] Gemini test reads <code>repo_clean_path</code> via <code>join(repoRoot, manifest.repo_clean_path)</code> — correct, but <code>repoRoot</code> inside <code>importTranscript</code> is not the same as the <code>repoRoot</code> variable in the test</strong></p><p>In the test, <code>repoRoot = join(tmpDir, &#39;repo&#39;)</code>.</p><p>In <code>importTranscript</code> (import.ts line 40): <code>const repoRoot = join(root, &#39;Memory&#39;, &#39;06_transcripts&#39;)</code>. The <code>root</code> parameter is what the test passes as <code>repoRoot</code> (i.e. <code>join(tmpDir, &#39;repo&#39;)</code>). So the actual transcript storage root is <code>join(tmpDir, &#39;repo&#39;, &#39;Memory&#39;, &#39;06_transcripts&#39;)</code>.</p><p><code>manifest.repo_clean_path</code> is <code>relative(root, repoCleanPath)</code> = <code>relative(join(tmpDir, &#39;repo&#39;), ...)</code> which resolves to <code>Memory/06_transcripts/clean/gemini/...</code>.</p><p>Test line 193: <code>readFileSync(join(repoRoot, manifest.repo_clean_path), &#39;utf-8&#39;)</code> = <code>join(join(tmpDir, &#39;repo&#39;), &#39;Memory/06_transcripts/clean/...&#39;)</code>. This is correct. No bug.</p><p><strong>[MEDIUM-4] No assertion that <code>repo_clean_path</code> is relative (not absolute) in the Gemini test</strong></p><p>The review task explicitly asks whether path assertions verify relativity. The Gemini test does not assert that <code>manifest.repo_clean_path</code> is a relative path (e.g., does not contain the tmpdir prefix). This is an implicit trust that the production code returns a relative path. A direct assertion like:</p><pre><code>expect(manifest.repo_clean_path.startsWith(&#39;Memory/&#39;)).toBe(true)
+</code></pre><p>would make the contract explicit.</p><p><strong>Severity for MEDIUM-4</strong>: MEDIUM — missing explicit path-type assertion, relying on <code>join(repoRoot, ...)</code> working even if an absolute path is accidentally returned.</p><p>---</p><p><strong>[MEDIUM-5] No Chinese text round-trip assertion in the Doubao test&#39;s SQLite query</strong></p><p>Test line 271 correctly asserts:</p><pre><code>expect(rows[0]!.values[0]).toEqual([&#39;doubao&#39;, &#39;38416801786598914&#39;, &#39;TypeScript 最佳实践&#39;])
+</code></pre><p>This verifies that the Chinese title is stored and retrieved correctly from SQLite. Good. However, the message bodies (<code>可选链</code>, <code>?.</code>) are not verified in SQLite (not stored there — only title/session are indexed), and the clean markdown assertion at line 261-262 only checks <code>toContain(&#39;可选链&#39;)</code> and <code>toContain(&#39;?.&#39;)</code>, which is adequate.</p><p>No gap here. The Chinese text handling is adequately covered.</p><p>---</p><p>### LOW</p><p><strong>[LOW-1] Gemini test missing <code>cleanContent</code> assertion for tool event content</strong></p><p>The Codex end-to-end test asserts <code>cleanContent.toContain(&#39;read_file&#39;)</code> (line 78) for tool events. The Gemini test verifies <code>tool_events.length &gt;= 1</code> and <code>tool_events[0].summary.toContain(&#39;read_file&#39;)</code>, but does <strong>not</strong> verify that the tool event summary appears in the clean markdown output. A <code>toContain(&#39;read_file&#39;)</code> on <code>cleanContent</code> would complete the round-trip.</p><p><strong>[LOW-2] Gemini JSONL format not tested</strong></p><p>The parser handles <code>.jsonl</code> extension differently (parse.ts lines 295-298): it calls <code>loadJsonl(filePath)</code> instead of <code>JSON.parse(readFileSync(...))</code>. The test only exercises the <code>.json</code> branch. A JSONL Gemini format test is absent.</p><p><strong>[LOW-3] Doubao test does not verify <code>global_raw_path</code> is absolute</strong></p><p>The review task asked about <code>global_clean_path</code> being absolute. Test line 258 uses <code>manifest.global_clean_path</code> directly with <code>readFileSync</code> (no <code>join</code>), implicitly asserting it is absolute. This works correctly. For completeness, an explicit assertion like <code>expect(path.isAbsolute(manifest.global_clean_path)).toBe(true)</code> would document the contract.</p><p><strong>[LOW-4] The <code>&#39;Platform: 豆包&#39;</code> header line is not tested for graceful skipping</strong></p><p>The non-CRLF Doubao fixture includes <code>&#39;Platform: 豆包&#39;</code> (line 218). The parser has no explicit handling for <code>Platform:</code> — it simply falls through the <code>if</code> chain without matching, so it is silently ignored. This is fine, but no test asserts that a file <strong>without</strong> <code>Platform:</code> also parses correctly (the CRLF fixture does implicitly test this).</p><p>---</p><p>## Summary Table</p><p>| ID | Severity | Description |<br>|----|----------|-------------|<br>| CRITICAL-1 | CRITICAL | <code>started_at</code> assertion uses naive ISO (no Z) — documents inconsistent behavior vs all other parsers; will break if parser is normalized |<br>| CRITICAL-2 | CRITICAL | Gemini slug test comment claims to test parent-dir logic but cwd branch is hit first; the Gemini-specific path is never exercised |<br>| HIGH-1 | HIGH | <code>global_clean_path</code> (absolute) vs <code>repo_clean_path</code> (relative) contract not made explicit in new tests |<br>| HIGH-2 | HIGH | Gemini tool events asserted with <code>&gt;= 1</code> instead of exact count — hides potential double-counting bugs |<br>| HIGH-3 | HIGH | Doubao session_id extraction not tested with URL containing query string or fragment |<br>| MEDIUM-2 | MEDIUM | CRLF fixture missing <code>Platform:</code> and <code>Messages:</code> headers — slightly unrealistic |<br>| MEDIUM-4 | MEDIUM | No explicit assertion that <code>repo_clean_path</code> is relative (not absolute) |<br>| LOW-1 | LOW | Gemini tool event not verified in clean markdown output |<br>| LOW-2 | LOW | Gemini JSONL format branch not tested at all |<br>| LOW-3 | LOW | <code>global_clean_path</code> absoluteness not explicitly asserted |<br>| LOW-4 | LOW | <code>Platform:</code> header skip behavior not directly asserted |</p></div>
+</details>
+  </div>
+</article>
+      </div>
+    </div>
+  </div>
+  <script>
+(function() {
+  var root = document.querySelector('[data-replay-root]');
+  if (!root) return;
+
+  var items = Array.prototype.slice.call(root.querySelectorAll('.timeline-item'));
+  var details = Array.prototype.slice.call(root.querySelectorAll('.timeline-fold'));
+  var countEl = root.querySelector('[data-replay-count]');
+  var emptyEl = root.querySelector('[data-replay-empty]');
+  var searchInput = root.querySelector('[data-replay-search]');
+  var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var expandBtn = root.querySelector('[data-expand-all]');
+  var collapseBtn = root.querySelector('[data-collapse-all]');
+  var state = { filter: 'all', query: '' };
+
+  function applyFilters() {
+    var visibleCount = 0;
+    items.forEach(function(item) {
+      var group = item.getAttribute('data-event-group') || 'system';
+      var haystack = (item.getAttribute('data-search-text') || '').toLowerCase();
+      var matchesFilter = state.filter === 'all' || group === state.filter;
+      var matchesQuery = !state.query || haystack.indexOf(state.query) !== -1;
+      var hidden = !(matchesFilter && matchesQuery);
+      item.classList.toggle('is-hidden', hidden);
+      if (!hidden) visibleCount += 1;
+    });
+
+    buttons.forEach(function(button) {
+      var active = (button.getAttribute('data-filter') || 'all') === state.filter;
+      button.classList.toggle('is-active', active);
+    });
+
+    if (countEl) {
+      countEl.textContent = visibleCount + ' visible events';
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visibleCount !== 0;
+    }
+  }
+
+  buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      state.filter = button.getAttribute('data-filter') || 'all';
+      applyFilters();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.query = String(searchInput.value || '').toLowerCase().trim();
+      applyFilters();
+    });
+  }
+
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = true;
+      });
+    });
+  }
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', function() {
+      details.forEach(function(detail) {
+        detail.open = false;
+      });
+    });
+  }
+
+  applyFilters();
+})();
+</script>
+</section>
+</div>
+  </div>
+</div>
+</body>
+</html>
