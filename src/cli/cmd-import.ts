@@ -76,6 +76,7 @@ function formatImportText(result: Record<string, unknown>): string {
     `client: ${result['client'] ?? ''}`,
     `project: ${result['project'] ?? ''}`,
     `session_id: ${result['session_id'] ?? ''}`,
+    `status: ${result['status'] ?? ''}`,
     `started_at: ${result['started_at'] ?? ''}`,
     `detected_project: ${result['detected_project'] ?? ''}`,
     `matches_current_repo: ${String(result['matches_current_repo'] ?? false).toLowerCase()}`,

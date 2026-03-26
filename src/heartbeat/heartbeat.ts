@@ -4,11 +4,9 @@
  */
 
 import type { ParsedTranscript } from '../types/transcript.js'
-import { discoverSourceFiles, transcriptMatchesRepo } from '../transcript/discover.js'
-import { importTranscript, transcriptHasContent } from '../transcript/import.js'
-import { parseTranscript } from '../transcript/parse.js'
+import { defaultGlobalTranscriptRoot, discoverSourceFiles } from '../transcript/discover.js'
+import { importTranscript } from '../transcript/import.js'
 import { slugify } from '../transcript/common.js'
-import { defaultGlobalTranscriptRoot } from '../transcript/discover.js'
 import type { Config, ProjectEntry, RawUploadPermission } from './config.js'
 import {
   findProjectForPath,
@@ -25,6 +23,13 @@ import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
 import { MANAGED_REPO_PATHS, syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
 import { collectExtraManifestDirs } from '../report/extra-manifests.js'
+import {
+  ensureParsedDiscoveredSource,
+  prepareHeartbeatDiscoveryCatalog,
+  saveHeartbeatDiscoveryCatalog,
+  sourceMatchesProject,
+  type HeartbeatDiscoveredSource,
+} from './discovery-cache.js'
 import {
   ensureBranchUpstream,
   ensureProjectWorktree,
@@ -97,24 +102,27 @@ export async function runHeartbeat(config: Config, options: HeartbeatRunOptions 
     return 1
   }
 
-  const projects = targetProject ? [targetProject] : config.projects
+  const now = new Date()
+  const runTimestamp = now.toISOString()
+  const projects = (targetProject ? [targetProject] : config.projects)
+    .filter(entry => options.force === true || projectIsDue(entry, now))
+
+  if (projects.length === 0) {
+    logger.info('No projects due. Nothing to do.')
+    return 0
+  }
+
+  const globalRoot = defaultGlobalTranscriptRoot()
+  const discoveryCatalog = prepareHeartbeatDiscoveryCatalog(globalRoot, discoverSourceFiles())
 
   logger.info(`Heartbeat started. ${projects.length} project(s) selected.`)
 
   let nextConfig = config
   let configChanged = false
-  const now = new Date()
-  const runTimestamp = now.toISOString()
 
   for (const entry of projects) {
     const projectName = projectDisplayName(entry)
     const projectPath = resolve(projectExecutionPath(entry))
-    const heartbeatDue = options.force === true || projectIsDue(entry, now)
-
-    if (!heartbeatDue) {
-      logger.debug(`[${projectName}] Not due yet, skipping.`)
-      continue
-    }
 
     try {
       const worktree = ensureProjectWorktree(entry)
@@ -136,7 +144,17 @@ export async function runHeartbeat(config: Config, options: HeartbeatRunOptions 
       }
 
       const extraManifestDirs = collectExtraManifestDirs(projectPath)
-      await processProject(config, projectPath, projectName, entry, extraManifestDirs)
+      const contextChanged = !contextSync.skipped && (contextSync.copied > 0 || contextSync.deleted > 0)
+      await processProject(
+        config,
+        projectPath,
+        projectName,
+        discoveryCatalog.entries,
+        globalRoot,
+        entry,
+        extraManifestDirs,
+        contextChanged,
+      )
       nextConfig = noteProjectHeartbeatRun(nextConfig, entry.id, runTimestamp)
       configChanged = true
 
@@ -160,6 +178,7 @@ export async function runHeartbeat(config: Config, options: HeartbeatRunOptions 
   if (configChanged) {
     saveConfig(nextConfig)
   }
+  saveHeartbeatDiscoveryCatalog(discoveryCatalog)
 
   logger.info('Heartbeat finished.')
   return 0
@@ -173,12 +192,14 @@ export async function processProject(
   config: Config,
   projectPath: string,
   projectName: string,
+  discoveredSources: HeartbeatDiscoveredSource[],
+  globalRoot: string,
   project?: ProjectEntry,
   extraManifestDirs?: string[],
+  contextChanged = false,
 ): Promise<void> {
   const logger = getLogger()
   const repoSlug = slugify(projectName, 'project')
-  const globalRoot = defaultGlobalTranscriptRoot()
   const branch = currentBranch(projectPath)
   const mirrorToRepo = isDedicatedMemorytreeBranch(branch, project)
   const autoPush = project?.auto_push ?? config.auto_push ?? true
@@ -190,6 +211,7 @@ export async function processProject(
   const webhookUrl = project?.webhook_url ?? config.webhook_url ?? ''
   const reportBaseUrl = project?.report_base_url ?? config.report_base_url ?? ''
   const rawUploadPermission = project?.raw_upload_permission ?? 'not-set'
+  const projectCacheKey = project?.id ?? toPosixPath(resolve(projectPath)).toLowerCase()
 
   if (!mirrorToRepo) {
     logger.warn(
@@ -198,28 +220,29 @@ export async function processProject(
     )
   }
 
-  const discovered = discoverSourceFiles()
   let importedCount = 0
 
-  for (const [client, source] of discovered) {
-    let parsed: ParsedTranscript
-    try {
-      parsed = parseTranscript(client, source)
-    } catch {
-      logger.debug(`Failed to parse ${source}, skipping.`)
+  for (const source of discoveredSources) {
+    if (!source.hasContent) continue
+    if (!sourceMatchesProject(source, projectPath, repoSlug)) continue
+    if (source.cacheHit && source.importedProjectKeys.has(projectCacheKey)) continue
+
+    const parsed = ensureParsedDiscoveredSource(source)
+    if (parsed === null) {
+      logger.debug(`Failed to parse ${source.sourcePath}, skipping.`)
       continue
     }
-
-    if (!transcriptHasContent(parsed)) continue
-    if (!transcriptMatchesRepo(parsed, projectPath, repoSlug)) continue
 
     scanSensitive(parsed, projectPath)
 
     try {
-      await importTranscript(parsed, projectPath, globalRoot, repoSlug, rawUploadPermission, mirrorToRepo)
-      importedCount++
+      const result = await importTranscript(parsed, projectPath, globalRoot, repoSlug, rawUploadPermission, mirrorToRepo)
+      source.importedProjectKeys.add(projectCacheKey)
+      if (result.status !== 'unchanged') {
+        importedCount++
+      }
     } catch {
-      logger.exception(`Failed to import transcript: ${source}`)
+      logger.exception(`Failed to import transcript: ${source.sourcePath}`)
     }
   }
 
@@ -229,7 +252,14 @@ export async function processProject(
     logger.info(`[${projectName}] Imported ${importedCount} transcript(s).`)
   }
 
-  if (generateReport) {
+  const reportIndexPath = join(projectPath, 'Memory', '07_reports', 'index.html')
+  const shouldBuildReport = generateReport && (
+    contextChanged ||
+    importedCount > 0 ||
+    !existsSync(reportIndexPath)
+  )
+
+  if (shouldBuildReport) {
     try {
       const { buildReport } = await import('../report/build.js')
       await buildReport({

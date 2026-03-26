@@ -111,6 +111,8 @@ describe('integration: parse → import → verify', () => {
     const first = await importTranscript(parsed, repoRoot, globalRoot, 'proj', 'none')
     const second = await importTranscript(parsed, repoRoot, globalRoot, 'proj', 'none')
 
+    expect(first.status).toBe('created')
+    expect(second.status).toBe('unchanged')
     expect(second.imported_at).toBe(first.imported_at)
   })
 

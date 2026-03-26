@@ -18,6 +18,12 @@ import {
 } from './common.js'
 import { upsertSearchIndex } from './db.js'
 
+export type ImportStatus = 'created' | 'updated' | 'unchanged'
+
+export interface ImportTranscriptResult extends ManifestEntry {
+  status: ImportStatus
+}
+
 export async function importTranscript(
   parsed: ParsedTranscript,
   root: string,
@@ -25,7 +31,7 @@ export async function importTranscript(
   projectSlug: string,
   rawUploadPermission: string,
   mirrorToRepo = true,
-): Promise<ManifestEntry> {
+): Promise<ImportTranscriptResult> {
   const importedAt = normalizeTimestamp(new Date())
   const rawSha256 = sha256File(parsed.source_path)
   const sessionLabel = slugify(
@@ -59,11 +65,6 @@ export async function importTranscript(
     }
   }
 
-  if (mirrorToRepo) {
-    copyFile(parsed.source_path, repoRawPath)
-  }
-  copyFile(parsed.source_path, globalRawPath)
-
   let manifest: ManifestEntry = {
     client: parsed.client,
     project: projectSlug,
@@ -92,26 +93,38 @@ export async function importTranscript(
   }
 
   const existingGlobalManifest = loadJson(globalManifestPath)
+  const hadExistingGlobalManifest = existingGlobalManifest !== null
   manifest = preserveExistingImportTimestamp(existingGlobalManifest, manifest)
+  const manifestRecord = { ...manifest } as Record<string, unknown>
+  const cleanMarkdown = buildCleanMarkdown(parsed, manifest)
+  const fullJson = buildFullJson(parsed)
+  const manifestJson = buildJsonText(manifestRecord)
+  let changed = false
 
   if (mirrorToRepo) {
-    writeCleanMarkdown(parsed, manifest, repoCleanPath)
-    writeFullJson(parsed, repoFullPath)
+    changed = copyFileIfMissing(parsed.source_path, repoRawPath) || changed
   }
-  writeCleanMarkdown(parsed, manifest, globalCleanPath)
-  writeFullJson(parsed, globalFullPath)
-  const manifestRecord = { ...manifest } as Record<string, unknown>
+  changed = copyFileIfMissing(parsed.source_path, globalRawPath) || changed
+
   if (mirrorToRepo) {
-    writeJson(repoManifestPath, manifestRecord)
+    changed = writeTextIfChanged(repoCleanPath, cleanMarkdown) || changed
+    changed = writeTextIfChanged(repoFullPath, fullJson) || changed
+    changed = writeTextIfChanged(repoManifestPath, manifestJson) || changed
   }
+  changed = writeTextIfChanged(globalCleanPath, cleanMarkdown) || changed
+  changed = writeTextIfChanged(globalFullPath, fullJson) || changed
   const appendToEventLog = existingGlobalManifest === null || !deepEqual(existingGlobalManifest, manifestRecord)
-  writeJson(globalManifestPath, manifestRecord)
+  changed = writeTextIfChanged(globalManifestPath, manifestJson) || changed
   if (appendToEventLog) {
     appendJsonl(globalEventLogPath, manifestRecord)
+    changed = true
   }
   await upsertSearchIndex(globalDbPath, manifest)
 
-  return manifest
+  return {
+    ...manifest,
+    status: hadExistingGlobalManifest ? (changed ? 'updated' : 'unchanged') : 'created',
+  }
 }
 
 export function transcriptHasContent(parsed: ParsedTranscript): boolean {
@@ -119,6 +132,10 @@ export function transcriptHasContent(parsed: ParsedTranscript): boolean {
 }
 
 export function writeCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestEntry, filePath: string): void {
+  writeFileSync(filePath, buildCleanMarkdown(parsed, manifest), 'utf-8')
+}
+
+function buildCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestEntry): string {
   const lines: string[] = [
     '---',
     `client: ${manifest.client}`,
@@ -169,15 +186,11 @@ export function writeCleanMarkdown(parsed: ParsedTranscript, manifest: ManifestE
     )
   }
 
-  writeFileSync(filePath, lines.join('\n'), 'utf-8')
+  return lines.join('\n')
 }
 
 export function writeFullJson(parsed: ParsedTranscript, filePath: string): void {
-  const artifact: TranscriptArtifact = {
-    schema_version: 'transcript.full.v1',
-    ...parsed,
-  }
-  writeFileSync(filePath, JSON.stringify(artifact, null, 2) + '\n', 'utf-8')
+  writeFileSync(filePath, buildFullJson(parsed), 'utf-8')
 }
 
 export function preserveExistingImportTimestamp(
@@ -215,7 +228,7 @@ export function manifestChanged(filePath: string, payload: Record<string, unknow
 }
 
 export function writeJson(filePath: string, payload: Record<string, unknown>): void {
-  writeFileSync(filePath, JSON.stringify(payload, null, 2) + '\n', 'utf-8')
+  writeFileSync(filePath, buildJsonText(payload), 'utf-8')
 }
 
 export function appendJsonl(filePath: string, payload: Record<string, unknown>): void {
@@ -235,6 +248,42 @@ function stemOf(filePath: string): string {
   const base = basename(filePath)
   const ext = extname(base)
   return ext ? base.slice(0, -ext.length) : base
+}
+
+function buildFullJson(parsed: ParsedTranscript): string {
+  const artifact: TranscriptArtifact = {
+    schema_version: 'transcript.full.v1',
+    ...parsed,
+  }
+  return JSON.stringify(artifact, null, 2) + '\n'
+}
+
+function buildJsonText(payload: Record<string, unknown>): string {
+  return JSON.stringify(payload, null, 2) + '\n'
+}
+
+function writeTextIfChanged(filePath: string, content: string): boolean {
+  if (existsSync(filePath)) {
+    try {
+      if (readFileSync(filePath, 'utf-8') === content) {
+        return false
+      }
+    } catch {
+      // Fall through and rewrite unreadable files.
+    }
+  }
+
+  writeFileSync(filePath, content, 'utf-8')
+  return true
+}
+
+function copyFileIfMissing(source: string, destination: string): boolean {
+  if (source === destination || existsSync(destination)) {
+    return false
+  }
+
+  copyFileSync(source, destination)
+  return true
 }
 
 function deepEqual(a: unknown, b: unknown): boolean {

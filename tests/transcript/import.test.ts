@@ -319,6 +319,7 @@ describe('importTranscript', () => {
     expect(result.event_count).toBe(3)
     expect(result.cleaning_mode).toBe('deterministic-code')
     expect(result.repo_mirror_enabled).toBe(true)
+    expect(result.status).toBe('created')
 
     // Verify files exist
     expect(existsSync(join(repoRoot, result.repo_raw_path))).toBe(true)
@@ -343,6 +344,7 @@ describe('importTranscript', () => {
     expect(result.repo_manifest_path).toBe('')
     expect(result.repo_full_path).toBe('')
     expect(result.repo_mirror_enabled).toBe(false)
+    expect(result.status).toBe('created')
     expect(existsSync(result.global_full_path)).toBe(true)
   })
 
@@ -353,9 +355,11 @@ describe('importTranscript', () => {
     const parsed = makeParsed({ source_path: sourceFile })
     const first = await importTranscript(parsed, repoRoot, globalRoot, 'my-project', 'none')
     const firstImportedAt = first.imported_at
+    expect(first.status).toBe('created')
 
     // Re-import (manifest exists, signature unchanged)
     const second = await importTranscript(parsed, repoRoot, globalRoot, 'my-project', 'none')
     expect(second.imported_at).toBe(firstImportedAt)
+    expect(second.status).toBe('unchanged')
   })
 })

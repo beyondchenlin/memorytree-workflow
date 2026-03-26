@@ -122,8 +122,10 @@ export async function syncCurrentProject(root: string, repoSlug: string, globalR
     if (!transcriptMatchesRepo(parsed, root, repoSlug)) continue
 
     try {
-      await importTranscript(parsed, root, globalRoot, repoSlug, 'not-set', true)
-      imported++
+      const result = await importTranscript(parsed, root, globalRoot, repoSlug, 'not-set', true)
+      if (result.status !== 'unchanged') {
+        imported++
+      }
     } catch {
       continue
     }

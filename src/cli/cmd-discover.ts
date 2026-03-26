@@ -76,7 +76,11 @@ export async function cmdDiscover(options: DiscoverOptions): Promise<number> {
         matchesCurrentRepo ? options.rawUploadPermission : 'not-applicable',
         matchesCurrentRepo,
       )
-      results.push({ ...result, matches_current_repo: matchesCurrentRepo })
+      if (result.status === 'unchanged') {
+        skipped.push({ client, source, reason: 'already-imported', project: candidateProject })
+      } else {
+        results.push({ ...result, matches_current_repo: matchesCurrentRepo })
+      }
     } catch (err: unknown) {
       skipped.push({
         client,

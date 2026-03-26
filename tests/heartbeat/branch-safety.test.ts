@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ParsedTranscript } from '../../src/types/transcript.js'
+import type { HeartbeatDiscoveredSource } from '../../src/heartbeat/discovery-cache.js'
 
 const mocks = vi.hoisted(() => ({
   discoverSourceFiles: vi.fn(),
@@ -106,6 +107,24 @@ function makeTranscript(): ParsedTranscript {
   }
 }
 
+function makeDiscoveredSource(overrides: Partial<HeartbeatDiscoveredSource> = {}): HeartbeatDiscoveredSource {
+  return {
+    client: 'codex',
+    sourcePath: 'C:/tmp/rollout-1.jsonl',
+    sourceKey: 'c:/tmp/rollout-1.jsonl',
+    size: 128,
+    mtimeMs: 1,
+    parseStatus: 'ok',
+    hasContent: true,
+    cwd: 'D:/repo',
+    inferredProjectSlug: 'demo-project',
+    importedProjectKeys: new Set<string>(),
+    parsed: makeTranscript(),
+    cacheHit: false,
+    ...overrides,
+  }
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
 
@@ -158,7 +177,13 @@ describe('processProject branch safety', () => {
       throw new Error(`unexpected git call: ${args.join(' ')}`)
     })
 
-    await processProject({ auto_push: true } as never, 'D:/repo', 'demo-project')
+    await processProject(
+      { auto_push: true } as never,
+      'D:/repo',
+      'demo-project',
+      [makeDiscoveredSource()],
+      'C:/Users/ai/.memorytree/transcripts',
+    )
 
     expect(mocks.importTranscript).toHaveBeenCalledTimes(1)
     expect(mocks.importTranscript.mock.calls[0]?.[5]).toBe(false)
@@ -181,7 +206,13 @@ describe('processProject branch safety', () => {
       return ''
     })
 
-    await processProject({ auto_push: true } as never, 'D:/repo', 'demo-project')
+    await processProject(
+      { auto_push: true } as never,
+      'D:/repo',
+      'demo-project',
+      [makeDiscoveredSource()],
+      'C:/Users/ai/.memorytree/transcripts',
+    )
 
     expect(mocks.importTranscript).toHaveBeenCalledTimes(1)
     expect(mocks.importTranscript.mock.calls[0]?.[5]).toBe(true)
@@ -210,7 +241,13 @@ describe('processProject branch safety', () => {
       return ''
     })
 
-    await processProject({ auto_push: false, generate_report: true } as never, 'D:/repo', 'demo-project')
+    await processProject(
+      { auto_push: false, generate_report: true } as never,
+      'D:/repo',
+      'demo-project',
+      [makeDiscoveredSource()],
+      'C:/Users/ai/.memorytree/transcripts',
+    )
 
     expect(mocks.buildReport).toHaveBeenCalledTimes(1)
     const commitCallIndex = mocks.git.mock.calls.findIndex(([, ...args]) => args[0] === 'commit')
@@ -228,7 +265,13 @@ describe('processProject branch safety', () => {
       return ''
     })
 
-    await processProject({ auto_push: false, generate_report: false } as never, 'D:/repo', 'demo-project')
+    await processProject(
+      { auto_push: false, generate_report: false } as never,
+      'D:/repo',
+      'demo-project',
+      [],
+      'C:/Users/ai/.memorytree/transcripts',
+    )
 
     expect(mocks.importTranscript).not.toHaveBeenCalled()
     expect(mocks.git).toHaveBeenCalledWith(
@@ -250,7 +293,13 @@ describe('processProject branch safety', () => {
       return ''
     })
 
-    await processProject({ auto_push: false, generate_report: false } as never, 'D:/repo', 'demo-project')
+    await processProject(
+      { auto_push: false, generate_report: false } as never,
+      'D:/repo',
+      'demo-project',
+      [],
+      'C:/Users/ai/.memorytree/transcripts',
+    )
 
     expect(mocks.importTranscript).not.toHaveBeenCalled()
     expect(mocks.git).toHaveBeenCalledWith(
