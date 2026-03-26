@@ -5,6 +5,7 @@ import {
   inferProjectSlug,
   projectSlugsMatch,
 } from '../transcript/discover.js'
+import { sha256File } from '../transcript/common.js'
 import { transcriptHasContent } from '../transcript/import.js'
 import { parseTranscript } from '../transcript/parse.js'
 import type { ParsedTranscript } from '../types/transcript.js'
@@ -16,6 +17,7 @@ export interface HeartbeatDiscoveredSource {
   readonly sourceKey: string
   readonly size: number
   readonly mtimeMs: number
+  readonly contentSha256: string
   parseStatus: 'ok' | 'error'
   hasContent: boolean
   cwd: string
@@ -30,6 +32,7 @@ interface DiscoveryCacheEntry {
   source_path: string
   size: number
   mtime_ms: number
+  content_sha256: string
   parse_status: 'ok' | 'error'
   has_content: boolean
   cwd: string
@@ -38,7 +41,7 @@ interface DiscoveryCacheEntry {
 }
 
 interface DiscoveryCacheDocument {
-  version: 1
+  version: 2
   entries: Record<string, DiscoveryCacheEntry>
 }
 
@@ -63,8 +66,7 @@ export function prepareHeartbeatDiscoveryCatalog(
       cached &&
       cached.client === client &&
       cached.parse_status === 'ok' &&
-      cached.size === fingerprint.size &&
-      cached.mtime_ms === fingerprint.mtimeMs
+      cached.content_sha256 === fingerprint.contentSha256
     ) {
       return {
         client,
@@ -72,6 +74,7 @@ export function prepareHeartbeatDiscoveryCatalog(
         sourceKey,
         size: fingerprint.size,
         mtimeMs: fingerprint.mtimeMs,
+        contentSha256: fingerprint.contentSha256,
         parseStatus: cached.parse_status,
         hasContent: cached.has_content,
         cwd: cached.cwd,
@@ -88,6 +91,7 @@ export function prepareHeartbeatDiscoveryCatalog(
       sourceKey,
       size: fingerprint.size,
       mtimeMs: fingerprint.mtimeMs,
+      contentSha256: fingerprint.contentSha256,
       importedProjectKeys: new Set<string>(),
       cacheHit: false,
     } satisfies HeartbeatDiscoveredSource
@@ -114,6 +118,7 @@ export function saveHeartbeatDiscoveryCatalog(catalog: HeartbeatDiscoveryCatalog
       source_path: entry.sourcePath,
       size: entry.size,
       mtime_ms: entry.mtimeMs,
+      content_sha256: entry.contentSha256,
       parse_status: entry.parseStatus,
       has_content: entry.hasContent,
       cwd: entry.cwd,
@@ -125,7 +130,7 @@ export function saveHeartbeatDiscoveryCatalog(catalog: HeartbeatDiscoveryCatalog
   const cachePath = discoveryCachePath(catalog.globalRoot)
   mkdirSync(dirname(cachePath), { recursive: true })
   const payload: DiscoveryCacheDocument = {
-    version: 1,
+    version: 2,
     entries: nextEntries,
   }
   writeFileSync(cachePath, JSON.stringify(payload, null, 2) + '\n', 'utf-8')
@@ -179,7 +184,7 @@ function loadDiscoveryCache(globalRoot: string): Record<string, DiscoveryCacheEn
 
   try {
     const raw = JSON.parse(readFileSync(cachePath, 'utf-8')) as Partial<DiscoveryCacheDocument>
-    if (raw.version !== 1 || raw.entries === undefined || raw.entries === null || typeof raw.entries !== 'object') {
+    if (raw.version !== 2 || raw.entries === undefined || raw.entries === null || typeof raw.entries !== 'object') {
       return {}
     }
 
@@ -201,7 +206,7 @@ function discoveryCachePath(globalRoot: string): string {
 function parseDiscoveredSource(
   client: string,
   sourcePath: string,
-): Omit<HeartbeatDiscoveredSource, 'sourceKey' | 'size' | 'mtimeMs' | 'importedProjectKeys' | 'cacheHit'> {
+): Omit<HeartbeatDiscoveredSource, 'sourceKey' | 'size' | 'mtimeMs' | 'contentSha256' | 'importedProjectKeys' | 'cacheHit'> {
   try {
     const parsed = parseTranscript(client, sourcePath)
     return {
@@ -226,17 +231,19 @@ function parseDiscoveredSource(
   }
 }
 
-function safeSourceFingerprint(sourcePath: string): { size: number; mtimeMs: number } {
+function safeSourceFingerprint(sourcePath: string): { size: number; mtimeMs: number; contentSha256: string } {
   try {
     const stats = statSync(sourcePath)
     return {
       size: stats.size,
       mtimeMs: stats.mtimeMs,
+      contentSha256: sha256File(sourcePath),
     }
   } catch {
     return {
       size: 0,
       mtimeMs: 0,
+      contentSha256: '',
     }
   }
 }
@@ -251,6 +258,7 @@ function isDiscoveryCacheEntry(value: unknown): value is DiscoveryCacheEntry {
     && typeof record['source_path'] === 'string'
     && typeof record['size'] === 'number'
     && typeof record['mtime_ms'] === 'number'
+    && typeof record['content_sha256'] === 'string'
     && (record['parse_status'] === 'ok' || record['parse_status'] === 'error')
     && typeof record['has_content'] === 'boolean'
     && typeof record['cwd'] === 'string'

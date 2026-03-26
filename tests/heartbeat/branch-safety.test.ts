@@ -114,6 +114,7 @@ function makeDiscoveredSource(overrides: Partial<HeartbeatDiscoveredSource> = {}
     sourceKey: 'c:/tmp/rollout-1.jsonl',
     size: 128,
     mtimeMs: 1,
+    contentSha256: 'a'.repeat(64),
     parseStatus: 'ok',
     hasContent: true,
     cwd: 'D:/repo',
