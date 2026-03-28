@@ -815,6 +815,7 @@ describe('cmdQuickStart', () => {
   const originalStderrWrite = process.stderr.write
 
   beforeEach(() => {
+    vi.resetModules()
     stdoutChunks = []
     stderrChunks = []
     process.stdout.write = ((chunk: string) => {
@@ -835,6 +836,7 @@ describe('cmdQuickStart', () => {
   })
 
   it('registers and runs immediately when the scheduler is already installed', async () => {
+    const tempHome = mkdtempSync(join(tmpdir(), 'memorytree-quick-start-current-'))
     const main = vi.fn(async () => 0)
     const savedConfigs: unknown[] = []
     const upserted = {
@@ -875,6 +877,9 @@ describe('cmdQuickStart', () => {
 
     vi.doMock('node:process', () => ({
       platform: 'linux',
+    }))
+    vi.doMock('node:os', () => ({
+      homedir: () => tempHome,
     }))
     vi.doMock('../../src/heartbeat/heartbeat.js', () => ({
       main,
@@ -948,6 +953,8 @@ describe('cmdQuickStart', () => {
     expect(stdoutChunks.join('')).toContain('Step 2/3: registering the current repository')
     expect(stdoutChunks.join('')).toContain('Step 3/3: running one immediate heartbeat sync')
     expect(stderrChunks.join('')).toBe('')
+
+    rmSync(tempHome, { recursive: true, force: true })
   })
 
   it('reinstalls a too-slow scheduler before quick start continues', async () => {
