@@ -43,7 +43,7 @@ afterEach(() => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeTranscript(texts: string[]): ParsedTranscript {
+function makeTranscript(texts: string[], sourcePath = '/tmp/transcript.json'): ParsedTranscript {
   return {
     client: 'claude',
     session_id: 'test-session',
@@ -53,7 +53,7 @@ function makeTranscript(texts: string[]): ParsedTranscript {
     branch: 'main',
     messages: texts.map(text => ({ role: 'user', text, timestamp: '2024-01-01T00:00:00Z' })),
     tool_events: [],
-    source_path: '/tmp/transcript.json',
+    source_path: sourcePath,
   }
 }
 
@@ -140,6 +140,30 @@ describe('scanSensitive', () => {
     // Should produce exactly one alert (returns after first sensitive match)
     const alerts = readAlerts()
     expect(alerts).toHaveLength(1)
+  })
+
+  it('does not alert twice for the same sensitive match in the same source file', () => {
+    const parsed = makeTranscript(['api_key = sk-1234567890abcdef'], '/tmp/live-session.jsonl')
+
+    scanSensitive(parsed, '/tmp/project')
+    scanSensitive(parsed, '/tmp/project')
+
+    const alerts = readAlerts()
+    expect(alerts).toHaveLength(1)
+    expect(alerts[0]!.count).toBe(1)
+  })
+
+  it('still alerts when a new sensitive value appears in the same source file', () => {
+    scanSensitive(makeTranscript(['api_key = sk-first-secret-1234567890'], '/tmp/live-session.jsonl'), '/tmp/project')
+    scanSensitive(makeTranscript([
+      'api_key = sk-first-secret-1234567890',
+      'password = second-secret-value',
+    ], '/tmp/live-session.jsonl'), '/tmp/project')
+
+    const alerts = readAlerts()
+    expect(alerts).toHaveLength(1)
+    expect(alerts[0]!.count).toBe(2)
+    expect(alerts[0]!.message).toContain('live-session.jsonl')
   })
 })
 

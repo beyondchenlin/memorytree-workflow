@@ -18,7 +18,7 @@ import {
   saveConfig,
 } from './config.js'
 import { acquireLock, releaseLock } from './lock.js'
-import { resetFailureCount, writeAlert, writeAlertWithThreshold } from './alert.js'
+import { rememberSensitiveMatch, resetFailureCount, writeAlert, writeAlertWithThreshold } from './alert.js'
 import type { LogLevel } from './log.js'
 import { getLogger, setupLogging } from './log.js'
 import { MANAGED_REPO_PATHS, syncProjectContextToMemory, syncProjectOutputsToDevelopment } from './sync.js'
@@ -294,14 +294,16 @@ export async function processProject(
 
 export function scanSensitive(parsed: ParsedTranscript, projectPath: string): void {
   const logger = getLogger()
+  const projectKey = toPosixPath(projectPath)
   for (const msg of parsed.messages) {
     for (const pattern of SENSITIVE_PATTERNS) {
-      if (pattern.test(msg.text)) {
+      const match = msg.text.match(pattern)
+      if (match !== null && rememberSensitiveMatch(projectKey, parsed.source_path, msg.text)) {
         logger.warn(
           `Sensitive pattern detected in transcript ${parsed.source_path} (project: ${basename(projectPath)}, role: ${msg.role})`,
         )
         writeAlert(
-          toPosixPath(projectPath),
+          projectKey,
           'sensitive_match',
           `Sensitive pattern in transcript: ${basename(parsed.source_path)}`,
         )

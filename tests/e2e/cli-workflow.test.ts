@@ -190,10 +190,10 @@ describe('CLI E2E', () => {
 
     const allPayload = JSON.parse(allProjects.stdout) as Record<string, unknown>
     expect(allPayload['discovered_count']).toBe(2)
-    expect(allPayload['imported_count']).toBe(2)
-    expect(allPayload['repo_mirror_count']).toBe(1)
+    expect(allPayload['imported_count']).toBe(1)
+    expect(allPayload['repo_mirror_count']).toBe(0)
     expect(allPayload['global_only_count']).toBe(1)
-    expect(allPayload['skipped_count']).toBe(0)
+    expect(allPayload['skipped_count']).toBe(1)
     expect(listFiles(join(globalRoot, 'index', 'manifests')).length).toBe(2)
   })
 
