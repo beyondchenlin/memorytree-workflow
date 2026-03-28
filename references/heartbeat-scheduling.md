@@ -11,9 +11,10 @@ Complete transcript discovery, import, cleaning, commit, and push without consum
 1. `heartbeat.py` executes once and exits. It is stateless and idempotent — safe to re-run at any interval.
 2. The OS-native scheduler invokes `heartbeat.py` on a fixed interval. Use cron (Linux), launchd (macOS), or Task Scheduler (Windows).
 3. One computer runs exactly one scheduled heartbeat task. Multiple registrations on the same machine are not supported.
-4. Each execution scans all three supported client directories (Codex, Claude Code, Gemini CLI).
-5. Each execution follows the sequence: scan → incremental import → clean → commit + push → exit.
-6. The `memorytree-daemon watch` mode (continuous loop) exists only for development and debugging. Production use must rely on the OS scheduler.
+4. The machine keeps one explicit heartbeat owner. The most recent successful `install` or `quick-start` takes ownership and replaces the previous runtime binding.
+5. Each execution scans all three supported client directories (Codex, Claude Code, Gemini CLI).
+6. Each execution follows the sequence: scan → incremental import → clean → commit + push → exit.
+7. The `memorytree-daemon watch` mode (continuous loop) exists only for development and debugging. Production use must rely on the OS scheduler.
 
 ## Daemon CLI
 
@@ -21,15 +22,17 @@ The `memorytree-daemon` command manages the heartbeat lifecycle:
 
 | Subcommand  | Description |
 |-------------|-------------|
-| `install`   | Register the heartbeat task with the OS scheduler at the configured interval. Refuses to overwrite an existing registration. |
+| `install`   | Register the heartbeat task with the OS scheduler at the configured interval. If another runtime currently owns the scheduler, replace it and take ownership. |
 | `uninstall` | Remove the heartbeat task from the OS scheduler. |
 | `run-once`  | Execute a single heartbeat cycle immediately, then exit. |
 | `watch`     | Run a continuous loop for development and debugging only. |
-| `status`    | Show whether a heartbeat task is registered and its last execution result. |
+| `status`    | Show whether a heartbeat task is registered, who owns it, and its last execution result. |
 
 ## OS Scheduler Integration
 
 `memorytree-daemon install` detects the current platform and registers the heartbeat using the native scheduler:
+
+The active owner metadata lives in `~/.memorytree/heartbeat-owner.json`. When a user starts MemoryTree from Claude Code, Codex, or another supported runtime, the successful scheduler install records that runtime as the owner. A later install from another runtime first removes the previous scheduler registration, then rewrites it to the new runtime's `dist/cli.js` entrypoint so the machine still keeps only one heartbeat.
 
 ### Linux (cron)
 
@@ -151,7 +154,7 @@ Stop and ask the user before proceeding when any of these are true:
 
 1. The `install` subcommand would register a new OS-level scheduled task. Confirm the interval, auto_push preference, and scope first.
 2. A push target has no configured Git remote.
-3. An existing heartbeat registration would be overwritten by a new `install`.
+3. An existing heartbeat registration would be replaced by a new `install` and ownership would move to another runtime.
 
 ## Cross-Client Compatibility
 

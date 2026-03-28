@@ -929,7 +929,7 @@ describe('cmdQuickStart', () => {
     vi.doMock('../../src/utils/exec.js', () => ({
       execCommand: (command: string, args: string[]) => {
         if (command === 'crontab' && args[0] === '-l') {
-          return '*/5 * * * * node "/tmp/cli.js" daemon run-once # memorytree\n'
+          return `*/5 * * * * node "${heartbeatScriptPath()}" daemon run-once # memorytree\n`
         }
         return ''
       },
@@ -944,7 +944,7 @@ describe('cmdQuickStart', () => {
       root: expect.stringMatching(/[\\/]repo$/),
       force: true,
     }))
-    expect(stdoutChunks.join('')).toContain('scheduler already registered at 5m')
+    expect(stdoutChunks.join('')).toContain('already targets the current runtime')
     expect(stdoutChunks.join('')).toContain('Step 2/3: registering the current repository')
     expect(stdoutChunks.join('')).toContain('Step 3/3: running one immediate heartbeat sync')
     expect(stderrChunks.join('')).toBe('')
@@ -954,7 +954,7 @@ describe('cmdQuickStart', () => {
     const tempHome = mkdtempSync(join(tmpdir(), 'memorytree-quick-start-reinstall-'))
     const main = vi.fn(async () => 0)
     const savedConfigs: unknown[] = []
-    let installedCron = '*/10 * * * * node "/tmp/cli.js" daemon run-once # memorytree\n'
+    let installedCron = `*/10 * * * * node "${heartbeatScriptPath()}" daemon run-once # memorytree\n`
     let currentConfig = {
       heartbeat_interval: '5m',
       auto_push: false,
@@ -1064,6 +1064,132 @@ describe('cmdQuickStart', () => {
     expect(stdoutChunks.join('')).toContain('registered at 10m; reinstalling it to 5m')
     expect(stdoutChunks.join('')).toContain('Heartbeat removed from cron.')
     expect(stdoutChunks.join('')).toContain('Heartbeat registered in cron (every 5m).')
+    expect(main).toHaveBeenCalledWith(expect.objectContaining({
+      root: expect.stringMatching(/[\\/]repo$/),
+      force: true,
+    }))
+
+    rmSync(tempHome, { recursive: true, force: true })
+  })
+
+  it('reinstalls the scheduler when quick-start takes ownership from another client', async () => {
+    const tempHome = mkdtempSync(join(tmpdir(), 'memorytree-quick-start-owner-switch-'))
+    const main = vi.fn(async () => 0)
+    const savedConfigs: unknown[] = []
+    let installedCron = '*/5 * * * * node "/other/cli.js" daemon run-once # memorytree\n'
+    let currentConfig = {
+      heartbeat_interval: '5m',
+      auto_push: false,
+      projects: [],
+      watch_dirs: [],
+      log_level: 'info',
+      generate_report: false,
+      ai_summary_model: 'claude-haiku-4-5-20251001',
+      locale: 'en',
+      gh_pages_branch: '',
+      cname: '',
+      webhook_url: '',
+      report_base_url: '',
+      report_port: 10010,
+    }
+
+    vi.doMock('node:process', () => ({
+      ...process,
+      argv: ['node', '/current/cli.js'],
+      platform: 'linux',
+    }))
+    vi.doMock('node:os', () => ({
+      homedir: () => tempHome,
+    }))
+    vi.doMock('../../src/heartbeat/heartbeat.js', () => ({
+      main,
+    }))
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => currentConfig,
+      saveConfig: (cfg: typeof currentConfig) => {
+        savedConfigs.push(cfg)
+        currentConfig = cfg
+      },
+      intervalToSeconds: (value: string) => {
+        if (value === '5m') return 300
+        return 300
+      },
+      findProjectForPath: (cfg: typeof currentConfig) => cfg.projects[0] ?? null,
+      upsertProject: (cfg: typeof currentConfig) => ({
+        ...cfg,
+        projects: [
+          {
+            id: 'repo',
+            path: '/memorytree/worktrees/repo',
+            name: 'repo',
+            development_path: '/repo',
+            memory_path: '/memorytree/worktrees/repo',
+            memory_branch: 'memorytree',
+            heartbeat_interval: '5m',
+            auto_push: true,
+            generate_report: true,
+            ai_summary_model: 'claude-haiku-4-5-20251001',
+            locale: 'en',
+            gh_pages_branch: '',
+            cname: '',
+            webhook_url: '',
+            report_base_url: '',
+            report_port: 10010,
+            last_heartbeat_at: '',
+          },
+        ],
+      }),
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/worktree.js', () => ({
+      describePushRemote: () => ({
+        remote: 'origin',
+        fetchUrl: 'https://github.com/example/repo.git',
+        pushUrl: 'https://github.com/example/repo.git',
+        transport: 'https',
+        fallbackUrls: ['ssh://git@ssh.github.com:443/example/repo.git'],
+      }),
+      defaultProjectWorktreePath: () => '/memorytree/worktrees/repo',
+      defaultProjectWorktreeBranch: () => 'memorytree',
+      ensureBranchUpstream: () => ({ remote: 'origin', created: true }),
+      ensureProjectWorktree: () => ({ branch: 'memorytree', created: true }),
+      isValidWorktreeBranchName: () => true,
+      redactRemoteUrl: (value: string | null) => value,
+    }))
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: (command: string, args: string[]) => {
+        if (command === 'crontab' && args[0] === '-l') {
+          return installedCron
+        }
+        if (command === 'crontab' && args[0]) {
+          installedCron = readFileSync(args[0], 'utf-8')
+          return ''
+        }
+        return ''
+      },
+    }))
+
+    const { detectHeartbeatOwner, writeHeartbeatOwner } = await import('../../src/heartbeat/owner.js')
+    writeHeartbeatOwner(detectHeartbeatOwner({
+      skillRoot: '/Users/ai/.claude/skills/memorytree-workflow',
+      scriptPath: '/other/cli.js',
+      acquiredAt: '2026-03-28T13:20:00.000Z',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = await mod.cmdQuickStart({ root: '/repo' })
+
+    expect(result).toBe(0)
+    expect(savedConfigs).not.toHaveLength(0)
+    expect(installedCron).not.toContain('/other/cli.js')
+    expect(installedCron).toContain('daemon run-once')
+    expect(stdoutChunks.join('')).toContain('switching ownership')
     expect(main).toHaveBeenCalledWith(expect.objectContaining({
       root: expect.stringMatching(/[\\/]repo$/),
       force: true,
@@ -1272,6 +1398,90 @@ describe('cmdStatus', () => {
     const output = stdoutChunks.join('')
     expect(output).toContain('held by PID 12345')
   })
+
+  it('shows the current heartbeat owner when owner metadata exists', async () => {
+    const tempHome = mkdtempSync(join(tmpdir(), 'memorytree-status-owner-'))
+
+    vi.doMock('node:os', async () => {
+      const actual = await vi.importActual<typeof import('node:os')>('node:os')
+      return {
+        ...actual,
+        homedir: () => tempHome,
+      }
+    })
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '5m',
+        auto_push: true,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+      }),
+      intervalToSeconds: () => 300,
+      saveConfig: () => {},
+    }))
+
+    const { detectHeartbeatOwner, writeHeartbeatOwner } = await import('../../src/heartbeat/owner.js')
+    writeHeartbeatOwner(detectHeartbeatOwner({
+      skillRoot: 'C:/Users/ai/.codex/skills/memorytree-workflow',
+      scriptPath: 'C:/Users/ai/.codex/skills/memorytree-workflow/dist/cli.js',
+      acquiredAt: '2026-03-28T14:10:00.000Z',
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdStatus()
+    expect(result).toBe(0)
+
+    const output = stdoutChunks.join('')
+    expect(output).toContain('Owner:      Codex')
+    expect(output).toContain('Runtime:    C:/Users/ai/.codex/skills/memorytree-workflow/dist/cli.js')
+
+    rmSync(tempHome, { recursive: true, force: true })
+  })
+
+  it('falls back to the registered scheduler runtime when owner metadata is missing', async () => {
+    vi.doMock('../../src/utils/exec.js', () => ({
+      execCommand: (command: string, args: string[]) => {
+        if (command === 'crontab' && args[0] === '-l') {
+          return '*/5 * * * * node "C:/Users/ai/.codex/skills/memorytree-workflow/dist/cli.js" daemon run-once # memorytree\n'
+        }
+        return ''
+      },
+    }))
+    vi.doMock('../../src/heartbeat/lock.js', () => ({
+      readLockPid: () => null,
+    }))
+    vi.doMock('../../src/heartbeat/config.js', () => ({
+      DEFAULT_MEMORY_BRANCH: 'memorytree',
+      DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+      normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
+      configPath: () => '/nonexistent/config.toml',
+      loadConfig: () => ({
+        heartbeat_interval: '5m',
+        auto_push: true,
+        projects: [],
+        watch_dirs: [],
+        log_level: 'info',
+      }),
+      intervalToSeconds: () => 300,
+      saveConfig: () => {},
+    }))
+
+    const mod = await import('../../src/cli/cmd-daemon.js')
+    const result = mod.cmdStatus()
+    expect(result).toBe(0)
+
+    const output = stdoutChunks.join('')
+    expect(output).toContain('Owner:      Codex')
+    expect(output).toContain('Runtime:    C:/Users/ai/.codex/skills/memorytree-workflow/dist/cli.js')
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -1384,6 +1594,78 @@ describe('cmdInstall', () => {
     const saved = savedConfigs[0] as Record<string, unknown>
     expect(saved['heartbeat_interval']).toBe('10m')
     expect(saved['auto_push']).toBe(false)
+  })
+
+  it('restores the previous scheduler and owner when takeover install fails', async () => {
+    const tempHome = mkdtempSync(join(tmpdir(), 'memorytree-install-rollback-'))
+    const originalArgv = process.argv
+    let installedCron = '*/5 * * * * node "/previous/cli.js" daemon run-once # memorytree\n'
+    let writeCount = 0
+
+    try {
+      process.argv = ['node', '/next/cli.js']
+      vi.doMock('node:process', () => ({
+        platform: 'linux',
+      }))
+      vi.doMock('node:os', () => ({
+        homedir: () => tempHome,
+      }))
+      vi.doMock('../../src/heartbeat/config.js', () => ({
+        DEFAULT_MEMORY_BRANCH: 'memorytree',
+        DEFAULT_RAW_UPLOAD_PERMISSION: 'not-set',
+        normalizeRawUploadPermission: mockNormalizeRawUploadPermission,
+        loadConfig: () => ({
+          heartbeat_interval: '5m',
+          auto_push: true,
+          projects: [],
+          watch_dirs: [],
+          log_level: 'info',
+        }),
+        saveConfig: () => {},
+        intervalToSeconds: () => 300,
+        configPath: () => '/nonexistent/config.toml',
+      }))
+      vi.doMock('../../src/heartbeat/lock.js', () => ({
+        readLockPid: () => null,
+      }))
+      vi.doMock('../../src/utils/exec.js', () => ({
+        execCommand: (command: string, args: string[]) => {
+          if (command === 'crontab' && args[0] === '-l') {
+            return installedCron
+          }
+          if (command === 'crontab' && args[0]) {
+            writeCount += 1
+            const nextCron = readFileSync(args[0], 'utf-8')
+            if (writeCount === 2) {
+              throw new Error('install failed')
+            }
+            installedCron = nextCron
+            return ''
+          }
+          return ''
+        },
+      }))
+
+      const { detectHeartbeatOwner, readHeartbeatOwner, writeHeartbeatOwner } = await import('../../src/heartbeat/owner.js')
+      writeHeartbeatOwner(detectHeartbeatOwner({
+        skillRoot: '/Users/ai/.claude/skills/memorytree-workflow',
+        scriptPath: '/previous/cli.js',
+        acquiredAt: '2026-03-28T14:30:00.000Z',
+      }))
+
+      const mod = await import('../../src/cli/cmd-daemon.js')
+      const result = mod.cmdInstall({ interval: '5m', autoPush: 'true' })
+
+      expect(result).toBe(1)
+      expect(installedCron).toContain('/previous/cli.js')
+      expect(readHeartbeatOwner()).toMatchObject({
+        owner_label: 'Claude Code',
+      })
+      expect(normalizeDriveLetterPathForAssertion(readHeartbeatOwner()!.script_path)).toMatch(/\/previous\/cli\.js$/)
+    } finally {
+      process.argv = originalArgv
+      rmSync(tempHome, { recursive: true, force: true })
+    }
   })
 })
 

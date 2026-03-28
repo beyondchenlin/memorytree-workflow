@@ -22,6 +22,13 @@ import {
 } from '../heartbeat/config.js'
 import { readLockPid } from '../heartbeat/lock.js'
 import {
+  clearHeartbeatOwner,
+  detectHeartbeatOwner,
+  readHeartbeatOwner,
+  sameHeartbeatOwner,
+  writeHeartbeatOwner,
+} from '../heartbeat/owner.js'
+import {
   describePushRemote,
   defaultProjectWorktreePath,
   defaultProjectWorktreeBranch,
@@ -31,6 +38,7 @@ import {
   redactRemoteUrl,
 } from '../heartbeat/worktree.js'
 import { execCommand } from '../utils/exec.js'
+import { toPosixPath } from '../utils/path.js'
 import { ensureManagedGitignore } from '../project/scaffold.js'
 
 // ---------------------------------------------------------------------------
@@ -46,36 +54,73 @@ const QUICK_START_HEARTBEAT_INTERVAL = '5m'
 // ---------------------------------------------------------------------------
 
 export function cmdInstall(options: { interval?: string; autoPush?: string }): number {
-  let config = loadConfig()
+  const currentConfig = loadConfig()
+  let nextConfig = currentConfig
 
   if (options.interval) {
-    config = { ...config, heartbeat_interval: options.interval }
+    nextConfig = { ...nextConfig, heartbeat_interval: options.interval }
   }
   if (options.autoPush) {
-    config = { ...config, auto_push: options.autoPush === 'true' }
+    nextConfig = { ...nextConfig, auto_push: options.autoPush === 'true' }
   }
 
-  saveConfig(config)
-  const seconds = intervalToSeconds(config.heartbeat_interval)
+  const seconds = intervalToSeconds(nextConfig.heartbeat_interval)
   const scriptPath = heartbeatScriptPath()
+  const currentOwner = detectHeartbeatOwner({ scriptPath })
+  const wasRegistered = isHeartbeatRegistered()
+  const previousOwner = wasRegistered ? readHeartbeatOwner() : null
+  const previousScriptPath = wasRegistered ? registeredHeartbeatScriptPath() : null
+  const previousIntervalSeconds = wasRegistered ? registeredHeartbeatIntervalSeconds() : null
 
-  const sys = platform
-  if (sys === 'linux') return installCron(scriptPath, seconds)
-  if (sys === 'darwin') return installLaunchd(scriptPath, seconds)
-  if (sys === 'win32') return installSchtasks(scriptPath, seconds)
+  if (wasRegistered) {
+    if (sameHeartbeatOwner(previousOwner, currentOwner)) {
+      process.stdout.write(`Heartbeat is already owned by ${currentOwner.owner_label}; reinstalling it in place.\n`)
+    } else if (previousOwner !== null) {
+      process.stdout.write(
+        `Heartbeat is currently owned by ${previousOwner.owner_label}; switching ownership to ${currentOwner.owner_label}.\n`,
+      )
+    } else {
+      process.stdout.write('Heartbeat is already registered; replacing the existing scheduler binding.\n')
+    }
 
-  process.stderr.write(`Unsupported platform: ${sys}\n`)
-  return 1
+    const uninstallResult = uninstallScheduler()
+    if (uninstallResult !== 0) {
+      return uninstallResult
+    }
+  }
+
+  const result = installScheduler(scriptPath, seconds)
+  if (result !== 0) {
+    if (wasRegistered) {
+      if (previousScriptPath !== null && previousIntervalSeconds !== null) {
+        const restoreResult = installScheduler(previousScriptPath, previousIntervalSeconds)
+        if (restoreResult === 0) {
+          writeHeartbeatOwner(previousOwner ?? detectHeartbeatOwner({ scriptPath: previousScriptPath }))
+          process.stderr.write('Heartbeat install failed; restored the previous scheduler binding.\n')
+        } else {
+          clearHeartbeatOwner()
+          process.stderr.write('Heartbeat install failed and the previous scheduler could not be restored.\n')
+        }
+      } else {
+        clearHeartbeatOwner()
+        process.stderr.write('Heartbeat install failed and the previous scheduler metadata was unavailable for restore.\n')
+      }
+    }
+    return result
+  }
+
+  saveConfig(nextConfig)
+  writeHeartbeatOwner(currentOwner)
+  return 0
 }
 
 export function cmdUninstall(): number {
-  const sys = platform
-  if (sys === 'linux') return uninstallCron()
-  if (sys === 'darwin') return uninstallLaunchd()
-  if (sys === 'win32') return uninstallSchtasks()
-
-  process.stderr.write(`Unsupported platform: ${sys}\n`)
-  return 1
+  const result = uninstallScheduler()
+  if (result !== 0) return result
+  if (result === 0) {
+    clearHeartbeatOwner()
+  }
+  return result
 }
 
 export async function cmdRunOnce(options: { root?: string; force?: boolean } = {}): Promise<number> {
@@ -104,11 +149,22 @@ export async function cmdWatch(options: { interval?: string }): Promise<number> 
 
 export function cmdStatus(): number {
   const registered = isHeartbeatRegistered()
+  const owner = readHeartbeatOwner()
+  const registeredScriptPath = registered ? registeredHeartbeatScriptPath() : null
+  const effectiveOwner = owner ?? (
+    registeredScriptPath !== null
+      ? detectHeartbeatOwner({ scriptPath: registeredScriptPath })
+      : null
+  )
 
   const sys = platform
   const platformName = sys === 'darwin' ? 'Darwin' : sys === 'win32' ? 'Windows' : 'Linux'
   process.stdout.write(`Platform:   ${platformName}\n`)
   process.stdout.write(`Registered: ${registered ? 'yes' : 'no'}\n`)
+  process.stdout.write(`Owner:      ${effectiveOwner?.owner_label ?? 'unknown'}\n`)
+  if (effectiveOwner !== null) {
+    process.stdout.write(`Runtime:    ${effectiveOwner.script_path}\n`)
+  }
 
   const pid = readLockPid()
   if (pid !== null) {
@@ -273,6 +329,12 @@ export async function cmdQuickStart(options: {
 }): Promise<number> {
   const root = resolve(options.root)
   const config = loadConfig()
+  const currentScriptPath = heartbeatScriptPath()
+  const currentOwner = detectHeartbeatOwner({ scriptPath: currentScriptPath })
+  const registeredOwner = readHeartbeatOwner()
+  const registeredScriptPath = registeredHeartbeatScriptPath()
+  const registeredTargetsCurrentRuntime = registeredScriptPath !== null
+    && toPosixPath(resolve(registeredScriptPath)) === toPosixPath(resolve(currentScriptPath))
   const quickStartSeconds = intervalToSeconds(QUICK_START_HEARTBEAT_INTERVAL)
   const schedulerIntervalSeconds = registeredHeartbeatIntervalSeconds()
   const effectiveSchedulerSeconds = schedulerIntervalSeconds ?? intervalToSeconds(config.heartbeat_interval)
@@ -285,6 +347,27 @@ export async function cmdQuickStart(options: {
   if (!isHeartbeatRegistered()) {
     process.stdout.write('Step 1/3: installing heartbeat scheduler with recommended defaults.\n')
     const installResult = cmdInstall({ interval: QUICK_START_HEARTBEAT_INTERVAL, autoPush: 'true' })
+    if (installResult !== 0) {
+      return installResult
+    }
+  } else if (
+    (registeredOwner !== null && !sameHeartbeatOwner(registeredOwner, currentOwner))
+    || (registeredOwner === null && registeredScriptPath !== null && !registeredTargetsCurrentRuntime)
+  ) {
+    const previousOwnerLabel = registeredOwner?.owner_label ?? 'another runtime'
+    process.stdout.write(
+      `Step 1/3: heartbeat scheduler is currently owned by ${previousOwnerLabel}; ` +
+      `switching ownership to ${currentOwner.owner_label}.\n`,
+    )
+    const uninstallResult = cmdUninstall()
+    if (uninstallResult !== 0) {
+      return uninstallResult
+    }
+
+    const installResult = cmdInstall({
+      interval: QUICK_START_HEARTBEAT_INTERVAL,
+      autoPush: config.auto_push ? 'true' : 'false',
+    })
     if (installResult !== 0) {
       return installResult
     }
@@ -305,6 +388,12 @@ export async function cmdQuickStart(options: {
     if (installResult !== 0) {
       return installResult
     }
+  } else if (registeredOwner === null && registeredTargetsCurrentRuntime) {
+    writeHeartbeatOwner(currentOwner)
+    process.stdout.write(
+      `Step 1/3: heartbeat scheduler already targets the current runtime; ` +
+      `recording ${currentOwner.owner_label} as the owner.\n`,
+    )
   } else {
     process.stdout.write(
       `Step 1/3: heartbeat scheduler already registered at ${effectiveSchedulerLabel}; keeping the existing install.\n`,
@@ -338,6 +427,34 @@ export function registeredHeartbeatIntervalSeconds(): number | null {
   if (sys === 'darwin') return launchdRegisteredIntervalSeconds()
   if (sys === 'win32') return schtasksRegisteredIntervalSeconds()
   return null
+}
+
+function registeredHeartbeatScriptPath(): string | null {
+  const sys = platform
+  if (sys === 'linux') return cronRegisteredScriptPath()
+  if (sys === 'darwin') return launchdRegisteredScriptPath()
+  if (sys === 'win32') return schtasksRegisteredScriptPath()
+  return null
+}
+
+function installScheduler(scriptPath: string, seconds: number): number {
+  const sys = platform
+  if (sys === 'linux') return installCron(scriptPath, seconds)
+  if (sys === 'darwin') return installLaunchd(scriptPath, seconds)
+  if (sys === 'win32') return installSchtasks(scriptPath, seconds)
+
+  process.stderr.write(`Unsupported platform: ${sys}\n`)
+  return 1
+}
+
+function uninstallScheduler(): number {
+  const sys = platform
+  if (sys === 'linux') return uninstallCron()
+  if (sys === 'darwin') return uninstallLaunchd()
+  if (sys === 'win32') return uninstallSchtasks()
+
+  process.stderr.write(`Unsupported platform: ${sys}\n`)
+  return 1
 }
 
 // ---------------------------------------------------------------------------
@@ -413,6 +530,16 @@ function cronRegisteredIntervalSeconds(): number | null {
 
   const minutes = parseInt(match[1]!, 10)
   return Number.isInteger(minutes) && minutes > 0 ? minutes * 60 : null
+}
+
+function cronRegisteredScriptPath(): string | null {
+  const line = getCrontab()
+    .split(/\r?\n/)
+    .find(candidate => candidate.includes('memorytree'))
+  if (!line) return null
+
+  const match = line.match(/node\s+"([^"]+)"\s+daemon\s+run-once/)
+  return match?.[1] ?? null
 }
 
 // ---------------------------------------------------------------------------
@@ -494,6 +621,21 @@ function launchdRegisteredIntervalSeconds(): number | null {
 
     const seconds = parseInt(match[1]!, 10)
     return Number.isInteger(seconds) && seconds > 0 ? seconds : null
+  } catch {
+    return null
+  }
+}
+
+function launchdRegisteredScriptPath(): string | null {
+  const plistPath = launchdPlistPath()
+  if (!existsSync(plistPath)) return null
+
+  try {
+    const text = readFileSync(plistPath, 'utf-8')
+    const match = text.match(
+      /<key>ProgramArguments<\/key>\s*<array>\s*<string>node<\/string>\s*<string>([^<]+)<\/string>\s*<string>daemon<\/string>\s*<string>run-once<\/string>/i,
+    )
+    return match?.[1] ?? null
   } catch {
     return null
   }
@@ -589,6 +731,21 @@ function schtasksRegisteredIntervalSeconds(): number | null {
     if (!match) return null
 
     return parseIsoDurationToSeconds(match[1]!)
+  } catch {
+    return null
+  }
+}
+
+function schtasksRegisteredScriptPath(): string | null {
+  const vbsPath = vbsLauncherPath()
+  if (!existsSync(vbsPath)) return null
+
+  try {
+    const raw = readFileSync(vbsPath)
+    const offset = raw.length >= 2 && raw[0] === 0xff && raw[1] === 0xfe ? 2 : 0
+    const content = raw.subarray(offset).toString('utf16le')
+    const match = content.match(/Run\s+""".*?""\s+""([^"]+)""\s+daemon\s+run-once"/i)
+    return match?.[1]?.replace(/""/g, '"') ?? null
   } catch {
     return null
   }

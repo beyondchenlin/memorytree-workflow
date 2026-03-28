@@ -14,6 +14,7 @@ Provide a single user-level location for global state, configuration, and cross-
   alerts.json              # Pending notifications for the next interactive session
   sensitive_matches.json   # Fingerprints used to suppress duplicate sensitive-match alerts
   heartbeat.lock           # Single-instance lock for the heartbeat process
+  heartbeat-owner.json     # Current machine-level heartbeat owner and runtime path
   logs/
     heartbeat-<date>.log   # Heartbeat execution logs, rotated by date
   transcripts/             # Global transcript archive (see references/transcript-archive.md)
@@ -86,6 +87,8 @@ Alert lifecycle rules:
 4. **Failure threshold**: The heartbeat writes a `push_failed` alert only after 3 consecutive failures for the same project. The count resets on a successful push.
 
 The heartbeat also keeps a small `sensitive_matches.json` state file to remember which sensitive findings were already reported for a given source transcript. This prevents long-lived live-session transcripts from re-emitting the same `sensitive_match` alert on every heartbeat cycle while still allowing genuinely new sensitive messages in the same source file to surface later.
+
+`heartbeat-owner.json` stores the current machine-level heartbeat owner. The record includes the owning client/runtime label (for example Claude Code or Codex), the resolved skill root, the actual `dist/cli.js` path bound into the scheduler, and the timestamp when that runtime most recently took ownership. `memorytree daemon install` and `memorytree daemon quick-start` update this file after a successful install, `memorytree daemon uninstall` removes it, and `memorytree daemon status` uses it to report who currently owns the machine heartbeat.
 
 ## Python Version
 
