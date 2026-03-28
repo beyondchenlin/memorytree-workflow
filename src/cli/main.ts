@@ -452,6 +452,27 @@ daemon
   })
 
 program
+  .command('alerts')
+  .description('Show pending user-level alerts and clear them by default')
+  .option('--format <format>', 'Output format: text or json', 'text')
+  .option('--keep', 'Display alerts without clearing them')
+  .addHelpText('after', [
+    '',
+    'Examples:',
+    '  memorytree alerts',
+    '  memorytree alerts --keep',
+    '',
+    'Use this in interactive sessions to acknowledge pending alerts before proceeding.',
+  ].join('\n'))
+  .action(async (opts) => {
+    const { cmdAlerts } = await import('./cmd-alerts.js')
+    process.exitCode = cmdAlerts({
+      format: opts.format,
+      clear: !(opts.keep ?? false),
+    })
+  })
+
+program
   .command('doctor')
   .description('Inspect the installed MemoryTree command path and suggest a safe fallback when PATH is unhealthy')
   .option('--format <format>', 'Output format: text or json', 'text')

@@ -77,7 +77,7 @@ Alert types:
 | `push_failed`     | Push attempted but failed (network, auth, protected branch). |
 | `lock_held`       | Heartbeat exited because another instance held the lock. |
 
-When the skill activates in an interactive session, it reads `alerts.json`, displays pending alerts to the user, and clears all displayed entries (display = acknowledgement, no explicit dismiss required).
+When the skill activates in an interactive session, it should acknowledge pending alerts through `memorytree alerts` (or `node <installed-skill-root>/dist/cli.js alerts` when PATH is unhealthy). That command reads `alerts.json`, displays pending alerts to the user, and clears all displayed entries (display = acknowledgement, no explicit dismiss required).
 
 Alert lifecycle rules:
 
