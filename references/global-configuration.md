@@ -12,6 +12,7 @@ Provide a single user-level location for global state, configuration, and cross-
 ~/.memorytree/
   config.toml              # User-level settings
   alerts.json              # Pending notifications for the next interactive session
+  sensitive_matches.json   # Fingerprints used to suppress duplicate sensitive-match alerts
   heartbeat.lock           # Single-instance lock for the heartbeat process
   logs/
     heartbeat-<date>.log   # Heartbeat execution logs, rotated by date
@@ -83,6 +84,8 @@ Alert lifecycle rules:
 2. **Maximum entries**: Keep at most 100 alert entries. When the limit is reached, drop the oldest entries first.
 3. **Clearing**: After the skill displays alerts to the user, remove all displayed entries from the file. If the file becomes empty, delete it.
 4. **Failure threshold**: The heartbeat writes a `push_failed` alert only after 3 consecutive failures for the same project. The count resets on a successful push.
+
+The heartbeat also keeps a small `sensitive_matches.json` state file to remember which sensitive findings were already reported for a given source transcript. This prevents long-lived live-session transcripts from re-emitting the same `sensitive_match` alert on every heartbeat cycle while still allowing genuinely new sensitive messages in the same source file to surface later.
 
 ## Python Version
 

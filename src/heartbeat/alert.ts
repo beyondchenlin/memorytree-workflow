@@ -3,6 +3,7 @@
  * Port of scripts/_alert_utils.py
  */
 
+import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, resolve } from 'node:path'
@@ -12,6 +13,7 @@ import { dirname, resolve } from 'node:path'
 // ---------------------------------------------------------------------------
 
 export const MAX_ALERTS = 100
+export const MAX_SENSITIVE_MATCH_MARKERS = 10_000
 
 export const ALERT_TYPES: ReadonlySet<string> = new Set([
   'no_remote',
@@ -45,6 +47,10 @@ export function alertsPath(): string {
 
 function failureStatePath(): string {
   return resolve(homedir(), '.memorytree', 'failure_counts.json')
+}
+
+function sensitiveMatchStatePath(): string {
+  return resolve(homedir(), '.memorytree', 'sensitive_matches.json')
 }
 
 // ---------------------------------------------------------------------------
@@ -157,6 +163,25 @@ export function clearAlerts(): void {
   }
 }
 
+export function rememberSensitiveMatch(
+  project: string,
+  sourcePath: string,
+  matchedText: string,
+): boolean {
+  const markers = readSensitiveMatchMarkers()
+  const key = hashSensitiveMatch(project, sourcePath, matchedText)
+  if (markers.some(marker => marker.key === key)) {
+    return false
+  }
+
+  const updated = [...markers, { key, timestamp: utcTimestamp() }]
+  const trimmed = updated.length > MAX_SENSITIVE_MATCH_MARKERS
+    ? updated.slice(updated.length - MAX_SENSITIVE_MATCH_MARKERS)
+    : updated
+  saveSensitiveMatchMarkers(trimmed)
+  return true
+}
+
 // ---------------------------------------------------------------------------
 // Display
 // ---------------------------------------------------------------------------
@@ -212,4 +237,64 @@ function saveFailureCounts(counts: Record<string, number>): void {
   const path = failureStatePath()
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, JSON.stringify(counts, null, 2) + '\n', 'utf-8')
+}
+
+interface SensitiveMatchMarker {
+  readonly key: string
+  readonly timestamp: string
+}
+
+function hashSensitiveMatch(project: string, sourcePath: string, matchedText: string): string {
+  return createHash('sha256')
+    .update(normalizePath(project))
+    .update('\n')
+    .update(normalizePath(sourcePath))
+    .update('\n')
+    .update(matchedText)
+    .digest('hex')
+}
+
+function normalizePath(path: string): string {
+  return path.replace(/\\/g, '/')
+}
+
+function readSensitiveMatchMarkers(): SensitiveMatchMarker[] {
+  const path = sensitiveMatchStatePath()
+  if (!existsSync(path)) {
+    return []
+  }
+  try {
+    const text = readFileSync(path, 'utf-8')
+    const data: unknown = JSON.parse(text)
+    if (!Array.isArray(data)) {
+      return []
+    }
+
+    const markers: SensitiveMatchMarker[] = []
+    for (const entry of data) {
+      const record = entry as Record<string, unknown>
+      const key = record['key']
+      const timestamp = record['timestamp']
+      if (
+        entry !== null &&
+        typeof entry === 'object' &&
+        typeof key === 'string' &&
+        typeof timestamp === 'string'
+      ) {
+        markers.push({
+          key,
+          timestamp,
+        })
+      }
+    }
+    return markers
+  } catch {
+    return []
+  }
+}
+
+function saveSensitiveMatchMarkers(markers: readonly SensitiveMatchMarker[]): void {
+  const path = sensitiveMatchStatePath()
+  mkdirSync(dirname(path), { recursive: true })
+  writeFileSync(path, JSON.stringify(markers, null, 2) + '\n', 'utf-8')
 }
