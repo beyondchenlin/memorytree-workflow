@@ -1514,12 +1514,17 @@ pre.mermaid {
   var saved = localStorage.getItem('mt-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
   // Sidebar collapse
-  if (localStorage.getItem('mt-sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed');
+  function applySidebarPreference() {
+    if (localStorage.getItem('mt-sidebar') === 'collapsed' && document.body) {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
   function updateThemeBtn() {
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀ Light' : '☾ Dark';
   }
   document.addEventListener('DOMContentLoaded', function() {
+    applySidebarPreference();
     updateThemeBtn();
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.addEventListener('click', function() {
@@ -1657,61 +1662,102 @@ pre.mermaid {
 <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem"><button class="reader-toggle-btn" id="reader-toggle" type="button" title="Toggle reader mode">📖</button></div>
 <div class="page-header">
   <h1>Todos</h1>
-  <p class="subtitle">1 todo file(s)</p>
+  <p class="subtitle">2 todo file(s)</p>
 </div>
-<div class="card" id="todo-v001-001-20260319-md">
+<div class="card" id="todo-v001-001-20260324-md">
   <h2>Project Todo</h2>
-  <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">todo_v001_001_20260319.md</p>
-  
-  <div class="markdown-body"><p># Project Todo</p>
-<p>## Binding</p>
-<p>- Goal version: goal_v001</p>
-<p>- Todo version: v001_001</p>
-<p>- Created: 2026-03-19</p>
-<p>- Status: active</p>
-<p>## Milestones</p>
-<p>- [x] Integrate <code>report_port</code> config handling and land the change on local <code>ts</code> and <code>main</code>.</p>
-<p>- [x] Register the current repository with heartbeat while preserving the existing <code>openmnemo</code> registration.</p>
-<p>- [x] Stand up local report serving on port <code>10010</code> and automate GitHub Pages publishing for this repository.</p>
-<p>## In Progress</p>
-<p>- Review and clear pending heartbeat alerts, especially <code>openmnemo</code> push failures and sensitive-match warnings.</p>
-<p>- Decide whether to reinstall the machine-level heartbeat scheduler now that the current repository&#39;s dedicated MemoryTree worktree has been rebuilt and a manual <code>daemon run-once</code> succeeds again.</p>
-<p>## Done</p>
-<p>- User explicitly approved committing and pushing repo-local raw transcript mirrors for this repository on 2026-03-21, so <code>Memory/06_transcripts/raw/**</code> may now be included in dedicated MemoryTree-only Git branches and PRs.</p>
-<p>- Fixed the remaining onboarding review gaps so <code>memorytree upgrade --format json</code> now prints the heartbeat quick-start hint to stderr without polluting JSON stdout, README now shows a truly custom advanced <code>daemon register</code> example instead of <code>--quick-start</code>, and the follow-up was re-verified with <code>npm test -- tests/cli/init-upgrade.test.ts</code>, <code>npm run typecheck</code>, <code>npm run build</code>, and <code>npm run test:e2e -- --run tests/e2e/cli-workflow.test.ts</code>.</p>
-<p>- Clarified onboarding semantics so <code>init</code> and <code>upgrade</code> stay repository-only scaffold steps, <code>daemon quick-start</code> is the explicit quick-install path into heartbeat, and <code>daemon register</code> is framed as advanced setup; updated CLI help, next-step prompts, README wording, and tests to match.</p>
-<p>- Merged the report hub so <code>Memory/07_reports/projects/index.html</code> now combines manifests from all registered projects (<code>memorytree-workflow</code>, <code>openmnemo</code>, and <code>papaweb</code>), and committed the change on <code>main</code> as <code>e062caa</code>.</p>
-<p>- Verified local report access on <code>http://127.0.0.1:10010/</code>.</p>
-<p>- Verified LAN access on <code>http://192.168.1.99:10010/</code>.</p>
-<p>- Published the report to <code>gh-pages</code> and confirmed GitHub Pages at <code>https://beyondchenlin.github.io/memorytree-workflow/</code>.</p>
-<p>- Fixed the scheduled publisher task and verified successful runs with <code>LastTaskResult = 0</code>.</p>
-<p>- Drafted a worktree-based heartbeat upgrade document for isolating MemoryTree automation from the main development directory.</p>
-<p>- Incorporated review decisions into the worktree upgrade document, including project-level config, a single global scheduler, and visible/committable transcript copies in the development directory.</p>
-<p>- Implemented the project-level heartbeat config model with per-project heartbeat, refresh, report, and timestamp fields while keeping old TOML compatible.</p>
-<p>- Implemented dedicated worktree bootstrap plus directional sync between development directories and MemoryTree worktrees.</p>
-<p>- Added <code>memorytree daemon register</code> and targeted <code>memorytree daemon run-once --root &lt;repo&gt; --force</code> support for worktree-backed activation and manual execution.</p>
-<p>- Verified the new worktree flow with unit tests, full unit suite, lint, typecheck, and CLI e2e coverage.</p>
-<p>- Refined registration so Quick Start defaults the MemoryTree branch to <code>memorytree</code>, detailed settings can override it per project, and the first upstream binding is created automatically when <code>auto_push</code> is enabled.</p>
-<p>- Added <code>memorytree daemon quick-start --root &lt;repo&gt;</code> as a one-command setup path that installs the scheduler when needed, registers the current repository with recommended defaults, and runs one immediate heartbeat sync.</p>
-<p>- Added scenario-based <code>--help</code> guidance for <code>memorytree daemon</code>, <code>daemon install</code>, <code>daemon register</code>, <code>daemon run-once</code>, and <code>daemon quick-start</code>, then updated README and Chinese docs to recommend the new entry point.</p>
-<p>- Verified the daemon simplification changes with <code>npm run typecheck</code>, <code>npm run lint</code>, <code>npm test</code>, and <code>npm run test:e2e</code>.</p>
-<p>- Fixed two quick-start follow-up regressions: rerunning registration now preserves an existing repository&#39;s custom MemoryTree settings, and <code>daemon quick-start</code> now checks the installed scheduler cadence before recalibrating an already-installed but too-slow machine scheduler.</p>
-<p>- Reframed local report access so Caddy is the primary long-running host, <code>report serve</code> is the temporary fallback path, and updated CLI help plus docs to match.</p>
-<p>- Drafted a first-stage Caddy auto-management design document covering project-scoped Caddy config fragments, proposed <code>caddy enable|disable|status</code> commands, and conflict handling.</p>
-<p>- Refined the Caddy auto-management design after review by locking it to a MemoryTree-owned main Caddyfile, adding a project-level report exposure rule with <code>local</code> as the safe default, and switching fragment naming to use stable <code>project.id</code> values.</p>
-<p>- Implemented first-stage project-managed Caddy support with <code>memorytree caddy enable|disable|status</code>, a MemoryTree-owned <code>~/.memorytree/caddy/</code> config tree, project fragment filenames based on stable <code>project.id</code>, and local-only-by-default exposure via <code>report_exposure</code>.</p>
-<p>- Added config parsing and roundtrip support for global and project-level <code>report_exposure</code>, plus unit coverage for config resolution, Caddy fragment rendering, command behavior, and CLI help output.</p>
-<p>- Verified the Caddy phase-1 implementation with <code>npm run typecheck</code>, <code>npm run lint</code>, <code>npm test</code>, <code>npm run test:e2e -- --run tests/e2e/cli-workflow.test.ts</code>, and a real <code>caddy adapt</code> validation for both <code>local</code> and <code>lan</code> generated site blocks.</p>
-<p>- Committed the Caddy phase-1 implementation as <code>f47643a</code> on <code>main</code> and pushed it to <code>origin/main</code>.</p>
-<p>- Enabled the current repository in MemoryTree-managed Caddy and verified local HTTP access on <code>http://127.0.0.1:10010/</code> and <code>http://localhost:10010/</code>.</p>
-<p>- Refreshed <code>README.md</code> after a full code walkthrough so it now reflects the current worktree-backed heartbeat architecture, managed Caddy flow, recommended <code>daemon quick-start</code> setup, configuration model, explicit <code>doubao</code> import path, and current validation coverage.</p>
-<p>- Verified the current repository state after the README refresh with <code>npm run typecheck</code>, <code>npm run lint</code>, <code>npm run build</code>, <code>npm test</code>, and <code>npm run test:e2e</code>, then applied a small README header polish before preparing the docs update for GitHub.</p>
-<p>- Committed the README refresh as <code>7269dc3</code> with title <code>docs(readme): refresh workflow overview</code> and pushed it to <code>origin/main</code> after the full validation stack passed.</p>
-<p>- Expanded the GitHub Actions E2E workflow from Ubuntu-only to a three-platform matrix on Linux, macOS, and Windows, updated README validation wording to match, and re-verified the local Windows-side E2E suite with <code>npm run test:e2e</code>.</p>
-<p>- Diagnosed the first PR failures as two separate cross-platform issues: a Windows-only absolute-path assertion in the Caddy manager test, and worktree rerun logic that mis-compared equivalent repository paths on macOS (<code>/var</code> vs <code>/private/var</code>) and Windows (short vs long path forms); fixed both and re-verified with <code>npm run typecheck</code>, <code>npm run lint</code>, <code>npm test</code>, and <code>npm run test:e2e</code>.</p>
-<p>- Repaired the current repository&#39;s heartbeat branch conflict by renaming the stale <code>memorytree/memorytree-workflow</code> worktree branch to a dated backup branch, registering a fresh dedicated worktree on branch <code>memorytree</code> at <code>C:/Users/ai/.memorytree/worktrees/memorytree-workflow-active</code>, cleaning the duplicate Windows-case project entry in <code>~/.memorytree/config.toml</code>, and verifying <code>node dist/cli.js daemon run-once --root D:/demo1/memorytree-workflow --force</code> completes with transcript import, commit, push, report generation, and sync-back to the development directory.</p>
-<p>## Pending</p>
-<p>- No additional implementation tasks are pending for the approved first-stage Caddy auto-management scope.</p></div>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">todo_v001_001_20260324.md</p>
+  <nav class="toc" id="toc">
+  <button class="toc-toggle" id="toc-toggle" type="button" aria-expanded="true">
+    Contents <span class="toc-arrow">▾</span>
+  </button>
+  <ul class="toc-list" id="toc-list">
+    <li><a href="#todo-v001-001-20260324-md-binding">Binding</a></li>
+      <li><a href="#todo-v001-001-20260324-md-milestones">Milestones</a></li>
+      <li><a href="#todo-v001-001-20260324-md-in-progress">In Progress</a></li>
+      <li><a href="#todo-v001-001-20260324-md-done">Done</a></li>
+      <li><a href="#todo-v001-001-20260324-md-pending">Pending</a></li>
+  </ul>
+</nav>
+  <div class="markdown-body"><h1>Project Todo</h1>
+<h2 id="todo-v001-001-20260324-md-binding">Binding</h2>
+<ul>
+<li>Goal version: goal_v001</li>
+<li>Todo version: v001_001</li>
+<li>Created: 2026-03-24</li>
+<li>Status: superseded</li>
+</ul>
+<h2 id="todo-v001-001-20260324-md-milestones">Milestones</h2>
+<ul>
+<li>[x] Restore the missing active MemoryTree files.</li>
+<li>[ ] Keep the repository aligned with <code>main</code>.</li>
+</ul>
+<h2 id="todo-v001-001-20260324-md-in-progress">In Progress</h2>
+<ul>
+<li>None. Superseded by <code>todo<em>v001</em>002_20260326.md</code>.</li>
+</ul>
+<h2 id="todo-v001-001-20260324-md-done">Done</h2>
+<ul>
+<li>Switched to <code>main</code>.</li>
+<li>Pulled the latest changes from <code>origin/main</code>.</li>
+<li>Restored the active MemoryTree files needed for continued repository maintenance.</li>
+</ul>
+<h2 id="todo-v001-001-20260324-md-pending">Pending</h2>
+<ul>
+<li>Continue the next execution steps in <code>todo<em>v001</em>002_20260326.md</code>.</li>
+</ul></div>
+</div>
+<div class="card" id="todo-v001-002-20260326-md">
+  <h2>Project Todo</h2>
+  <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem">todo_v001_002_20260326.md</p>
+  <nav class="toc" id="toc">
+  <button class="toc-toggle" id="toc-toggle" type="button" aria-expanded="true">
+    Contents <span class="toc-arrow">▾</span>
+  </button>
+  <ul class="toc-list" id="toc-list">
+    <li><a href="#todo-v001-002-20260326-md-binding">Binding</a></li>
+      <li><a href="#todo-v001-002-20260326-md-milestones">Milestones</a></li>
+      <li><a href="#todo-v001-002-20260326-md-in-progress">In Progress</a></li>
+      <li><a href="#todo-v001-002-20260326-md-done">Done</a></li>
+      <li><a href="#todo-v001-002-20260326-md-pending">Pending</a></li>
+  </ul>
+</nav>
+  <div class="markdown-body"><h1>Project Todo</h1>
+<h2 id="todo-v001-002-20260326-md-binding">Binding</h2>
+<ul>
+<li>Goal version: goal_v001</li>
+<li>Todo version: v001_002</li>
+<li>Created: 2026-03-26</li>
+<li>Previous: todo<em>v001</em>001_20260324.md</li>
+<li>Status: active</li>
+</ul>
+<h2 id="todo-v001-002-20260326-md-milestones">Milestones</h2>
+<ul>
+<li>[x] Define the full-content-hash cache schema and backward-safe load behavior.</li>
+<li>[x] Implement full-content hashing for discovered transcript sources.</li>
+<li>[x] Switch heartbeat cache-hit decisions from <code>size + mtime</code> to content-hash validation.</li>
+<li>[x] Add regression tests for same-size and same-mtime content changes.</li>
+<li>[x] Verify with <code>npm run typecheck</code>, <code>npm test</code>, and <code>npm run build</code>.</li>
+</ul>
+<h2 id="todo-v001-002-20260326-md-in-progress">In Progress</h2>
+<ul>
+<li>None. Awaiting commit and follow-up observation in normal heartbeat runs.</li>
+</ul>
+<h2 id="todo-v001-002-20260326-md-done">Done</h2>
+<ul>
+<li>Restored the machine heartbeat scheduler and confirmed it is registered again.</li>
+<li>Pushed the earlier dedup fix to GitHub and synced the local skill runtime to that version.</li>
+<li>Reviewed the current discovery cache behavior and identified metadata-only reuse as the remaining correctness gap.</li>
+<li>Upgraded the discovery cache to persist full-content SHA-256 values and require hash matches for cache reuse.</li>
+<li>Added regression coverage for content changes that keep the same file size and modified time.</li>
+<li>Confirmed <code>npm run typecheck</code>, <code>npm test</code>, and <code>npm run build</code> all pass after the change.</li>
+<li>Investigated the repeated <code>clonecut</code> <code>sensitive_match</code> warnings, confirmed the noisy repeats came from re-alerting the same long-lived transcript message on each heartbeat scan, added persistent sensitive-match dedupe with regression coverage, and re-confirmed <code>npm run typecheck</code>, <code>npm test</code>, and <code>npm run build</code>.</li>
+</ul>
+<h2 id="todo-v001-002-20260326-md-pending">Pending</h2>
+<ul>
+<li>Observe a few normal heartbeat cycles and compare runtime cost against the previous metadata-only cache.</li>
+<li>Confirm that long-lived session transcripts no longer keep incrementing <code>sensitive_match</code> counts unless a genuinely new sensitive message appears.</li>
+</ul></div>
 </div>
   </div>
 </div>
